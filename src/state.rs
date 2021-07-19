@@ -1,3 +1,5 @@
+use crate::vertex::Vertex;
+use wgpu::util::DeviceExt;
 use winit::{event::*, window::Window};
 
 pub struct State {
@@ -8,10 +10,11 @@ pub struct State {
     pub swap_chain: wgpu::SwapChain,
     pub size: winit::dpi::PhysicalSize<u32>,
     pub render_pipline: wgpu::RenderPipeline,
+    pub vertex_buffer: wgpu::Buffer,
 }
 
 impl State {
-    pub async fn new(window: &Window) -> Self {
+    pub async fn new(window: &Window, vertices: &[Vertex]) -> Self {
         let size = window.inner_size();
 
         // The instance is a handle to the GPU
@@ -92,6 +95,11 @@ impl State {
                 alpha_to_coverage_enabled: false,
             },
         });
+        let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Vertex Buffer"),
+            contents: bytemuck::cast_slice(vertices),
+            usage: wgpu::BufferUsage::VERTEX,
+        });
 
         Self {
             surface,
@@ -101,6 +109,7 @@ impl State {
             swap_chain,
             size,
             render_pipline,
+            vertex_buffer,
         }
     }
 
