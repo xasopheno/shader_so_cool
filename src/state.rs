@@ -1,4 +1,5 @@
 use crate::vertex::Vertex;
+use rand::prelude::*;
 use wgpu::util::DeviceExt;
 use winit::{event::*, window::Window};
 
@@ -14,6 +15,12 @@ pub struct State {
     pub num_vertices: u32,
     pub index_buffer: wgpu::Buffer,
     pub num_indices: u32,
+    pub clear_color: (f64, f64, f64),
+}
+
+fn random_color() -> f64 {
+    let mut rng = rand::thread_rng();
+    rng.gen::<f64>()
 }
 
 impl State {
@@ -113,6 +120,8 @@ impl State {
 
         let num_indices = indices.len() as u32;
 
+        let clear_color = (random_color(), random_color(), random_color());
+
         Self {
             surface,
             device,
@@ -125,6 +134,7 @@ impl State {
             num_vertices,
             index_buffer,
             num_indices,
+            clear_color,
         }
     }
 
@@ -157,9 +167,9 @@ impl State {
                     resolve_target: None,
                     ops: wgpu::Operations {
                         load: wgpu::LoadOp::Clear(wgpu::Color {
-                            r: 0.3,
-                            g: 0.2,
-                            b: 0.1,
+                            r: self.clear_color.0,
+                            g: self.clear_color.1,
+                            b: self.clear_color.2,
                             a: 1.0,
                         }),
                         store: true,
