@@ -11,11 +11,15 @@ pub struct State {
     pub size: winit::dpi::PhysicalSize<u32>,
     pub render_pipline: wgpu::RenderPipeline,
     pub vertex_buffer: wgpu::Buffer,
+    pub num_vertices: u32,
+    pub index_buffer: wgpu::Buffer,
+    pub num_indices: u32,
 }
 
 impl State {
-    pub async fn new(window: &Window, vertices: &[Vertex]) -> Self {
+    pub async fn new(window: &Window, vertices: &[Vertex], indices: &[u16]) -> Self {
         let size = window.inner_size();
+        let num_vertices = vertices.len() as u32;
 
         // The instance is a handle to the GPU
         let instance = wgpu::Instance::new(wgpu::BackendBit::PRIMARY);
@@ -68,7 +72,7 @@ impl State {
             vertex: wgpu::VertexState {
                 module: &shader,
                 entry_point: "main",
-                buffers: &[],
+                buffers: &[Vertex::desc()],
             },
             fragment: Some(wgpu::FragmentState {
                 module: &shader,
@@ -101,6 +105,14 @@ impl State {
             usage: wgpu::BufferUsage::VERTEX,
         });
 
+        let index_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Index Buffer"),
+            contents: bytemuck::cast_slice(indices),
+            usage: wgpu::BufferUsage::INDEX,
+        });
+
+        let num_indices = indices.len() as u32;
+
         Self {
             surface,
             device,
@@ -110,6 +122,9 @@ impl State {
             size,
             render_pipline,
             vertex_buffer,
+            num_vertices,
+            index_buffer,
+            num_indices,
         }
     }
 
@@ -154,7 +169,10 @@ impl State {
             });
 
             render_pass.set_pipeline(&self.render_pipline);
-            render_pass.draw(0..3, 0..1);
+            render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
+            render_pass.draw(0..self.num_vertices, 0..1);
+            render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
+            render_pass.draw_indexed(0..self.num_indices, 0, 0..1);
         }
         self.queue.submit(std::iter::once(encoder.finish()));
         Ok(())
