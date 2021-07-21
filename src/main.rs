@@ -46,12 +46,7 @@ fn main() {
 
     let mut r = || rng.gen::<f32>() * 2.0 - 1.0;
 
-    let vertices: Vec<Vertex> = (0..8)
-        .map(|_| Vertex {
-            position: [r(), r(), r()],
-            color: [r(), r(), r()],
-        })
-        .collect();
+    let vertices: Vec<Vertex> = (0..8).map(|_| Vertex::new_random()).collect();
 
     let mut num = || rng.gen_range(0..vertices.len() as u16);
 
@@ -60,7 +55,7 @@ fn main() {
 
     let mut state = block_on(State::new(
         &window,
-        &vertices.as_slice(),
+        &mut vertices.as_slice(),
         &indices.as_slice(),
     ));
 

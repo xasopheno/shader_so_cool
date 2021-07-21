@@ -106,6 +106,7 @@ impl State {
                 alpha_to_coverage_enabled: false,
             },
         });
+
         let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Vertex Buffer"),
             contents: bytemuck::cast_slice(vertices),
@@ -178,9 +179,11 @@ impl State {
                 depth_stencil_attachment: None,
             });
 
+            dbg!("here");
+
             render_pass.set_pipeline(&self.render_pipline);
             render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
-            render_pass.draw(0..self.num_vertices, 0..1);
+            render_pass.draw(0..self.num_vertices, 0..2);
             render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
             render_pass.draw_indexed(0..self.num_indices, 0, 0..1);
         }
