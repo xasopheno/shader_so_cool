@@ -16,6 +16,8 @@ pub struct State {
     pub index_buffer: wgpu::Buffer,
     pub num_indices: u32,
     pub clear_color: (f64, f64, f64),
+    pub vertices: Vec<Vertex>,
+    pub count: u32,
 }
 
 fn random_color() -> f64 {
@@ -24,9 +26,20 @@ fn random_color() -> f64 {
 }
 
 impl State {
-    pub async fn new(window: &Window, vertices: &[Vertex], indices: &[u16]) -> Self {
+    pub fn new_random_vertices() -> Vec<Vertex> {
+        (0..8).map(|_| Vertex::new_random()).collect()
+    }
+    pub fn new_random_indices(n: u16) -> Vec<u16> {
+        let mut rng = rand::thread_rng();
+        let mut num = || rng.gen_range(0..n);
+
+        (0..100).map(|_| num()).collect()
+    }
+    pub async fn new(window: &Window) -> Self {
+        let vertices = State::new_random_vertices();
         let size = window.inner_size();
         let num_vertices = vertices.len() as u32;
+        let indices = State::new_random_indices(num_vertices as u16);
 
         // The instance is a handle to the GPU
         let instance = wgpu::Instance::new(wgpu::BackendBit::PRIMARY);
@@ -109,13 +122,13 @@ impl State {
 
         let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Vertex Buffer"),
-            contents: bytemuck::cast_slice(vertices),
+            contents: bytemuck::cast_slice(vertices.as_slice()),
             usage: wgpu::BufferUsage::VERTEX,
         });
 
         let index_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Index Buffer"),
-            contents: bytemuck::cast_slice(indices),
+            contents: bytemuck::cast_slice(indices.as_slice()),
             usage: wgpu::BufferUsage::INDEX,
         });
 
@@ -136,6 +149,8 @@ impl State {
             index_buffer,
             num_indices,
             clear_color,
+            vertices: vertices.into(),
+            count: 0,
         }
     }
 
@@ -150,7 +165,14 @@ impl State {
         false
     }
 
-    pub fn update(&mut self) {}
+    pub fn update(&mut self) {
+        self.count += 1;
+        if self.count > 500 {
+            self.vertices = State::new_random_vertices();
+            self.count = 0;
+        }
+        self.vertices.iter_mut().for_each(|v| v.update());
+    }
 
     pub fn render(&mut self) -> Result<(), wgpu::SwapChainError> {
         let frame = self.swap_chain.get_current_frame()?.output;
@@ -159,6 +181,18 @@ impl State {
             .create_command_encoder(&wgpu::CommandEncoderDescriptor {
                 label: Some("Render Encoder"),
             });
+        self.update();
+
+        // self.vertex_buffer.unmap();
+        let vertex_buffer = self
+            .device
+            .create_buffer_init(&wgpu::util::BufferInitDescriptor {
+                label: Some("Vertex Buffer"),
+                contents: bytemuck::cast_slice(&self.vertices.as_slice()),
+                usage: wgpu::BufferUsage::VERTEX,
+            });
+
+        self.vertex_buffer = vertex_buffer;
         {
             let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 label: Some("Rende Pass"),
@@ -178,8 +212,6 @@ impl State {
                 }],
                 depth_stencil_attachment: None,
             });
-
-            dbg!("here");
 
             render_pass.set_pipeline(&self.render_pipline);
             render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));

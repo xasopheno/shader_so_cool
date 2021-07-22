@@ -20,13 +20,10 @@ impl Vertex {
             velocity: r(),
         }
     }
-    pub fn update(&mut self) -> Self {
-        self.position = [
-            self.position[0] + (self.velocity * self.direction[0]),
-            self.position[1] + (self.velocity * self.direction[0]),
-            self.position[2] + (self.velocity * self.direction[0]),
-        ];
-        self.to_owned()
+    pub fn update(&mut self) {
+        self.position[0] += self.velocity * self.direction[0] * 0.001;
+        self.position[1] += self.velocity * self.direction[0] * 0.001;
+        self.position[2] += self.velocity * self.direction[0] * 0.001;
     }
 
     pub fn desc<'a>() -> wgpu::VertexBufferLayout<'a> {
