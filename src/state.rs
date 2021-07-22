@@ -17,6 +17,7 @@ pub struct State {
     pub num_indices: u32,
     pub clear_color: (f64, f64, f64),
     pub vertices: Vec<Vertex>,
+    pub indices: Vec<u16>,
     pub count: u32,
 }
 
@@ -26,6 +27,9 @@ fn random_color() -> f64 {
 }
 
 impl State {
+    pub fn new_random_clear_color() -> (f64, f64, f64) {
+        (random_color(), random_color(), random_color())
+    }
     pub fn new_random_vertices() -> Vec<Vertex> {
         (0..8).map(|_| Vertex::new_random()).collect()
     }
@@ -134,7 +138,7 @@ impl State {
 
         let num_indices = indices.len() as u32;
 
-        let clear_color = (random_color(), random_color(), random_color());
+        let clear_color = State::new_random_clear_color();
 
         Self {
             surface,
@@ -169,6 +173,7 @@ impl State {
         self.count += 1;
         if self.count > 500 {
             self.vertices = State::new_random_vertices();
+            self.clear_color = State::new_random_clear_color();
             self.count = 0;
         }
         self.vertices.iter_mut().for_each(|v| v.update());
