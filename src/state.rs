@@ -1,5 +1,6 @@
 use crate::vertex::Vertex;
 use rand::prelude::*;
+use smaa::*;
 use wgpu::util::DeviceExt;
 use winit::{event::*, window::Window};
 
@@ -9,6 +10,7 @@ pub struct State {
     pub queue: wgpu::Queue,
     pub sc_desc: wgpu::SwapChainDescriptor,
     pub swap_chain: wgpu::SwapChain,
+    pub swap_chain_format: wgpu::TextureFormat,
     pub size: winit::dpi::PhysicalSize<u32>,
     pub render_pipline: wgpu::RenderPipeline,
     pub vertex_buffer: wgpu::Buffer,
@@ -27,13 +29,13 @@ fn random_color() -> f64 {
 
 impl State {
     pub fn new_random_vertices() -> Vec<Vertex> {
-        (0..8).map(|_| Vertex::new_random()).collect()
+        (0..300).map(|_| Vertex::new_random()).collect()
     }
     pub fn new_random_indices(n: u16) -> Vec<u16> {
         let mut rng = rand::thread_rng();
         let mut num = || rng.gen_range(0..n);
 
-        (0..100).map(|_| num()).collect()
+        (0..200).map(|_| num()).collect()
     }
     pub async fn new(window: &Window) -> Self {
         let vertices = State::new_random_vertices();
@@ -64,11 +66,13 @@ impl State {
             .await
             .expect("Unable to request device.");
 
+        let swap_chain_format = adapter
+            .get_swap_chain_preferred_format(&surface)
+            .expect("Unable to get preferred swap chain format");
+
         let sc_desc = wgpu::SwapChainDescriptor {
             usage: wgpu::TextureUsage::RENDER_ATTACHMENT,
-            format: adapter
-                .get_swap_chain_preferred_format(&surface)
-                .expect("Unable to get preferred swap chain format"),
+            format: swap_chain_format,
             width: size.width,
             height: size.height,
             present_mode: wgpu::PresentMode::Fifo,
@@ -151,6 +155,7 @@ impl State {
             clear_color,
             vertices: vertices.into(),
             count: 0,
+            swap_chain_format,
         }
     }
 
@@ -182,6 +187,14 @@ impl State {
                 label: Some("Render Encoder"),
             });
         self.update();
+        // let mut smaa_target = SmaaTarget::new(
+        // &self.device,
+        // &self.queue,
+        // self.size.width,
+        // self.size.height,
+        // self.swap_chain_format,
+        // SmaaMode::Smaa1X,
+        // );
 
         // self.vertex_buffer.unmap();
         let vertex_buffer = self
