@@ -1,6 +1,5 @@
 use crate::vertex::Vertex;
 use rand::prelude::*;
-use smaa::*;
 use wgpu::util::DeviceExt;
 use winit::{event::*, window::Window};
 
@@ -20,7 +19,6 @@ pub struct State {
     pub clear_color: (f64, f64, f64),
     pub vertices: Vec<Vertex>,
     pub count: u32,
-    // pub smaa_target: SmaaTarget,
 }
 
 fn random_color() -> f64 {
@@ -144,15 +142,6 @@ impl State {
 
         let clear_color = State::new_random_clear_color();
 
-        // let smaa_target = SmaaTarget::new(
-        // &device,
-        // &queue,
-        // size.width,
-        // size.height,
-        // swap_chain_format,
-        // SmaaMode::Smaa1X,
-        // );
-
         Self {
             surface,
             device,
@@ -169,7 +158,6 @@ impl State {
             vertices: vertices.into(),
             count: 0,
             swap_chain_format,
-            // smaa_target,
         }
     }
 
@@ -197,9 +185,6 @@ impl State {
     pub fn render(&mut self) -> Result<(), wgpu::SwapChainError> {
         self.update();
         let frame = self.swap_chain.get_current_frame().unwrap().output;
-        // let frame = self
-        // .smaa_target
-        // .start_frame(&self.device, &self.queue, &output_frame.view);
 
         let mut encoder = self
             .device

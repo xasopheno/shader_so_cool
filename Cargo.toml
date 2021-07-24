@@ -15,4 +15,3 @@ wgpu = "0.9.0"
 futures = "0.3.14"
 bytemuck = { version = "1.7.0", features = [ "derive" ] }
 rand = "0.8.4"
-smaa = { git="https://github.com/fintelia/smaa-rs" }
