@@ -19,8 +19,8 @@ pub struct State {
     pub num_indices: u32,
     pub clear_color: (f64, f64, f64),
     pub vertices: Vec<Vertex>,
-    pub indices: Vec<u16>,
     pub count: u32,
+    // pub smaa_target: SmaaTarget,
 }
 
 fn random_color() -> f64 {
@@ -144,6 +144,15 @@ impl State {
 
         let clear_color = State::new_random_clear_color();
 
+        // let smaa_target = SmaaTarget::new(
+        // &device,
+        // &queue,
+        // size.width,
+        // size.height,
+        // swap_chain_format,
+        // SmaaMode::Smaa1X,
+        // );
+
         Self {
             surface,
             device,
@@ -160,6 +169,7 @@ impl State {
             vertices: vertices.into(),
             count: 0,
             swap_chain_format,
+            // smaa_target,
         }
     }
 
@@ -185,23 +195,18 @@ impl State {
     }
 
     pub fn render(&mut self) -> Result<(), wgpu::SwapChainError> {
-        let frame = self.swap_chain.get_current_frame()?.output;
+        self.update();
+        let frame = self.swap_chain.get_current_frame().unwrap().output;
+        // let frame = self
+        // .smaa_target
+        // .start_frame(&self.device, &self.queue, &output_frame.view);
+
         let mut encoder = self
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor {
                 label: Some("Render Encoder"),
             });
-        self.update();
-        // let mut smaa_target = SmaaTarget::new(
-        // &self.device,
-        // &self.queue,
-        // self.size.width,
-        // self.size.height,
-        // self.swap_chain_format,
-        // SmaaMode::Smaa1X,
-        // );
 
-        // self.vertex_buffer.unmap();
         let vertex_buffer = self
             .device
             .create_buffer_init(&wgpu::util::BufferInitDescriptor {

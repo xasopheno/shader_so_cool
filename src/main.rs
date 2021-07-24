@@ -1,8 +1,6 @@
 mod state;
 mod vertex;
 use crate::state::State;
-use crate::vertex::Vertex;
-use rand::prelude::*;
 use winit::{
     event::*,
     event_loop::{ControlFlow, EventLoop},
