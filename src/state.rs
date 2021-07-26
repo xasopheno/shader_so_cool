@@ -12,7 +12,7 @@ pub struct State {
     pub swap_chain: wgpu::SwapChain,
     pub swap_chain_format: wgpu::TextureFormat,
     pub size: winit::dpi::PhysicalSize<u32>,
-    pub render_pipline: wgpu::RenderPipeline,
+    pub render_pipeline: wgpu::RenderPipeline,
     pub vertex_buffer: wgpu::Buffer,
     pub num_vertices: u32,
     pub index_buffer: wgpu::Buffer,
@@ -20,6 +20,7 @@ pub struct State {
     pub clear_color: (f64, f64, f64),
     pub vertices: Vec<Vertex>,
     pub count: u32,
+    pub diffuse_bind_group: wgpu::BindGroup,
 }
 
 fn random_color() -> f64 {
@@ -32,13 +33,13 @@ impl State {
         (random_color(), random_color(), random_color())
     }
     pub fn new_random_vertices() -> Vec<Vertex> {
-        (0..16).map(|_| Vertex::new_random()).collect()
+        (0..160).map(|_| Vertex::new_random()).collect()
     }
     pub fn new_random_indices(n: u16) -> Vec<u16> {
         let mut rng = rand::thread_rng();
         let mut num = || rng.gen_range(0..n);
 
-        (0..30).map(|_| num()).collect()
+        (0..300).map(|_| num()).collect()
     }
     pub async fn new(window: &Window) -> Self {
         let vertices = State::new_random_vertices();
@@ -82,7 +83,7 @@ impl State {
         };
         let swap_chain = device.create_swap_chain(&surface, &sc_desc);
 
-        let diffuse_bytes = include_bytes!("./image.png");
+        let diffuse_bytes = include_bytes!("./milosh_2.png");
         let diffuse_image = image::load_from_memory(diffuse_bytes).unwrap();
         let diffuse_rgba = diffuse_image.as_rgba8().unwrap();
         let dimensions = diffuse_image.dimensions();
@@ -120,13 +121,54 @@ impl State {
         let diffuse_texture_view =
             diffuse_texture.create_view(&wgpu::TextureViewDescriptor::default());
         let diffuse_sampler = device.create_sampler(&wgpu::SamplerDescriptor {
-            address_mode_u: wgpu::AddressMode::ClampToEdge,
-            address_mode_v: wgpu::AddressMode::ClampToEdge,
-            address_mode_w: wgpu::AddressMode::ClampToEdge,
+            address_mode_u: wgpu::AddressMode::Repeat,
+            address_mode_v: wgpu::AddressMode::Repeat,
+            address_mode_w: wgpu::AddressMode::Repeat,
             mag_filter: wgpu::FilterMode::Linear,
             min_filter: wgpu::FilterMode::Nearest,
             mipmap_filter: wgpu::FilterMode::Nearest,
             ..Default::default()
+        });
+
+        let texture_bind_group_layout =
+            device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+                entries: &[
+                    wgpu::BindGroupLayoutEntry {
+                        binding: 0,
+                        visibility: wgpu::ShaderStage::FRAGMENT,
+                        ty: wgpu::BindingType::Texture {
+                            multisampled: false,
+                            view_dimension: wgpu::TextureViewDimension::D2,
+                            sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                        },
+                        count: None,
+                    },
+                    wgpu::BindGroupLayoutEntry {
+                        binding: 1,
+                        visibility: wgpu::ShaderStage::FRAGMENT,
+                        ty: wgpu::BindingType::Sampler {
+                            comparison: false,
+                            filtering: true,
+                        },
+                        count: None,
+                    },
+                ],
+                label: Some("texture_bind_group_layout"),
+            });
+
+        let diffuse_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            layout: &texture_bind_group_layout,
+            entries: &[
+                wgpu::BindGroupEntry {
+                    binding: 0,
+                    resource: wgpu::BindingResource::TextureView(&diffuse_texture_view),
+                },
+                wgpu::BindGroupEntry {
+                    binding: 1,
+                    resource: wgpu::BindingResource::Sampler(&diffuse_sampler),
+                },
+            ],
+            label: Some("diffuse_bind_group"),
         });
 
         let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
@@ -135,15 +177,15 @@ impl State {
             source: wgpu::ShaderSource::Wgsl(include_str!("shader.wgsl").into()),
         });
 
-        let render_pipline_layout =
+        let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("Render Pipeline Layout"),
-                bind_group_layouts: &[],
+                bind_group_layouts: &[&texture_bind_group_layout],
                 push_constant_ranges: &[],
             });
-        let render_pipline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+        let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: Some("Render Pipeline"),
-            layout: Some(&render_pipline_layout),
+            layout: Some(&render_pipeline_layout),
             vertex: wgpu::VertexState {
                 module: &shader,
                 entry_point: "main",
@@ -198,7 +240,7 @@ impl State {
             sc_desc,
             swap_chain,
             size,
-            render_pipline,
+            render_pipeline,
             vertex_buffer,
             num_vertices,
             index_buffer,
@@ -207,6 +249,7 @@ impl State {
             vertices: vertices.into(),
             count: 0,
             swap_chain_format,
+            diffuse_bind_group,
         }
     }
 
@@ -270,7 +313,8 @@ impl State {
                 depth_stencil_attachment: None,
             });
 
-            render_pass.set_pipeline(&self.render_pipline);
+            render_pass.set_pipeline(&self.render_pipeline);
+            render_pass.set_bind_group(0, &self.diffuse_bind_group, &[]);
             render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
             render_pass.draw(0..self.num_vertices, 0..2);
             render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
