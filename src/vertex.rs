@@ -4,7 +4,6 @@ use rand::prelude::*;
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct Vertex {
     pub position: [f32; 3],
-    pub tex_coords: [f32; 2],
     pub color: [f32; 3],
     pub direction: [f32; 3],
     pub velocity: f32,
@@ -16,8 +15,7 @@ impl Vertex {
         let mut r = || rng.gen::<f32>() * 2.0 - 1.0;
         Self {
             position: [r(), r(), r()],
-            tex_coords: [r(), r()],
-            color: [r(), r(), r()],
+            color: [0.8, r() * 0.3, r() * 0.3],
             direction: [r(), r(), r()],
             velocity: r(),
         }
@@ -41,7 +39,7 @@ impl Vertex {
                 wgpu::VertexAttribute {
                     offset: std::mem::size_of::<[f32; 3]>() as wgpu::BufferAddress,
                     shader_location: 1,
-                    format: wgpu::VertexFormat::Float32x2,
+                    format: wgpu::VertexFormat::Float32x3,
                 },
             ],
         }
