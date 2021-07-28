@@ -1,5 +1,7 @@
+mod camera;
 mod state;
 mod texture;
+mod uniforms;
 mod vertex;
 use crate::state::State;
 use winit::{
@@ -20,7 +22,9 @@ fn main() {
 
     event_loop.run(move |event, _, control_flow| match event {
         Event::RedrawRequested(_) => {
-            state.update();
+            let now = std::time::Instant::now();
+            let dt = now - state.last_render_time;
+            state.update(dt);
             match state.render() {
                 Ok(_) => {}
                 Err(wgpu::SwapChainError::Lost) => state.resize(state.size),
@@ -31,31 +35,36 @@ fn main() {
         Event::MainEventsCleared => {
             window.request_redraw();
         }
+
+        Event::DeviceEvent {
+                ref event,
+                .. // We're not using device_id currently
+            } => {
+                state.input(event);
+        }
         Event::WindowEvent {
             ref event,
             window_id,
-        } if window_id == window.id() => {
-            if !state.input(event) {
-                match event {
-                    WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
-                    WindowEvent::KeyboardInput { input, .. } => match input {
-                        KeyboardInput {
-                            state: ElementState::Pressed,
-                            virtual_keycode: Some(VirtualKeyCode::Escape),
-                            ..
-                        } => *control_flow = ControlFlow::Exit,
-                        _ => {}
-                    },
-                    WindowEvent::Resized(physical_size) => {
-                        state.resize(*physical_size);
-                    }
-                    WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
-                        state.resize(**new_inner_size);
-                    }
-                    _ => {}
+        } if window_id == window.id() => match event {
+            WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
+            WindowEvent::KeyboardInput { input, .. } => match input {
+                KeyboardInput {
+                    state: ElementState::Pressed,
+                    virtual_keycode: Some(VirtualKeyCode::Escape),
+                    ..
+                } => {
+                    *control_flow = ControlFlow::Exit;
                 }
+                _ => {}
+            },
+            WindowEvent::Resized(physical_size) => {
+                state.resize(*physical_size);
             }
-        }
+            WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
+                state.resize(**new_inner_size);
+            }
+            _ => {}
+        },
         _ => {}
     });
 }

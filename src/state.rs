@@ -1,4 +1,8 @@
-use crate::{texture, vertex::Vertex};
+use crate::{
+    camera::{Camera, CameraController, Projection},
+    texture,
+    vertex::Vertex,
+};
 use image::GenericImageView;
 use rand::prelude::*;
 use wgpu::util::DeviceExt;
@@ -20,8 +24,16 @@ pub struct State {
     pub clear_color: (f64, f64, f64),
     pub vertices: Vec<Vertex>,
     pub count: u32,
+    pub camera: Camera,
+    pub uniforms: crate::uniforms::Uniforms,
+    pub uniform_buffer: wgpu::Buffer,
+    pub uniform_bind_group: wgpu::BindGroup,
+    pub projection: Projection,
+    pub camera_controller: CameraController,
+    pub mouse_pressed: bool,
+    pub last_render_time: std::time::Instant,
     // pub diffuse_bind_group: wgpu::BindGroup,
-    // pub diffuse_texture: texture::Texture,
+    // pub diffuse_texture: texture::Texture
 }
 
 fn random_color() -> f64 {
@@ -82,6 +94,53 @@ impl State {
             height: size.height,
             present_mode: wgpu::PresentMode::Fifo,
         };
+
+        // camera
+        let camera =
+            crate::camera::Camera::new((0.0, 0.0, 1.0), cgmath::Deg(-90.0), cgmath::Deg(-20.0));
+        let projection = crate::camera::Projection::new(
+            sc_desc.width,
+            sc_desc.height,
+            cgmath::Deg(45.0),
+            0.1,
+            100.0,
+        );
+
+        let camera_controller = crate::camera::CameraController::new(4.0, 0.4);
+
+        let mut uniforms = crate::uniforms::Uniforms::new();
+        uniforms.update_view_proj(&camera, &projection);
+
+        let uniform_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Uniform Buffer"),
+            contents: bytemuck::cast_slice(&[uniforms]),
+            usage: wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST,
+        });
+
+        let uniform_bind_group_layout =
+            device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+                entries: &[wgpu::BindGroupLayoutEntry {
+                    binding: 0,
+                    visibility: wgpu::ShaderStage::VERTEX,
+                    ty: wgpu::BindingType::Buffer {
+                        ty: wgpu::BufferBindingType::Uniform,
+                        has_dynamic_offset: false,
+                        min_binding_size: None,
+                    },
+                    count: None,
+                }],
+                label: Some("uniform_bind_group_layout"),
+            });
+
+        let uniform_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            layout: &&uniform_bind_group_layout,
+            entries: &[wgpu::BindGroupEntry {
+                binding: 0,
+                resource: uniform_buffer.as_entire_binding(),
+            }],
+            label: Some("uniform_bind_group"),
+        });
+
         let swap_chain = device.create_swap_chain(&surface, &sc_desc);
         // let diffuse_bytes = include_bytes!("./milosh_2.png");
         // let diffuse_texture =
@@ -137,7 +196,7 @@ impl State {
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("Render Pipeline Layout"),
-                bind_group_layouts: &[],
+                bind_group_layouts: &[&uniform_bind_group_layout],
                 push_constant_ranges: &[],
             });
         let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
@@ -206,6 +265,14 @@ impl State {
             vertices: vertices.into(),
             count: 0,
             swap_chain_format,
+            mouse_pressed: false,
+            camera,
+            camera_controller, 
+            projection,
+            uniform_bind_group,
+            uniform_buffer,
+            uniforms,
+            last_render_time: std::time::Instant::now()
             // diffuse_bind_group,
             // diffuse_texture,
         }
@@ -216,13 +283,38 @@ impl State {
         self.sc_desc.width = new_size.width;
         self.sc_desc.height = new_size.height;
         self.swap_chain = self.device.create_swap_chain(&self.surface, &self.sc_desc);
+        self.projection.resize(new_size.width, new_size.height);
     }
 
-    pub fn input(&mut self, event: &WindowEvent) -> bool {
-        false
+    pub fn input(&mut self, event: &DeviceEvent) -> bool {
+        match event {
+            DeviceEvent::Key(KeyboardInput {
+                virtual_keycode: Some(key),
+                state,
+                ..
+            }) => self.camera_controller.process_keyboard(*key, *state),
+            DeviceEvent::MouseWheel { delta, .. } => {
+                self.camera_controller.process_scroll(&*delta);
+                true
+            }
+            DeviceEvent::Button {
+                button: 1, // Left Mouse Button
+                state,
+            } => {
+                self.mouse_pressed = *state == ElementState::Pressed;
+                true
+            }
+            DeviceEvent::MouseMotion { delta } => {
+                if self.mouse_pressed {
+                    self.camera_controller.process_mouse(delta.0, delta.1);
+                }
+                true
+            }
+            _ => false,
+        }
     }
 
-    pub fn update(&mut self) {
+    pub fn update(&mut self, dt: std::time::Duration) {
         self.count += 1;
         if self.count > 500 {
             self.vertices = State::new_random_vertices();
@@ -230,10 +322,16 @@ impl State {
             self.count = 0;
         }
         self.vertices.iter_mut().for_each(|v| v.update());
+        self.camera_controller.update_camera(&mut self.camera, dt);
+        self.uniforms
+            .update_view_proj(&self.camera, &self.projection);
     }
 
     pub fn render(&mut self) -> Result<(), wgpu::SwapChainError> {
-        self.update();
+        let now = std::time::Instant::now();
+        let dt = now - self.last_render_time;
+        self.last_render_time = now;
+        self.update(dt);
         let frame = self.swap_chain.get_current_frame().unwrap().output;
 
         let mut encoder = self
@@ -273,6 +371,7 @@ impl State {
 
             render_pass.set_pipeline(&self.render_pipeline);
             // render_pass.set_bind_group(0, &self.diffuse_bind_group, &[]);
+            render_pass.set_bind_group(0, &self.uniform_bind_group, &[]);
             render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
             render_pass.draw(0..self.num_vertices, 0..2);
             render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
