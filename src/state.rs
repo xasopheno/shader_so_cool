@@ -97,7 +97,7 @@ impl State {
 
         // camera
         let camera =
-            crate::camera::Camera::new((0.0, 0.0, 1.0), cgmath::Deg(-90.0), cgmath::Deg(-20.0));
+            crate::camera::Camera::new((0.0, 0.0, 3.0), cgmath::Deg(-90.0), cgmath::Deg(0.0));
         let projection = crate::camera::Projection::new(
             sc_desc.width,
             sc_desc.height,
@@ -267,7 +267,7 @@ impl State {
             swap_chain_format,
             mouse_pressed: false,
             camera,
-            camera_controller, 
+            camera_controller,
             projection,
             uniform_bind_group,
             uniform_buffer,
@@ -284,6 +284,22 @@ impl State {
         self.sc_desc.height = new_size.height;
         self.swap_chain = self.device.create_swap_chain(&self.surface, &self.sc_desc);
         self.projection.resize(new_size.width, new_size.height);
+    }
+
+    pub fn keyboard_input(&mut self, event: &WindowEvent) {
+        match event {
+            WindowEvent::KeyboardInput { input, .. } => match input {
+                KeyboardInput {
+                    state,
+                    virtual_keycode: Some(key),
+                    ..
+                } => {
+                    self.camera_controller.process_keyboard(*key, *state);
+                }
+                _ => {}
+            },
+            _ => {}
+        }
     }
 
     pub fn input(&mut self, event: &DeviceEvent) -> bool {
@@ -325,6 +341,11 @@ impl State {
         self.camera_controller.update_camera(&mut self.camera, dt);
         self.uniforms
             .update_view_proj(&self.camera, &self.projection);
+        self.queue.write_buffer(
+            &self.uniform_buffer,
+            0,
+            bytemuck::cast_slice(&[self.uniforms]),
+        );
     }
 
     pub fn render(&mut self) -> Result<(), wgpu::SwapChainError> {
@@ -351,7 +372,7 @@ impl State {
         self.vertex_buffer = vertex_buffer;
         {
             let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-                label: Some("Rende Pass"),
+                label: Some("Render Pass"),
                 // This is what [[location(0)]] in the fragment shader targets
                 color_attachments: &[wgpu::RenderPassColorAttachment {
                     view: &frame.view,
