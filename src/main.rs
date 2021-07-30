@@ -39,6 +39,10 @@ fn main() {
             } if window_id == window.id() => {
                 // dbg!(event);
                 match event {
+                    WindowEvent::CursorMoved {position, ..} => {
+                        dbg!(position);
+                        
+                    }
                     WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
                     WindowEvent::KeyboardInput { input, .. } => match input {
                         KeyboardInput {
@@ -48,7 +52,7 @@ fn main() {
                         } => {
                             *control_flow = ControlFlow::Exit;
                         }
-                        _ => {state.keyboard_input(&event)}
+                        _ => {state.keyboard_input(event)}
                     },
                     WindowEvent::Resized(physical_size) => {
                         state.resize(*physical_size);

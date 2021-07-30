@@ -127,14 +127,23 @@ impl CameraController {
                 self.amount_right = amount;
                 true
             }
-            VirtualKeyCode::Space => {
+            VirtualKeyCode::K => {
                 self.amount_up = amount;
                 true
             }
-            VirtualKeyCode::LShift => {
+            VirtualKeyCode::J => {
                 self.amount_down = amount;
                 true
             }
+            VirtualKeyCode::H => {
+                self.rotate_horizontal = -amount * 2.0;
+                true
+            }
+            VirtualKeyCode::L => {
+                self.rotate_horizontal = amount * 2.0;
+                true
+            }
+
             _ => false,
         }
     }
