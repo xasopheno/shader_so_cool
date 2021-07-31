@@ -15,7 +15,7 @@ impl Vertex {
         let mut r = || rng.gen::<f32>() * 2.0 - 1.0;
         Self {
             position: [r(), r(), r()],
-            color: [0.8, r() * 0.3, r() * 0.3],
+            color: [r(), r(), r()],
             direction: [r(), r(), r()],
             velocity: r(),
         }

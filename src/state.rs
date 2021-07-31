@@ -5,6 +5,7 @@ use crate::{
 };
 use image::GenericImageView;
 use rand::prelude::*;
+use rayon::prelude::*;
 use wgpu::util::DeviceExt;
 use winit::{event::*, window::Window};
 
@@ -46,7 +47,10 @@ impl State {
         (random_color(), random_color(), random_color())
     }
     pub fn new_random_vertices() -> Vec<Vertex> {
-        (0..8).map(|_| Vertex::new_random()).collect()
+        (0..20)
+            .into_par_iter()
+            .map(|_| Vertex::new_random())
+            .collect()
     }
     pub fn new_random_indices(n: u16) -> Vec<u16> {
         let mut rng = rand::thread_rng();
@@ -314,7 +318,7 @@ impl State {
                 true
             }
             DeviceEvent::Button {
-                button: 1, // Left Mouse Button
+                button: 0, // Left Mouse Button
                 state,
             } => {
                 self.mouse_pressed = *state == ElementState::Pressed;
@@ -337,7 +341,7 @@ impl State {
             self.clear_color = State::new_random_clear_color();
             self.count = 0;
         }
-        self.vertices.iter_mut().for_each(|v| v.update());
+        self.vertices.par_iter_mut().for_each(|v| v.update());
         self.camera_controller.update_camera(&mut self.camera, dt);
         self.uniforms
             .update_view_proj(&self.camera, &self.projection);

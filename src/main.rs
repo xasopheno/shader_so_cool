@@ -39,10 +39,6 @@ fn main() {
             } if window_id == window.id() => {
                 // dbg!(event);
                 match event {
-                    WindowEvent::CursorMoved {position, ..} => {
-                        dbg!(position);
-                        
-                    }
                     WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
                     WindowEvent::KeyboardInput { input, .. } => match input {
                         KeyboardInput {
