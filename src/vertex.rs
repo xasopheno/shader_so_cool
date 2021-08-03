@@ -10,6 +10,17 @@ pub struct Vertex {
 }
 
 impl Vertex {
+    pub fn new(x: f32, y: f32, z: f32) -> Vertex {
+        let mut rng = rand::thread_rng();
+        let mut r = || rng.gen::<f32>() * 2.0 - 1.0;
+        Self {
+            position: [x, y, z],
+            color: [r(), r(), r()],
+            direction: [r(), r(), r()],
+            velocity: r(),
+        }
+    }
+
     pub fn new_random() -> Self {
         let mut rng = rand::thread_rng();
         let mut r = || rng.gen::<f32>() * 2.0 - 1.0;

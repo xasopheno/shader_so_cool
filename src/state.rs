@@ -46,6 +46,16 @@ impl State {
     pub fn new_random_clear_color() -> (f64, f64, f64) {
         (random_color(), random_color(), random_color())
     }
+
+    pub fn new_shape() -> Vec<Vertex> {
+        vec![
+            Vertex::new(0.1, 0.1, 0.0),
+            Vertex::new(0.1, -0.1, 0.0),
+            Vertex::new(-0.1, -0.1, 0.0),
+            Vertex::new(-0.1, 0.1, 0.0),
+        ]
+    }
+
     pub fn new_random_vertices() -> Vec<Vertex> {
         (0..20)
             .into_par_iter()
@@ -56,7 +66,11 @@ impl State {
         let mut rng = rand::thread_rng();
         let mut num = || rng.gen_range(0..n);
 
-        (0..30).map(|_| num()).collect()
+        (0..).map(|_| num()).collect()
+    }
+
+    pub fn new_shape_indices(n: u16) -> Vec<u16> {
+        (0..4).map(|i| i).collect()
     }
     pub async fn new(window: &Window) -> Self {
         let vertices = State::new_random_vertices();
