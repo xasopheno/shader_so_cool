@@ -50,9 +50,11 @@ impl State {
     pub fn new_shape() -> Vec<Vertex> {
         vec![
             Vertex::new(0.1, 0.1, 0.0),
-            Vertex::new(0.1, -0.1, 0.0),
-            Vertex::new(-0.1, -0.1, 0.0),
             Vertex::new(-0.1, 0.1, 0.0),
+            Vertex::new(-0.1, -0.1, 0.0),
+            Vertex::new(0.1, -0.1, 0.0),
+            Vertex::new(0.1, 0.1, 0.0),
+            Vertex::new(-0.1, -0.1, 0.0),
         ]
     }
 
@@ -69,14 +71,18 @@ impl State {
         (0..).map(|_| num()).collect()
     }
 
-    pub fn new_shape_indices(n: u16) -> Vec<u16> {
-        (0..4).map(|i| i).collect()
+    pub fn new_shape_indices(n: u32) -> Vec<u32> {
+        dbg!(n);
+        // let mut indices: Vec<u32> = (0..n + 1).map(|i| i).collect();
+        // indices.push(0);
+        // indices
+        vec![]
     }
     pub async fn new(window: &Window) -> Self {
-        let vertices = State::new_random_vertices();
+        let vertices = State::new_shape();
         let size = window.inner_size();
         let num_vertices = vertices.len() as u32;
-        let indices = State::new_random_indices(num_vertices as u16);
+        let indices = State::new_shape_indices(num_vertices);
 
         // The instance is a handle to the GPU
         let instance = wgpu::Instance::new(wgpu::BackendBit::PRIMARY);
@@ -351,11 +357,11 @@ impl State {
     pub fn update(&mut self, dt: std::time::Duration) {
         self.count += 1;
         if self.count > 500 {
-            self.vertices = State::new_random_vertices();
-            self.clear_color = State::new_random_clear_color();
+            // self.vertices = State::new_random_vertices();
+            // self.clear_color = State::new_random_clear_color();
             self.count = 0;
         }
-        self.vertices.par_iter_mut().for_each(|v| v.update());
+        // self.vertices.par_iter_mut().for_each(|v| v.update());
         self.camera_controller.update_camera(&mut self.camera, dt);
         self.uniforms
             .update_view_proj(&self.camera, &self.projection);
@@ -412,7 +418,7 @@ impl State {
             // render_pass.set_bind_group(0, &self.diffuse_bind_group, &[]);
             render_pass.set_bind_group(0, &self.uniform_bind_group, &[]);
             render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
-            render_pass.draw(0..self.num_vertices, 0..2);
+            render_pass.draw(0..self.num_vertices, 0..1);
             render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
             render_pass.draw_indexed(0..self.num_indices, 0, 0..1);
         }
