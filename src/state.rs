@@ -1,8 +1,10 @@
 use crate::{
     camera::{Camera, CameraController, Projection},
+    instance::{Instance, InstanceRaw},
     texture,
     vertex::Vertex,
 };
+use cgmath::{InnerSpace, Rotation3, Zero};
 use image::GenericImageView;
 use rand::prelude::*;
 use rayon::prelude::*;
@@ -33,8 +35,8 @@ pub struct State {
     pub camera_controller: CameraController,
     pub mouse_pressed: bool,
     pub last_render_time: std::time::Instant,
-    // pub diffuse_bind_group: wgpu::BindGroup,
-    // pub diffuse_texture: texture::Texture
+    pub instances: Vec<Instance>,
+    pub instance_buffer: wgpu::Buffer,
 }
 
 fn random_color() -> f64 {
@@ -57,6 +59,18 @@ impl State {
         let mut num = || rng.gen_range(0..n);
 
         (0..30).map(|_| num()).collect()
+    }
+
+    pub fn new_shape_vertices() -> Vec<Vertex> {
+        let size = 0.2;
+        vec![
+            Vertex::new(0.0, size, 0.0),
+            Vertex::new(-size, -size, 0.0),
+            Vertex::new(size, -size, 0.0),
+        ]
+    }
+    pub fn new_shape_indices(n: u16) -> Vec<u16> {
+        vec![0, 1, 2, 0]
     }
     pub async fn new(window: &Window) -> Self {
         let vertices = State::new_random_vertices();
@@ -98,6 +112,48 @@ impl State {
             height: size.height,
             present_mode: wgpu::PresentMode::Fifo,
         };
+
+        const NUM_INSTANCES_PER_ROW: u32 = 30;
+        const NUM_INSTANCES: u32 = NUM_INSTANCES_PER_ROW * NUM_INSTANCES_PER_ROW;
+        const INSTANCE_DISPLACEMENT: cgmath::Vector3<f32> = cgmath::Vector3::new(
+            NUM_INSTANCES_PER_ROW as f32 * 0.5,
+            0.0,
+            NUM_INSTANCES_PER_ROW as f32 * 0.5,
+        );
+        let instances = (0..NUM_INSTANCES_PER_ROW)
+            .flat_map(|z| {
+                (0..NUM_INSTANCES_PER_ROW).map(move |x| {
+                    let position = cgmath::Vector3 {
+                        x: x as f32,
+                        y: 0.0,
+                        z: z as f32,
+                    } - INSTANCE_DISPLACEMENT;
+
+                    let rotation = if position.is_zero() {
+                        // this is needed so an object at (0, 0, 0) won't get scaled to zero
+                        // as Quaternions can effect scale if they're not created correctly
+                        cgmath::Quaternion::from_axis_angle(
+                            cgmath::Vector3::unit_z(),
+                            cgmath::Deg(0.0),
+                        )
+                    } else {
+                        cgmath::Quaternion::from_axis_angle(
+                            position.clone().normalize(),
+                            cgmath::Deg(45.0),
+                        )
+                    };
+
+                    Instance { position, rotation }
+                })
+            })
+            .collect::<Vec<_>>();
+
+        let instance_data = instances.iter().map(Instance::to_raw).collect::<Vec<_>>();
+        let instance_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Instance Buffer"),
+            contents: bytemuck::cast_slice(&instance_data),
+            usage: wgpu::BufferUsage::VERTEX,
+        });
 
         // camera
         let camera =
@@ -209,7 +265,7 @@ impl State {
             vertex: wgpu::VertexState {
                 module: &shader,
                 entry_point: "main",
-                buffers: &[Vertex::desc()],
+                buffers: &[Vertex::desc(), InstanceRaw::desc()],
             },
             fragment: Some(wgpu::FragmentState {
                 module: &shader,
@@ -276,7 +332,9 @@ impl State {
             uniform_bind_group,
             uniform_buffer,
             uniforms,
-            last_render_time: std::time::Instant::now()
+            last_render_time: std::time::Instant::now(),
+            instances,
+            instance_buffer
             // diffuse_bind_group,
             // diffuse_texture,
         }
@@ -398,9 +456,11 @@ impl State {
             // render_pass.set_bind_group(0, &self.diffuse_bind_group, &[]);
             render_pass.set_bind_group(0, &self.uniform_bind_group, &[]);
             render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
-            render_pass.draw(0..self.num_vertices, 0..2);
+            render_pass.set_vertex_buffer(1, self.instance_buffer.slice(..));
+
+            // render_pass.draw(0..self.num_vertices, 0..2);
             render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
-            render_pass.draw_indexed(0..self.num_indices, 0, 0..1);
+            render_pass.draw_indexed(0..self.num_indices, 0, 0..self.instances.len() as _);
         }
         self.queue.submit(std::iter::once(encoder.finish()));
         Ok(())

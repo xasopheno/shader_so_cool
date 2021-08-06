@@ -10,6 +10,16 @@ pub struct Vertex {
 }
 
 impl Vertex {
+    pub fn new(x: f32, y: f32, z: f32) -> Self {
+        let mut rng = rand::thread_rng();
+        let mut r = || rng.gen::<f32>() * 2.0 - 1.0;
+        Self {
+            position: [x, y, z],
+            color: [r(), r(), r()],
+            direction: [r(), r(), r()],
+            velocity: r(),
+        }
+    }
     pub fn new_random() -> Self {
         let mut rng = rand::thread_rng();
         let mut r = || rng.gen::<f32>() * 2.0 - 1.0;
@@ -17,13 +27,13 @@ impl Vertex {
             position: [r(), r(), r()],
             color: [r(), r(), r()],
             direction: [r(), r(), r()],
-            velocity: r(),
+            velocity: r() * 2.0,
         }
     }
     pub fn update(&mut self) {
-        self.position[0] += self.velocity * self.direction[0] * 0.001;
-        self.position[1] += self.velocity * self.direction[0] * 0.001;
-        self.position[2] += self.velocity * self.direction[0] * 0.001;
+        self.position[0] += self.velocity * self.direction[0] * 0.01;
+        self.position[1] += self.velocity * self.direction[0] * 0.01;
+        self.position[2] += self.velocity * self.direction[0] * 0.01;
     }
 
     pub fn desc<'a>() -> wgpu::VertexBufferLayout<'a> {
