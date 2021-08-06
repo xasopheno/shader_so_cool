@@ -125,6 +125,7 @@ impl State {
                 (0..NUM_INSTANCES_PER_ROW).map(move |x| {
                     let position = cgmath::Vector3 {
                         x: x as f32,
+                        // y: ((x + z) as f32).sin(),
                         y: 0.0,
                         z: z as f32,
                     } - INSTANCE_DISPLACEMENT;
