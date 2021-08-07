@@ -117,7 +117,7 @@ impl State {
         dbg!(size);
         let ratio = size.width as f32 / size.height as f32;
         dbg!(ratio);
-        let n_pixels = 100.0;
+        let n_pixels = 20.0;
         let n_row = (n_pixels * ratio) as u32;
         let n_column = (n_pixels / ratio) as u32;
         dbg!(n_row, n_column);
