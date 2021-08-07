@@ -4,7 +4,7 @@ use crate::{
     texture,
     vertex::Vertex,
 };
-use cgmath::{InnerSpace, Rotation3, Zero};
+use cgmath::{Angle, InnerSpace, Rotation3, Zero};
 use image::GenericImageView;
 use rand::prelude::*;
 use rayon::prelude::*;
@@ -62,21 +62,22 @@ impl State {
     }
 
     pub fn new_shape_vertices() -> Vec<Vertex> {
-        let size = 0.2;
+        let size = 1.0;
         vec![
-            Vertex::new(0.0, size, 0.0),
+            Vertex::new(size, size, 0.0),
+            Vertex::new(-size, size, 0.0),
             Vertex::new(-size, -size, 0.0),
             Vertex::new(size, -size, 0.0),
         ]
     }
     pub fn new_shape_indices(n: u16) -> Vec<u16> {
-        vec![0, 1, 2, 0]
+        vec![0, 1, 2, 0, 2, 3]
     }
     pub async fn new(window: &Window) -> Self {
-        let vertices = State::new_random_vertices();
+        let vertices = State::new_shape_vertices();
         let size = window.inner_size();
         let num_vertices = vertices.len() as u32;
-        let indices = State::new_random_indices(num_vertices as u16);
+        let indices = State::new_shape_indices(num_vertices as u16);
 
         // The instance is a handle to the GPU
         let instance = wgpu::Instance::new(wgpu::BackendBit::PRIMARY);
@@ -113,35 +114,41 @@ impl State {
             present_mode: wgpu::PresentMode::Fifo,
         };
 
-        const NUM_INSTANCES_PER_ROW: u32 = 30;
-        const NUM_INSTANCES: u32 = NUM_INSTANCES_PER_ROW * NUM_INSTANCES_PER_ROW;
-        const INSTANCE_DISPLACEMENT: cgmath::Vector3<f32> = cgmath::Vector3::new(
-            NUM_INSTANCES_PER_ROW as f32 * 0.5,
-            0.0,
-            NUM_INSTANCES_PER_ROW as f32 * 0.5,
+        dbg!(size);
+        let ratio = size.width as f32 / size.height as f32;
+        dbg!(ratio);
+        let n_pixels = 100.0;
+        let n_row = (n_pixels * ratio) as u32;
+        let n_column = (n_pixels / ratio) as u32;
+        dbg!(n_row, n_column);
+        let instance_displacement: cgmath::Vector3<f32> = cgmath::Vector3::new(
+            n_row as f32 - 1.0,
+            n_column as f32 - 1.0,
+            n_pixels * 2.0,
         );
-        let instances = (0..NUM_INSTANCES_PER_ROW)
-            .flat_map(|z| {
-                (0..NUM_INSTANCES_PER_ROW).map(move |x| {
+        let instances = (0..n_column)
+            .flat_map(|y| {
+                (0..n_row).map(move |x| {
                     let position = cgmath::Vector3 {
-                        x: x as f32,
-                        y: 0.0,
-                        z: z as f32,
-                    } - INSTANCE_DISPLACEMENT;
+                        x: ((x as f32) * 2.0),
+                        y: (y as f32) * 2.0,
+                        z: 0.0 as f32,
+                    } - instance_displacement;
 
-                    let rotation = if position.is_zero() {
+                    let rotation = 
+                        // if position.is_zero() {
                         // this is needed so an object at (0, 0, 0) won't get scaled to zero
                         // as Quaternions can effect scale if they're not created correctly
                         cgmath::Quaternion::from_axis_angle(
-                            cgmath::Vector3::unit_z(),
+                            cgmath::Vector3::unit_y(),
                             cgmath::Deg(0.0),
-                        )
-                    } else {
-                        cgmath::Quaternion::from_axis_angle(
-                            position.clone().normalize(),
-                            cgmath::Deg(45.0),
-                        )
-                    };
+                        );
+                    // } else {
+                        // cgmath::Quaternion::from_axis_angle(
+                            // position.clone().normalize(),
+                            // cgmath::Deg(90.0),
+                        // )
+                    // };
 
                     Instance { position, rotation }
                 })
@@ -163,7 +170,7 @@ impl State {
             sc_desc.height,
             cgmath::Deg(45.0),
             0.1,
-            100.0,
+            10_000.0,
         );
 
         let camera_controller = crate::camera::CameraController::new(4.0, 0.4);
@@ -395,7 +402,7 @@ impl State {
     pub fn update(&mut self, dt: std::time::Duration) {
         self.count += 1;
         if self.count > 500 {
-            self.vertices = State::new_random_vertices();
+            self.vertices = State::new_shape_vertices();
             self.clear_color = State::new_random_clear_color();
             self.count = 0;
         }
