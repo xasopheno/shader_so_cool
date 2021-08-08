@@ -1,5 +1,6 @@
 mod camera;
 mod instance;
+mod setup;
 mod state;
 mod texture;
 mod uniforms;

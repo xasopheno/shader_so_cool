@@ -1,11 +1,9 @@
 use crate::{
     camera::{Camera, CameraController, Projection},
-    instance::{Instance, InstanceRaw},
-    texture,
+    instance::{make_instances, Instance, InstanceRaw},
+    setup::Setup,
     vertex::Vertex,
 };
-use cgmath::{Angle, InnerSpace, Rotation3, Zero};
-use image::GenericImageView;
 use rand::prelude::*;
 use rayon::prelude::*;
 use wgpu::util::DeviceExt;
@@ -74,87 +72,21 @@ impl State {
         vec![0, 1, 2, 0, 2, 3]
     }
     pub async fn new(window: &Window) -> Self {
+        let Setup {
+            device,
+            surface,
+            queue,
+            swap_chain_format,
+            sc_desc,
+            ..
+        } = Setup::init(window).await;
+
         let vertices = State::new_shape_vertices();
         let size = window.inner_size();
         let num_vertices = vertices.len() as u32;
         let indices = State::new_shape_indices(num_vertices as u16);
 
-        // The instance is a handle to the GPU
-        let instance = wgpu::Instance::new(wgpu::BackendBit::PRIMARY);
-        let surface = unsafe { instance.create_surface(window) };
-        let adapter = instance
-            .request_adapter(&wgpu::RequestAdapterOptions {
-                power_preference: wgpu::PowerPreference::default(),
-                compatible_surface: Some(&surface),
-            })
-            .await
-            .expect("Unable to create adapter");
-
-        let (device, queue) = adapter
-            .request_device(
-                &wgpu::DeviceDescriptor {
-                    features: wgpu::Features::empty(),
-                    limits: wgpu::Limits::default(),
-                    label: None,
-                },
-                None,
-            )
-            .await
-            .expect("Unable to request device.");
-
-        let swap_chain_format = adapter
-            .get_swap_chain_preferred_format(&surface)
-            .expect("Unable to get preferred swap chain format");
-
-        let sc_desc = wgpu::SwapChainDescriptor {
-            usage: wgpu::TextureUsage::RENDER_ATTACHMENT,
-            format: swap_chain_format,
-            width: size.width,
-            height: size.height,
-            present_mode: wgpu::PresentMode::Fifo,
-        };
-
-        dbg!(size);
-        let ratio = size.width as f32 / size.height as f32;
-        dbg!(ratio);
-        let n_pixels = 20.0;
-        let n_row = (n_pixels * ratio) as u32;
-        let n_column = (n_pixels / ratio) as u32;
-        dbg!(n_row, n_column);
-        let instance_displacement: cgmath::Vector3<f32> = cgmath::Vector3::new(
-            n_row as f32 - 1.0,
-            n_column as f32 - 1.0,
-            n_pixels * 2.0,
-        );
-        let instances = (0..n_column)
-            .flat_map(|y| {
-                (0..n_row).map(move |x| {
-                    let position = cgmath::Vector3 {
-                        x: ((x as f32) * 2.0),
-                        y: (y as f32) * 2.0,
-                        z: 0.0 as f32,
-                    } - instance_displacement;
-
-                    let rotation = 
-                        // if position.is_zero() {
-                        // this is needed so an object at (0, 0, 0) won't get scaled to zero
-                        // as Quaternions can effect scale if they're not created correctly
-                        cgmath::Quaternion::from_axis_angle(
-                            cgmath::Vector3::unit_y(),
-                            cgmath::Deg(0.0),
-                        );
-                    // } else {
-                        // cgmath::Quaternion::from_axis_angle(
-                            // position.clone().normalize(),
-                            // cgmath::Deg(90.0),
-                        // )
-                    // };
-
-                    Instance { position, rotation }
-                })
-            })
-            .collect::<Vec<_>>();
-
+        let instances = make_instances(size);
         let instance_data = instances.iter().map(Instance::to_raw).collect::<Vec<_>>();
         let instance_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Instance Buffer"),
@@ -162,7 +94,6 @@ impl State {
             usage: wgpu::BufferUsage::VERTEX,
         });
 
-        // camera
         let camera =
             crate::camera::Camera::new((0.0, 0.0, 3.0), cgmath::Deg(-90.0), cgmath::Deg(0.0));
         let projection = crate::camera::Projection::new(
@@ -209,51 +140,6 @@ impl State {
         });
 
         let swap_chain = device.create_swap_chain(&surface, &sc_desc);
-        // let diffuse_bytes = include_bytes!("./milosh_2.png");
-        // let diffuse_texture =
-        // texture::Texture::from_bytes(&device, &queue, diffuse_bytes, "milosh_2.png").unwrap();
-
-        // let texture_bind_group_layout =
-        // device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-        // entries: &[
-        // wgpu::BindGroupLayoutEntry {
-        // binding: 0,
-        // visibility: wgpu::ShaderStage::FRAGMENT,
-        // ty: wgpu::BindingType::Texture {
-        // multisampled: false,
-        // view_dimension: wgpu::TextureViewDimension::D2,
-        // sample_type: wgpu::TextureSampleType::Float { filterable: true },
-        // },
-        // count: None,
-        // },
-        // wgpu::BindGroupLayoutEntry {
-        // binding: 1,
-        // visibility: wgpu::ShaderStage::FRAGMENT,
-        // ty: wgpu::BindingType::Sampler {
-        // comparison: false,
-        // filtering: true,
-        // },
-        // count: None,
-        // },
-        // ],
-        // label: Some("texture_bind_group_layout"),
-        // });
-
-        // let diffuse_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-        // layout: &texture_bind_group_layout,
-        // entries: &[
-        // wgpu::BindGroupEntry {
-        // binding: 0,
-        // resource: wgpu::BindingResource::TextureView(&diffuse_texture.view),
-        // },
-        // wgpu::BindGroupEntry {
-        // binding: 1,
-        // resource: wgpu::BindingResource::Sampler(&diffuse_texture.sampler),
-        // },
-        // ],
-        // label: Some("diffuse_bind_group"),
-        // });
-
         let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
             label: Some("Shader"),
             flags: wgpu::ShaderFlags::all(),
@@ -341,9 +227,7 @@ impl State {
             uniforms,
             last_render_time: std::time::Instant::now(),
             instances,
-            instance_buffer
-            // diffuse_bind_group,
-            // diffuse_texture,
+            instance_buffer,
         }
     }
 
@@ -460,12 +344,9 @@ impl State {
             });
 
             render_pass.set_pipeline(&self.render_pipeline);
-            // render_pass.set_bind_group(0, &self.diffuse_bind_group, &[]);
             render_pass.set_bind_group(0, &self.uniform_bind_group, &[]);
             render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
             render_pass.set_vertex_buffer(1, self.instance_buffer.slice(..));
-
-            // render_pass.draw(0..self.num_vertices, 0..2);
             render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
             render_pass.draw_indexed(0..self.num_indices, 0, 0..self.instances.len() as _);
         }

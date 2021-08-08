@@ -1,3 +1,8 @@
+use cgmath::{Angle, InnerSpace, Rotation3, Zero};
+use rand::prelude::*;
+use rand::Rng;
+use rayon::prelude::*;
+
 pub struct Instance {
     pub position: cgmath::Vector3<f32>,
     pub rotation: cgmath::Quaternion<f32>,
@@ -7,6 +12,42 @@ pub struct Instance {
 #[derive(Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct InstanceRaw {
     model: [[f32; 4]; 4],
+}
+
+pub fn make_instances(size: winit::dpi::PhysicalSize<u32>) -> Vec<Instance> {
+    dbg!(size);
+    let ratio = size.width as f32 / size.height as f32;
+    dbg!(ratio);
+    let n_pixels = 20.0;
+    let n_row = (n_pixels * ratio) as u32;
+    let n_column = (n_pixels / ratio) as u32;
+    dbg!(n_row, n_column);
+    let instance_displacement: cgmath::Vector3<f32> =
+        cgmath::Vector3::new(n_row as f32 - 1.0, n_column as f32 - 1.0, n_pixels * 2.0);
+
+    (0..n_column)
+        .into_par_iter()
+        .flat_map(|y| {
+            (0..n_row).into_par_iter().map(move |x| {
+                let mut rng1 = rand::thread_rng();
+                let mut rng2 = rand::thread_rng();
+                let mut rr = || rng1.gen::<f32>() * n_row as f32;
+                let mut rc = || rng2.gen::<f32>() * n_column as f32;
+                let position = cgmath::Vector3 {
+                    x: x as f32 * 2.0,
+                    y: y as f32 * 2.0,
+                    z: 0.0 as f32,
+                } - instance_displacement;
+
+                let rotation = cgmath::Quaternion::from_axis_angle(
+                    cgmath::Vector3::unit_y(),
+                    cgmath::Deg(0.0),
+                );
+
+                Instance { position, rotation }
+            })
+        })
+        .collect::<Vec<_>>()
 }
 
 impl Instance {
