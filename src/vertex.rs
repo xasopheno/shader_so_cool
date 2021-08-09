@@ -1,4 +1,5 @@
 use rand::prelude::*;
+use wgpu::util::DeviceExt;
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
@@ -7,6 +8,22 @@ pub struct Vertex {
     pub color: [f32; 3],
     pub direction: [f32; 3],
     pub velocity: f32,
+}
+
+pub fn create_vertex_buffer(device: &wgpu::Device, vertices: &[Vertex]) -> wgpu::Buffer {
+    device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        label: Some("Vertex Buffer"),
+        contents: bytemuck::cast_slice(vertices),
+        usage: wgpu::BufferUsage::VERTEX,
+    })
+}
+
+pub fn create_index_buffer(device: &wgpu::Device, indices: &[u16]) -> wgpu::Buffer {
+    device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        label: Some("Index Buffer"),
+        contents: bytemuck::cast_slice(indices),
+        usage: wgpu::BufferUsage::INDEX,
+    })
 }
 
 impl Vertex {
