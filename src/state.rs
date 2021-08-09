@@ -52,7 +52,7 @@ impl State {
 
     #[allow(dead_code)]
     pub fn new_random_vertices() -> Vec<Vertex> {
-        (0..20)
+        (0..50)
             .into_par_iter()
             .map(|_| Vertex::new_random())
             .collect()
@@ -63,7 +63,7 @@ impl State {
         let mut rng = rand::thread_rng();
         let mut num = || rng.gen_range(0..n);
 
-        (0..30).map(|_| num()).collect()
+        (0..50).map(|_| num()).collect()
     }
 
     #[allow(dead_code)]
@@ -99,8 +99,8 @@ impl State {
             source: wgpu::ShaderSource::Wgsl(include_str!("shader.wgsl").into()),
         });
 
-        let vertices_fn = State::new_shape_vertices;
-        let indices_fn = State::new_shape_indices;
+        let vertices_fn = State::new_random_vertices;
+        let indices_fn = State::new_random_indices;
 
         let vertices = vertices_fn();
         let num_vertices = vertices.len() as u32;
@@ -204,12 +204,15 @@ impl State {
 
     pub fn update(&mut self, dt: std::time::Duration) {
         self.count += 1;
-        if self.count > 500 {
+        if self.count > 300 {
             self.vertices = (self.vertices_fn)();
             self.clear_color = State::new_random_clear_color();
             self.count = 0;
         }
-        self.vertices.par_iter_mut().for_each(|v| v.update());
+        let clear_color = self.clear_color.clone();
+        self.vertices
+            .par_iter_mut()
+            .for_each(|v| v.update(clear_color));
         self.camera_controller.update_camera(&mut self.camera, dt);
         self.uniforms
             .update_view_proj(&self.camera, &self.projection);
@@ -242,11 +245,13 @@ impl State {
             });
         self.vertex_buffer = vertex_buffer;
 
-        let (instances, instance_buffer) =
-            make_instances_and_instance_buffer(self.size, &self.device);
+        // if self.count % 50 == 0 {
+        // let (instances, instance_buffer) =
+        // make_instances_and_instance_buffer(self.size, &self.device);
 
-        self.instances = instances;
-        self.instance_buffer = instance_buffer;
+        // self.instances = instances;
+        // self.instance_buffer = instance_buffer;
+        // }
 
         {
             let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {

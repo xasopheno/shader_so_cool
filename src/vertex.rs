@@ -5,7 +5,7 @@ use wgpu::util::DeviceExt;
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct Vertex {
     pub position: [f32; 3],
-    pub color: [f32; 3],
+    pub color: [f32; 4],
     pub direction: [f32; 3],
     pub velocity: f32,
 }
@@ -32,7 +32,7 @@ impl Vertex {
         let mut r = || rng.gen::<f32>() * 2.0 - 1.0;
         Self {
             position: [x, y, z],
-            color: [r(), r(), r()],
+            color: [r(), r(), r(), 1.0],
             direction: [r(), r(), r()],
             velocity: r(),
         }
@@ -41,16 +41,34 @@ impl Vertex {
         let mut rng = rand::thread_rng();
         let mut r = || rng.gen::<f32>() * 2.0 - 1.0;
         Self {
-            position: [r(), r(), r()],
-            color: [r(), r(), r()],
+            position: [r() * 1.3, r() * 1.3, r() * 1.3],
+            color: [r(), r(), r(), 1.0],
             direction: [r(), r(), r()],
-            velocity: r() * 2.0,
+            velocity: r() * 8.0,
         }
     }
-    pub fn update(&mut self) {
+    pub fn update(&mut self, clear_color: (f64, f64, f64)) {
         self.position[0] += self.velocity * self.direction[0] * 0.01;
         self.position[1] += self.velocity * self.direction[0] * 0.01;
         self.position[2] += self.velocity * self.direction[0] * 0.01;
+        if clear_color.0 < self.color[0] as f64 {
+            self.color[0] = f32::max(clear_color.0 as f32, self.color[0] - 0.005);
+        } else {
+            self.color[0] = f32::min(clear_color.0 as f32, self.color[0] + 0.005);
+        }
+        if clear_color.1 < self.color[1] as f64 {
+            self.color[1] = f32::max(clear_color.1 as f32, self.color[1] - 0.005);
+        } else {
+            self.color[1] = f32::min(clear_color.1 as f32, self.color[1] + 0.005);
+        }
+        if clear_color.2 < self.color[2] as f64 {
+            self.color[2] = f32::max(clear_color.2 as f32, self.color[2] - 0.005);
+        } else {
+            self.color[2] = f32::min(clear_color.2 as f32, self.color[2] + 0.005);
+        }
+        // self.color[1] = f32::max(clear_color.1 as f32, self.color[1] - 0.001);
+        // self.color[2] = f32::max(clear_color.2 as f32, self.color[2] - 0.001);
+        // self.color[3] = f64::max(0.0, self.color[3] - 0.01);
     }
 
     pub fn desc<'a>() -> wgpu::VertexBufferLayout<'a> {
@@ -66,7 +84,7 @@ impl Vertex {
                 wgpu::VertexAttribute {
                     offset: std::mem::size_of::<[f32; 3]>() as wgpu::BufferAddress,
                     shader_location: 1,
-                    format: wgpu::VertexFormat::Float32x3,
+                    format: wgpu::VertexFormat::Float32x4,
                 },
             ],
         }
