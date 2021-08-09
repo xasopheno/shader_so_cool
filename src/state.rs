@@ -1,6 +1,6 @@
 use crate::{
     camera::{Camera, CameraController, Projection},
-    instance::{make_instances, Instance},
+    instance::{make_instances, make_instances_and_instance_buffer, Instance},
     render_pipleline::create_render_pipeline,
     setup::Setup,
     vertex::{create_index_buffer, create_vertex_buffer, Vertex},
@@ -101,16 +101,17 @@ impl State {
 
         let vertices_fn = State::new_shape_vertices;
         let indices_fn = State::new_shape_indices;
+
         let vertices = vertices_fn();
         let num_vertices = vertices.len() as u32;
         let indices = indices_fn(num_vertices as u16);
-        let (instances, instance_buffer) = make_instances(window.inner_size(), &device);
+        let (instances, instance_buffer) =
+            make_instances_and_instance_buffer(window.inner_size(), &device);
         let (camera, projection, camera_controller) = crate::camera::Camera::new(&sc_desc);
         let (uniforms, uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
             crate::uniforms::Uniforms::new(&device);
         let render_pipeline =
             create_render_pipeline(&device, &shader, &uniform_bind_group_layout, &sc_desc);
-
         let vertex_buffer = create_vertex_buffer(&device, &vertices.as_slice());
         let index_buffer = create_index_buffer(&device, &indices.as_slice());
 
@@ -146,12 +147,16 @@ impl State {
     }
 
     pub fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
-        let (instances, instance_buffer) = make_instances(new_size, &self.device);
+        self.size = new_size;
+
+        let (instances, instance_buffer) =
+            make_instances_and_instance_buffer(new_size, &self.device);
         self.instances = instances;
         self.instance_buffer = instance_buffer;
-        self.size = new_size;
+
         self.sc_desc.width = new_size.width;
         self.sc_desc.height = new_size.height;
+
         self.swap_chain = self.device.create_swap_chain(&self.surface, &self.sc_desc);
         self.projection.resize(new_size.width, new_size.height);
     }
@@ -235,8 +240,14 @@ impl State {
                 contents: bytemuck::cast_slice(&self.vertices.as_slice()),
                 usage: wgpu::BufferUsage::VERTEX,
             });
-
         self.vertex_buffer = vertex_buffer;
+
+        let (instances, instance_buffer) =
+            make_instances_and_instance_buffer(self.size, &self.device);
+
+        self.instances = instances;
+        self.instance_buffer = instance_buffer;
+
         {
             let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 label: Some("Render Pass"),

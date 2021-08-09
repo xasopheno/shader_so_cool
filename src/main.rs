@@ -24,15 +24,11 @@ fn main() {
         .expect("Unable to create window");
 
     let mut state = block_on(State::new(&window));
-    let mut last_render_time = std::time::Instant::now();
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Poll;
         match event {
             Event::MainEventsCleared => window.request_redraw(),
-            Event::DeviceEvent {
-                ref event,
-                .. // We're not using device_id currently
-            } => {
+            Event::DeviceEvent { ref event, .. } => {
                 state.input(event);
             }
             Event::WindowEvent {
@@ -50,7 +46,7 @@ fn main() {
                         } => {
                             *control_flow = ControlFlow::Exit;
                         }
-                        _ => {state.keyboard_input(event)}
+                        _ => state.keyboard_input(event),
                     },
                     WindowEvent::Resized(physical_size) => {
                         state.resize(*physical_size);
@@ -61,12 +57,8 @@ fn main() {
                     _ => {}
                 }
             }
-            // UPDATED!
+
             Event::RedrawRequested(_) => {
-                let now = std::time::Instant::now();
-                let dt = now - last_render_time;
-                last_render_time = now;
-                state.update(dt);
                 match state.render() {
                     Ok(_) => {}
                     // Recreate the swap_chain if lost
