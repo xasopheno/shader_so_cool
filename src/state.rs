@@ -35,6 +35,8 @@ pub struct State {
     pub last_render_time: std::time::Instant,
     pub instances: Vec<Instance>,
     pub instance_buffer: wgpu::Buffer,
+    pub vertices_fn: fn() -> Vec<Vertex>,
+    pub indices_fn: fn(u16) -> Vec<u16>,
 }
 
 fn random_color() -> f64 {
@@ -46,12 +48,16 @@ impl State {
     pub fn new_random_clear_color() -> (f64, f64, f64) {
         (random_color(), random_color(), random_color())
     }
+
+    #[allow(dead_code)]
     pub fn new_random_vertices() -> Vec<Vertex> {
         (0..20)
             .into_par_iter()
             .map(|_| Vertex::new_random())
             .collect()
     }
+
+    #[allow(dead_code)]
     pub fn new_random_indices(n: u16) -> Vec<u16> {
         let mut rng = rand::thread_rng();
         let mut num = || rng.gen_range(0..n);
@@ -59,6 +65,7 @@ impl State {
         (0..30).map(|_| num()).collect()
     }
 
+    #[allow(dead_code)]
     pub fn new_shape_vertices() -> Vec<Vertex> {
         let size = 1.0;
         vec![
@@ -68,83 +75,39 @@ impl State {
             Vertex::new(size, -size, 0.0),
         ]
     }
-    pub fn new_shape_indices(n: u16) -> Vec<u16> {
+
+    #[allow(dead_code)]
+    pub fn new_shape_indices(_n: u16) -> Vec<u16> {
         vec![0, 1, 2, 0, 2, 3]
     }
+
     pub async fn new(window: &Window) -> Self {
         let Setup {
             device,
             surface,
             queue,
+            swap_chain,
             swap_chain_format,
             sc_desc,
             ..
         } = Setup::init(window).await;
 
-        let vertices = State::new_shape_vertices();
-        let size = window.inner_size();
-        let num_vertices = vertices.len() as u32;
-        let indices = State::new_shape_indices(num_vertices as u16);
-
-        let instances = make_instances(size);
-        let instance_data = instances.iter().map(Instance::to_raw).collect::<Vec<_>>();
-        let instance_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("Instance Buffer"),
-            contents: bytemuck::cast_slice(&instance_data),
-            usage: wgpu::BufferUsage::VERTEX,
-        });
-
-        let camera =
-            crate::camera::Camera::new((0.0, 0.0, 3.0), cgmath::Deg(-90.0), cgmath::Deg(0.0));
-        let projection = crate::camera::Projection::new(
-            sc_desc.width,
-            sc_desc.height,
-            cgmath::Deg(45.0),
-            0.1,
-            10_000.0,
-        );
-
-        let camera_controller = crate::camera::CameraController::new(4.0, 0.4);
-
-        let mut uniforms = crate::uniforms::Uniforms::new();
-        uniforms.update_view_proj(&camera, &projection);
-
-        let uniform_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("Uniform Buffer"),
-            contents: bytemuck::cast_slice(&[uniforms]),
-            usage: wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST,
-        });
-
-        let uniform_bind_group_layout =
-            device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-                entries: &[wgpu::BindGroupLayoutEntry {
-                    binding: 0,
-                    visibility: wgpu::ShaderStage::VERTEX,
-                    ty: wgpu::BindingType::Buffer {
-                        ty: wgpu::BufferBindingType::Uniform,
-                        has_dynamic_offset: false,
-                        min_binding_size: None,
-                    },
-                    count: None,
-                }],
-                label: Some("uniform_bind_group_layout"),
-            });
-
-        let uniform_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-            layout: &&uniform_bind_group_layout,
-            entries: &[wgpu::BindGroupEntry {
-                binding: 0,
-                resource: uniform_buffer.as_entire_binding(),
-            }],
-            label: Some("uniform_bind_group"),
-        });
-
-        let swap_chain = device.create_swap_chain(&surface, &sc_desc);
         let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
             label: Some("Shader"),
             flags: wgpu::ShaderFlags::all(),
             source: wgpu::ShaderSource::Wgsl(include_str!("shader.wgsl").into()),
         });
+
+        let vertices_fn = State::new_shape_vertices;
+        let indices_fn = State::new_shape_indices;
+        let vertices = vertices_fn();
+        let num_vertices = vertices.len() as u32;
+        let indices = indices_fn(num_vertices as u16);
+        let (instances, instance_buffer) = make_instances(window.inner_size(), &device);
+        let (camera, projection, camera_controller) = crate::camera::Camera::new(&sc_desc);
+
+        let (uniforms, uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
+            crate::uniforms::Uniforms::new(&device);
 
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
@@ -198,23 +161,19 @@ impl State {
             usage: wgpu::BufferUsage::INDEX,
         });
 
-        let num_indices = indices.len() as u32;
-
-        let clear_color = State::new_random_clear_color();
-
         Self {
             surface,
             device,
             queue,
             sc_desc,
             swap_chain,
-            size,
+            size: window.inner_size(),
             render_pipeline,
             vertex_buffer,
             num_vertices,
             index_buffer,
-            num_indices,
-            clear_color,
+            num_indices: indices.len() as u32,
+            clear_color: State::new_random_clear_color(),
             vertices: vertices.into(),
             count: 0,
             swap_chain_format,
@@ -228,6 +187,8 @@ impl State {
             last_render_time: std::time::Instant::now(),
             instances,
             instance_buffer,
+            vertices_fn,
+            indices_fn,
         }
     }
 
@@ -286,7 +247,7 @@ impl State {
     pub fn update(&mut self, dt: std::time::Duration) {
         self.count += 1;
         if self.count > 500 {
-            self.vertices = State::new_shape_vertices();
+            self.vertices = (self.vertices_fn)();
             self.clear_color = State::new_random_clear_color();
             self.count = 0;
         }

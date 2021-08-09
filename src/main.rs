@@ -2,7 +2,6 @@ mod camera;
 mod instance;
 mod setup;
 mod state;
-mod texture;
 mod uniforms;
 mod vertex;
 use crate::state::State;

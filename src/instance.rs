@@ -1,7 +1,7 @@
-use cgmath::{Angle, InnerSpace, Rotation3, Zero};
-use rand::prelude::*;
-use rand::Rng;
+use cgmath::Rotation3;
+// use rand::Rng;
 use rayon::prelude::*;
+use wgpu::util::DeviceExt;
 
 pub struct Instance {
     pub position: cgmath::Vector3<f32>,
@@ -14,25 +14,28 @@ pub struct InstanceRaw {
     model: [[f32; 4]; 4],
 }
 
-pub fn make_instances(size: winit::dpi::PhysicalSize<u32>) -> Vec<Instance> {
-    dbg!(size);
+pub fn make_instances(
+    size: winit::dpi::PhysicalSize<u32>,
+    device: &wgpu::Device,
+) -> (Vec<Instance>, wgpu::Buffer) {
+    // dbg!(size);
     let ratio = size.width as f32 / size.height as f32;
-    dbg!(ratio);
+    // dbg!(ratio);
     let n_pixels = 20.0;
     let n_row = (n_pixels * ratio) as u32;
     let n_column = (n_pixels / ratio) as u32;
-    dbg!(n_row, n_column);
+    // dbg!(n_row, n_column);
     let instance_displacement: cgmath::Vector3<f32> =
         cgmath::Vector3::new(n_row as f32 - 1.0, n_column as f32 - 1.0, n_pixels * 2.0);
 
-    (0..n_column)
+    let instances = (0..n_column)
         .into_par_iter()
         .flat_map(|y| {
             (0..n_row).into_par_iter().map(move |x| {
-                let mut rng1 = rand::thread_rng();
-                let mut rng2 = rand::thread_rng();
-                let mut rr = || rng1.gen::<f32>() * n_row as f32;
-                let mut rc = || rng2.gen::<f32>() * n_column as f32;
+                // let mut rng1 = rand::thread_rng();
+                // let mut rng2 = rand::thread_rng();
+                // let mut rr = || rng1.gen::<f32>() * n_row as f32;
+                // let mut rc = || rng2.gen::<f32>() * n_column as f32;
                 let position = cgmath::Vector3 {
                     x: x as f32 * 2.0,
                     y: y as f32 * 2.0,
@@ -47,7 +50,14 @@ pub fn make_instances(size: winit::dpi::PhysicalSize<u32>) -> Vec<Instance> {
                 Instance { position, rotation }
             })
         })
-        .collect::<Vec<_>>()
+        .collect::<Vec<_>>();
+    let instance_data = instances.iter().map(Instance::to_raw).collect::<Vec<_>>();
+    let instance_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        label: Some("Instance Buffer"),
+        contents: bytemuck::cast_slice(&instance_data),
+        usage: wgpu::BufferUsage::VERTEX,
+    });
+    (instances, instance_buffer)
 }
 
 impl Instance {

@@ -1,14 +1,4 @@
-use crate::{
-    camera::{Camera, CameraController, Projection},
-    instance::{make_instances, Instance, InstanceRaw},
-    texture,
-    vertex::Vertex,
-};
-use image::GenericImageView;
-use rand::prelude::*;
-use rayon::prelude::*;
-use wgpu::util::DeviceExt;
-use winit::{event::*, window::Window};
+use winit::window::Window;
 
 pub struct Setup {
     pub surface: wgpu::Surface,

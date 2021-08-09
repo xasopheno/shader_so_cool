@@ -22,16 +22,24 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn new<V: Into<Point3<f32>>, Y: Into<Rad<f32>>, P: Into<Rad<f32>>>(
-        position: V,
-        yaw: Y,
-        pitch: P,
-    ) -> Self {
-        Self {
-            position: position.into(),
-            yaw: yaw.into(),
-            pitch: pitch.into(),
-        }
+    pub fn new(sc_desc: &wgpu::SwapChainDescriptor) -> (Self, Projection, CameraController) {
+        let camera = Self {
+            position: (0.0, 0.0, 3.0).into(),
+            yaw: cgmath::Deg(-90.0).into(),
+            pitch: cgmath::Deg(0.0).into(),
+        };
+
+        let projection = Projection::new(
+            sc_desc.width,
+            sc_desc.height,
+            cgmath::Deg(45.0),
+            0.1,
+            10_000.0,
+        );
+
+        let camera_controller = crate::camera::CameraController::new(8.0, 0.7);
+
+        (camera, projection, camera_controller)
     }
 
     pub fn calc_matrix(&self) -> Matrix4<f32> {
