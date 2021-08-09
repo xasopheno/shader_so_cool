@@ -18,15 +18,12 @@ pub fn make_instances(
     size: winit::dpi::PhysicalSize<u32>,
     device: &wgpu::Device,
 ) -> (Vec<Instance>, wgpu::Buffer) {
-    // dbg!(size);
     let ratio = size.width as f32 / size.height as f32;
-    // dbg!(ratio);
-    let n_pixels = 20.0;
+    let n_pixels = 25.0;
     let n_row = (n_pixels * ratio) as u32;
-    let n_column = (n_pixels / ratio) as u32;
-    // dbg!(n_row, n_column);
+    let n_column = n_pixels as u32;
     let instance_displacement: cgmath::Vector3<f32> =
-        cgmath::Vector3::new(n_row as f32 - 1.0, n_column as f32 - 1.0, n_pixels * 2.0);
+        cgmath::Vector3::new(n_row as f32 - 1.0, (n_column - 1) as f32, n_pixels * 2.7);
 
     let instances = (0..n_column)
         .into_par_iter()
@@ -57,6 +54,7 @@ pub fn make_instances(
         contents: bytemuck::cast_slice(&instance_data),
         usage: wgpu::BufferUsage::VERTEX,
     });
+
     (instances, instance_buffer)
 }
 
@@ -82,8 +80,6 @@ impl InstanceRaw {
             attributes: &[
                 wgpu::VertexAttribute {
                     offset: 0,
-                    // While our vertex shader only uses locations 0, and 1 now, in later tutorials we'll
-                    // be using 2, 3, and 4, for Vertex. We'll start at slot 5 not conflict with them later
                     shader_location: 5,
                     format: wgpu::VertexFormat::Float32x4,
                 },

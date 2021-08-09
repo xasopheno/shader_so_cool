@@ -105,7 +105,6 @@ impl State {
         let indices = indices_fn(num_vertices as u16);
         let (instances, instance_buffer) = make_instances(window.inner_size(), &device);
         let (camera, projection, camera_controller) = crate::camera::Camera::new(&sc_desc);
-
         let (uniforms, uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
             crate::uniforms::Uniforms::new(&device);
 
@@ -193,6 +192,9 @@ impl State {
     }
 
     pub fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
+        let (instances, instance_buffer) = make_instances(new_size, &self.device);
+        self.instances = instances;
+        self.instance_buffer = instance_buffer;
         self.size = new_size;
         self.sc_desc.width = new_size.width;
         self.sc_desc.height = new_size.height;
@@ -227,10 +229,7 @@ impl State {
                 self.camera_controller.process_scroll(&*delta);
                 true
             }
-            DeviceEvent::Button {
-                button: 0, // Left Mouse Button
-                state,
-            } => {
+            DeviceEvent::Button { button: _, state } => {
                 self.mouse_pressed = *state == ElementState::Pressed;
                 true
             }
@@ -309,6 +308,7 @@ impl State {
             render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
             render_pass.set_vertex_buffer(1, self.instance_buffer.slice(..));
             render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
+
             render_pass.draw_indexed(0..self.num_indices, 0, 0..self.instances.len() as _);
         }
         self.queue.submit(std::iter::once(encoder.finish()));
