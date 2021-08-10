@@ -1,6 +1,8 @@
 use crate::{
     camera::{Camera, CameraController, Projection},
-    instance::{make_instances, make_instances_and_instance_buffer, Instance},
+    instance::{
+        make_instance_buffer, make_instances, make_instances_and_instance_buffer, Instance,
+    },
     render_pipleline::create_render_pipeline,
     setup::Setup,
     vertex::{create_index_buffer, create_vertex_buffer, Vertex},
@@ -40,12 +42,18 @@ pub struct State {
     pub indices_fn: fn(u16) -> Vec<u16>,
 }
 
+#[allow(dead_code)]
 fn random_color() -> f64 {
     let mut rng = rand::thread_rng();
     rng.gen::<f64>()
 }
 
 impl State {
+    pub fn new_clear_color() -> (f64, f64, f64) {
+        (0.7, 0.3, 0.6)
+    }
+
+    #[allow(dead_code)]
     pub fn new_random_clear_color() -> (f64, f64, f64) {
         (random_color(), random_color(), random_color())
     }
@@ -99,8 +107,8 @@ impl State {
             source: wgpu::ShaderSource::Wgsl(include_str!("shader.wgsl").into()),
         });
 
-        let vertices_fn = State::new_random_vertices;
-        let indices_fn = State::new_random_indices;
+        let vertices_fn = State::new_shape_vertices;
+        let indices_fn = State::new_shape_indices;
 
         let vertices = vertices_fn();
         let num_vertices = vertices.len() as u32;
@@ -127,7 +135,7 @@ impl State {
             num_vertices,
             index_buffer,
             num_indices: indices.len() as u32,
-            clear_color: State::new_random_clear_color(),
+            clear_color: State::new_clear_color(),
             vertices: vertices.into(),
             count: 0,
             swap_chain_format,
@@ -206,7 +214,7 @@ impl State {
         self.count += 1;
         if self.count > 300 {
             self.vertices = (self.vertices_fn)();
-            self.clear_color = State::new_random_clear_color();
+            // self.clear_color = State::new_random_clear_color();
             self.count = 0;
         }
         let clear_color = self.clear_color.clone();
@@ -245,13 +253,28 @@ impl State {
             });
         self.vertex_buffer = vertex_buffer;
 
-        // if self.count % 50 == 0 {
-        // let (instances, instance_buffer) =
-        // make_instances_and_instance_buffer(self.size, &self.device);
+        self.instances = self
+            .instances
+            .par_iter_mut()
+            .map(|i| {
+                let result = i.update_state();
+                if result == true {
+                    return Some(i.to_owned());
+                } else {
+                    return None;
+                }
+            })
+            .filter(|i| i.is_some())
+            .map(Option::unwrap)
+            .collect();
+        self.instance_buffer = make_instance_buffer(&self.instances, self.size, &self.device);
 
-        // self.instances = instances;
-        // self.instance_buffer = instance_buffer;
-        // }
+        if self.count % 100 == 0 {
+            let (instances, instance_buffer) =
+                make_instances_and_instance_buffer(self.size, &self.device);
+            self.instances = instances;
+            self.instance_buffer = instance_buffer;
+        }
 
         {
             let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {

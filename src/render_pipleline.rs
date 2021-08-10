@@ -24,7 +24,7 @@ pub fn create_render_pipeline(
             entry_point: "main",
             targets: &[wgpu::ColorTargetState {
                 format: sc_desc.format,
-                blend: Some(wgpu::BlendState::REPLACE),
+                blend: Some(wgpu::BlendState::ALPHA_BLENDING),
                 write_mask: wgpu::ColorWrite::ALL,
             }],
         }),
