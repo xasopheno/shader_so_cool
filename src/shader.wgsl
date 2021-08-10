@@ -9,7 +9,7 @@ var<uniform> uniforms: Uniforms;
 
 struct VertexInput {
   [[location(0)]] position: vec3<f32>;
-  [[location(1)]] color: vec4<f32>;
+  [[location(1)]] color: vec3<f32>;
 };
 
 struct VertexOutput {
@@ -22,6 +22,7 @@ struct InstanceInput {
     [[location(6)]] model_matrix_1: vec4<f32>;
     [[location(7)]] model_matrix_2: vec4<f32>;
     [[location(8)]] model_matrix_3: vec4<f32>;
+    [[location(9)]] life: f32;
 };
 
 [[stage(vertex)]]
@@ -30,13 +31,20 @@ fn main(
   instance: InstanceInput,
 ) -> VertexOutput {
   let model_matrix = mat4x4<f32>(
-        instance.model_matrix_0,
-        instance.model_matrix_1,
-        instance.model_matrix_2,
-        instance.model_matrix_3,
+      instance.model_matrix_0,
+      instance.model_matrix_1,
+      instance.model_matrix_2,
+      instance.model_matrix_3,
   );
   var out: VertexOutput;
-  out.color = model.color;
+  let color_matrix = vec3<f32>(
+      model.color
+  );
+  let alpha_matrix = vec4<f32>(
+    model.color,
+    instance.life
+  );
+  out.color = alpha_matrix;
   out.clip_position = uniforms.view_proj * model_matrix * vec4<f32>(model.position, 1.0);
   return out;
 }

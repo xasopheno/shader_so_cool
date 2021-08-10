@@ -7,13 +7,14 @@ use wgpu::util::DeviceExt;
 pub struct Instance {
     pub position: cgmath::Vector3<f32>,
     pub rotation: cgmath::Quaternion<f32>,
-    pub life: i32,
+    pub life: f32,
 }
 
 #[repr(C)]
 #[derive(Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct InstanceRaw {
     model: [[f32; 4]; 4],
+    life: f32,
 }
 
 pub fn make_instances(size: winit::dpi::PhysicalSize<u32>) -> Vec<Instance> {
@@ -53,7 +54,7 @@ pub fn make_instances(size: winit::dpi::PhysicalSize<u32>) -> Vec<Instance> {
             Instance {
                 position,
                 rotation,
-                life: 50,
+                life: 1.0,
             }
             // })
         })
@@ -90,12 +91,13 @@ impl Instance {
             model: (cgmath::Matrix4::from_translation(self.position)
                 * cgmath::Matrix4::from(self.rotation))
             .into(),
+            life: self.life,
         }
     }
 
     pub fn update_state(&mut self) -> bool {
-        self.life -= 1;
-        if self.life > 0 {
+        self.life -= 0.01;
+        if self.life > 0.0 {
             return true;
         } else {
             return false;
@@ -134,7 +136,12 @@ impl InstanceRaw {
                 wgpu::VertexAttribute {
                     offset: mem::size_of::<[f32; 12]>() as wgpu::BufferAddress,
                     shader_location: 8,
-                    format: wgpu::VertexFormat::Float32x4,
+                    format: wgpu::VertexFormat::Float32x3,
+                },
+                wgpu::VertexAttribute {
+                    offset: mem::size_of::<[f32; 16]>() as wgpu::BufferAddress,
+                    shader_location: 9,
+                    format: wgpu::VertexFormat::Float32,
                 },
             ],
         }

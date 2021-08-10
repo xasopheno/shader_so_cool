@@ -5,7 +5,7 @@ use wgpu::util::DeviceExt;
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct Vertex {
     pub position: [f32; 3],
-    pub color: [f32; 4],
+    pub color: [f32; 3],
     pub direction: [f32; 3],
     pub velocity: f32,
     // pub decay: f32,
@@ -33,7 +33,7 @@ impl Vertex {
         let mut r = || rng.gen::<f32>() * 2.0 - 1.0;
         Self {
             position: [x, y, z],
-            color: [0.0, 0.0, 0.0, 1.0],
+            color: [0.0, 0.0, 0.0],
             direction: [r(), r(), r()],
             velocity: r(),
             // decay: 0.004,
@@ -44,7 +44,7 @@ impl Vertex {
         let mut r = || rng.gen::<f32>() * 2.0 - 1.0;
         Self {
             position: [r() * 1.0, r() * 1.0, r() * 1.0],
-            color: [r(), r(), r(), 1.0],
+            color: [r(), r(), r()],
             direction: [r(), r(), r()],
             velocity: r() * 8.0,
             // decay: 0.004,
@@ -87,7 +87,7 @@ impl Vertex {
                 wgpu::VertexAttribute {
                     offset: std::mem::size_of::<[f32; 3]>() as wgpu::BufferAddress,
                     shader_location: 1,
-                    format: wgpu::VertexFormat::Float32x4,
+                    format: wgpu::VertexFormat::Float32x3,
                 },
             ],
         }
