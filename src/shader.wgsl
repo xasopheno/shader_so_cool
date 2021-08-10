@@ -45,7 +45,8 @@ fn main(
     instance.life
   );
   out.color = alpha_matrix;
-  out.clip_position = uniforms.view_proj * model_matrix * vec4<f32>(model.position, 1.0);
+  out.clip_position = uniforms.view_proj * model_matrix * vec4<f32>(model.position.x, model.position.y,
+      model.position.z + (instance.life * -200.0), 1.0);
   return out;
 }
 

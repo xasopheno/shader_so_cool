@@ -107,8 +107,8 @@ impl State {
             source: wgpu::ShaderSource::Wgsl(include_str!("shader.wgsl").into()),
         });
 
-        let vertices_fn = State::new_shape_vertices;
-        let indices_fn = State::new_shape_indices;
+        let vertices_fn = State::new_random_vertices;
+        let indices_fn = State::new_random_indices;
 
         let vertices = vertices_fn();
         let num_vertices = vertices.len() as u32;
@@ -212,11 +212,10 @@ impl State {
 
     pub fn update(&mut self, dt: std::time::Duration) {
         self.count += 1;
-        if self.count > 300 {
-            self.vertices = (self.vertices_fn)();
-            // self.clear_color = State::new_random_clear_color();
-            self.count = 0;
-        }
+        // if self.count % 400 == 0 {
+        // self.vertices = (self.vertices_fn)();
+        // self.clear_color = State::new_random_clear_color();
+        // }
         let clear_color = self.clear_color.clone();
         self.vertices
             .par_iter_mut()
@@ -252,29 +251,13 @@ impl State {
                 usage: wgpu::BufferUsage::VERTEX,
             });
         self.vertex_buffer = vertex_buffer;
-
-        self.instances = self
-            .instances
-            .par_iter_mut()
-            .map(|i| {
-                let result = i.update_state();
-                if result == true {
-                    return Some(i.to_owned());
-                } else {
-                    return None;
-                }
-            })
-            .filter(|i| i.is_some())
-            .map(Option::unwrap)
-            .collect();
-        self.instance_buffer = make_instance_buffer(&self.instances, self.size, &self.device);
-
-        if self.count % 100 == 0 {
-            let (instances, instance_buffer) =
-                make_instances_and_instance_buffer(self.size, &self.device);
-            self.instances = instances;
-            self.instance_buffer = instance_buffer;
+        if self.count % 20 == 0 {
+            self.instances.append(&mut make_instances(self.size));
         }
+        self.instances.par_iter_mut().for_each(|i| {
+            i.update_state();
+        });
+        self.instance_buffer = make_instance_buffer(&self.instances, self.size, &self.device);
 
         {
             let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {

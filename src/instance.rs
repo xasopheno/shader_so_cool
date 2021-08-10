@@ -95,12 +95,10 @@ impl Instance {
         }
     }
 
-    pub fn update_state(&mut self) -> bool {
+    pub fn update_state(&mut self) {
         self.life -= 0.01;
-        if self.life > 0.0 {
-            return true;
-        } else {
-            return false;
+        if self.life == 0.0 {
+            drop(self);
         }
     }
 }
