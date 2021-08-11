@@ -23,6 +23,7 @@ struct InstanceInput {
     [[location(7)]] model_matrix_2: vec4<f32>;
     [[location(8)]] model_matrix_3: vec4<f32>;
     [[location(9)]] life: f32;
+    [[location(10)]] size: f32;
 };
 
 [[stage(vertex)]]
@@ -40,13 +41,24 @@ fn main(
   let color_matrix = vec3<f32>(
       model.color
   );
-  let alpha_matrix = vec4<f32>(
-    model.color,
-    instance.life
+
+  let scale = mat4x4<f32>(
+      vec4<f32>(instance.size, 0.0, 0.0, 0.0),
+      vec4<f32>(0.0, instance.size, 0.0, 0.0),
+      vec4<f32>(0.0, 0.0, instance.size, 0.0),
+      vec4<f32>(0.0, 0.0, 0.0, 1.0)
   );
-  out.color = alpha_matrix;
-  out.clip_position = uniforms.view_proj * model_matrix * vec4<f32>(model.position.x, model.position.y,
-      model.position.z + (instance.life * -200.0), 1.0);
+
+  out.color = vec4<f32>(model.color, instance.life);
+  out.clip_position = 
+    uniforms.view_proj 
+    * model_matrix 
+    * scale
+    * vec4<f32>(
+        model.position.x, 
+        model.position.y,
+        model.position.z + (instance.life * -20.0) + 6.0, 1.0
+    );
   return out;
 }
 

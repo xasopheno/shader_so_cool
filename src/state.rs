@@ -114,7 +114,7 @@ impl State {
         let num_vertices = vertices.len() as u32;
         let indices = indices_fn(num_vertices as u16);
         let (instances, instance_buffer) =
-            make_instances_and_instance_buffer(window.inner_size(), &device);
+            make_instances_and_instance_buffer(100, window.inner_size(), &device);
         let (camera, projection, camera_controller) = crate::camera::Camera::new(&sc_desc);
         let (uniforms, uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
             crate::uniforms::Uniforms::new(&device);
@@ -158,7 +158,7 @@ impl State {
         self.size = new_size;
 
         let (instances, instance_buffer) =
-            make_instances_and_instance_buffer(new_size, &self.device);
+            make_instances_and_instance_buffer(100, new_size, &self.device);
         self.instances = instances;
         self.instance_buffer = instance_buffer;
 
@@ -212,10 +212,10 @@ impl State {
 
     pub fn update(&mut self, dt: std::time::Duration) {
         self.count += 1;
-        // if self.count % 400 == 0 {
-        // self.vertices = (self.vertices_fn)();
-        // self.clear_color = State::new_random_clear_color();
-        // }
+        if self.count % 400 == 0 {
+            self.vertices = (self.vertices_fn)();
+            self.clear_color = State::new_random_clear_color();
+        }
         let clear_color = self.clear_color.clone();
         self.vertices
             .par_iter_mut()
@@ -251,9 +251,9 @@ impl State {
                 usage: wgpu::BufferUsage::VERTEX,
             });
         self.vertex_buffer = vertex_buffer;
-        if self.count % 20 == 0 {
-            self.instances.append(&mut make_instances(self.size));
-        }
+        // if self.count % 20 == 0 {
+        self.instances.append(&mut make_instances(3, self.size));
+        // }
         self.instances.par_iter_mut().for_each(|i| {
             i.update_state();
         });

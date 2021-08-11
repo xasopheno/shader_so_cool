@@ -1,5 +1,6 @@
 mod camera;
 mod instance;
+mod render_op;
 mod render_pipleline;
 mod setup;
 mod state;

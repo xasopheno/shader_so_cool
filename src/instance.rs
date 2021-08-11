@@ -8,6 +8,7 @@ pub struct Instance {
     pub position: cgmath::Vector3<f32>,
     pub rotation: cgmath::Quaternion<f32>,
     pub life: f32,
+    pub size: f32,
 }
 
 #[repr(C)]
@@ -15,9 +16,10 @@ pub struct Instance {
 pub struct InstanceRaw {
     model: [[f32; 4]; 4],
     life: f32,
+    size: f32,
 }
 
-pub fn make_instances(size: winit::dpi::PhysicalSize<u32>) -> Vec<Instance> {
+pub fn make_instances(n: usize, size: winit::dpi::PhysicalSize<u32>) -> Vec<Instance> {
     let ratio = size.width as f32 / size.height as f32;
     let n_pixels = 20.0;
     let n_row = (n_pixels * ratio) as u32;
@@ -25,38 +27,30 @@ pub fn make_instances(size: winit::dpi::PhysicalSize<u32>) -> Vec<Instance> {
     let instance_displacement: cgmath::Vector3<f32> =
         cgmath::Vector3::new(n_row as f32 - 1.0, (n_column - 1) as f32, n_pixels * 2.7);
 
-    // (0..n_column)
-    // .into_par_iter()
-    // .flat_map(|_y| {
-    (0..n_pixels as usize * 8)
+    (0..n)
         .into_par_iter()
         .map(move |_x| {
-            let rand_num = rand::thread_rng().gen_range(0..n_pixels as usize);
             let mut rng1 = rand::thread_rng();
             let mut rng2 = rand::thread_rng();
+            let mut rng3 = rand::thread_rng();
             let mut rr = || rng1.gen::<f32>() * n_row as f32 * 2.0;
             let mut rc = || rng2.gen::<f32>() * n_column as f32 * 2.0;
             let position = cgmath::Vector3 {
                 x: rr(),
-                // y: if rand_num > (n_pixels * 0.9) as usize {
                 y: rc(),
-                // } else {
-                // -100.0
-                // },
-                // x: x as f32 * 2.0,
-                // y: y as f32 * 2.0,
                 z: 0.0 as f32,
             } - instance_displacement;
 
             let rotation =
                 cgmath::Quaternion::from_axis_angle(cgmath::Vector3::unit_x(), cgmath::Deg(0.0));
+            let size = rng3.gen::<f32>() * 2.0;
 
             Instance {
                 position,
                 rotation,
                 life: 1.0,
+                size, // size: if size > 0.5 { 2.0 } else { 0.5 },
             }
-            // })
         })
         .collect::<Vec<_>>()
 }
@@ -77,10 +71,11 @@ pub fn make_instance_buffer(
 }
 
 pub fn make_instances_and_instance_buffer(
+    n: usize,
     size: winit::dpi::PhysicalSize<u32>,
     device: &wgpu::Device,
 ) -> (Vec<Instance>, wgpu::Buffer) {
-    let instances = make_instances(size);
+    let instances = make_instances(n, size);
     let instance_buffer = make_instance_buffer(&instances, size, device);
     (instances, instance_buffer)
 }
@@ -92,6 +87,7 @@ impl Instance {
                 * cgmath::Matrix4::from(self.rotation))
             .into(),
             life: self.life,
+            size: self.size,
         }
     }
 
@@ -139,6 +135,11 @@ impl InstanceRaw {
                 wgpu::VertexAttribute {
                     offset: mem::size_of::<[f32; 16]>() as wgpu::BufferAddress,
                     shader_location: 9,
+                    format: wgpu::VertexFormat::Float32,
+                },
+                wgpu::VertexAttribute {
+                    offset: mem::size_of::<[f32; 17]>() as wgpu::BufferAddress,
+                    shader_location: 10,
                     format: wgpu::VertexFormat::Float32,
                 },
             ],
