@@ -251,12 +251,12 @@ impl State {
                 usage: wgpu::BufferUsage::VERTEX,
             });
         self.vertex_buffer = vertex_buffer;
-        // if self.count % 20 == 0 {
         self.instances.append(&mut make_instances(3, self.size));
-        // }
         self.instances.par_iter_mut().for_each(|i| {
             i.update_state();
         });
+
+        self.instances.retain(|i| i.life > 0.0);
         self.instance_buffer = make_instance_buffer(&self.instances, self.size, &self.device);
 
         {
