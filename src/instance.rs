@@ -49,7 +49,7 @@ pub fn make_instances(n: usize, size: winit::dpi::PhysicalSize<u32>) -> Vec<Inst
                 position,
                 rotation,
                 life: 1.0,
-                size, // size: if size > 0.5 { 2.0 } else { 0.5 },
+                size,
             }
         })
         .collect::<Vec<_>>()
@@ -91,8 +91,8 @@ impl Instance {
         }
     }
 
-    pub fn update_state(&mut self) {
-        self.life -= 0.01;
+    pub fn update_state(&mut self, dt: f32) {
+        self.life -= dt;
     }
 }
 

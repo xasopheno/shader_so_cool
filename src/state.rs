@@ -3,13 +3,13 @@ use crate::{
     instance::{
         make_instance_buffer, make_instances, make_instances_and_instance_buffer, Instance,
     },
+    render_op::Op4D,
     render_pipleline::create_render_pipeline,
     setup::Setup,
-    vertex::{create_index_buffer, create_vertex_buffer, Vertex},
+    vertex::{create_index_buffer, create_vertex_buffer, make_vertex_buffer, Vertex},
 };
 use rand::prelude::*;
 use rayon::prelude::*;
-use wgpu::util::DeviceExt;
 use winit::{event::*, window::Window};
 
 pub struct State {
@@ -40,6 +40,32 @@ pub struct State {
     pub instance_buffer: wgpu::Buffer,
     pub vertices_fn: fn() -> Vec<Vertex>,
     pub indices_fn: fn(u16) -> Vec<u16>,
+    pub canvas: Canvas,
+}
+
+pub struct Canvas {
+    ratio: f32,
+    n_pixels: f32,
+    n_row: u32,
+    n_column: u32,
+    instance_displacement: cgmath::Vector3<f32>,
+}
+
+fn canvas_info(size: winit::dpi::PhysicalSize<u32>) -> Canvas {
+    let ratio = size.width as f32 / size.height as f32;
+    let n_pixels = 20.0;
+    let n_row = (n_pixels * ratio) as u32;
+    let n_column = n_pixels as u32;
+    let instance_displacement: cgmath::Vector3<f32> =
+        cgmath::Vector3::new(n_row as f32 - 1.0, (n_column - 1) as f32, n_pixels * 2.7);
+
+    Canvas {
+        ratio,
+        n_pixels,
+        n_row,
+        n_column,
+        instance_displacement,
+    }
 }
 
 #[allow(dead_code)]
@@ -114,7 +140,7 @@ impl State {
         let num_vertices = vertices.len() as u32;
         let indices = indices_fn(num_vertices as u16);
         let (instances, instance_buffer) =
-            make_instances_and_instance_buffer(100, window.inner_size(), &device);
+            make_instances_and_instance_buffer(0, window.inner_size(), &device);
         let (camera, projection, camera_controller) = crate::camera::Camera::new(&sc_desc);
         let (uniforms, uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
             crate::uniforms::Uniforms::new(&device);
@@ -122,6 +148,8 @@ impl State {
             create_render_pipeline(&device, &shader, &uniform_bind_group_layout, &sc_desc);
         let vertex_buffer = create_vertex_buffer(&device, &vertices.as_slice());
         let index_buffer = create_index_buffer(&device, &indices.as_slice());
+
+        let canvas = canvas_info(window.inner_size());
 
         Self {
             surface,
@@ -151,11 +179,13 @@ impl State {
             instance_buffer,
             vertices_fn,
             indices_fn,
+            canvas,
         }
     }
 
     pub fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
         self.size = new_size;
+        self.canvas = canvas_info(new_size);
 
         let (instances, instance_buffer) =
             make_instances_and_instance_buffer(100, new_size, &self.device);
@@ -216,10 +246,7 @@ impl State {
             self.vertices = (self.vertices_fn)();
             self.clear_color = State::new_random_clear_color();
         }
-        let clear_color = self.clear_color.clone();
-        self.vertices
-            .par_iter_mut()
-            .for_each(|v| v.update(clear_color));
+        // self.vertices.par_iter_mut().for_each(|v| v.update());
         self.camera_controller.update_camera(&mut self.camera, dt);
         self.uniforms
             .update_view_proj(&self.camera, &self.projection);
@@ -243,17 +270,24 @@ impl State {
                 label: Some("Render Encoder"),
             });
 
-        let vertex_buffer = self
-            .device
-            .create_buffer_init(&wgpu::util::BufferInitDescriptor {
-                label: Some("Vertex Buffer"),
-                contents: bytemuck::cast_slice(&self.vertices.as_slice()),
-                usage: wgpu::BufferUsage::VERTEX,
-            });
-        self.vertex_buffer = vertex_buffer;
-        self.instances.append(&mut make_instances(3, self.size));
+        self.vertex_buffer = make_vertex_buffer(&self.device, self.vertices.as_slice());
+        let mut new_instances: Vec<Instance> = Op4D::vec_random(7)
+            .into_par_iter()
+            .map(|op| {
+                op.into_instance(
+                    &self.canvas.instance_displacement,
+                    self.canvas.n_column,
+                    self.canvas.n_row,
+                )
+            })
+            .collect();
+
+        // let instance_displacement: cgmath::Vector3<f32> =
+        // cgmath::Vector3::new(n_row as f32 - 1.0, (n_column - 1) as f32, n_pixels * 2.7);
+
+        self.instances.append(&mut new_instances);
         self.instances.par_iter_mut().for_each(|i| {
-            i.update_state();
+            i.update_state(dt.as_secs_f32() as f32);
         });
 
         self.instances.retain(|i| i.life > 0.0);
