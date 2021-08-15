@@ -3,7 +3,7 @@ use crate::{
     instance::{
         make_instance_buffer, make_instances, make_instances_and_instance_buffer, Instance,
     },
-    render_op::Op4D,
+    render_op::{Op4D, OpStream, ToInstance},
     render_pipleline::create_render_pipeline,
     setup::Setup,
     vertex::{create_index_buffer, create_vertex_buffer, make_vertex_buffer, Vertex},
@@ -36,11 +36,13 @@ pub struct State {
     pub camera_controller: CameraController,
     pub mouse_pressed: bool,
     pub last_render_time: std::time::Instant,
+    pub start_time: std::time::Instant,
     pub instances: Vec<Instance>,
     pub instance_buffer: wgpu::Buffer,
     pub vertices_fn: fn() -> Vec<Vertex>,
     pub indices_fn: fn(u16) -> Vec<u16>,
     pub canvas: Canvas,
+    pub ops: OpStream,
 }
 
 pub struct Canvas {
@@ -151,6 +153,8 @@ impl State {
 
         let canvas = canvas_info(window.inner_size());
 
+        let ops = Op4D::vec_random(100);
+
         Self {
             surface,
             device,
@@ -175,11 +179,13 @@ impl State {
             uniform_buffer,
             uniforms,
             last_render_time: std::time::Instant::now(),
+            start_time: std::time::Instant::now(),
             instances,
             instance_buffer,
             vertices_fn,
             indices_fn,
             canvas,
+            ops: OpStream { ops },
         }
     }
 
@@ -188,7 +194,7 @@ impl State {
         self.canvas = canvas_info(new_size);
 
         let (instances, instance_buffer) =
-            make_instances_and_instance_buffer(100, new_size, &self.device);
+            make_instances_and_instance_buffer(0, new_size, &self.device);
         self.instances = instances;
         self.instance_buffer = instance_buffer;
 
@@ -271,7 +277,9 @@ impl State {
             });
 
         self.vertex_buffer = make_vertex_buffer(&self.device, self.vertices.as_slice());
-        let mut new_instances: Vec<Instance> = Op4D::vec_random(7)
+        let mut new_instances: Vec<Instance> = self
+            .ops
+            .get_batch(std::time::Instant::now() - self.start_time)
             .into_par_iter()
             .map(|op| {
                 op.into_instance(
@@ -281,9 +289,6 @@ impl State {
                 )
             })
             .collect();
-
-        // let instance_displacement: cgmath::Vector3<f32> =
-        // cgmath::Vector3::new(n_row as f32 - 1.0, (n_column - 1) as f32, n_pixels * 2.7);
 
         self.instances.append(&mut new_instances);
         self.instances.par_iter_mut().for_each(|i| {

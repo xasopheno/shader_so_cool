@@ -18,6 +18,7 @@ rand = "0.8.4"
 rayon = "1.5.1"
 anyhow = "1.0.42"
 fs_extra = "1.2.0"
+weresocool = { path = "../WereSoCool" }
 
 [build-dependencies]
 anyhow = "1.0"

@@ -2,25 +2,52 @@ use crate::instance::Instance;
 use cgmath::{Rotation3, Vector3};
 use rand::Rng;
 use rayon::prelude::*;
+pub use weresocool::generation::json::{EventType, Op4D};
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct Op4D {
-    pub t: f64,
-    pub voice: usize,
-    pub event: usize,
-    pub x: f64,
-    pub y: f64,
-    pub z: f64,
-    pub l: f64,
+pub struct OpStream {
+    pub ops: Vec<Op4D>,
 }
 
-impl Op4D {
-    pub fn new_random() -> Self {
+impl OpStream {
+    pub fn get_batch(&mut self, t: std::time::Duration) -> Vec<Op4D> {
+        let result: Vec<Op4D> = self
+            .ops
+            .iter()
+            .take_while(|op| op.t < t.as_secs_f64())
+            .map(|x| x.to_owned())
+            .collect();
+        for _ in 0..result.len() {
+            self.ops.remove(0);
+        }
+
+        result
+    }
+}
+
+pub trait ToInstance {
+    fn new_random(t: f64) -> Self;
+    fn vec_random(n: usize) -> Vec<Self>
+    where
+        Self: Sized;
+    fn vec_random_ops(t: f64, n: usize) -> Vec<Self>
+    where
+        Self: Sized;
+    fn into_instance(
+        &self,
+        displacement: &cgmath::Vector3<f32>,
+        n_column: u32,
+        n_row: u32,
+    ) -> Instance;
+}
+
+impl ToInstance for Op4D {
+    fn new_random(t: f64) -> Self {
         let mut rng = rand::thread_rng();
         Self {
-            t: 1.0,
+            t,
             voice: 1,
             event: 1,
+            event_type: EventType::On,
             x: rng.gen_range(0.0..1.0),
             y: rng.gen_range(0.0..1.0),
             z: rng.gen_range(0.0..1.0),
@@ -28,11 +55,26 @@ impl Op4D {
         }
     }
 
-    pub fn vec_random(n: usize) -> Vec<Self> {
-        (0..n).into_par_iter().map(|_| Op4D::new_random()).collect()
+    fn vec_random(n: usize) -> Vec<Self> {
+        let mut rng = rand::thread_rng();
+        let mut rng2 = rand::thread_rng();
+        let mut next_op_t = || rng.gen_range(0.0..0.5);
+        let mut num_ops = || rng2.gen_range(1..10);
+        let mut count = 0.0;
+        (0..n)
+            .into_iter()
+            .flat_map(|_| {
+                count += next_op_t();
+                Op4D::vec_random_ops(count, num_ops())
+            })
+            .collect()
     }
 
-    pub fn into_instance(
+    fn vec_random_ops(t: f64, n: usize) -> Vec<Op4D> {
+        (0..n).into_iter().map(|_| Op4D::new_random(t)).collect()
+    }
+
+    fn into_instance(
         &self,
         displacement: &cgmath::Vector3<f32>,
         n_column: u32,
