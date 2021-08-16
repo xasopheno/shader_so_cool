@@ -1,4 +1,5 @@
 mod camera;
+mod channel;
 mod instance;
 mod render_op;
 mod render_pipleline;
@@ -25,6 +26,7 @@ fn main() {
         .expect("Unable to create window");
 
     let mut state = block_on(State::new(&window));
+
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Poll;
         match event {

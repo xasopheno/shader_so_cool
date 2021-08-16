@@ -2,13 +2,22 @@ use crate::instance::Instance;
 use cgmath::{Rotation3, Vector3};
 use rand::Rng;
 use rayon::prelude::*;
+use serde::{Deserialize, Serialize};
 pub use weresocool::generation::json::{EventType, Op4D};
 
+#[derive(Serialize, Deserialize, Debug)]
 pub struct OpStream {
     pub ops: Vec<Op4D>,
+    pub length: f32,
 }
 
 impl OpStream {
+    pub fn from_json() -> OpStream {
+        let data = std::fs::read_to_string("./simple.socool.json").expect("Unable to read file");
+
+        let deserialized: OpStream = serde_json::from_str(&data).unwrap();
+        deserialized
+    }
     pub fn get_batch(&mut self, t: std::time::Duration) -> Vec<Op4D> {
         let result: Vec<Op4D> = self
             .ops
@@ -84,13 +93,13 @@ impl ToInstance for Op4D {
             cgmath::Quaternion::from_axis_angle(cgmath::Vector3::unit_x(), cgmath::Deg(0.0));
         Instance {
             position: Vector3::new(
-                self.x as f32 * n_row as f32 * 2.0,
+                self.x as f32 * n_row as f32,
                 self.y as f32 * n_column as f32 * 2.0,
                 1.0,
             ) - displacement,
             rotation,
             life: 1.0,
-            size: self.z as f32 * 2.0,
+            size: 13.0,
         }
     }
 }

@@ -57,7 +57,7 @@ fn main(
     * vec4<f32>(
         model.position.x, 
         model.position.y,
-        model.position.z + (instance.life * -100.0) + 30.0, 1.0
+        model.position.z + (instance.life * 10.0) - 20.0, 1.0
     );
   return out;
 }

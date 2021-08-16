@@ -59,7 +59,7 @@ fn canvas_info(size: winit::dpi::PhysicalSize<u32>) -> Canvas {
     let n_row = (n_pixels * ratio) as u32;
     let n_column = n_pixels as u32;
     let instance_displacement: cgmath::Vector3<f32> =
-        cgmath::Vector3::new(n_row as f32 - 1.0, (n_column - 1) as f32, n_pixels * 2.7);
+        cgmath::Vector3::new(0.0, n_column as f32, n_pixels);
 
     Canvas {
         ratio,
@@ -153,7 +153,9 @@ impl State {
 
         let canvas = canvas_info(window.inner_size());
 
-        let ops = Op4D::vec_random(1000);
+        // let ops = Op4D::vec_random(1000);
+
+        let op_stream = OpStream::from_json();
 
         Self {
             surface,
@@ -185,7 +187,8 @@ impl State {
             vertices_fn,
             indices_fn,
             canvas,
-            ops: OpStream { ops },
+            // ops: OpStream { ops, length: 1.0 },
+            ops: op_stream,
         }
     }
 
