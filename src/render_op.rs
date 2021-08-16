@@ -58,8 +58,8 @@ impl ToInstance for Op4D {
     fn vec_random(n: usize) -> Vec<Self> {
         let mut rng = rand::thread_rng();
         let mut rng2 = rand::thread_rng();
-        let mut next_op_t = || rng.gen_range(0.0..0.5);
-        let mut num_ops = || rng2.gen_range(1..10);
+        let mut next_op_t = || rng.gen_range(0.0..1.0);
+        let mut num_ops = || rng2.gen_range(1..20);
         let mut count = 0.0;
         (0..n)
             .into_iter()

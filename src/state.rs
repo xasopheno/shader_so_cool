@@ -153,7 +153,7 @@ impl State {
 
         let canvas = canvas_info(window.inner_size());
 
-        let ops = Op4D::vec_random(100);
+        let ops = Op4D::vec_random(1000);
 
         Self {
             surface,
