@@ -39,7 +39,9 @@ fn main(
   );
   var out: VertexOutput;
   let color_matrix = vec3<f32>(
-      model.color
+      model.color[0] * instance.life,
+      model.color[1] * instance.life,
+      model.color[2] * instance.life,
   );
 
   let scale = mat4x4<f32>(
@@ -49,7 +51,7 @@ fn main(
       vec4<f32>(0.0, 0.0, 0.0, 1.0)
   );
 
-  out.color = vec4<f32>(model.color, instance.life);
+  out.color = vec4<f32>(color_matrix, instance.life);
   out.clip_position = 
     uniforms.view_proj 
     * model_matrix 

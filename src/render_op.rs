@@ -99,7 +99,7 @@ impl ToInstance for Op4D {
             ) - displacement,
             rotation,
             life: 1.0,
-            size: 5.0 * self.z as f32,
+            size: 3.0 * self.z as f32,
         }
     }
 }
