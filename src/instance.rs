@@ -28,7 +28,7 @@ pub fn make_instances(n: usize, size: winit::dpi::PhysicalSize<u32>) -> Vec<Inst
         cgmath::Vector3::new(n_row as f32 - 1.0, (n_column - 1) as f32, n_pixels * 2.7);
 
     (0..n)
-        .into_par_iter()
+        .into_iter()
         .map(move |_x| {
             let mut rng1 = rand::thread_rng();
             let mut rng2 = rand::thread_rng();

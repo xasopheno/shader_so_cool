@@ -88,10 +88,7 @@ impl State {
 
     #[allow(dead_code)]
     pub fn new_random_vertices() -> Vec<Vertex> {
-        (0..50)
-            .into_par_iter()
-            .map(|_| Vertex::new_random())
-            .collect()
+        (0..50).into_iter().map(|_| Vertex::new_random()).collect()
     }
 
     #[allow(dead_code)]
@@ -283,7 +280,7 @@ impl State {
         let mut new_instances: Vec<Instance> = self
             .ops
             .get_batch(std::time::Instant::now() - self.start_time)
-            .into_par_iter()
+            .into_iter()
             .map(|op| {
                 op.into_instance(
                     &self.canvas.instance_displacement,
@@ -294,7 +291,7 @@ impl State {
             .collect();
 
         self.instances.append(&mut new_instances);
-        self.instances.par_iter_mut().for_each(|i| {
+        self.instances.iter_mut().for_each(|i| {
             i.update_state(dt.as_secs_f32() as f32);
         });
 

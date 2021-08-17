@@ -24,7 +24,7 @@ pub struct Camera {
 impl Camera {
     pub fn new(sc_desc: &wgpu::SwapChainDescriptor) -> (Self, Projection, CameraController) {
         let camera = Self {
-            position: (0.0, 0.0, 3.0).into(),
+            position: (0.0, 0.0, 30.0).into(),
             yaw: cgmath::Deg(-90.0).into(),
             pitch: cgmath::Deg(0.0).into(),
         };
