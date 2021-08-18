@@ -8,7 +8,7 @@ mod state;
 mod uniforms;
 mod vertex;
 use crate::state::State;
-use rodio::{source::Source, Decoder, OutputStream};
+use rodio::{source::Source, Decoder, OutputStream, Sink};
 use std::fs::File;
 use std::io::BufReader;
 use winit::{
@@ -34,14 +34,12 @@ fn main() {
 
     let mut state = block_on(State::new(&window));
 
-    // Get a output stream handle to the default physical sound device
+    let filename = "./simple.wav";
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
-    // Load a sound from a file, using a path relative to Cargo.toml
-    let file = BufReader::new(File::open("./simple.wav").unwrap());
-    // Decode that sound file into a source
-    let source = Decoder::new(file).unwrap();
-    // Play the sound directly on the device
-    stream_handle.play_raw(source.convert_samples()).unwrap();
+    let file = BufReader::new(File::open(filename).unwrap());
+    let stream_handle = stream_handle.play_once(BufReader::new(file)).unwrap();
+    stream_handle.set_volume(0.1);
+    println!("playing: {}", filename);
 
     // The sound plays in a separate audio thread,
     // so we need to keep the main thread alive while it's playing.
