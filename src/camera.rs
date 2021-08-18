@@ -29,6 +29,12 @@ impl Camera {
             pitch: cgmath::Deg(0.0).into(),
         };
 
+        let camera = Self {
+            position: (-60.0, -5.0, 0.0).into(),
+            yaw: cgmath::Deg(-35.0).into(),
+            pitch: cgmath::Deg(5.0).into(),
+        };
+
         let projection = Projection::new(
             sc_desc.width,
             sc_desc.height,
@@ -43,6 +49,9 @@ impl Camera {
     }
 
     pub fn calc_matrix(&self) -> Matrix4<f32> {
+        let yaw: cgmath::Deg<f32> = self.yaw.into();
+        let pitch: cgmath::Deg<f32> = self.pitch.into();
+        dbg!(&self.position, yaw, pitch);
         let (sin_pitch, cos_pitch) = self.pitch.0.sin_cos();
         let (sin_yaw, cos_yaw) = self.yaw.0.sin_cos();
 

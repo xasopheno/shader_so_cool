@@ -39,9 +39,9 @@ fn main(
   );
   var out: VertexOutput;
   let color_matrix = vec3<f32>(
-      model.color[0] * instance.life,
-      model.color[1] * instance.life,
-      model.color[2] * instance.life,
+      pow(model.color[0] * instance.life, 3.0),
+      pow(model.color[1] * instance.life, 3.0),
+      pow(model.color[2] * instance.life, 3.0),
   );
 
   let scale = mat4x4<f32>(
