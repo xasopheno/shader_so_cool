@@ -13,7 +13,7 @@ pub struct OpStream {
 
 impl OpStream {
     pub fn from_json() -> OpStream {
-        let data = std::fs::read_to_string("./simple.socool.json").expect("Unable to read file");
+        let data = std::fs::read_to_string("./kintaro.socool.json").expect("Unable to read file");
 
         let deserialized: OpStream = serde_json::from_str(&data).unwrap();
         deserialized
@@ -100,6 +100,7 @@ impl ToInstance for Op4D {
             rotation,
             life: 1.0,
             size: 3.0 * self.z as f32,
+            length: self.l as f32,
         }
     }
 }

@@ -24,6 +24,7 @@ struct InstanceInput {
     [[location(8)]] model_matrix_3: vec4<f32>;
     [[location(9)]] life: f32;
     [[location(10)]] size: f32;
+    [[location(11)]] length: f32;
 };
 
 [[stage(vertex)]]
@@ -45,9 +46,9 @@ fn main(
   );
 
   let scale = mat4x4<f32>(
-      vec4<f32>(instance.size, 0.0, 0.0, 0.0),
-      vec4<f32>(0.0, instance.size, 0.0, 0.0),
-      vec4<f32>(0.0, 0.0, instance.size, 0.0),
+      vec4<f32>(instance.size * 1.2, 0.0, 0.0, 0.0),
+      vec4<f32>(0.0, instance.size * 1.2, 0.0, 0.0),
+      vec4<f32>(0.0, 0.0, instance.size * 1.2, 0.0),
       vec4<f32>(0.0, 0.0, 0.0, 1.0)
   );
 
@@ -57,9 +58,10 @@ fn main(
     * model_matrix 
     * scale
     * vec4<f32>(
-        model.position.x, 
-        model.position.y,
-        model.position.z + (instance.life * 10.0) - 20.0, 1.0
+        model.position.x + 2.0 + instance.life * 2.0, 
+        model.position.y * 1.4,
+        model.position.z + (instance.life * 10.0) - 20.0 + 1.0/6.0 * model.position.y, 
+        1.0
     );
   return out;
 }

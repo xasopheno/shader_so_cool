@@ -34,11 +34,11 @@ fn main() {
 
     let mut state = block_on(State::new(&window));
 
-    let filename = "./simple.wav";
+    let filename = "./kintaro.wav";
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
     let file = BufReader::new(File::open(filename).unwrap());
     let stream_handle = stream_handle.play_once(BufReader::new(file)).unwrap();
-    stream_handle.set_volume(0.1);
+    stream_handle.set_volume(0.4);
     println!("playing: {}", filename);
 
     // The sound plays in a separate audio thread,

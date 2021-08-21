@@ -302,16 +302,24 @@ impl State {
             let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 label: Some("Render Pass"),
                 // This is what [[location(0)]] in the fragment shader targets
+                // color_attachments: &[wgpu::RenderPassColorAttachment {
+                // view: &frame.view,
+                // resolve_target: None,
+                // ops: wgpu::Operations {
+                // load: wgpu::LoadOp::Clear(wgpu::Color {
+                // r: self.clear_color.0,
+                // g: self.clear_color.1,
+                // b: self.clear_color.2,
+                // a: 1.0,
+                // }),
+                // store: true,
+                // },
+                // }],
                 color_attachments: &[wgpu::RenderPassColorAttachment {
                     view: &frame.view,
                     resolve_target: None,
                     ops: wgpu::Operations {
-                        load: wgpu::LoadOp::Clear(wgpu::Color {
-                            r: self.clear_color.0,
-                            g: self.clear_color.1,
-                            b: self.clear_color.2,
-                            a: 1.0,
-                        }),
+                        load: wgpu::LoadOp::Load,
                         store: true,
                     },
                 }],

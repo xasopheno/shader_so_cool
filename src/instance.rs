@@ -9,6 +9,7 @@ pub struct Instance {
     pub rotation: cgmath::Quaternion<f32>,
     pub life: f32,
     pub size: f32,
+    pub length: f32,
 }
 
 #[repr(C)]
@@ -17,6 +18,7 @@ pub struct InstanceRaw {
     model: [[f32; 4]; 4],
     life: f32,
     size: f32,
+    length: f32,
 }
 
 pub fn make_instances(n: usize, size: winit::dpi::PhysicalSize<u32>) -> Vec<Instance> {
@@ -50,6 +52,7 @@ pub fn make_instances(n: usize, size: winit::dpi::PhysicalSize<u32>) -> Vec<Inst
                 rotation,
                 life: 1.0,
                 size,
+                length: 1.0,
             }
         })
         .collect::<Vec<_>>()
@@ -88,6 +91,7 @@ impl Instance {
             .into(),
             life: self.life,
             size: self.size,
+            length: self.length,
         }
     }
 
@@ -137,6 +141,11 @@ impl InstanceRaw {
                 wgpu::VertexAttribute {
                     offset: mem::size_of::<[f32; 17]>() as wgpu::BufferAddress,
                     shader_location: 10,
+                    format: wgpu::VertexFormat::Float32,
+                },
+                wgpu::VertexAttribute {
+                    offset: mem::size_of::<[f32; 18]>() as wgpu::BufferAddress,
+                    shader_location: 11,
                     format: wgpu::VertexFormat::Float32,
                 },
             ],
