@@ -1,14 +1,16 @@
 mod camera;
 mod channel;
 mod instance;
+mod render;
 mod render_op;
 mod render_pipleline;
+mod resize;
 mod setup;
 mod state;
 mod uniforms;
 mod vertex;
 use crate::state::State;
-use rodio::{source::Source, Decoder, OutputStream, Sink};
+use rodio::OutputStream;
 use std::fs::File;
 use std::io::BufReader;
 use winit::{
@@ -25,10 +27,11 @@ fn main() {
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new()
         .with_inner_size(winit::dpi::PhysicalSize {
-            width: 600,
-            height: 600,
+            width: 1600,
+            height: 1000,
         })
         .with_title(title)
+        // .with_fullscreen(Some(Fullscreen::Borderless(None)))
         .build(&event_loop)
         .expect("Unable to create window");
 
@@ -38,7 +41,7 @@ fn main() {
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
     let file = BufReader::new(File::open(filename).unwrap());
     let stream_handle = stream_handle.play_once(BufReader::new(file)).unwrap();
-    stream_handle.set_volume(0.4);
+    stream_handle.set_volume(0.5);
     println!("playing: {}", filename);
 
     // The sound plays in a separate audio thread,

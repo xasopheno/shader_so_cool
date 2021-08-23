@@ -89,8 +89,12 @@ impl ToInstance for Op4D {
         n_column: u32,
         n_row: u32,
     ) -> Instance {
-        let rotation =
-            cgmath::Quaternion::from_axis_angle(cgmath::Vector3::unit_x(), cgmath::Deg(0.0));
+        // let mut rng = rand::thread_rng();
+        let rotation = cgmath::Quaternion::from_axis_angle(
+            cgmath::Vector3::unit_x(),
+            cgmath::Deg(0.0),
+            // cgmath::Deg(rng.gen_range(-0.1..0.1)),
+        );
         Instance {
             position: Vector3::new(
                 self.x as f32 * n_row as f32,
@@ -98,8 +102,8 @@ impl ToInstance for Op4D {
                 1.0,
             ) - displacement,
             rotation,
-            life: 1.0,
-            size: 3.0 * self.z as f32,
+            life: 2.0,
+            size: 2.0 * self.z as f32,
             length: self.l as f32,
         }
     }

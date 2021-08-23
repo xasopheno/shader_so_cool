@@ -8,7 +8,6 @@ pub struct Vertex {
     pub color: [f32; 3],
     pub direction: [f32; 3],
     pub velocity: f32,
-    // pub decay: f32,
 }
 
 pub fn create_vertex_buffer(device: &wgpu::Device, vertices: &[Vertex]) -> wgpu::Buffer {
@@ -45,13 +44,13 @@ impl Vertex {
             position: [r() * 1.0, r() * 1.0, r() * 1.0],
             color: [r(), r(), r()],
             direction: [r(), r(), r()],
-            velocity: r() * 4.0,
+            velocity: r() * 0.4,
         }
     }
     pub fn update(&mut self) {
-        // self.position[0] += self.velocity * self.direction[0] * 0.01;
-        // self.position[1] += self.velocity * self.direction[1] * 0.01;
-        // self.position[2] += self.velocity * self.direction[2] * 0.01;
+        self.position[0] += self.velocity * self.direction[0] * 0.01;
+        self.position[1] += self.velocity * self.direction[1] * 0.01;
+        self.position[2] += self.velocity * self.direction[2] * 0.01;
     }
 
     pub fn desc<'a>() -> wgpu::VertexBufferLayout<'a> {

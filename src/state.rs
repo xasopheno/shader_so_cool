@@ -1,12 +1,10 @@
 use crate::{
     camera::{Camera, CameraController, Projection},
-    instance::{
-        make_instance_buffer, make_instances, make_instances_and_instance_buffer, Instance,
-    },
-    render_op::{Op4D, OpStream, ToInstance},
+    instance::{make_instances_and_instance_buffer, Instance},
+    render_op::{OpStream, ToInstance},
     render_pipleline::create_render_pipeline,
     setup::Setup,
-    vertex::{create_index_buffer, create_vertex_buffer, make_vertex_buffer, Vertex},
+    vertex::{create_index_buffer, create_vertex_buffer, Vertex},
 };
 use rand::prelude::*;
 use rayon::prelude::*;
@@ -42,18 +40,18 @@ pub struct State {
     pub vertices_fn: fn() -> Vec<Vertex>,
     pub indices_fn: fn(u16) -> Vec<u16>,
     pub canvas: Canvas,
-    pub ops: OpStream,
+    pub op_stream: OpStream,
 }
 
 pub struct Canvas {
-    ratio: f32,
-    n_pixels: f32,
-    n_row: u32,
-    n_column: u32,
-    instance_displacement: cgmath::Vector3<f32>,
+    pub ratio: f32,
+    pub n_pixels: f32,
+    pub n_row: u32,
+    pub n_column: u32,
+    pub instance_displacement: cgmath::Vector3<f32>,
 }
 
-fn canvas_info(size: winit::dpi::PhysicalSize<u32>) -> Canvas {
+pub fn canvas_info(size: winit::dpi::PhysicalSize<u32>) -> Canvas {
     let ratio = size.width as f32 / size.height as f32;
     let n_pixels = 20.0;
     let n_row = (n_pixels * ratio) as u32;
@@ -147,9 +145,7 @@ impl State {
             create_render_pipeline(&device, &shader, &uniform_bind_group_layout, &sc_desc);
         let vertex_buffer = create_vertex_buffer(&device, &vertices.as_slice());
         let index_buffer = create_index_buffer(&device, &indices.as_slice());
-
         let canvas = canvas_info(window.inner_size());
-
         // let ops = Op4D::vec_random(1000);
 
         let op_stream = OpStream::from_json();
@@ -184,25 +180,8 @@ impl State {
             vertices_fn,
             indices_fn,
             canvas,
-            // ops: OpStream { ops, length: 1.0 },
-            ops: op_stream,
+            op_stream,
         }
-    }
-
-    pub fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
-        self.size = new_size;
-        self.canvas = canvas_info(new_size);
-
-        let (instances, instance_buffer) =
-            make_instances_and_instance_buffer(0, new_size, &self.device);
-        self.instances = instances;
-        self.instance_buffer = instance_buffer;
-
-        self.sc_desc.width = new_size.width;
-        self.sc_desc.height = new_size.height;
-
-        self.swap_chain = self.device.create_swap_chain(&self.surface, &self.sc_desc);
-        self.projection.resize(new_size.width, new_size.height);
     }
 
     pub fn keyboard_input(&mut self, event: &WindowEvent) {
@@ -244,97 +223,5 @@ impl State {
             }
             _ => false,
         }
-    }
-
-    pub fn update(&mut self, dt: std::time::Duration) {
-        self.count += 1;
-        if self.count % 400 == 0 {
-            self.vertices = (self.vertices_fn)();
-            self.clear_color = State::new_random_clear_color();
-        }
-        // self.vertices.par_iter_mut().for_each(|v| v.update());
-        self.camera_controller.update_camera(&mut self.camera, dt);
-        self.uniforms
-            .update_view_proj(&self.camera, &self.projection);
-        self.queue.write_buffer(
-            &self.uniform_buffer,
-            0,
-            bytemuck::cast_slice(&[self.uniforms]),
-        );
-    }
-
-    pub fn render(&mut self) -> Result<(), wgpu::SwapChainError> {
-        let now = std::time::Instant::now();
-        let dt = now - self.last_render_time;
-        self.last_render_time = now;
-        self.update(dt);
-        let frame = self.swap_chain.get_current_frame().unwrap().output;
-
-        let mut encoder = self
-            .device
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                label: Some("Render Encoder"),
-            });
-
-        self.vertex_buffer = make_vertex_buffer(&self.device, self.vertices.as_slice());
-        let mut new_instances: Vec<Instance> = self
-            .ops
-            .get_batch(std::time::Instant::now() - self.start_time)
-            .into_iter()
-            .map(|op| {
-                op.into_instance(
-                    &self.canvas.instance_displacement,
-                    self.canvas.n_column,
-                    self.canvas.n_row,
-                )
-            })
-            .collect();
-
-        self.instances.append(&mut new_instances);
-        self.instances.iter_mut().for_each(|i| {
-            i.update_state(dt.as_secs_f32() as f32);
-        });
-
-        self.instances.retain(|i| i.life > 0.0);
-        self.instance_buffer = make_instance_buffer(&self.instances, self.size, &self.device);
-
-        {
-            let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-                label: Some("Render Pass"),
-                // This is what [[location(0)]] in the fragment shader targets
-                // color_attachments: &[wgpu::RenderPassColorAttachment {
-                // view: &frame.view,
-                // resolve_target: None,
-                // ops: wgpu::Operations {
-                // load: wgpu::LoadOp::Clear(wgpu::Color {
-                // r: self.clear_color.0,
-                // g: self.clear_color.1,
-                // b: self.clear_color.2,
-                // a: 1.0,
-                // }),
-                // store: true,
-                // },
-                // }],
-                color_attachments: &[wgpu::RenderPassColorAttachment {
-                    view: &frame.view,
-                    resolve_target: None,
-                    ops: wgpu::Operations {
-                        load: wgpu::LoadOp::Load,
-                        store: true,
-                    },
-                }],
-                depth_stencil_attachment: None,
-            });
-
-            render_pass.set_pipeline(&self.render_pipeline);
-            render_pass.set_bind_group(0, &self.uniform_bind_group, &[]);
-            render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
-            render_pass.set_vertex_buffer(1, self.instance_buffer.slice(..));
-            render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
-
-            render_pass.draw_indexed(0..self.num_indices, 0, 0..self.instances.len() as _);
-        }
-        self.queue.submit(std::iter::once(encoder.finish()));
-        Ok(())
     }
 }
