@@ -1,5 +1,6 @@
 mod camera;
 mod channel;
+mod input;
 mod instance;
 mod render;
 mod render_op;
