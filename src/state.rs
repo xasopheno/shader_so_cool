@@ -1,5 +1,6 @@
 use crate::{
     camera::{Camera, CameraController, Projection},
+    config::Config,
     instance::{make_instances_and_instance_buffer, Instance},
     render_op::{OpStream, ToInstance},
     render_pipleline::create_render_pipeline,
@@ -7,16 +8,15 @@ use crate::{
     vertex::{create_index_buffer, create_vertex_buffer, Vertex},
 };
 use rand::prelude::*;
-use rayon::prelude::*;
-use winit::{event::*, window::Window};
+use winit::window::Window;
 
 pub struct State {
+    pub config: Config,
     pub surface: wgpu::Surface,
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
     pub sc_desc: wgpu::SwapChainDescriptor,
     pub swap_chain: wgpu::SwapChain,
-    pub swap_chain_format: wgpu::TextureFormat,
     pub size: winit::dpi::PhysicalSize<u32>,
     pub render_pipeline: wgpu::RenderPipeline,
     pub vertex_buffer: wgpu::Buffer,
@@ -113,7 +113,7 @@ impl State {
         vec![0, 1, 2, 0, 2, 3]
     }
 
-    pub async fn new(window: &Window) -> Self {
+    pub async fn new(window: &Window, op_stream: OpStream, config: &Config) -> State {
         let Setup {
             device,
             surface,
@@ -122,7 +122,7 @@ impl State {
             swap_chain_format,
             sc_desc,
             ..
-        } = Setup::init(window).await;
+        } = Setup::init(window, config).await;
 
         let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
             label: Some("Shader"),
@@ -138,7 +138,7 @@ impl State {
         let indices = indices_fn(num_vertices as u16);
         let (instances, instance_buffer) =
             make_instances_and_instance_buffer(0, window.inner_size(), &device);
-        let (camera, projection, camera_controller) = crate::camera::Camera::new(&sc_desc);
+        let (camera, projection, camera_controller) = crate::camera::Camera::new(&sc_desc, &config);
         let (uniforms, uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
             crate::uniforms::Uniforms::new(&device);
         let render_pipeline =
@@ -148,9 +148,8 @@ impl State {
         let canvas = canvas_info(window.inner_size());
         // let ops = Op4D::vec_random(1000);
 
-        let op_stream = OpStream::from_json();
-
         Self {
+            config: config.clone(),
             surface,
             device,
             queue,
@@ -165,7 +164,6 @@ impl State {
             clear_color: State::new_clear_color(),
             vertices: vertices.into(),
             count: 0,
-            swap_chain_format,
             mouse_pressed: false,
             camera,
             camera_controller,

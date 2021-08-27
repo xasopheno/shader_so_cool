@@ -3,6 +3,8 @@ use rand::Rng;
 use rayon::prelude::*;
 use wgpu::util::DeviceExt;
 
+use crate::config::Config;
+
 #[derive(Copy, Clone, Debug)]
 pub struct Instance {
     pub position: cgmath::Vector3<f32>,
@@ -23,11 +25,11 @@ pub struct InstanceRaw {
 
 pub fn make_instances(n: usize, size: winit::dpi::PhysicalSize<u32>) -> Vec<Instance> {
     let ratio = size.width as f32 / size.height as f32;
-    let n_pixels = 20.0;
-    let n_row = (n_pixels * ratio) as u32;
-    let n_column = n_pixels as u32;
+    let grid_size = 10.0;
+    let n_row = (grid_size * ratio) as u32;
+    let n_column = grid_size as u32;
     let instance_displacement: cgmath::Vector3<f32> =
-        cgmath::Vector3::new(n_row as f32 - 1.0, (n_column - 1) as f32, n_pixels * 2.7);
+        cgmath::Vector3::new(n_row as f32 - 1.0, (n_column - 1) as f32, grid_size * 2.7);
 
     (0..n)
         .into_iter()

@@ -12,8 +12,9 @@ pub struct OpStream {
 }
 
 impl OpStream {
-    pub fn from_json() -> OpStream {
-        let data = std::fs::read_to_string("./kintaro.socool.json").expect("Unable to read file");
+    pub fn from_json(filename: &str) -> OpStream {
+        let data = std::fs::read_to_string(format!("./{}.socool.json", filename))
+            .expect("Unable to read file");
 
         let deserialized: OpStream = serde_json::from_str(&data).unwrap();
         deserialized

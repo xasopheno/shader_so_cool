@@ -1,4 +1,7 @@
+use wgpu::ShaderModule;
 use winit::window::Window;
+
+use crate::config::Config;
 
 pub struct Setup {
     pub surface: wgpu::Surface,
@@ -10,7 +13,7 @@ pub struct Setup {
 }
 
 impl Setup {
-    pub async fn init(window: &Window) -> Self {
+    pub async fn init(window: &Window, config: &Config) -> Self {
         let size = window.inner_size();
         let instance = wgpu::Instance::new(wgpu::BackendBit::PRIMARY);
         let surface = unsafe { instance.create_surface(window) };
