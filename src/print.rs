@@ -1,5 +1,7 @@
 use wgpu::ShaderModule;
 
+const U32_SIZE: u32 = std::mem::size_of::<u32>() as u32;
+
 fn setup_shaders(device: &wgpu::Device) -> (ShaderModule, ShaderModule) {
     let vs_src = include_str!("shader.vert");
     let fs_src = include_str!("shader.frag");
@@ -42,6 +44,9 @@ pub struct Setup<'a> {
     pub queue: wgpu::Queue,
     pub texture: wgpu::Texture,
     pub texture_desc: wgpu::TextureDescriptor<'a>,
+    pub output_buffer: wgpu::Buffer,
+    pub texture_view: wgpu::TextureView,
+    pub render_pipeline: wgpu::RenderPipeline,
 }
 
 async fn setup<'a>(texture_width: u32, texture_height: u32) -> Setup<'a> {
@@ -72,11 +77,26 @@ async fn setup<'a>(texture_width: u32, texture_height: u32) -> Setup<'a> {
         label: None,
     };
     let texture = device.create_texture(&texture_desc);
+    let output_buffer_size = (U32_SIZE * texture_width * texture_height) as wgpu::BufferAddress;
+    let output_buffer_desc = wgpu::BufferDescriptor {
+        size: output_buffer_size,
+        usage: wgpu::BufferUsage::COPY_DST
+        // this tells wpgu that we want to read this buffer from the cpu
+        | wgpu::BufferUsage::MAP_READ,
+        label: None,
+        mapped_at_creation: false,
+    };
+    let output_buffer = device.create_buffer(&output_buffer_desc);
+    let texture_view = texture.create_view(&Default::default());
+    let render_pipeline = make_render_pipeline(&device, &texture_desc);
     Setup {
         device,
         queue,
         texture,
         texture_desc,
+        output_buffer,
+        texture_view,
+        render_pipeline,
     }
 }
 
@@ -88,22 +108,10 @@ pub async fn init_printer() {
         queue,
         texture,
         texture_desc,
+        output_buffer,
+        texture_view,
+        render_pipeline,
     } = setup(texture_width, texture_width).await;
-    let u32_size = std::mem::size_of::<u32>() as u32;
-
-    let output_buffer_size = (u32_size * texture_width * texture_height) as wgpu::BufferAddress;
-    let output_buffer_desc = wgpu::BufferDescriptor {
-        size: output_buffer_size,
-        usage: wgpu::BufferUsage::COPY_DST
-        // this tells wpgu that we want to read this buffer from the cpu
-        | wgpu::BufferUsage::MAP_READ,
-        label: None,
-        mapped_at_creation: false,
-    };
-    let output_buffer = device.create_buffer(&output_buffer_desc);
-    let texture_view = texture.create_view(&Default::default());
-
-    let render_pipeline = make_render_pipeline(&device, &texture_desc);
 
     let mut encoder =
         device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
@@ -132,6 +140,7 @@ pub async fn init_printer() {
         render_pass.set_pipeline(&render_pipeline);
         render_pass.draw(0..3, 0..1);
     }
+
     encoder.copy_texture_to_buffer(
         wgpu::ImageCopyTexture {
             texture: &texture,
@@ -142,7 +151,7 @@ pub async fn init_printer() {
             buffer: &output_buffer,
             layout: wgpu::ImageDataLayout {
                 offset: 0,
-                bytes_per_row: std::num::NonZeroU32::new(u32_size * texture_width),
+                bytes_per_row: std::num::NonZeroU32::new(U32_SIZE * texture_width),
                 rows_per_image: std::num::NonZeroU32::new(texture_height),
             },
         },
