@@ -60,7 +60,7 @@ fn main(
     * vec4<f32>(
         model.position.x + 2.0 + instance.life * 3.0, 
         model.position.y * 1.4,
-        model.position.z + (instance.life * 10.0) - 20.0, 
+        model.position.z + (instance.life * 80.0) - 160.0, 
         1.0
     );
   return out;

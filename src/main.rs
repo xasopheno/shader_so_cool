@@ -29,16 +29,16 @@ fn main() {
         filename: "kintaro".into(),
         volume: 0.5,
         window_size: (1600, 1000),
-        camera: CameraConfig {
-            position: (0.0, 0.0, 65.0),
-            yaw: -90.0,
-            pitch: 0.0,
-        },
         // camera: CameraConfig {
-        // position: (-48.2, -3.5, 16.0),
-        // yaw: -50.0,
-        // pitch: 8.0,
+        // position: (0.0, 0.0, 65.0),
+        // yaw: -90.0,
+        // pitch: 0.0,
         // },
+        camera: CameraConfig {
+            position: (-48.2, -3.5, 16.0),
+            yaw: -50.0,
+            pitch: 8.0,
+        },
     };
     let title = env!("CARGO_PKG_NAME");
     let event_loop = EventLoop::new();

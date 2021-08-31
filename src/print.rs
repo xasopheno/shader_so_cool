@@ -100,80 +100,120 @@ async fn setup<'a>(texture_width: u32, texture_height: u32) -> Setup<'a> {
     }
 }
 
-pub async fn init_printer() {
-    let texture_width = 1024 * 2;
-    let texture_height = 768 * 2;
-    let Setup {
-        device,
-        queue,
-        texture,
-        texture_desc,
-        output_buffer,
-        texture_view,
-        render_pipeline,
-    } = setup(texture_width, texture_width).await;
+pub struct PrintState<'a> {
+    pub size: (u32, u32),
+    pub device: wgpu::Device,
+    pub queue: wgpu::Queue,
+    pub texture: wgpu::Texture,
+    pub texture_desc: wgpu::TextureDescriptor<'a>,
+    pub texture_view: wgpu::TextureView,
+    pub output_buffer: wgpu::Buffer,
+    pub render_pipeline: wgpu::RenderPipeline,
+    pub last_render_time: std::time::Instant,
+}
 
-    let mut encoder =
-        device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+impl<'a> PrintState<'a> {
+    pub async fn init() -> PrintState<'a> {
+        let texture_width = 1024 * 2;
+        let texture_height = 768 * 2;
+        let Setup {
+            device,
+            queue,
+            texture,
+            texture_desc,
+            output_buffer,
+            texture_view,
+            render_pipeline,
+        } = setup(texture_width, texture_width).await;
 
-    {
-        let render_pass_desc = wgpu::RenderPassDescriptor {
-            label: Some("Render Pass"),
-            color_attachments: &[wgpu::RenderPassColorAttachment {
-                view: &texture_view,
-                resolve_target: None,
-                ops: wgpu::Operations {
-                    load: wgpu::LoadOp::Clear(wgpu::Color {
-                        r: 0.1,
-                        g: 0.2,
-                        b: 0.3,
-                        a: 1.0,
-                    }),
-                    store: true,
-                },
-            }],
-            depth_stencil_attachment: None,
-        };
-
-        let mut render_pass = encoder.begin_render_pass(&render_pass_desc);
-
-        render_pass.set_pipeline(&render_pipeline);
-        render_pass.draw(0..3, 0..1);
+        PrintState {
+            size: (texture_width, texture_height),
+            device,
+            queue,
+            texture,
+            texture_desc,
+            texture_view,
+            output_buffer,
+            render_pipeline,
+            last_render_time: std::time::Instant::now(),
+        }
     }
 
-    encoder.copy_texture_to_buffer(
-        wgpu::ImageCopyTexture {
-            texture: &texture,
-            mip_level: 0,
-            origin: wgpu::Origin3d::ZERO,
-        },
-        wgpu::ImageCopyBuffer {
-            buffer: &output_buffer,
-            layout: wgpu::ImageDataLayout {
-                offset: 0,
-                bytes_per_row: std::num::NonZeroU32::new(U32_SIZE * texture_width),
-                rows_per_image: std::num::NonZeroU32::new(texture_height),
-            },
-        },
-        texture_desc.size,
-    );
-    queue.submit(Some(encoder.finish()));
+    pub async fn render(mut self) {
+        let now = std::time::Instant::now();
+        let dt = now - self.last_render_time;
+        self.last_render_time = now;
+        // dbg!(self.last_render_time);
+        // self.update(dt);
+        let mut encoder = self
+            .device
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
 
-    write_img(
-        ImageBuffer {
-            output_buffer,
-            texture_width,
-            texture_height,
-        },
-        &device,
-    )
-    .await;
+        {
+            let render_pass_desc = wgpu::RenderPassDescriptor {
+                label: Some("Render Pass"),
+                color_attachments: &[wgpu::RenderPassColorAttachment {
+                    view: &self.texture_view,
+                    resolve_target: None,
+                    ops: wgpu::Operations {
+                        load: wgpu::LoadOp::Clear(wgpu::Color {
+                            r: 0.1,
+                            g: 0.2,
+                            b: 0.3,
+                            a: 1.0,
+                        }),
+                        store: true,
+                    },
+                }],
+                depth_stencil_attachment: None,
+            };
+
+            let mut render_pass = encoder.begin_render_pass(&render_pass_desc);
+
+            // render_pass.set_pipeline(&self.render_pipeline);
+            // render_pass.set_bind_group(0, &self.uniform_bind_group, &[]);
+            // render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
+            // render_pass.set_vertex_buffer(1, self.instance_buffer.slice(..));
+            // render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
+
+            // render_pass.draw_indexed(0..self.num_indices, 0, 0..self.instances.len() as _);
+
+            render_pass.set_pipeline(&self.render_pipeline);
+            render_pass.draw(0..3, 0..1);
+        }
+
+        encoder.copy_texture_to_buffer(
+            wgpu::ImageCopyTexture {
+                texture: &self.texture,
+                mip_level: 0,
+                origin: wgpu::Origin3d::ZERO,
+            },
+            wgpu::ImageCopyBuffer {
+                buffer: &self.output_buffer,
+                layout: wgpu::ImageDataLayout {
+                    offset: 0,
+                    bytes_per_row: std::num::NonZeroU32::new(U32_SIZE * self.size.0),
+                    rows_per_image: std::num::NonZeroU32::new(self.size.1),
+                },
+            },
+            self.texture_desc.size,
+        );
+        self.queue.submit(Some(encoder.finish()));
+
+        write_img(
+            &ImageBuffer {
+                output_buffer: self.output_buffer,
+                size: self.size,
+            },
+            &self.device,
+        )
+        .await;
+    }
 }
 
 struct ImageBuffer {
     output_buffer: wgpu::Buffer,
-    texture_width: u32,
-    texture_height: u32,
+    size: (u32, u32),
 }
 
 fn make_render_pipeline(
@@ -221,7 +261,7 @@ fn make_render_pipeline(
     })
 }
 
-async fn write_img(img: ImageBuffer, device: &wgpu::Device) {
+async fn write_img(img: &ImageBuffer, device: &wgpu::Device) {
     let buffer_slice = img.output_buffer.slice(..);
 
     // NOTE: We have to create the mapping THEN device.poll() before await
@@ -233,8 +273,7 @@ async fn write_img(img: ImageBuffer, device: &wgpu::Device) {
     let data = buffer_slice.get_mapped_range();
 
     use image::{ImageBuffer, Rgba};
-    let buffer =
-        ImageBuffer::<Rgba<u8>, _>::from_raw(img.texture_width, img.texture_height, data).unwrap();
+    let buffer = ImageBuffer::<Rgba<u8>, _>::from_raw(img.size.0, img.size.1, data).unwrap();
     buffer.save("image.png").unwrap();
     img.output_buffer.unmap();
 }
