@@ -23,8 +23,8 @@ pub struct InstanceRaw {
     length: f32,
 }
 
-pub fn make_instances(n: usize, size: winit::dpi::PhysicalSize<u32>) -> Vec<Instance> {
-    let ratio = size.width as f32 / size.height as f32;
+pub fn make_instances(n: usize, size: (u32, u32)) -> Vec<Instance> {
+    let ratio = size.0 as f32 / size.1 as f32;
     let grid_size = 10.0;
     let n_row = (grid_size * ratio) as u32;
     let n_column = grid_size as u32;
@@ -62,7 +62,7 @@ pub fn make_instances(n: usize, size: winit::dpi::PhysicalSize<u32>) -> Vec<Inst
 
 pub fn make_instance_buffer(
     instances: &Vec<Instance>,
-    size: winit::dpi::PhysicalSize<u32>,
+    _size: (u32, u32),
     device: &wgpu::Device,
 ) -> wgpu::Buffer {
     let instance_data = instances.iter().map(Instance::to_raw).collect::<Vec<_>>();
@@ -77,7 +77,7 @@ pub fn make_instance_buffer(
 
 pub fn make_instances_and_instance_buffer(
     n: usize,
-    size: winit::dpi::PhysicalSize<u32>,
+    size: (u32, u32),
     device: &wgpu::Device,
 ) -> (Vec<Instance>, wgpu::Buffer) {
     let instances = make_instances(n, size);

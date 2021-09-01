@@ -9,11 +9,10 @@ pub struct Setup {
     pub queue: wgpu::Queue,
     pub sc_desc: wgpu::SwapChainDescriptor,
     pub swap_chain: wgpu::SwapChain,
-    pub swap_chain_format: wgpu::TextureFormat,
 }
 
 impl Setup {
-    pub async fn init(window: &Window, config: &Config) -> Self {
+    pub async fn init(window: &Window, _config: &Config) -> Self {
         let size = window.inner_size();
         let instance = wgpu::Instance::new(wgpu::BackendBit::PRIMARY);
         let surface = unsafe { instance.create_surface(window) };
@@ -55,7 +54,6 @@ impl Setup {
             queue,
             sc_desc,
             swap_chain,
-            swap_chain_format,
         }
     }
 }

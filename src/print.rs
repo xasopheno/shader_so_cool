@@ -1,43 +1,11 @@
-use wgpu::ShaderModule;
+use crate::{
+    config::Config,
+    instance::{make_instances_and_instance_buffer, Instance},
+    render_pipleline::create_render_pipeline,
+    vertex::{create_index_buffer, create_vertex_buffer, Vertex},
+};
 
 const U32_SIZE: u32 = std::mem::size_of::<u32>() as u32;
-
-fn setup_shaders(device: &wgpu::Device) -> (ShaderModule, ShaderModule) {
-    let vs_src = include_str!("shader.vert");
-    let fs_src = include_str!("shader.frag");
-    let mut compiler = shaderc::Compiler::new().unwrap();
-    let vs_spirv = compiler
-        .compile_into_spirv(
-            vs_src,
-            shaderc::ShaderKind::Vertex,
-            "shader.vert",
-            "main",
-            None,
-        )
-        .unwrap();
-    let fs_spirv = compiler
-        .compile_into_spirv(
-            fs_src,
-            shaderc::ShaderKind::Fragment,
-            "shader.frag",
-            "main",
-            None,
-        )
-        .unwrap();
-    let vs_data = wgpu::util::make_spirv(vs_spirv.as_binary_u8());
-    let fs_data = wgpu::util::make_spirv(fs_spirv.as_binary_u8());
-    let vs_module = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
-        label: Some("Vertex Shader"),
-        source: vs_data,
-        flags: wgpu::ShaderFlags::default(),
-    });
-    let fs_module = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
-        label: Some("Fragment Shader"),
-        source: fs_data,
-        flags: wgpu::ShaderFlags::default(),
-    });
-    (vs_module, fs_module)
-}
 
 pub struct Setup<'a> {
     pub device: wgpu::Device,
@@ -47,9 +15,13 @@ pub struct Setup<'a> {
     pub output_buffer: wgpu::Buffer,
     pub texture_view: wgpu::TextureView,
     pub render_pipeline: wgpu::RenderPipeline,
+    pub uniforms: crate::uniforms::Uniforms,
+    pub uniform_buffer: wgpu::Buffer,
+    pub uniform_bind_group: wgpu::BindGroup,
+    //
 }
 
-async fn setup<'a>(texture_width: u32, texture_height: u32) -> Setup<'a> {
+async fn setup<'a>(texture_width: u32, texture_height: u32, config: &Config) -> Setup<'a> {
     let instance = wgpu::Instance::new(wgpu::BackendBit::PRIMARY);
     let adapter = instance
         .request_adapter(&wgpu::RequestAdapterOptions {
@@ -88,7 +60,23 @@ async fn setup<'a>(texture_width: u32, texture_height: u32) -> Setup<'a> {
     };
     let output_buffer = device.create_buffer(&output_buffer_desc);
     let texture_view = texture.create_view(&Default::default());
-    let render_pipeline = make_render_pipeline(&device, &texture_desc);
+
+    let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
+        label: Some("Shader"),
+        flags: wgpu::ShaderFlags::all(),
+        source: wgpu::ShaderSource::Wgsl(include_str!("shader.wgsl").into()),
+    });
+
+    let (uniforms, uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
+        crate::uniforms::Uniforms::new(&device);
+
+    let render_pipeline = create_render_pipeline(
+        &device,
+        &shader,
+        &uniform_bind_group_layout,
+        texture_desc.format,
+    );
+
     Setup {
         device,
         queue,
@@ -97,6 +85,9 @@ async fn setup<'a>(texture_width: u32, texture_height: u32) -> Setup<'a> {
         output_buffer,
         texture_view,
         render_pipeline,
+        uniforms,
+        uniform_buffer,
+        uniform_bind_group,
     }
 }
 
@@ -110,12 +101,34 @@ pub struct PrintState<'a> {
     pub output_buffer: wgpu::Buffer,
     pub render_pipeline: wgpu::RenderPipeline,
     pub last_render_time: std::time::Instant,
+    //
+    pub vertices: Vec<Vertex>,
+    pub vertex_buffer: wgpu::Buffer,
+    pub num_vertices: u32,
+    pub index_buffer: wgpu::Buffer,
+    pub num_indices: u32,
+    pub uniforms: crate::uniforms::Uniforms,
+    pub uniform_buffer: wgpu::Buffer,
+    pub uniform_bind_group: wgpu::BindGroup,
+    pub instances: Vec<Instance>,
+    pub instance_buffer: wgpu::Buffer,
+    // pub projection: Projection,
+    // pub camera_controller: CameraController,
+    // pub last_render_time: std::time::Instant,
+    // pub start_time: std::time::Instant,
+    // pub vertices_fn: fn() -> Vec<Vertex>,
+    // pub indices_fn: fn(u16) -> Vec<u16>,
+    // pub canvas: Canvas,
+    // pub clear_color: (f64, f64, f64),
+    // pub count: u32,
+    // pub camera: Camera,
 }
 
 impl<'a> PrintState<'a> {
     pub async fn init() -> PrintState<'a> {
         let texture_width = 1024 * 2;
         let texture_height = 768 * 2;
+        let config = Config::new();
         let Setup {
             device,
             queue,
@@ -124,7 +137,32 @@ impl<'a> PrintState<'a> {
             output_buffer,
             texture_view,
             render_pipeline,
-        } = setup(texture_width, texture_width).await;
+            uniforms,
+            uniform_buffer,
+            uniform_bind_group,
+        } = setup(texture_width, texture_height, &config).await;
+
+        let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
+            label: Some("Shader"),
+            flags: wgpu::ShaderFlags::all(),
+            source: wgpu::ShaderSource::Wgsl(include_str!("shader.wgsl").into()),
+        });
+
+        let vertices_fn = crate::helpers::new_random_vertices;
+        let indices_fn = crate::helpers::new_random_indices;
+
+        let vertices = vertices_fn();
+        let num_vertices = vertices.len() as u32;
+        let indices = indices_fn(num_vertices as u16);
+        let (instances, instance_buffer) =
+            make_instances_and_instance_buffer(0, (texture_width, texture_height), &device);
+
+        let (camera, projection, camera_controller) =
+            crate::camera::Camera::new((texture_width, texture_height), &config);
+
+        let vertex_buffer = create_vertex_buffer(&device, &vertices.as_slice());
+        let index_buffer = create_index_buffer(&device, &indices.as_slice());
+        // let canvas = canvas_info(window.inner_size());
 
         PrintState {
             size: (texture_width, texture_height),
@@ -136,6 +174,16 @@ impl<'a> PrintState<'a> {
             output_buffer,
             render_pipeline,
             last_render_time: std::time::Instant::now(),
+            vertex_buffer,
+            vertices,
+            num_vertices,
+            index_buffer,
+            num_indices: indices.len() as u32,
+            uniforms,
+            uniform_buffer,
+            uniform_bind_group,
+            instances,
+            instance_buffer,
         }
     }
 
@@ -170,16 +218,13 @@ impl<'a> PrintState<'a> {
 
             let mut render_pass = encoder.begin_render_pass(&render_pass_desc);
 
-            // render_pass.set_pipeline(&self.render_pipeline);
-            // render_pass.set_bind_group(0, &self.uniform_bind_group, &[]);
-            // render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
-            // render_pass.set_vertex_buffer(1, self.instance_buffer.slice(..));
-            // render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
-
-            // render_pass.draw_indexed(0..self.num_indices, 0, 0..self.instances.len() as _);
-
             render_pass.set_pipeline(&self.render_pipeline);
-            render_pass.draw(0..3, 0..1);
+            render_pass.set_bind_group(0, &self.uniform_bind_group, &[]);
+            render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
+            render_pass.set_vertex_buffer(1, self.instance_buffer.slice(..));
+            render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
+
+            render_pass.draw_indexed(0..self.num_indices, 0, 0..self.instances.len() as _);
         }
 
         encoder.copy_texture_to_buffer(
@@ -208,57 +253,13 @@ impl<'a> PrintState<'a> {
             &self.device,
         )
         .await;
+        dbg!("Frame printed");
     }
 }
 
 struct ImageBuffer {
     output_buffer: wgpu::Buffer,
     size: (u32, u32),
-}
-
-fn make_render_pipeline(
-    device: &wgpu::Device,
-    texture_desc: &wgpu::TextureDescriptor,
-) -> wgpu::RenderPipeline {
-    let shaders = setup_shaders(&device);
-    let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-        label: Some("Render Pipeline Layout"),
-        bind_group_layouts: &[],
-        push_constant_ranges: &[],
-    });
-    device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-        label: Some("Render Pipeline"),
-        layout: Some(&render_pipeline_layout),
-        vertex: wgpu::VertexState {
-            module: &shaders.0,
-            entry_point: "main",
-            buffers: &[],
-        },
-        fragment: Some(wgpu::FragmentState {
-            module: &shaders.1,
-            entry_point: "main",
-            targets: &[wgpu::ColorTargetState {
-                format: texture_desc.format,
-                blend: Some(wgpu::BlendState::REPLACE),
-                write_mask: wgpu::ColorWrite::ALL,
-            }],
-        }),
-        primitive: wgpu::PrimitiveState {
-            topology: wgpu::PrimitiveTopology::TriangleList,
-            strip_index_format: None,
-            front_face: wgpu::FrontFace::Ccw,
-            cull_mode: Some(wgpu::Face::Back),
-            clamp_depth: false,
-            conservative: false,
-            polygon_mode: wgpu::PolygonMode::Fill,
-        },
-        depth_stencil: None,
-        multisample: wgpu::MultisampleState {
-            count: 1,
-            mask: !0,
-            alpha_to_coverage_enabled: false,
-        },
-    })
 }
 
 async fn write_img(img: &ImageBuffer, device: &wgpu::Device) {

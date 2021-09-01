@@ -2,6 +2,7 @@ mod audio;
 mod camera;
 mod channel;
 mod config;
+mod helpers;
 mod input;
 mod instance;
 mod print;
@@ -13,7 +14,8 @@ mod setup;
 mod state;
 mod uniforms;
 mod vertex;
-use crate::config::{CameraConfig, Config};
+use crate::config::Config;
+use crate::print::PrintState;
 use crate::state::State;
 use winit::{
     event::*,
@@ -24,22 +26,13 @@ use winit::{
 use futures::executor::block_on;
 
 fn main() {
+    let state = block_on(PrintState::init());
+    block_on(state.render());
+}
+
+fn _main_2() {
     env_logger::init();
-    let config = Config {
-        filename: "kintaro".into(),
-        volume: 0.5,
-        window_size: (1600, 1000),
-        // camera: CameraConfig {
-        // position: (0.0, 0.0, 65.0),
-        // yaw: -90.0,
-        // pitch: 0.0,
-        // },
-        camera: CameraConfig {
-            position: (-48.2, -3.5, 16.0),
-            yaw: -50.0,
-            pitch: 8.0,
-        },
-    };
+    let config = Config::new();
     let title = env!("CARGO_PKG_NAME");
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new()

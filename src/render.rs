@@ -1,3 +1,5 @@
+use wgpu::SwapChainTexture;
+
 use crate::State;
 use crate::{
     instance::{make_instance_buffer, Instance},
@@ -7,10 +9,35 @@ use crate::{
 
 impl State {
     pub fn update(&mut self, dt: std::time::Duration) {
+        self.vertex_buffer = make_vertex_buffer(&self.device, self.vertices.as_slice());
+        let mut new_instances: Vec<Instance> = self
+            .op_stream
+            .get_batch(std::time::Instant::now() - self.start_time)
+            .into_iter()
+            .map(|op| {
+                op.into_instance(
+                    &self.canvas.instance_displacement,
+                    self.canvas.n_column,
+                    self.canvas.n_row,
+                )
+            })
+            .collect();
+
+        self.instances.append(&mut new_instances);
+        self.instances.iter_mut().for_each(|i| {
+            i.update_state(dt.as_secs_f32() as f32);
+        });
+
+        self.instances.retain(|i| i.life > 0.0);
+        self.instance_buffer = make_instance_buffer(
+            &self.instances,
+            (self.size.width, self.size.height),
+            &self.device,
+        );
         self.count += 1;
         if self.count % 400 == 0 {
             self.vertices = (self.vertices_fn)();
-            self.clear_color = State::new_random_clear_color();
+            self.clear_color = crate::helpers::new_random_clear_color();
         }
         // self.vertices.par_iter_mut().for_each(|v| v.update());
         self.camera_controller.update_camera(&mut self.camera, dt);
@@ -35,53 +62,8 @@ impl State {
                 label: Some("Render Encoder"),
             });
 
-        self.vertex_buffer = make_vertex_buffer(&self.device, self.vertices.as_slice());
-        let mut new_instances: Vec<Instance> = self
-            .op_stream
-            .get_batch(std::time::Instant::now() - self.start_time)
-            .into_iter()
-            .map(|op| {
-                op.into_instance(
-                    &self.canvas.instance_displacement,
-                    self.canvas.n_column,
-                    self.canvas.n_row,
-                )
-            })
-            .collect();
-
-        self.instances.append(&mut new_instances);
-        self.instances.iter_mut().for_each(|i| {
-            i.update_state(dt.as_secs_f32() as f32);
-        });
-
-        self.instances.retain(|i| i.life > -0.2);
-        self.instance_buffer = make_instance_buffer(&self.instances, self.size, &self.device);
-
         {
-            let color_attachments = if true {
-                wgpu::RenderPassColorAttachment {
-                    view: &frame.view,
-                    resolve_target: None,
-                    ops: wgpu::Operations {
-                        load: wgpu::LoadOp::Clear(wgpu::Color {
-                            r: 0.0,
-                            g: 0.0,
-                            b: 0.02,
-                            a: 1.0,
-                        }),
-                        store: true,
-                    },
-                }
-            } else {
-                wgpu::RenderPassColorAttachment {
-                    view: &frame.view,
-                    resolve_target: None,
-                    ops: wgpu::Operations {
-                        load: wgpu::LoadOp::Load,
-                        store: true,
-                    },
-                }
-            };
+            let color_attachments = make_color_attachments(&frame, true);
             let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 label: Some("Render Pass"),
                 // This is what [[location(0)]] in the fragment shader targets
@@ -99,5 +81,35 @@ impl State {
         }
         self.queue.submit(std::iter::once(encoder.finish()));
         Ok(())
+    }
+}
+
+fn make_color_attachments(
+    frame: &SwapChainTexture,
+    clear: bool,
+) -> wgpu::RenderPassColorAttachment {
+    if clear {
+        wgpu::RenderPassColorAttachment {
+            view: &frame.view,
+            resolve_target: None,
+            ops: wgpu::Operations {
+                load: wgpu::LoadOp::Clear(wgpu::Color {
+                    r: 0.0,
+                    g: 0.0,
+                    b: 0.02,
+                    a: 1.0,
+                }),
+                store: true,
+            },
+        }
+    } else {
+        wgpu::RenderPassColorAttachment {
+            view: &frame.view,
+            resolve_target: None,
+            ops: wgpu::Operations {
+                load: wgpu::LoadOp::Load,
+                store: true,
+            },
+        }
     }
 }

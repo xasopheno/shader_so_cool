@@ -4,7 +4,7 @@ pub fn create_render_pipeline(
     device: &wgpu::Device,
     shader: &wgpu::ShaderModule,
     uniform_bind_group_layout: &wgpu::BindGroupLayout,
-    sc_desc: &wgpu::SwapChainDescriptor,
+    format: wgpu::TextureFormat,
 ) -> wgpu::RenderPipeline {
     let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
         label: Some("Render Pipeline Layout"),
@@ -23,7 +23,7 @@ pub fn create_render_pipeline(
             module: &shader,
             entry_point: "main",
             targets: &[wgpu::ColorTargetState {
-                format: sc_desc.format,
+                format,
                 blend: Some(wgpu::BlendState::PREMULTIPLIED_ALPHA_BLENDING),
                 write_mask: wgpu::ColorWrite::ALL,
             }],

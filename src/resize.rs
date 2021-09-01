@@ -9,7 +9,7 @@ impl State {
         self.canvas = canvas_info(new_size);
 
         let (instances, instance_buffer) =
-            make_instances_and_instance_buffer(0, new_size, &self.device);
+            make_instances_and_instance_buffer(0, (new_size.width, new_size.height), &self.device);
         self.instances = instances;
         self.instance_buffer = instance_buffer;
 

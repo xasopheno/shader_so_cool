@@ -24,23 +24,14 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn new(
-        sc_desc: &wgpu::SwapChainDescriptor,
-        config: &Config,
-    ) -> (Self, Projection, CameraController) {
+    pub fn new(size: (u32, u32), config: &Config) -> (Self, Projection, CameraController) {
         let camera = Self {
             position: config.camera.position.into(),
             yaw: cgmath::Deg(config.camera.yaw).into(),
             pitch: cgmath::Deg(config.camera.pitch).into(),
         };
 
-        let projection = Projection::new(
-            sc_desc.width,
-            sc_desc.height,
-            cgmath::Deg(45.0),
-            0.1,
-            10_000.0,
-        );
+        let projection = Projection::new(size.0, size.1, cgmath::Deg(45.0), 0.1, 10_000.0);
 
         let camera_controller = crate::camera::CameraController::new(8.0, 0.7);
 
