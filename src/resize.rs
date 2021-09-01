@@ -6,7 +6,7 @@ use crate::{
 impl State {
     pub fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
         self.size = new_size;
-        self.canvas = canvas_info(new_size);
+        self.canvas = canvas_info((new_size.width, new_size.height));
 
         let (instances, instance_buffer) =
             make_instances_and_instance_buffer(0, (new_size.width, new_size.height), &self.device);

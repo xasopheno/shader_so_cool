@@ -1,8 +1,10 @@
 use crate::{
     config::Config,
-    instance::{make_instances_and_instance_buffer, Instance},
+    instance::{make_instance_buffer, make_instances_and_instance_buffer, Instance},
+    render_op::{OpStream, ToInstance},
     render_pipleline::create_render_pipeline,
-    vertex::{create_index_buffer, create_vertex_buffer, Vertex},
+    state::{canvas_info, Canvas},
+    vertex::{create_index_buffer, create_vertex_buffer, make_vertex_buffer, Vertex},
 };
 
 const U32_SIZE: u32 = std::mem::size_of::<u32>() as u32;
@@ -18,7 +20,39 @@ pub struct Setup<'a> {
     pub uniforms: crate::uniforms::Uniforms,
     pub uniform_buffer: wgpu::Buffer,
     pub uniform_bind_group: wgpu::BindGroup,
-    //
+}
+
+pub struct PrintState<'a> {
+    pub size: (u32, u32),
+    pub device: wgpu::Device,
+    pub queue: wgpu::Queue,
+    pub texture: wgpu::Texture,
+    pub texture_desc: wgpu::TextureDescriptor<'a>,
+    pub texture_view: wgpu::TextureView,
+    pub output_buffer: wgpu::Buffer,
+    pub render_pipeline: wgpu::RenderPipeline,
+    pub vertices: Vec<Vertex>,
+    pub vertex_buffer: wgpu::Buffer,
+    pub num_vertices: u32,
+    pub index_buffer: wgpu::Buffer,
+    pub num_indices: u32,
+    pub uniforms: crate::uniforms::Uniforms,
+    pub uniform_buffer: wgpu::Buffer,
+    pub uniform_bind_group: wgpu::BindGroup,
+    pub instances: Vec<Instance>,
+    pub instance_buffer: wgpu::Buffer,
+    pub count: u32,
+    pub op_stream: OpStream,
+    pub start_time: std::time::Instant,
+    pub last_render_time: std::time::Instant,
+    // pub projection: Projection,
+    // pub camera_controller: CameraController,
+    // pub vertices_fn: fn() -> Vec<Vertex>,
+    // pub indices_fn: fn(u16) -> Vec<u16>,
+    pub canvas: Canvas,
+    // pub clear_color: (f64, f64, f64),
+    // pub count: u32,
+    // pub camera: Camera,
 }
 
 async fn setup<'a>(texture_width: u32, texture_height: u32, config: &Config) -> Setup<'a> {
@@ -91,41 +125,8 @@ async fn setup<'a>(texture_width: u32, texture_height: u32, config: &Config) -> 
     }
 }
 
-pub struct PrintState<'a> {
-    pub size: (u32, u32),
-    pub device: wgpu::Device,
-    pub queue: wgpu::Queue,
-    pub texture: wgpu::Texture,
-    pub texture_desc: wgpu::TextureDescriptor<'a>,
-    pub texture_view: wgpu::TextureView,
-    pub output_buffer: wgpu::Buffer,
-    pub render_pipeline: wgpu::RenderPipeline,
-    pub last_render_time: std::time::Instant,
-    //
-    pub vertices: Vec<Vertex>,
-    pub vertex_buffer: wgpu::Buffer,
-    pub num_vertices: u32,
-    pub index_buffer: wgpu::Buffer,
-    pub num_indices: u32,
-    pub uniforms: crate::uniforms::Uniforms,
-    pub uniform_buffer: wgpu::Buffer,
-    pub uniform_bind_group: wgpu::BindGroup,
-    pub instances: Vec<Instance>,
-    pub instance_buffer: wgpu::Buffer,
-    // pub projection: Projection,
-    // pub camera_controller: CameraController,
-    // pub last_render_time: std::time::Instant,
-    // pub start_time: std::time::Instant,
-    // pub vertices_fn: fn() -> Vec<Vertex>,
-    // pub indices_fn: fn(u16) -> Vec<u16>,
-    // pub canvas: Canvas,
-    // pub clear_color: (f64, f64, f64),
-    // pub count: u32,
-    // pub camera: Camera,
-}
-
 impl<'a> PrintState<'a> {
-    pub async fn init() -> PrintState<'a> {
+    pub async fn init(op_stream: OpStream) -> PrintState<'a> {
         let texture_width = 1024 * 2;
         let texture_height = 768 * 2;
         let config = Config::new();
@@ -157,12 +158,12 @@ impl<'a> PrintState<'a> {
         let (instances, instance_buffer) =
             make_instances_and_instance_buffer(0, (texture_width, texture_height), &device);
 
-        let (camera, projection, camera_controller) =
-            crate::camera::Camera::new((texture_width, texture_height), &config);
+        // let (camera, projection, camera_controller) =
+        // crate::camera::Camera::new((texture_width, texture_height), &config);
 
         let vertex_buffer = create_vertex_buffer(&device, &vertices.as_slice());
         let index_buffer = create_index_buffer(&device, &indices.as_slice());
-        // let canvas = canvas_info(window.inner_size());
+        let canvas = canvas_info((texture_width, texture_height));
 
         PrintState {
             size: (texture_width, texture_height),
@@ -173,7 +174,6 @@ impl<'a> PrintState<'a> {
             texture_view,
             output_buffer,
             render_pipeline,
-            last_render_time: std::time::Instant::now(),
             vertex_buffer,
             vertices,
             num_vertices,
@@ -184,7 +184,51 @@ impl<'a> PrintState<'a> {
             uniform_bind_group,
             instances,
             instance_buffer,
+            count: 0,
+            op_stream,
+            last_render_time: std::time::Instant::now(),
+            start_time: std::time::Instant::now(),
+            canvas,
         }
+    }
+
+    pub fn update(&mut self, dt: std::time::Duration) {
+        self.vertex_buffer = make_vertex_buffer(&self.device, self.vertices.as_slice());
+        let mut new_instances: Vec<Instance> = self
+            .op_stream
+            .get_batch(std::time::Instant::now() - self.start_time)
+            .into_iter()
+            .map(|op| {
+                op.into_instance(
+                    &self.canvas.instance_displacement,
+                    self.canvas.n_column,
+                    self.canvas.n_row,
+                )
+            })
+            .collect();
+
+        self.instances.append(&mut new_instances);
+        self.instances.iter_mut().for_each(|i| {
+            i.update_state(dt.as_secs_f32() as f32);
+        });
+
+        self.instances.retain(|i| i.life > 0.0);
+        self.instance_buffer =
+            make_instance_buffer(&self.instances, (self.size.0, self.size.1), &self.device);
+        self.count += 1;
+        if self.count % 400 == 0 {
+            // self.vertices = (self.vertices_fn)();
+            // self.clear_color = crate::helpers::new_random_clear_color();
+        }
+        // self.vertices.par_iter_mut().for_each(|v| v.update());
+        // self.camera_controller.update_camera(&mut self.camera, dt);
+        // self.uniforms
+        // .update_view_proj(&self.camera, &self.projection);
+        self.queue.write_buffer(
+            &self.uniform_buffer,
+            0,
+            bytemuck::cast_slice(&[self.uniforms]),
+        );
     }
 
     pub async fn render(mut self) {
@@ -245,36 +289,25 @@ impl<'a> PrintState<'a> {
         );
         self.queue.submit(Some(encoder.finish()));
 
-        write_img(
-            &ImageBuffer {
-                output_buffer: self.output_buffer,
-                size: self.size,
-            },
-            &self.device,
-        )
-        .await;
+        self.write_img().await;
         dbg!("Frame printed");
     }
-}
 
-struct ImageBuffer {
-    output_buffer: wgpu::Buffer,
-    size: (u32, u32),
-}
+    async fn write_img(&self) {
+        let buffer_slice = self.output_buffer.slice(..);
 
-async fn write_img(img: &ImageBuffer, device: &wgpu::Device) {
-    let buffer_slice = img.output_buffer.slice(..);
+        // NOTE: We have to create the mapping THEN device.poll() before await
+        // the future. Otherwise the application will freeze.
+        let mapping = buffer_slice.map_async(wgpu::MapMode::Read);
+        self.device.poll(wgpu::Maintain::Wait);
+        mapping.await.unwrap();
 
-    // NOTE: We have to create the mapping THEN device.poll() before await
-    // the future. Otherwise the application will freeze.
-    let mapping = buffer_slice.map_async(wgpu::MapMode::Read);
-    device.poll(wgpu::Maintain::Wait);
-    mapping.await.unwrap();
+        let data = buffer_slice.get_mapped_range();
 
-    let data = buffer_slice.get_mapped_range();
-
-    use image::{ImageBuffer, Rgba};
-    let buffer = ImageBuffer::<Rgba<u8>, _>::from_raw(img.size.0, img.size.1, data).unwrap();
-    buffer.save("image.png").unwrap();
-    img.output_buffer.unmap();
+        use image::{ImageBuffer, Rgba};
+        let buffer = ImageBuffer::<Rgba<u8>, _>::from_raw(self.size.0, self.size.1, data).unwrap();
+        let filename = format!("out/{:09}", self.count);
+        buffer.save(filename).unwrap();
+        self.output_buffer.unmap();
+    }
 }

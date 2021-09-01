@@ -50,8 +50,8 @@ pub struct Canvas {
     pub instance_displacement: cgmath::Vector3<f32>,
 }
 
-pub fn canvas_info(size: winit::dpi::PhysicalSize<u32>) -> Canvas {
-    let ratio = size.width as f32 / size.height as f32;
+pub fn canvas_info(size: (u32, u32)) -> Canvas {
+    let ratio = size.0 as f32 / size.1 as f32;
     let n_pixels = 20.0;
     let n_row = (n_pixels * ratio) as u32;
     let n_column = n_pixels as u32;
@@ -103,7 +103,7 @@ impl State {
             create_render_pipeline(&device, &shader, &uniform_bind_group_layout, sc_desc.format);
         let vertex_buffer = create_vertex_buffer(&device, &vertices.as_slice());
         let index_buffer = create_index_buffer(&device, &indices.as_slice());
-        let canvas = canvas_info(window.inner_size());
+        let canvas = canvas_info((window.inner_size().height, window.inner_size().height));
         // let ops = Op4D::vec_random(1000);
 
         Self {

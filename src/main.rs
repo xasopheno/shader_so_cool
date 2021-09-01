@@ -13,6 +13,7 @@ mod resize;
 mod setup;
 mod state;
 mod uniforms;
+mod update;
 mod vertex;
 use crate::config::Config;
 use crate::print::PrintState;
@@ -26,7 +27,9 @@ use winit::{
 use futures::executor::block_on;
 
 fn main() {
-    let state = block_on(PrintState::init());
+    let config = Config::new();
+    let op_stream = crate::render_op::OpStream::from_json(&config.filename);
+    let state = block_on(PrintState::init(op_stream));
     block_on(state.render());
 }
 
