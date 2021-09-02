@@ -1,7 +1,6 @@
 use crate::instance::Instance;
 use cgmath::{Rotation3, Vector3};
 use rand::Rng;
-use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 pub use weresocool::generation::json::{EventType, Op4D};
 
@@ -99,7 +98,7 @@ impl ToInstance for Op4D {
         Instance {
             position: Vector3::new(
                 self.x as f32 * n_row as f32,
-                self.y as f32 * n_column as f32 * 2.0,
+                self.y as f32 * n_column as f32 * 8.0,
                 1.0,
             ) - displacement,
             rotation,

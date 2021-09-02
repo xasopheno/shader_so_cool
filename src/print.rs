@@ -127,8 +127,9 @@ async fn setup<'a>(texture_width: u32, texture_height: u32, config: &Config) -> 
 
 impl<'a> PrintState<'a> {
     pub async fn init(op_stream: OpStream) -> PrintState<'a> {
-        let texture_width = 1792 * 4;
-        let texture_height = 1120 * 4;
+        let texture_width = 1792 / 2;
+        let texture_height = 1120 / 2;
+        println!("{}/{}", texture_width, texture_height);
         let config = Config::new();
         let Setup {
             device,
@@ -193,7 +194,7 @@ impl<'a> PrintState<'a> {
         self.vertex_buffer = make_vertex_buffer(&self.device, self.vertices.as_slice());
         let mut new_instances: Vec<Instance> = self
             .op_stream
-            .get_batch(std::time::Duration::from_secs(1000))
+            .get_batch(dt)
             .into_iter()
             .map(|op| {
                 op.into_instance(
@@ -228,11 +229,11 @@ impl<'a> PrintState<'a> {
         );
     }
 
-    pub async fn render(mut self) {
-        let now = std::time::Instant::now();
-        self.last_render_time += std::time::Duration::from_secs(1);
-        // dbg!(self.last_render_time);
-        self.update(std::time::Duration::from_secs(10));
+    pub async fn render(&mut self) {
+        let dt = std::time::Duration::from_millis(40);
+        self.last_render_time += dt;
+        dbg!(self.last_render_time);
+        self.update(dt);
         let mut encoder = self
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
@@ -245,9 +246,9 @@ impl<'a> PrintState<'a> {
                     resolve_target: None,
                     ops: wgpu::Operations {
                         load: wgpu::LoadOp::Clear(wgpu::Color {
-                            r: 0.1,
-                            g: 0.2,
-                            b: 0.3,
+                            r: 0.0,
+                            g: 0.0,
+                            b: 0.02,
                             a: 1.0,
                         }),
                         store: true,
@@ -305,6 +306,6 @@ impl<'a> PrintState<'a> {
         let filename = format!("out/{:07}.png", self.count);
         dbg!(&filename);
         buffer.save(filename).unwrap();
-        // self.output_buffer.unmap();
+        self.output_buffer.unmap();
     }
 }

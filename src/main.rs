@@ -29,8 +29,10 @@ use futures::executor::block_on;
 fn main() {
     let config = Config::new();
     let op_stream = crate::render_op::OpStream::from_json(&config.filename);
-    let state = block_on(PrintState::init(op_stream));
-    block_on(state.render());
+    let mut state = block_on(PrintState::init(op_stream));
+    for _ in 0..3 {
+        block_on(state.render());
+    }
 }
 
 fn _main() {
