@@ -21,7 +21,7 @@ use crate::state::State;
 use winit::{
     event::*,
     event_loop::{ControlFlow, EventLoop},
-    window::WindowBuilder,
+    window::{Fullscreen, WindowBuilder},
 };
 
 use futures::executor::block_on;
@@ -33,7 +33,7 @@ fn main() {
     block_on(state.render());
 }
 
-fn _main_2() {
+fn _main() {
     env_logger::init();
     let config = Config::new();
     let title = env!("CARGO_PKG_NAME");
@@ -44,7 +44,7 @@ fn _main_2() {
             height: config.window_size.1,
         })
         .with_title(title)
-        // .with_fullscreen(Some(Fullscreen::Borderless(None)))
+        .with_fullscreen(Some(Fullscreen::Borderless(None)))
         .build(&event_loop)
         .expect("Unable to create window");
 

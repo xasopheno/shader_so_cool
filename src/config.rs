@@ -19,16 +19,21 @@ impl Config {
             filename: "kintaro".into(),
             volume: 0.5,
             window_size: (1600, 1000),
-            camera: CameraConfig {
-                position: (0.0, 0.0, 65.0),
-                yaw: -90.0,
-                pitch: 0.0,
-            },
+            // camera: CameraConfig {
+            // position: (0.0, 0.0, 65.0),
+            // yaw: -90.0,
+            // pitch: 0.0,
+            // },
             // camera: CameraConfig {
             // position: (-48.2, -3.5, 16.0),
             // yaw: -50.0,
             // pitch: 8.0,
             // },
+            camera: CameraConfig {
+                position: (-22.83299, -5.1967072, -35.540905),
+                yaw: 16.77102,
+                pitch: 5.3154497,
+            },
         }
     }
 }

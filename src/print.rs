@@ -127,8 +127,8 @@ async fn setup<'a>(texture_width: u32, texture_height: u32, config: &Config) -> 
 
 impl<'a> PrintState<'a> {
     pub async fn init(op_stream: OpStream) -> PrintState<'a> {
-        let texture_width = 1024 * 3;
-        let texture_height = 786 * 3;
+        let texture_width = 1792 * 4;
+        let texture_height = 1120 * 4;
         let config = Config::new();
         let Setup {
             device,
@@ -213,10 +213,10 @@ impl<'a> PrintState<'a> {
         self.instance_buffer =
             make_instance_buffer(&self.instances, (self.size.0, self.size.1), &self.device);
         self.count += 1;
-        if self.count % 400 == 0 {
-            // self.vertices = (self.vertices_fn)();
-            // self.clear_color = crate::helpers::new_random_clear_color();
-        }
+        // if self.count % 400 == 0 {
+        // self.vertices = (self.vertices_fn)();
+        // self.clear_color = crate::helpers::new_random_clear_color();
+        // }
         // self.vertices.par_iter_mut().for_each(|v| v.update());
         self.camera_controller.update_camera(&mut self.camera, dt);
         self.uniforms
@@ -232,7 +232,7 @@ impl<'a> PrintState<'a> {
         let now = std::time::Instant::now();
         self.last_render_time += std::time::Duration::from_secs(1);
         // dbg!(self.last_render_time);
-        self.update(std::time::Duration::from_secs(1));
+        self.update(std::time::Duration::from_secs(10));
         let mut encoder = self
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });

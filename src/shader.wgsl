@@ -45,6 +45,20 @@ fn main(
       pow(model.color[2] * instance.life, 3.0),
   );
 
+
+
+  if (instance.life < 1.9999) {
+    out.color = vec4<f32>(color_matrix, instance.life);
+    let scale_mul = 2.0;
+  } else {
+    out.color = vec4<f32>(color_matrix * vec3<f32>(
+          30.0 * instance.life, 
+          30.0 * instance.life, 
+          30.0 * instance.life, 
+        ), instance.life);
+    let scale_mul = 1.0;
+  };
+
   let scale = mat4x4<f32>(
       vec4<f32>(instance.size * 1.2, 0.0, 0.0, 0.0),
       vec4<f32>(0.0, instance.size * 1.2, 0.0, 0.0),
@@ -52,11 +66,10 @@ fn main(
       vec4<f32>(0.0, 0.0, 0.0, 1.0)
   );
 
-  out.color = vec4<f32>(color_matrix, instance.life);
   out.clip_position = 
     uniforms.view_proj 
     * model_matrix 
-    * scale
+    * scale * scale_mul
     * vec4<f32>(
         model.position.x + 2.0 + instance.life * 3.0, 
         model.position.y * 1.4,
