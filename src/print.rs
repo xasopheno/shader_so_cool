@@ -1,4 +1,5 @@
 use crate::{
+    camera::{Camera, CameraController, Projection},
     config::Config,
     instance::{make_instance_buffer, make_instances_and_instance_buffer, Instance},
     render_op::{OpStream, ToInstance},
@@ -45,14 +46,13 @@ pub struct PrintState<'a> {
     pub op_stream: OpStream,
     pub start_time: std::time::Instant,
     pub last_render_time: std::time::Instant,
-    // pub projection: Projection,
-    // pub camera_controller: CameraController,
+    pub camera: Camera,
+    pub camera_controller: CameraController,
+    pub projection: Projection,
     // pub vertices_fn: fn() -> Vec<Vertex>,
     // pub indices_fn: fn(u16) -> Vec<u16>,
     pub canvas: Canvas,
     // pub clear_color: (f64, f64, f64),
-    // pub count: u32,
-    // pub camera: Camera,
 }
 
 async fn setup<'a>(texture_width: u32, texture_height: u32, config: &Config) -> Setup<'a> {
@@ -127,8 +127,8 @@ async fn setup<'a>(texture_width: u32, texture_height: u32, config: &Config) -> 
 
 impl<'a> PrintState<'a> {
     pub async fn init(op_stream: OpStream) -> PrintState<'a> {
-        let texture_width = 1024 * 2;
-        let texture_height = 768 * 2;
+        let texture_width = 1024 * 3;
+        let texture_height = 786 * 3;
         let config = Config::new();
         let Setup {
             device,
@@ -143,12 +143,6 @@ impl<'a> PrintState<'a> {
             uniform_bind_group,
         } = setup(texture_width, texture_height, &config).await;
 
-        let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
-            label: Some("Shader"),
-            flags: wgpu::ShaderFlags::all(),
-            source: wgpu::ShaderSource::Wgsl(include_str!("shader.wgsl").into()),
-        });
-
         let vertices_fn = crate::helpers::new_random_vertices;
         let indices_fn = crate::helpers::new_random_indices;
 
@@ -158,8 +152,8 @@ impl<'a> PrintState<'a> {
         let (instances, instance_buffer) =
             make_instances_and_instance_buffer(0, (texture_width, texture_height), &device);
 
-        // let (camera, projection, camera_controller) =
-        // crate::camera::Camera::new((texture_width, texture_height), &config);
+        let (camera, projection, camera_controller) =
+            crate::camera::Camera::new((texture_width, texture_height), &config);
 
         let vertex_buffer = create_vertex_buffer(&device, &vertices.as_slice());
         let index_buffer = create_index_buffer(&device, &indices.as_slice());
@@ -189,6 +183,9 @@ impl<'a> PrintState<'a> {
             last_render_time: std::time::Instant::now(),
             start_time: std::time::Instant::now(),
             canvas,
+            camera,
+            camera_controller,
+            projection,
         }
     }
 
@@ -196,7 +193,7 @@ impl<'a> PrintState<'a> {
         self.vertex_buffer = make_vertex_buffer(&self.device, self.vertices.as_slice());
         let mut new_instances: Vec<Instance> = self
             .op_stream
-            .get_batch(std::time::Instant::now() - self.start_time)
+            .get_batch(std::time::Duration::from_secs(1000))
             .into_iter()
             .map(|op| {
                 op.into_instance(
@@ -221,9 +218,9 @@ impl<'a> PrintState<'a> {
             // self.clear_color = crate::helpers::new_random_clear_color();
         }
         // self.vertices.par_iter_mut().for_each(|v| v.update());
-        // self.camera_controller.update_camera(&mut self.camera, dt);
-        // self.uniforms
-        // .update_view_proj(&self.camera, &self.projection);
+        self.camera_controller.update_camera(&mut self.camera, dt);
+        self.uniforms
+            .update_view_proj(&self.camera, &self.projection);
         self.queue.write_buffer(
             &self.uniform_buffer,
             0,
@@ -233,10 +230,9 @@ impl<'a> PrintState<'a> {
 
     pub async fn render(mut self) {
         let now = std::time::Instant::now();
-        let dt = now - self.last_render_time;
-        self.last_render_time = now;
+        self.last_render_time += std::time::Duration::from_secs(1);
         // dbg!(self.last_render_time);
-        // self.update(dt);
+        self.update(std::time::Duration::from_secs(1));
         let mut encoder = self
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
@@ -306,8 +302,9 @@ impl<'a> PrintState<'a> {
 
         use image::{ImageBuffer, Rgba};
         let buffer = ImageBuffer::<Rgba<u8>, _>::from_raw(self.size.0, self.size.1, data).unwrap();
-        let filename = format!("out/{:09}", self.count);
+        let filename = format!("out/{:07}.png", self.count);
+        dbg!(&filename);
         buffer.save(filename).unwrap();
-        self.output_buffer.unmap();
+        // self.output_buffer.unmap();
     }
 }
