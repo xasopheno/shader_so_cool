@@ -98,7 +98,7 @@ impl Instance {
     }
 
     pub fn update_state(&mut self, dt: f32) {
-        self.life -= dt * 0.01;
+        self.life -= dt * 0.001;
     }
 }
 

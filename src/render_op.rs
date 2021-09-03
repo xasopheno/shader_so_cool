@@ -98,7 +98,7 @@ impl ToInstance for Op4D {
         Instance {
             position: Vector3::new(
                 self.x as f32 * n_row as f32,
-                self.y as f32 * n_column as f32 * 8.0,
+                self.y as f32 * n_column as f32 * 6.0,
                 1.0,
             ) - displacement,
             rotation,

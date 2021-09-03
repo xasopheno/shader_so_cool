@@ -18,9 +18,9 @@ impl Config {
         Config {
             filename: "kintaro".into(),
             volume: 0.5,
-            window_size: (1600, 1000),
+            window_size: (1792, 1120),
             camera: CameraConfig {
-                position: (0.0, 0.0, 65.0),
+                position: (0.0, 50.0, 150.0),
                 yaw: -90.0,
                 pitch: 0.0,
             },

@@ -44,8 +44,7 @@ pub struct PrintState<'a> {
     pub instance_buffer: wgpu::Buffer,
     pub count: u32,
     pub op_stream: OpStream,
-    pub start_time: std::time::Instant,
-    pub last_render_time: std::time::Instant,
+    pub time_elapsed: std::time::Duration,
     pub camera: Camera,
     pub camera_controller: CameraController,
     pub projection: Projection,
@@ -53,6 +52,19 @@ pub struct PrintState<'a> {
     // pub indices_fn: fn(u16) -> Vec<u16>,
     pub canvas: Canvas,
     // pub clear_color: (f64, f64, f64),
+}
+
+fn make_output_buffer(device: &wgpu::Device, size: (u32, u32)) -> wgpu::Buffer {
+    let output_buffer_size = (U32_SIZE * size.0 * size.1) as wgpu::BufferAddress;
+    let output_buffer_desc = wgpu::BufferDescriptor {
+        size: output_buffer_size,
+        usage: wgpu::BufferUsage::COPY_DST
+        // this tells wpgu that we want to read this buffer from the cpu
+        | wgpu::BufferUsage::MAP_READ,
+        label: None,
+        mapped_at_creation: false,
+    };
+    device.create_buffer(&output_buffer_desc)
 }
 
 async fn setup<'a>(texture_width: u32, texture_height: u32, config: &Config) -> Setup<'a> {
@@ -83,16 +95,7 @@ async fn setup<'a>(texture_width: u32, texture_height: u32, config: &Config) -> 
         label: None,
     };
     let texture = device.create_texture(&texture_desc);
-    let output_buffer_size = (U32_SIZE * texture_width * texture_height) as wgpu::BufferAddress;
-    let output_buffer_desc = wgpu::BufferDescriptor {
-        size: output_buffer_size,
-        usage: wgpu::BufferUsage::COPY_DST
-        // this tells wpgu that we want to read this buffer from the cpu
-        | wgpu::BufferUsage::MAP_READ,
-        label: None,
-        mapped_at_creation: false,
-    };
-    let output_buffer = device.create_buffer(&output_buffer_desc);
+    let output_buffer = make_output_buffer(&device, (texture_width, texture_height));
     let texture_view = texture.create_view(&Default::default());
 
     let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
@@ -127,8 +130,8 @@ async fn setup<'a>(texture_width: u32, texture_height: u32, config: &Config) -> 
 
 impl<'a> PrintState<'a> {
     pub async fn init(op_stream: OpStream) -> PrintState<'a> {
-        let texture_width = 1792 / 2;
-        let texture_height = 1120 / 2;
+        let texture_width = 1792;
+        let texture_height = 1120;
         println!("{}/{}", texture_width, texture_height);
         let config = Config::new();
         let Setup {
@@ -181,8 +184,7 @@ impl<'a> PrintState<'a> {
             instance_buffer,
             count: 0,
             op_stream,
-            last_render_time: std::time::Instant::now(),
-            start_time: std::time::Instant::now(),
+            time_elapsed: std::time::Duration::from_millis(0),
             canvas,
             camera,
             camera_controller,
@@ -230,13 +232,14 @@ impl<'a> PrintState<'a> {
     }
 
     pub async fn render(&mut self) {
-        let dt = std::time::Duration::from_millis(40);
-        self.last_render_time += dt;
-        dbg!(self.last_render_time);
-        self.update(dt);
+        let dt = std::time::Duration::from_millis(100);
+        self.time_elapsed += dt;
+        // dbg!(self.time_elapsed);
+        self.update(self.time_elapsed);
         let mut encoder = self
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+        self.output_buffer = make_output_buffer(&self.device, self.size);
 
         {
             let render_pass_desc = wgpu::RenderPassDescriptor {
@@ -245,12 +248,7 @@ impl<'a> PrintState<'a> {
                     view: &self.texture_view,
                     resolve_target: None,
                     ops: wgpu::Operations {
-                        load: wgpu::LoadOp::Clear(wgpu::Color {
-                            r: 0.0,
-                            g: 0.0,
-                            b: 0.02,
-                            a: 1.0,
-                        }),
+                        load: wgpu::LoadOp::Load,
                         store: true,
                     },
                 }],
@@ -287,7 +285,7 @@ impl<'a> PrintState<'a> {
         self.queue.submit(Some(encoder.finish()));
 
         self.write_img().await;
-        dbg!("Frame printed");
+        // dbg!("Frame printed");
     }
 
     async fn write_img(&self) {
@@ -304,8 +302,40 @@ impl<'a> PrintState<'a> {
         use image::{ImageBuffer, Rgba};
         let buffer = ImageBuffer::<Rgba<u8>, _>::from_raw(self.size.0, self.size.1, data).unwrap();
         let filename = format!("out/{:07}.png", self.count);
-        dbg!(&filename);
+        if self.count % 100 == 0 {
+            dbg!(&filename);
+        }
         buffer.save(filename).unwrap();
-        self.output_buffer.unmap();
+        // self.output_buffer.unmap();
     }
 }
+
+// pub fn make_color_attachments(
+// frame: &Texture,
+// clear: bool,
+// ) -> wgpu::RenderPassColorAttachment {
+// if clear {
+// wgpu::RenderPassColorAttachment {
+// view: &frame.view,
+// resolve_target: None,
+// ops: wgpu::Operations {
+// load: wgpu::LoadOp::Clear(wgpu::Color {
+// r: 0.0,
+// g: 0.0,
+// b: 0.02,
+// a: 1.0,
+// }),
+// store: true,
+// },
+// }
+// } else {
+// wgpu::RenderPassColorAttachment {
+// view: &frame.view,
+// resolve_target: None,
+// ops: wgpu::Operations {
+// load: wgpu::LoadOp::Load,
+// store: true,
+// },
+// }
+// }
+// }

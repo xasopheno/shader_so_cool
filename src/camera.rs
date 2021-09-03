@@ -40,9 +40,9 @@ impl Camera {
 
     pub fn calc_matrix(&self) -> Matrix4<f32> {
         // TODO: print current camera
-        let yaw: cgmath::Deg<f32> = self.yaw.into();
-        let pitch: cgmath::Deg<f32> = self.pitch.into();
-        dbg!(&self.position, yaw, pitch);
+        // let yaw: cgmath::Deg<f32> = self.yaw.into();
+        // let pitch: cgmath::Deg<f32> = self.pitch.into();
+        // dbg!(&self.position, yaw, pitch);
         let (sin_pitch, cos_pitch) = self.pitch.0.sin_cos();
         let (sin_yaw, cos_yaw) = self.yaw.0.sin_cos();
 

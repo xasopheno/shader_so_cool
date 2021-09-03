@@ -30,7 +30,8 @@ fn main() {
     let config = Config::new();
     let op_stream = crate::render_op::OpStream::from_json(&config.filename);
     let mut state = block_on(PrintState::init(op_stream));
-    for _ in 0..3 {
+    // for _ in 0..2700 {
+    for _ in 0..1400 {
         block_on(state.render());
     }
 }

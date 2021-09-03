@@ -38,7 +38,7 @@ impl State {
     }
 }
 
-fn make_color_attachments(
+pub fn make_color_attachments(
     frame: &SwapChainTexture,
     clear: bool,
 ) -> wgpu::RenderPassColorAttachment {
