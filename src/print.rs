@@ -25,6 +25,7 @@ pub struct Setup<'a> {
 
 pub struct PrintState<'a> {
     pub size: (u32, u32),
+    pub vertices_fn: fn() -> Vec<Vertex>,
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
     pub texture: wgpu::Texture,
@@ -162,9 +163,9 @@ impl<'a> PrintState<'a> {
         let vertex_buffer = create_vertex_buffer(&device, &vertices.as_slice());
         let index_buffer = create_index_buffer(&device, &indices.as_slice());
         let canvas = canvas_info((texture_width, texture_height));
-
         PrintState {
             size: (texture_width, texture_height),
+            vertices_fn: crate::helpers::new_random_vertices,
             device,
             queue,
             texture,
@@ -206,22 +207,23 @@ impl<'a> PrintState<'a> {
                 )
             })
             .collect();
+        let dt2 = std::time::Duration::from_millis(100);
 
         self.instances.append(&mut new_instances);
         self.instances.iter_mut().for_each(|i| {
-            i.update_state(dt.as_secs_f32() as f32);
+            i.update_state(dt2.as_secs_f32());
         });
 
         self.instances.retain(|i| i.life > 0.0);
         self.instance_buffer =
             make_instance_buffer(&self.instances, (self.size.0, self.size.1), &self.device);
         self.count += 1;
-        // if self.count % 400 == 0 {
-        // self.vertices = (self.vertices_fn)();
-        // self.clear_color = crate::helpers::new_random_clear_color();
-        // }
+        if self.count % 200 == 0 {
+            self.vertices = (self.vertices_fn)();
+            // self.clear_color = crate::helpers::new_random_clear_color();
+        }
         // self.vertices.par_iter_mut().for_each(|v| v.update());
-        self.camera_controller.update_camera(&mut self.camera, dt);
+        self.camera_controller.update_camera(&mut self.camera, dt2);
         self.uniforms
             .update_view_proj(&self.camera, &self.projection);
         self.queue.write_buffer(
@@ -244,14 +246,29 @@ impl<'a> PrintState<'a> {
         {
             let render_pass_desc = wgpu::RenderPassDescriptor {
                 label: Some("Render Pass"),
-                color_attachments: &[wgpu::RenderPassColorAttachment {
+                color_attachments: &[
+                    wgpu::RenderPassColorAttachment {
                     view: &self.texture_view,
                     resolve_target: None,
                     ops: wgpu::Operations {
-                        load: wgpu::LoadOp::Load,
-                        store: true,
+                    load: wgpu::LoadOp::Load,
+                    store: true,
                     },
-                }],
+                    }
+                    // wgpu::RenderPassColorAttachment {
+                        // view: &self.texture_view,
+                        // resolve_target: None,
+                        // ops: wgpu::Operations {
+                            // load: wgpu::LoadOp::Clear(wgpu::Color {
+                                // r: 0.0,
+                                // g: 0.0,
+                                // b: 0.02,
+                                // a: 1.0,
+                            // }),
+                            // store: true,
+                        // },
+                    // },
+                ],
                 depth_stencil_attachment: None,
             };
 
@@ -285,7 +302,6 @@ impl<'a> PrintState<'a> {
         self.queue.submit(Some(encoder.finish()));
 
         self.write_img().await;
-        // dbg!("Frame printed");
     }
 
     async fn write_img(&self) {
@@ -310,10 +326,7 @@ impl<'a> PrintState<'a> {
     }
 }
 
-// pub fn make_color_attachments(
-// frame: &Texture,
-// clear: bool,
-// ) -> wgpu::RenderPassColorAttachment {
+// pub fn make_color_attachments(frame: &Texture, clear: bool) -> wgpu::RenderPassColorAttachment {
 // if clear {
 // wgpu::RenderPassColorAttachment {
 // view: &frame.view,
