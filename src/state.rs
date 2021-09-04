@@ -7,6 +7,7 @@ use crate::{
     setup::Setup,
     vertex::{create_index_buffer, create_vertex_buffer, Vertex},
 };
+use futures::executor::block_on;
 use winit::window::Window;
 
 pub struct State {
@@ -68,7 +69,7 @@ pub fn canvas_info(size: (u32, u32)) -> Canvas {
 }
 
 impl State {
-    pub async fn new(window: &Window, op_stream: OpStream, config: &Config) -> State {
+    pub async fn init(window: &Window, op_stream: OpStream, config: &Config) -> State {
         let Setup {
             device,
             surface,

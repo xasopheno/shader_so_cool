@@ -1,6 +1,36 @@
 use crate::vertex::Vertex;
 use rand::Rng;
 
+pub fn make_color_attachments(
+    view: &wgpu::TextureView,
+    accumulation: bool,
+) -> wgpu::RenderPassColorAttachment {
+    if accumulation {
+        wgpu::RenderPassColorAttachment {
+            view,
+            resolve_target: None,
+            ops: wgpu::Operations {
+                load: wgpu::LoadOp::Load,
+                store: true,
+            },
+        }
+    } else {
+        wgpu::RenderPassColorAttachment {
+            view,
+            resolve_target: None,
+            ops: wgpu::Operations {
+                load: wgpu::LoadOp::Clear(wgpu::Color {
+                    r: 0.0,
+                    g: 0.0,
+                    b: 0.02,
+                    a: 1.0,
+                }),
+                store: true,
+            },
+        }
+    }
+}
+
 #[allow(dead_code)]
 fn random_color() -> f64 {
     let mut rng = rand::thread_rng();

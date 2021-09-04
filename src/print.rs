@@ -1,6 +1,7 @@
 use crate::{
     camera::{Camera, CameraController, Projection},
     config::Config,
+    helpers::make_color_attachments,
     instance::{make_instance_buffer, make_instances_and_instance_buffer, Instance},
     render_op::{OpStream, ToInstance},
     render_pipleline::create_render_pipeline,
@@ -10,11 +11,10 @@ use crate::{
 
 const U32_SIZE: u32 = std::mem::size_of::<u32>() as u32;
 
-pub struct Setup<'a> {
+pub struct Setup {
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
     pub texture: wgpu::Texture,
-    pub texture_desc: wgpu::TextureDescriptor<'a>,
     pub output_buffer: wgpu::Buffer,
     pub texture_view: wgpu::TextureView,
     pub render_pipeline: wgpu::RenderPipeline,
@@ -23,13 +23,12 @@ pub struct Setup<'a> {
     pub uniform_bind_group: wgpu::BindGroup,
 }
 
-pub struct PrintState<'a> {
+pub struct PrintState {
+    pub config: Config,
     pub size: (u32, u32),
-    pub vertices_fn: fn() -> Vec<Vertex>,
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
     pub texture: wgpu::Texture,
-    pub texture_desc: wgpu::TextureDescriptor<'a>,
     pub texture_view: wgpu::TextureView,
     pub output_buffer: wgpu::Buffer,
     pub render_pipeline: wgpu::RenderPipeline,
@@ -49,10 +48,10 @@ pub struct PrintState<'a> {
     pub camera: Camera,
     pub camera_controller: CameraController,
     pub projection: Projection,
-    // pub vertices_fn: fn() -> Vec<Vertex>,
-    // pub indices_fn: fn(u16) -> Vec<u16>,
+    pub vertices_fn: fn() -> Vec<Vertex>,
+    pub indices_fn: fn(u16) -> Vec<u16>,
     pub canvas: Canvas,
-    // pub clear_color: (f64, f64, f64),
+    pub clear_color: (f64, f64, f64),
 }
 
 fn make_output_buffer(device: &wgpu::Device, size: (u32, u32)) -> wgpu::Buffer {
@@ -68,7 +67,7 @@ fn make_output_buffer(device: &wgpu::Device, size: (u32, u32)) -> wgpu::Buffer {
     device.create_buffer(&output_buffer_desc)
 }
 
-async fn setup<'a>(texture_width: u32, texture_height: u32, config: &Config) -> Setup<'a> {
+async fn setup(texture_width: u32, texture_height: u32, config: &Config) -> Setup {
     let instance = wgpu::Instance::new(wgpu::BackendBit::PRIMARY);
     let adapter = instance
         .request_adapter(&wgpu::RequestAdapterOptions {
@@ -119,7 +118,6 @@ async fn setup<'a>(texture_width: u32, texture_height: u32, config: &Config) -> 
         device,
         queue,
         texture,
-        texture_desc,
         output_buffer,
         texture_view,
         render_pipeline,
@@ -129,17 +127,15 @@ async fn setup<'a>(texture_width: u32, texture_height: u32, config: &Config) -> 
     }
 }
 
-impl<'a> PrintState<'a> {
-    pub async fn init(op_stream: OpStream) -> PrintState<'a> {
+impl PrintState {
+    pub async fn init(op_stream: OpStream, config: Config) -> PrintState {
         let texture_width = 1792;
         let texture_height = 1120;
         println!("{}/{}", texture_width, texture_height);
-        let config = Config::new();
         let Setup {
             device,
             queue,
             texture,
-            texture_desc,
             output_buffer,
             texture_view,
             render_pipeline,
@@ -164,12 +160,13 @@ impl<'a> PrintState<'a> {
         let index_buffer = create_index_buffer(&device, &indices.as_slice());
         let canvas = canvas_info((texture_width, texture_height));
         PrintState {
+            config,
             size: (texture_width, texture_height),
             vertices_fn: crate::helpers::new_random_vertices,
+            indices_fn: crate::helpers::new_random_indices,
             device,
             queue,
             texture,
-            texture_desc,
             texture_view,
             output_buffer,
             render_pipeline,
@@ -190,6 +187,7 @@ impl<'a> PrintState<'a> {
             camera,
             camera_controller,
             projection,
+            clear_color: crate::helpers::new_random_clear_color(),
         }
     }
 
@@ -246,29 +244,10 @@ impl<'a> PrintState<'a> {
         {
             let render_pass_desc = wgpu::RenderPassDescriptor {
                 label: Some("Render Pass"),
-                color_attachments: &[
-                    wgpu::RenderPassColorAttachment {
-                    view: &self.texture_view,
-                    resolve_target: None,
-                    ops: wgpu::Operations {
-                    load: wgpu::LoadOp::Load,
-                    store: true,
-                    },
-                    }
-                    // wgpu::RenderPassColorAttachment {
-                        // view: &self.texture_view,
-                        // resolve_target: None,
-                        // ops: wgpu::Operations {
-                            // load: wgpu::LoadOp::Clear(wgpu::Color {
-                                // r: 0.0,
-                                // g: 0.0,
-                                // b: 0.02,
-                                // a: 1.0,
-                            // }),
-                            // store: true,
-                        // },
-                    // },
-                ],
+                color_attachments: &[make_color_attachments(
+                    &self.texture_view,
+                    self.config.accumulation,
+                )],
                 depth_stencil_attachment: None,
             };
 
@@ -297,7 +276,11 @@ impl<'a> PrintState<'a> {
                     rows_per_image: std::num::NonZeroU32::new(self.size.1),
                 },
             },
-            self.texture_desc.size,
+            wgpu::Extent3d {
+                width: self.size.0,
+                height: self.size.1,
+                depth_or_array_layers: 1,
+            },
         );
         self.queue.submit(Some(encoder.finish()));
 
@@ -325,30 +308,3 @@ impl<'a> PrintState<'a> {
         // self.output_buffer.unmap();
     }
 }
-
-// pub fn make_color_attachments(frame: &Texture, clear: bool) -> wgpu::RenderPassColorAttachment {
-// if clear {
-// wgpu::RenderPassColorAttachment {
-// view: &frame.view,
-// resolve_target: None,
-// ops: wgpu::Operations {
-// load: wgpu::LoadOp::Clear(wgpu::Color {
-// r: 0.0,
-// g: 0.0,
-// b: 0.02,
-// a: 1.0,
-// }),
-// store: true,
-// },
-// }
-// } else {
-// wgpu::RenderPassColorAttachment {
-// view: &frame.view,
-// resolve_target: None,
-// ops: wgpu::Operations {
-// load: wgpu::LoadOp::Load,
-// store: true,
-// },
-// }
-// }
-// }

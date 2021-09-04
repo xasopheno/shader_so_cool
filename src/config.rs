@@ -11,11 +11,13 @@ pub struct Config {
     pub volume: f32,
     pub window_size: (u32, u32),
     pub camera: CameraConfig,
+    pub accumulation: bool,
 }
 
 impl Config {
     pub fn new() -> Self {
         Config {
+            accumulation: true,
             filename: "kintaro".into(),
             volume: 0.5,
             window_size: (1792, 1120),

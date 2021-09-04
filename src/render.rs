@@ -1,5 +1,5 @@
-use wgpu::SwapChainTexture;
-
+use crate::helpers::make_color_attachments;
+use crate::renderable::Renderable;
 use crate::State;
 
 impl State {
@@ -17,11 +17,13 @@ impl State {
             });
 
         {
-            let color_attachments = make_color_attachments(&frame, true);
             let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 label: Some("Render Pass"),
                 // This is what [[location(0)]] in the fragment shader targets
-                color_attachments: &[color_attachments],
+                color_attachments: &[make_color_attachments(
+                    &frame.view,
+                    self.config.accumulation,
+                )],
                 depth_stencil_attachment: None,
             });
 
@@ -35,35 +37,5 @@ impl State {
         }
         self.queue.submit(std::iter::once(encoder.finish()));
         Ok(())
-    }
-}
-
-pub fn make_color_attachments(
-    frame: &SwapChainTexture,
-    clear: bool,
-) -> wgpu::RenderPassColorAttachment {
-    if clear {
-        wgpu::RenderPassColorAttachment {
-            view: &frame.view,
-            resolve_target: None,
-            ops: wgpu::Operations {
-                load: wgpu::LoadOp::Clear(wgpu::Color {
-                    r: 0.0,
-                    g: 0.0,
-                    b: 0.02,
-                    a: 1.0,
-                }),
-                store: true,
-            },
-        }
-    } else {
-        wgpu::RenderPassColorAttachment {
-            view: &frame.view,
-            resolve_target: None,
-            ops: wgpu::Operations {
-                load: wgpu::LoadOp::Load,
-                store: true,
-            },
-        }
     }
 }

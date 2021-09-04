@@ -9,6 +9,7 @@ mod print;
 mod render;
 mod render_op;
 mod render_pipleline;
+mod renderable;
 mod resize;
 mod setup;
 mod state;
@@ -27,16 +28,21 @@ use winit::{
 use futures::executor::block_on;
 
 fn main() {
+    play();
+    // print();
+}
+
+fn print() {
     let config = Config::new();
     let op_stream = crate::render_op::OpStream::from_json(&config.filename);
-    let mut state = block_on(PrintState::init(op_stream));
+    let mut state = block_on(PrintState::init(op_stream, config));
     // for _ in 0..2700 {
     for _ in 0..1400 {
         block_on(state.render());
     }
 }
 
-fn _main() {
+fn play() {
     env_logger::init();
     let config = Config::new();
     let title = env!("CARGO_PKG_NAME");
@@ -52,7 +58,7 @@ fn _main() {
         .expect("Unable to create window");
 
     let op_stream = crate::render_op::OpStream::from_json(&config.filename);
-    let mut state = block_on(State::new(&window, op_stream, &config));
+    let mut state = block_on(State::init(&window, op_stream, &config));
     let (_stream, _stream_handle) = crate::audio::play_audio(&config);
 
     event_loop.run(move |event, _, control_flow| {
