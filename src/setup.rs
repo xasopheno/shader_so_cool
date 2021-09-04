@@ -1,7 +1,5 @@
-use wgpu::ShaderModule;
-use winit::window::Window;
-
 use crate::config::Config;
+use winit::window::Window;
 
 pub struct Setup {
     pub surface: wgpu::Surface,

@@ -15,7 +15,6 @@ pub struct Setup {
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
     pub texture: wgpu::Texture,
-    pub output_buffer: wgpu::Buffer,
     pub texture_view: wgpu::TextureView,
     pub render_pipeline: wgpu::RenderPipeline,
     pub uniforms: crate::uniforms::Uniforms,
@@ -30,13 +29,14 @@ pub struct PrintState {
     pub queue: wgpu::Queue,
     pub texture: wgpu::Texture,
     pub texture_view: wgpu::TextureView,
-    pub output_buffer: wgpu::Buffer,
     pub render_pipeline: wgpu::RenderPipeline,
     pub vertices: Vec<Vertex>,
     pub vertex_buffer: wgpu::Buffer,
-    pub num_vertices: u32,
     pub index_buffer: wgpu::Buffer,
+    pub num_vertices: u32,
     pub num_indices: u32,
+    pub vertices_fn: fn() -> Vec<Vertex>,
+    pub indices_fn: fn(u16) -> Vec<u16>,
     pub uniforms: crate::uniforms::Uniforms,
     pub uniform_buffer: wgpu::Buffer,
     pub uniform_bind_group: wgpu::BindGroup,
@@ -48,8 +48,6 @@ pub struct PrintState {
     pub camera: Camera,
     pub camera_controller: CameraController,
     pub projection: Projection,
-    pub vertices_fn: fn() -> Vec<Vertex>,
-    pub indices_fn: fn(u16) -> Vec<u16>,
     pub canvas: Canvas,
     pub clear_color: (f64, f64, f64),
 }
@@ -95,7 +93,6 @@ async fn setup(texture_width: u32, texture_height: u32, config: &Config) -> Setu
         label: None,
     };
     let texture = device.create_texture(&texture_desc);
-    let output_buffer = make_output_buffer(&device, (texture_width, texture_height));
     let texture_view = texture.create_view(&Default::default());
 
     let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
@@ -118,7 +115,6 @@ async fn setup(texture_width: u32, texture_height: u32, config: &Config) -> Setu
         device,
         queue,
         texture,
-        output_buffer,
         texture_view,
         render_pipeline,
         uniforms,
@@ -128,7 +124,7 @@ async fn setup(texture_width: u32, texture_height: u32, config: &Config) -> Setu
 }
 
 impl PrintState {
-    pub async fn init(op_stream: OpStream, config: Config) -> PrintState {
+    pub async fn init(config: Config) -> PrintState {
         let texture_width = 1792;
         let texture_height = 1120;
         println!("{}/{}", texture_width, texture_height);
@@ -136,7 +132,6 @@ impl PrintState {
             device,
             queue,
             texture,
-            output_buffer,
             texture_view,
             render_pipeline,
             uniforms,
@@ -144,6 +139,7 @@ impl PrintState {
             uniform_bind_group,
         } = setup(texture_width, texture_height, &config).await;
 
+        let op_stream = crate::render_op::OpStream::from_json(&config.filename);
         let vertices_fn = crate::helpers::new_random_vertices;
         let indices_fn = crate::helpers::new_random_indices;
 
@@ -168,7 +164,6 @@ impl PrintState {
             queue,
             texture,
             texture_view,
-            output_buffer,
             render_pipeline,
             vertex_buffer,
             vertices,
@@ -239,7 +234,6 @@ impl PrintState {
         let mut encoder = self
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
-        self.output_buffer = make_output_buffer(&self.device, self.size);
 
         {
             let render_pass_desc = wgpu::RenderPassDescriptor {
@@ -262,6 +256,7 @@ impl PrintState {
             render_pass.draw_indexed(0..self.num_indices, 0, 0..self.instances.len() as _);
         }
 
+        let output_buffer = make_output_buffer(&self.device, self.size);
         encoder.copy_texture_to_buffer(
             wgpu::ImageCopyTexture {
                 texture: &self.texture,
@@ -269,7 +264,7 @@ impl PrintState {
                 origin: wgpu::Origin3d::ZERO,
             },
             wgpu::ImageCopyBuffer {
-                buffer: &self.output_buffer,
+                buffer: &output_buffer,
                 layout: wgpu::ImageDataLayout {
                     offset: 0,
                     bytes_per_row: std::num::NonZeroU32::new(U32_SIZE * self.size.0),
@@ -284,11 +279,11 @@ impl PrintState {
         );
         self.queue.submit(Some(encoder.finish()));
 
-        self.write_img().await;
+        self.write_img(output_buffer).await;
     }
 
-    async fn write_img(&self) {
-        let buffer_slice = self.output_buffer.slice(..);
+    async fn write_img(&self, output_buffer: wgpu::Buffer) {
+        let buffer_slice = output_buffer.slice(..);
 
         // NOTE: We have to create the mapping THEN device.poll() before await
         // the future. Otherwise the application will freeze.

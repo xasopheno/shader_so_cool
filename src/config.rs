@@ -1,3 +1,5 @@
+use crate::vertex::Vertex;
+
 #[derive(Clone)]
 pub struct CameraConfig {
     pub position: (f32, f32, f32),
@@ -12,6 +14,8 @@ pub struct Config {
     pub window_size: (u32, u32),
     pub camera: CameraConfig,
     pub accumulation: bool,
+    pub vertices_fn: fn() -> Vec<Vertex>,
+    pub indices_fn: fn(u16) -> Vec<u16>,
 }
 
 impl Config {
@@ -21,6 +25,8 @@ impl Config {
             filename: "kintaro".into(),
             volume: 0.5,
             window_size: (1792, 1120),
+            vertices_fn: crate::helpers::new_random_vertices,
+            indices_fn: crate::helpers::new_random_indices,
             // camera: CameraConfig {
             // position: (0.0, 50.0, 150.0),
             // yaw: -90.0,

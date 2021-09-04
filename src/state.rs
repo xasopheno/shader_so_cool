@@ -69,7 +69,7 @@ pub fn canvas_info(size: (u32, u32)) -> Canvas {
 }
 
 impl State {
-    pub async fn init(window: &Window, op_stream: OpStream, config: &Config) -> State {
+    pub fn init(window: &Window, config: &Config) -> State {
         let Setup {
             device,
             surface,
@@ -77,7 +77,9 @@ impl State {
             swap_chain,
             sc_desc,
             ..
-        } = Setup::init(window, config).await;
+        } = block_on(Setup::init(window, config));
+
+        let op_stream = crate::render_op::OpStream::from_json(&config.filename);
 
         let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
             label: Some("Shader"),
@@ -85,12 +87,9 @@ impl State {
             source: wgpu::ShaderSource::Wgsl(include_str!("shader.wgsl").into()),
         });
 
-        let vertices_fn = crate::helpers::new_random_vertices;
-        let indices_fn = crate::helpers::new_random_indices;
-
-        let vertices = vertices_fn();
+        let vertices = (config.vertices_fn)();
         let num_vertices = vertices.len() as u32;
-        let indices = indices_fn(num_vertices as u16);
+        let indices = (config.indices_fn)(num_vertices as u16);
         let (instances, instance_buffer) = make_instances_and_instance_buffer(
             0,
             (window.inner_size().height, window.inner_size().height),
@@ -105,9 +104,9 @@ impl State {
         let vertex_buffer = create_vertex_buffer(&device, &vertices.as_slice());
         let index_buffer = create_index_buffer(&device, &indices.as_slice());
         let canvas = canvas_info((window.inner_size().height, window.inner_size().height));
-        // let ops = Op4D::vec_random(1000);
 
         Self {
+            count: 0,
             config: config.clone(),
             surface,
             device,
@@ -122,7 +121,6 @@ impl State {
             num_indices: indices.len() as u32,
             clear_color: crate::helpers::new_clear_color(),
             vertices: vertices.into(),
-            count: 0,
             mouse_pressed: false,
             camera,
             camera_controller,
@@ -134,8 +132,8 @@ impl State {
             start_time: std::time::Instant::now(),
             instances,
             instance_buffer,
-            vertices_fn,
-            indices_fn,
+            vertices_fn: config.vertices_fn,
+            indices_fn: config.indices_fn,
             canvas,
             op_stream,
         }

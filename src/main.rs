@@ -34,8 +34,7 @@ fn main() {
 
 fn print() {
     let config = Config::new();
-    let op_stream = crate::render_op::OpStream::from_json(&config.filename);
-    let mut state = block_on(PrintState::init(op_stream, config));
+    let mut state = block_on(PrintState::init(config));
     // for _ in 0..2700 {
     for _ in 0..1400 {
         block_on(state.render());
@@ -57,8 +56,7 @@ fn play() {
         .build(&event_loop)
         .expect("Unable to create window");
 
-    let op_stream = crate::render_op::OpStream::from_json(&config.filename);
-    let mut state = block_on(State::init(&window, op_stream, &config));
+    let mut state = State::init(&window, &config);
     let (_stream, _stream_handle) = crate::audio::play_audio(&config);
 
     event_loop.run(move |event, _, control_flow| {
