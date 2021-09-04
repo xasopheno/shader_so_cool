@@ -10,8 +10,8 @@ impl State {
 
         let (instances, instance_buffer) =
             make_instances_and_instance_buffer(0, (new_size.width, new_size.height), &self.device);
-        self.instances = instances;
-        self.instance_buffer = instance_buffer;
+        self.renderpass.instances = instances;
+        self.renderpass.instance_buffer = instance_buffer;
 
         self.sc_desc.width = new_size.width;
         self.sc_desc.height = new_size.height;

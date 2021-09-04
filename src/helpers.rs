@@ -4,8 +4,8 @@ use rand::Rng;
 pub fn make_color_attachments(
     view: &wgpu::TextureView,
     accumulation: bool,
-) -> wgpu::RenderPassColorAttachment {
-    if accumulation {
+) -> Vec<wgpu::RenderPassColorAttachment> {
+    vec![if accumulation {
         wgpu::RenderPassColorAttachment {
             view,
             resolve_target: None,
@@ -28,7 +28,7 @@ pub fn make_color_attachments(
                 store: true,
             },
         }
-    }
+    }]
 }
 
 #[allow(dead_code)]

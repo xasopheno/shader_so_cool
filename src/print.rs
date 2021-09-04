@@ -238,10 +238,10 @@ impl PrintState {
         {
             let render_pass_desc = wgpu::RenderPassDescriptor {
                 label: Some("Render Pass"),
-                color_attachments: &[make_color_attachments(
+                color_attachments: &make_color_attachments(
                     &self.texture_view,
                     self.config.accumulation,
-                )],
+                ),
                 depth_stencil_attachment: None,
             };
 
