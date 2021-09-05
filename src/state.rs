@@ -11,6 +11,7 @@ use futures::executor::block_on;
 use winit::window::Window;
 
 pub struct RenderPassInput {
+    // clock: Clock,
     pub vertex_buffer: wgpu::Buffer,
     pub render_pipeline: wgpu::RenderPipeline,
     pub uniform_bind_group: wgpu::BindGroup,
@@ -29,9 +30,9 @@ pub struct State {
     pub surface: wgpu::Surface,
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
+    pub size: winit::dpi::PhysicalSize<u32>,
     pub sc_desc: wgpu::SwapChainDescriptor,
     pub swap_chain: wgpu::SwapChain,
-    pub size: winit::dpi::PhysicalSize<u32>,
     pub vertices: Vec<Vertex>,
     pub projection: Projection,
     pub camera_controller: CameraController,
