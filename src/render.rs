@@ -5,10 +5,8 @@ use crate::State;
 
 impl State {
     pub fn render(&mut self) -> Result<(), wgpu::SwapChainError> {
-        let now = std::time::Instant::now();
-        let dt = now - self.last_render_time;
-        self.last_render_time = now;
-        self.update(dt);
+        self.update();
+
         let frame = self.swap_chain.get_current_frame().unwrap().output;
 
         let mut encoder = self

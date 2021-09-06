@@ -5,7 +5,7 @@ use crate::state::State;
 use crate::vertex::make_vertex_buffer;
 
 impl State {
-    pub fn update(&mut self, dt: std::time::Duration) {
+    pub fn update(&mut self) {
         self.clock.update();
         let ClockResult {
             last_period,
@@ -28,7 +28,7 @@ impl State {
 
         self.renderpass.instances.append(&mut new_instances);
         self.renderpass.instances.iter_mut().for_each(|i| {
-            i.update_state(dt.as_secs_f32() as f32);
+            i.update_state(last_period);
         });
 
         self.renderpass.instances.retain(|i| i.life > 0.0);
@@ -37,8 +37,7 @@ impl State {
             (self.size.width, self.size.height),
             &self.device,
         );
-        self.count += 1;
-        if self.count % 400 == 0 {
+        if frame_count % 400 == 0 {
             self.vertices = (self.vertices_fn)();
             self.clear_color = crate::helpers::new_random_clear_color();
         }
