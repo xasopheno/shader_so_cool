@@ -1,13 +1,14 @@
 use crate::{
     camera::{Camera, CameraController, Projection},
-    clock::{Clock, ClockResult, PrintClock},
+    clock::{Clock, PrintClock},
     config::Config,
-    instance::{make_instance_buffer, make_instances_and_instance_buffer, Instance},
+    instance::make_instances_and_instance_buffer,
     render::render_pass,
-    render_op::{OpStream, ToInstance},
+    render_op::OpStream,
     render_pipleline::create_render_pipeline,
     state::{canvas_info, Canvas, RenderPassInput},
-    vertex::{create_index_buffer, create_vertex_buffer, make_vertex_buffer, Vertex},
+    update::update,
+    vertex::{create_index_buffer, create_vertex_buffer},
 };
 
 const U32_SIZE: u32 = std::mem::size_of::<u32>() as u32;
@@ -180,58 +181,18 @@ impl PrintState {
     }
 
     pub fn update(&mut self) {
-        self.clock.update();
-        let ClockResult {
-            last_period,
-            frame_count,
-            total_elapsed,
-        } = self.clock.current();
-
-        self.renderpass.vertex_buffer =
-            make_vertex_buffer(&self.device, self.renderpass.vertices.as_slice());
-        let mut new_instances: Vec<Instance> = self
-            .op_stream
-            .get_batch(total_elapsed)
-            .into_iter()
-            .map(|op| {
-                op.into_instance(
-                    &self.canvas.instance_displacement,
-                    self.canvas.n_column,
-                    self.canvas.n_row,
-                )
-            })
-            .collect();
-
-        self.renderpass.instances.append(&mut new_instances);
-        self.renderpass.instances.iter_mut().for_each(|i| {
-            i.update_state(last_period);
-        });
-
-        self.renderpass.instances.retain(|i| i.life > 0.0);
-        self.renderpass.instance_buffer = make_instance_buffer(
-            &self.renderpass.instances,
-            (self.size.0, self.size.1),
+        update(
+            &mut self.clock,
+            &mut self.renderpass,
             &self.device,
-        );
-        if frame_count % 200 == 0 {
-            self.renderpass.vertices = (self.renderpass.vertices_fn)();
-            // self.clear_color = crate::helpers::new_random_clear_color();
-            // }
-            // self.vertices.par_iter_mut().for_each(|v| v.update());
-            //camera
-            self.camera_controller
-                .update_camera(&mut self.camera, last_period);
-            // uniforms
-            self.renderpass
-                .uniforms
-                .update_view_proj(&self.camera, &self.projection);
-
-            self.queue.write_buffer(
-                &self.renderpass.uniform_buffer,
-                0,
-                bytemuck::cast_slice(&[self.renderpass.uniforms]),
-            );
-        }
+            &self.queue,
+            (self.size.0, self.size.1),
+            &mut self.camera,
+            &mut self.camera_controller,
+            &self.projection,
+            &self.canvas,
+            &mut self.op_stream,
+        )
     }
 
     pub async fn render(&mut self) {
