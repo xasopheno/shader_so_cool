@@ -29,8 +29,8 @@ use winit::{
 use futures::executor::block_on;
 
 fn main() {
-    // play();
-    print();
+    play();
+    // print();
 }
 
 fn print() {

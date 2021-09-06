@@ -35,17 +35,12 @@ pub fn update(
     op_stream: &mut OpStream,
 ) {
     clock.update();
-    let ClockResult {
-        last_period,
-        frame_count,
-        total_elapsed,
-    } = clock.current();
+    let time = clock.current();
 
     renderpass.vertex_buffer = make_vertex_buffer(device, renderpass.vertices.as_slice());
 
-    make_new_instances(
-        total_elapsed,
-        last_period,
+    update_instances(
+        &time,
         op_stream,
         canvas,
         device,
@@ -54,12 +49,12 @@ pub fn update(
         size,
     );
 
-    if frame_count % 400 == 0 {
+    if time.frame_count % 400 == 0 {
         renderpass.vertices = (renderpass.vertices_fn)();
         // self.clear_color = crate::helpers::new_random_clear_color();
     }
     // self.vertices.par_iter_mut().for_each(|v| v.update());
-    camera_controller.update_camera(camera, last_period);
+    camera_controller.update_camera(camera, time.last_period);
     renderpass.uniforms.update_view_proj(&camera, &projection);
     queue.write_buffer(
         &renderpass.uniform_buffer,
@@ -68,9 +63,8 @@ pub fn update(
     );
 }
 
-fn make_new_instances(
-    total_elapsed: f32,
-    last_period: f32,
+fn update_instances(
+    time: &ClockResult,
     op_stream: &mut OpStream,
     canvas: &Canvas,
     device: &wgpu::Device,
@@ -79,14 +73,14 @@ fn make_new_instances(
     size: (u32, u32),
 ) {
     let mut new_instances: Vec<Instance> = op_stream
-        .get_batch(total_elapsed)
+        .get_batch(time.total_elapsed)
         .into_iter()
         .map(|op| op.into_instance(&canvas.instance_displacement, canvas.n_column, canvas.n_row))
         .collect();
 
     instances.append(&mut new_instances);
     instances.iter_mut().for_each(|i| {
-        i.update_state(last_period);
+        i.update_state(time.last_period);
     });
 
     instances.retain(|i| i.life > 0.0);
