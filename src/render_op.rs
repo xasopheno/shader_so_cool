@@ -18,11 +18,11 @@ impl OpStream {
         let deserialized: OpStream = serde_json::from_str(&data).unwrap();
         deserialized
     }
-    pub fn get_batch(&mut self, t: std::time::Duration) -> Vec<Op4D> {
+    pub fn get_batch(&mut self, t: f32) -> Vec<Op4D> {
         let result: Vec<Op4D> = self
             .ops
             .iter()
-            .take_while(|op| op.t < t.as_secs_f64())
+            .take_while(|op| op.t < t.into())
             .map(|x| x.to_owned())
             .collect();
         for _ in 0..result.len() {

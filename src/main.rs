@@ -1,6 +1,7 @@
 mod audio;
 mod camera;
 mod channel;
+mod clock;
 mod config;
 mod helpers;
 mod input;

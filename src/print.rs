@@ -1,5 +1,6 @@
 use crate::{
     camera::{Camera, CameraController, Projection},
+    clock::{Clock, ClockResult, PrintClock},
     config::Config,
     instance::{make_instance_buffer, make_instances_and_instance_buffer, Instance},
     render::render_pass,
@@ -23,6 +24,7 @@ pub struct Setup {
 }
 
 pub struct PrintState {
+    pub clock: PrintClock,
     pub config: Config,
     pub renderpass: RenderPassInput,
     pub size: (u32, u32),
@@ -159,7 +161,7 @@ impl PrintState {
                 num_vertices,
                 num_indices: indices.len() as u32,
             },
-
+            clock: PrintClock::init(&config),
             config,
             size: (texture_width, texture_height),
             vertices_fn: crate::helpers::new_random_vertices,
@@ -180,11 +182,18 @@ impl PrintState {
         }
     }
 
-    pub fn update(&mut self, dt: std::time::Duration) {
+    pub fn update(&mut self) {
+        self.clock.update();
+        let ClockResult {
+            last_period,
+            frame_count,
+            total_elapsed,
+        } = self.clock.current();
+
         self.renderpass.vertex_buffer = make_vertex_buffer(&self.device, self.vertices.as_slice());
         let mut new_instances: Vec<Instance> = self
             .op_stream
-            .get_batch(dt)
+            .get_batch(total_elapsed)
             .into_iter()
             .map(|op| {
                 op.into_instance(
@@ -194,11 +203,10 @@ impl PrintState {
                 )
             })
             .collect();
-        let dt2 = std::time::Duration::from_millis(100);
 
         self.renderpass.instances.append(&mut new_instances);
         self.renderpass.instances.iter_mut().for_each(|i| {
-            i.update_state(dt2.as_secs_f32());
+            i.update_state(last_period);
         });
 
         self.renderpass.instances.retain(|i| i.life > 0.0);
@@ -207,13 +215,13 @@ impl PrintState {
             (self.size.0, self.size.1),
             &self.device,
         );
-        self.count += 1;
-        if self.count % 200 == 0 {
+        if frame_count % 200 == 0 {
             self.vertices = (self.vertices_fn)();
             // self.clear_color = crate::helpers::new_random_clear_color();
         }
         // self.vertices.par_iter_mut().for_each(|v| v.update());
-        self.camera_controller.update_camera(&mut self.camera, dt2);
+        self.camera_controller
+            .update_camera(&mut self.camera, last_period);
         self.renderpass
             .uniforms
             .update_view_proj(&self.camera, &self.projection);
@@ -225,12 +233,8 @@ impl PrintState {
     }
 
     pub async fn render(&mut self) {
-        let dt = std::time::Duration::from_millis(100);
-        self.time_elapsed += dt;
-        if self.count % 100 == 0 {
-            println!("{:?}", self.time_elapsed);
-        }
-        self.update(self.time_elapsed);
+        self.update();
+
         let mut encoder = self
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
@@ -246,10 +250,10 @@ impl PrintState {
 
         self.queue.submit(std::iter::once(encoder.finish()));
 
-        self.write_img(output_buffer).await;
+        self.write_img(output_buffer, self.clock.frame_count).await;
     }
 
-    async fn write_img(&self, output_buffer: wgpu::Buffer) {
+    async fn write_img(&self, output_buffer: wgpu::Buffer, frame: u32) {
         let buffer_slice = output_buffer.slice(..);
 
         // NOTE: We have to create the mapping THEN device.poll() before await
@@ -262,8 +266,8 @@ impl PrintState {
 
         use image::{ImageBuffer, Rgba};
         let buffer = ImageBuffer::<Rgba<u8>, _>::from_raw(self.size.0, self.size.1, data).unwrap();
-        let filename = format!("out/{:07}.png", self.count);
-        if self.count % 100 == 0 {
+        let filename = format!("out/{:07}.png", frame);
+        if frame % 100 == 0 {
             dbg!(&filename);
         }
         buffer.save(filename).unwrap();

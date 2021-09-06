@@ -1,5 +1,6 @@
 use crate::{
     camera::{Camera, CameraController, Projection},
+    clock::{Clock, RenderClock},
     config::Config,
     instance::{make_instances_and_instance_buffer, Instance},
     render_op::OpStream,
@@ -11,7 +12,6 @@ use futures::executor::block_on;
 use winit::window::Window;
 
 pub struct RenderPassInput {
-    // clock: Clock,
     pub vertex_buffer: wgpu::Buffer,
     pub render_pipeline: wgpu::RenderPipeline,
     pub uniform_bind_group: wgpu::BindGroup,
@@ -25,6 +25,7 @@ pub struct RenderPassInput {
 }
 
 pub struct State {
+    pub clock: RenderClock,
     pub config: Config,
     pub renderpass: RenderPassInput,
     pub surface: wgpu::Surface,
@@ -124,6 +125,7 @@ impl State {
         };
 
         Self {
+            clock: RenderClock::init(&config),
             renderpass: renderpass_input,
             count: 0,
             config: config.clone(),

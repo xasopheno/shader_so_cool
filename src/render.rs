@@ -1,6 +1,5 @@
 use crate::config::Config;
 use crate::helpers::make_color_attachments;
-use crate::renderable::Renderable;
 use crate::state::RenderPassInput;
 use crate::State;
 

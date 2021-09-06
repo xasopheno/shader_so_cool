@@ -1,3 +1,4 @@
+use crate::clock::{Clock, ClockResult};
 use crate::instance::{make_instance_buffer, Instance};
 use crate::render_op::ToInstance;
 use crate::state::State;
@@ -5,10 +6,16 @@ use crate::vertex::make_vertex_buffer;
 
 impl State {
     pub fn update(&mut self, dt: std::time::Duration) {
+        self.clock.update();
+        let ClockResult {
+            last_period,
+            frame_count,
+            total_elapsed,
+        } = self.clock.current();
         self.renderpass.vertex_buffer = make_vertex_buffer(&self.device, self.vertices.as_slice());
         let mut new_instances: Vec<Instance> = self
             .op_stream
-            .get_batch(std::time::Instant::now() - self.start_time)
+            .get_batch(total_elapsed)
             .into_iter()
             .map(|op| {
                 op.into_instance(
@@ -36,7 +43,8 @@ impl State {
             self.clear_color = crate::helpers::new_random_clear_color();
         }
         // self.vertices.par_iter_mut().for_each(|v| v.update());
-        self.camera_controller.update_camera(&mut self.camera, dt);
+        self.camera_controller
+            .update_camera(&mut self.camera, last_period);
         self.renderpass
             .uniforms
             .update_view_proj(&self.camera, &self.projection);
