@@ -19,9 +19,12 @@ pub struct RenderPassInput {
     pub instance_buffer: wgpu::Buffer,
     pub instances: Vec<Instance>,
     pub num_vertices: u32,
+    pub vertices_fn: fn() -> Vec<Vertex>,
+    pub indices_fn: fn(u16) -> Vec<u16>,
     pub num_indices: u32,
     pub uniforms: crate::uniforms::Uniforms,
     pub uniform_buffer: wgpu::Buffer,
+    pub vertices: Vec<Vertex>,
 }
 
 pub struct State {
@@ -34,13 +37,10 @@ pub struct State {
     pub size: winit::dpi::PhysicalSize<u32>,
     pub sc_desc: wgpu::SwapChainDescriptor,
     pub swap_chain: wgpu::SwapChain,
-    pub vertices: Vec<Vertex>,
     pub projection: Projection,
     pub camera_controller: CameraController,
     pub last_render_time: std::time::Instant,
     pub start_time: std::time::Instant,
-    pub vertices_fn: fn() -> Vec<Vertex>,
-    pub indices_fn: fn(u16) -> Vec<u16>,
     pub canvas: Canvas,
     pub clear_color: (f64, f64, f64),
     pub count: u32,
@@ -122,6 +122,9 @@ impl State {
             num_indices: indices.len() as u32,
             uniform_buffer,
             uniforms,
+            vertices: vertices.into(),
+            vertices_fn: config.vertices_fn,
+            indices_fn: config.indices_fn,
         };
 
         Self {
@@ -136,15 +139,12 @@ impl State {
             swap_chain,
             size: window.inner_size(),
             clear_color: crate::helpers::new_clear_color(),
-            vertices: vertices.into(),
             mouse_pressed: false,
             camera,
             camera_controller,
             projection,
             last_render_time: std::time::Instant::now(),
             start_time: std::time::Instant::now(),
-            vertices_fn: config.vertices_fn,
-            indices_fn: config.indices_fn,
             canvas,
             op_stream,
         }

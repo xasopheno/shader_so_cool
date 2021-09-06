@@ -32,9 +32,6 @@ pub struct PrintState {
     pub queue: wgpu::Queue,
     pub texture: wgpu::Texture,
     pub texture_view: wgpu::TextureView,
-    pub vertices: Vec<Vertex>,
-    pub vertices_fn: fn() -> Vec<Vertex>,
-    pub indices_fn: fn(u16) -> Vec<u16>,
     pub count: u32,
     pub op_stream: OpStream,
     pub time_elapsed: std::time::Duration,
@@ -160,17 +157,17 @@ impl PrintState {
                 uniform_buffer,
                 num_vertices,
                 num_indices: indices.len() as u32,
+                vertices,
+                vertices_fn: crate::helpers::new_random_vertices,
+                indices_fn: crate::helpers::new_random_indices,
             },
             clock: PrintClock::init(&config),
             config,
             size: (texture_width, texture_height),
-            vertices_fn: crate::helpers::new_random_vertices,
-            indices_fn: crate::helpers::new_random_indices,
             device,
             queue,
             texture,
             texture_view,
-            vertices,
             count: 0,
             op_stream,
             time_elapsed: std::time::Duration::from_millis(0),
@@ -190,7 +187,8 @@ impl PrintState {
             total_elapsed,
         } = self.clock.current();
 
-        self.renderpass.vertex_buffer = make_vertex_buffer(&self.device, self.vertices.as_slice());
+        self.renderpass.vertex_buffer =
+            make_vertex_buffer(&self.device, self.renderpass.vertices.as_slice());
         let mut new_instances: Vec<Instance> = self
             .op_stream
             .get_batch(total_elapsed)
@@ -216,20 +214,24 @@ impl PrintState {
             &self.device,
         );
         if frame_count % 200 == 0 {
-            self.vertices = (self.vertices_fn)();
+            self.renderpass.vertices = (self.renderpass.vertices_fn)();
             // self.clear_color = crate::helpers::new_random_clear_color();
+            // }
+            // self.vertices.par_iter_mut().for_each(|v| v.update());
+            //camera
+            self.camera_controller
+                .update_camera(&mut self.camera, last_period);
+            // uniforms
+            self.renderpass
+                .uniforms
+                .update_view_proj(&self.camera, &self.projection);
+
+            self.queue.write_buffer(
+                &self.renderpass.uniform_buffer,
+                0,
+                bytemuck::cast_slice(&[self.renderpass.uniforms]),
+            );
         }
-        // self.vertices.par_iter_mut().for_each(|v| v.update());
-        self.camera_controller
-            .update_camera(&mut self.camera, last_period);
-        self.renderpass
-            .uniforms
-            .update_view_proj(&self.camera, &self.projection);
-        self.queue.write_buffer(
-            &self.renderpass.uniform_buffer,
-            0,
-            bytemuck::cast_slice(&[self.renderpass.uniforms]),
-        );
     }
 
     pub async fn render(&mut self) {
@@ -237,7 +239,9 @@ impl PrintState {
 
         let mut encoder = self
             .device
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                label: Some("Render Encoder"),
+            });
 
         render_pass(
             &mut encoder,
