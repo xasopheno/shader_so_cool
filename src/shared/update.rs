@@ -1,4 +1,4 @@
-use crate::camera::{Camera, CameraController, Projection};
+use crate::camera::Camera;
 use crate::{
     canvas::Canvas,
     clock::{Clock, ClockResult},
@@ -15,8 +15,6 @@ pub fn update(
     queue: &wgpu::Queue,
     size: (u32, u32),
     camera: &mut Camera,
-    camera_controller: &mut CameraController,
-    projection: &Projection,
     canvas: &Canvas,
     op_stream: &mut OpStream,
 ) {
@@ -39,9 +37,9 @@ pub fn update(
         renderpass.vertices = (renderpass.vertices_fn)();
         // self.clear_color = crate::helpers::new_random_clear_color();
     }
-    // self.vertices.par_iter_mut().for_each(|v| v.update());
-    camera_controller.update_camera(camera, time.last_period);
-    renderpass.uniforms.update_view_proj(&camera, &projection);
+    // renderpass.vertices.iter_mut().for_each(|v| v.update());
+    camera.update_camera(time.last_period);
+    renderpass.uniforms.update_view_proj(&camera);
     queue.write_buffer(
         &renderpass.uniform_buffer,
         0,

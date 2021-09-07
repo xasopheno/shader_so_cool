@@ -7,7 +7,7 @@ mod update;
 use setup::Setup;
 
 use crate::{
-    camera::{Camera, CameraController, Projection},
+    camera::Camera,
     canvas::Canvas,
     clock::{Clock, RenderClock},
     config::Config,
@@ -29,8 +29,6 @@ pub struct RealTimeState {
     pub size: winit::dpi::PhysicalSize<u32>,
     pub sc_desc: wgpu::SwapChainDescriptor,
     pub swap_chain: wgpu::SwapChain,
-    pub projection: Projection,
-    pub camera_controller: CameraController,
     pub last_render_time: std::time::Instant,
     pub start_time: std::time::Instant,
     pub canvas: Canvas,
@@ -68,8 +66,7 @@ impl RealTimeState {
             (window.inner_size().height, window.inner_size().height),
             &device,
         );
-        let (camera, projection, camera_controller) =
-            crate::camera::Camera::new((sc_desc.width, sc_desc.height), &config);
+        let camera = crate::camera::Camera::new((sc_desc.width, sc_desc.height), &config);
         let (uniforms, uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
             crate::uniforms::Uniforms::new(&device);
         let render_pipeline =
@@ -108,8 +105,6 @@ impl RealTimeState {
             clear_color: new_clear_color(),
             mouse_pressed: false,
             camera,
-            camera_controller,
-            projection,
             last_render_time: std::time::Instant::now(),
             start_time: std::time::Instant::now(),
             canvas,

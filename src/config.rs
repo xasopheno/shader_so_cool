@@ -28,20 +28,26 @@ impl Config {
             window_size: (1792, 1120),
             vertices_fn: new_random_vertices,
             indices_fn: new_random_indices,
-            // camera: CameraConfig {
-            // position: (0.0, 50.0, 150.0),
-            // yaw: -90.0,
-            // pitch: 0.0,
-            // },
             camera: CameraConfig {
-                position: (-116.2, 36.0, 106.0),
-                yaw: -56.11,
-                pitch: 5.917,
+                position: (0.0, 50.0, 150.0),
+                yaw: -90.0,
+                pitch: 0.0,
             },
             // camera: CameraConfig {
             // position: (-22.83299, -5.1967072, -35.540905),
             // yaw: 16.77102,
             // pitch: 5.3154497,
+            // },
+            //
+            // camera: CameraConfig {
+            // position: (-116.2, 36.0, 106.0),
+            // yaw: -56.11,
+            // pitch: 5.917,
+            // },
+            // camera: CameraConfig {
+            // position: (200.0, 39.0, -25.0),
+            // yaw: -155.11,
+            // pitch: -3.917,
             // },
         }
     }

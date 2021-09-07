@@ -11,8 +11,6 @@ impl PrintState {
             &self.queue,
             (self.size.0, self.size.1),
             &mut self.camera,
-            &mut self.camera_controller,
-            &self.projection,
             &self.canvas,
             &mut self.op_stream,
         )

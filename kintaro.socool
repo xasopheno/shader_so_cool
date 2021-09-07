@@ -1,200 +1,130 @@
-{ f: 440, l: 1, g: 1, p: 0 }
+{ f: 311.127, l: 1, g: 1/4, p: 0 }
 
 bass = {
-  O[
-    (1/4, 0, 1, 0),
-  ]
-  | Seq [
-    Fm 1, 
-    Fm 2, Fm 15/8, Fm 2, Fm 5/3,
-    Fm 7/4, Fm 2, Fm 4/3 | Lm 2, 
-    -- 
-    Fm 1,
-    Fm 3/2, 
-    Seq [
-      Fm 5/3, Fm 3/2, Fm 4/3, Fm 3/2, 
-      Fm 5/3, Fm 15/8,
-    ] | Lm 1/2,
-    Fm 2, Seq [Fm 5/4, Fm 4/3] | Lm 1/2, 
-    Fm 3/2 | Lm 2,
-    Fm 1 | Lm 4,
-  ]
-}
-
-bass2 = {
-  O[
-    (1/4, 0, 1, 0),
-  ]
-  | Seq [
-    Fm 1,
-    Fm 3/2, Fm 5/4 | Fm 5/4, Fm 5/3, 
-    Seq [Fm 9/4, Fm 2] | Lm 1/2,
-    Fm 15/8, Fm 5/3, Fm 3/2 | Lm 2,
-    --
-    Fm 5/4, 
-    Seq [
-      Fm 5/3, Fm 3/2, Fm 5/3, Fm 15/8, 
-      Fm 2, Fm 9/4, Fm 2, Fm 15/8, 
-    ] | Lm 1/2,
-    Fm 5/3,
-    Seq [Fm 5/4, Fm 4/3] | Lm 1/2,
-    Fm 3/2 | Lm 2,
-    Fm 1 | Lm 4
-  ]
-}
-
-tenor = {
-  O[
-    (1/2, 0, 1, 0),
-  ]
-  | Seq [
-    Fm 3/2,
-    Fm 3/2 | Lm 7/2, Fm 4/3 | Lm 1/2,
-    Fm 4/3, Fm 1, Fm 1 | Lm 2,
-    --
-    Fm 1, 
-    Fm 15/16, Fm 1, Fm 4/3 | Lm 2,
-    Seq [Fm 5/4, Fm 9/8] | Lm 1/2, 
-    Fm 1 | Lm 2, Fm 15/16,
-    Fm 3/4 | Lm 4,
-  ]
-}
-
-tenor2 = {
-  O[
-    (1/2, 0, 1, 0),
-  ]
-  | Seq [
-    Fm 3/2,
-    Seq [Fm 3/2, Fm 4/3] | Lm 1/2,
-    Fm 5/4, Fm 5/4, Fm 9/8,
-    Fm 9/8, Fm 1, Fm 15/16 | Lm 2,
-    --
-    Fm 15/16, 
-    Fm 1, Fm 4/3, 
-    Seq [Fm 5/4, Fm 4/3, Fm 5/4, Fm 9/8] | Lm 1/2,
-    Fm 1 | Lm 3, Fm 15/16, 
-    Fm 3/4 | Lm 3
-  ]
-}
-
-alto = {
-  O[
-    (1/1, 0, 1, 0),
-  ]
-  | Seq [
-    Fm 1, 
-    Fm 1, Fm 9/8, Fm 1, Fm 1,
-    Seq [Fm 2/3 | Fm 4/3, Fm 5/6] | Lm 1/2 | Gm 3/2, 
-    Fm 3/4, Fm 5/6 | Lm 2,
-    --
-    Fm 3/4,
-    Seq [Fm 3/4, Fm 2/3] | Lm 1/2, 
-    Fm 5/8, Fm 5/6 | Lm 2,
-    Fm 3/4 | Lm 2, Fm 3/4 | Lm 3/2, 
-    Fm 2/3 | Lm 1/2,
-    Fm 5/8 | Lm 4,
-  ]
-}
-
-alto2 = {
-  O[
-    (1/1, 0, 1, 0),
-  ]
-  | Seq [
-    Fm 1, Fm 15/16, Fm 15/16,    
-    Seq [Fm 5/6, Fm 3/4] | Lm 1/2,
-    Fm 9/8 | Fm 5/8,
-    Fm 3/4 | Lm 3/2,
-    Fm 9/8 | Fm 5/8 | Lm 1/2,
-    Fm 3/4 | Lm 2,
-    --
-    Fm 5/8 | Fm 5/4, 
-    Fm 5/8, Fm 5/6, Fm 3/4, 
-    Seq [Fm 5/6, Fm 15/16] | Lm 1/2,
-    Fm 1, Fm 3/4 | Lm 5/2, Fm 2/3 | Lm 1/2, 
-    Fm 5/8 | Lm 4
-  ]  
-}    
-    
-soprano = {
-  O[
-    (1/1, 0, 1, 0),
-  ]
-  | Seq [
-    Fm 5/4, 
-    Seq [Fm 5/4, Fm 4/3] | Lm 1/2, 
-    Fm 3/2, Fm 5/4, Fm 1, 
-    Fm 9/8, Fm 5/4, Fm 4/3 | Lm 2,
-    --
-    Fm 5/4, 
-    Fm 9/8, Fm 1, Fm 1 | Lm 3/2, 
-    Fm 9/8 | Lm 1/2,
-    Fm 5/4 | Lm 2, 
-    Seq [Fm 9/8, Fm 1] | Lm 1/2, Fm 9/8,
-    Fm 1 | Lm 4,
-  ]
-}
-
-soprano2 = {
-  O[
-    (1/1, 0, 1, 0),
-  ]
-  | Seq [
-    Fm 5/4, Fm 9/8, Fm 5/4, Fm 1,
-    Fm 5/6, Fm 15/16, Fm 1, Fm 9/8 | Lm 2,
-    --
-    Fm 5/4, 
-    Fm 1 | Lm 2, Fm 1 | Lm 3/2,
-    Fm 9/8 | Lm 1/2, 
-    Fm 5/4 | Lm 2, 
-    Seq [Fm 9/8, Fm 1] | Lm 1/2, 
-    Fm 9/8, 
-    Fm 1 | Lm 4
-  ]
-}
-    
-main = {
-  Portamento 3 | 
-  O[
-    (2, 0, 1/7, 0),
-    (1/1, 2, 1, -1),
-    -- (1/1, 0, 1, 0),
-    (1/1, 0, 1, 1),
-  ]
-  -- | Fm 3/2
-  | Seq [
-    Overlay [
-      soprano,
-      alto, 
-      tenor,
-      bass,
-    ],
-    Overlay [
-      soprano2,
-      alto2, 
-      tenor2,
-      bass2,
-    ]
-  ]
-  | Lm 7/8
-  | Gm 2/3
-  | Seq [
-    Fm 7/4 | Lm 4/7, 
-    Fm 11/8 | Lm 8/11, 
-    Lm 1, 
-    Fm 5/6 | Lm 6/5
+  #bass |
+  Overlay [
+    Sine 1.1 | Gm 1/2,
+    Sine,
   ]
   | Overlay [
-    Sine, 
-    Reverb 1/2 | Gm 1/2
-    -- Fm 0 | Lm 1/100,
-    -- Overlay [
-    --   Sine 2 | Gm 1/8 | Fm 1/2,
-    --   Sine 1.5 | Gm 1/8 | Fm 1,
-    --   Sine
-    -- ] 
+    AsIs, 
+    Seq [Fm 2, Fm 0, Fm 0] | Lm 1/9,
+    Seq [Fm 0, Fm 0, Fm 2] | Lm 1/10 | Gm 1/2,
   ]
-  -- | Reverse
-  -- | Repeat 3
+  | Gm 9/10
+  | O[
+    (2/1, 2, 1, 1),
+    (2/1, 0, 1, -1),
+    (1/1, 2, 1, 1),
+    (1/1, 0, 1, -1),
+    (1/2, 2, 1, 1),
+    (1/2, 0, 1, -1),
+  ]
+  | Seq [
+    Fm 9/8, Fm 5/4, Fm 15/16, 
+    Fm 3/2 | Lm 3,
+    Fm 4/3, Fm 5/4, Fm 1, 
+    Fm 5/3 | Lm 4/3, Seq [Fm 5/3, Fm 9/8, Fm 5/4, Fm 15/16] | Lm 2/3,
+    Fm 5/6, Fm 3/4, Fm 2/3, Fm 5/8, 
+    Fm 2/3 | Lm 3, Fm 3/4 | Lm 2,
+    Fm 5/6, Fm 15/16, Fm 9/8, Fm 1, 
+    Fm 3/4 | Lm 2, Fm 1, Fm 5/4, Fm 5/3, 
+    Fm 3/2, Fm 4/3, Fm 5/4,
+    Fm 4/3 | Lm 3,
+    Fm 5/3, Fm 4/3, Fm 8/5, 
+    Fm 3/2, Fm 5/4, Fm 9/8,
+    Fm 1 | Lm 3
+  ]
 }
+
+melody = {
+  Pm 1/4 | 
+  #melody |
+  Overlay [Fm 1, Seq [Fm 2, Fm 0, Fm 2] | Lm 1/8]
+  | Portamento 1.5 | 
+  O[
+    (2/1, 4, 1, 1),
+    (2/1, 0, 1, -1),
+    (3/2, 4, 1/8, 1),
+    (3/2, 0, 1/8, -1),
+    (1/1, 3, 1, 1),
+    (1/1, 0, 1, -1),
+  ]
+  | Seq [
+    Fm 1 | Lm 12,
+    Fm 5/4, Fm 4/3, Fm 3/2, Fm 9/4, Fm 5/4, 
+    Fm 4/3, Fm 5/3, Fm 2, Fm 9/4, 
+    Fm 8/3, Fm 5/2, Fm 9/4, Fm 2,
+    Fm 9/4 | Lm 3, Fm 5/2, 
+    Fm 9/4 | Lm 2, Fm 5/2 | Lm 2, 
+    Fm 8/3 | Lm 3, Fm 9/4 | Lm 1, Fm 2 | Lm 4, 
+    Fm 15/8, Fm 5/3, Fm 3/2, 
+    Fm 5/4, Fm 9/8, Fm 5/4, Fm 4/3, 
+    Fm 3/2, Fm 3/2, Fm 4/3, 
+    Fm 5/4 | Lm 3
+  ]
+  | Seq [Fm 1, Reverse]
+  | Seq [
+    Overlay [
+      Sine | Gm 5/4,
+      Sine 1.5 | Gm 1/8,
+    ],
+    Overlay [
+      Sine,
+      Sine 1.5 | Gm 3/4,
+    ]
+    | Overlay [AsIs, Reverb 1]
+  ]
+  | FitLength bass
+}
+
+chord = {
+  #chord | 
+  O[
+    (5/1, 0, 1/3, 0),
+    (5/1, 1, 1/3, 0),
+    (3/1, 0, 1, 1/2),
+    (3/1, 0, 1, -1),
+    (2/1, 8, 1, 1),
+    (2/1, 0, 1, -1/2),
+    (3/4, 3, 1, 1/3),
+    (3/4, 0, 1, -1/8),
+    (1/1, 7, 1, 1/4),
+    (1/1, 0, 1, -1/2),
+    (3/4, 3, 1, 1/7),
+    (3/4, 0, 1, -1/6),
+    (1/2, 1, 1, 1),
+    (1/2, 0, 1, -1),
+  ]
+  | Overlay [Fm 1, Fm 2 | Pm -1/2]
+  | Overlay [Sine, Sine 2 | Gm 1/16]
+  | Gm 1/4
+  | FitLength bass
+}
+
+main = {
+  Seq [
+    Overlay [
+      chord,
+      bass, 
+    ] | Lm 2/3,
+    Seq [
+      chord | Lm 1/6 | Gm 2 
+      | ModBy [
+        *(f: -20|400 [1]) Take 20 
+      ], 
+      Overlay [
+        chord,
+        bass,
+        melody, 
+      ]
+    ]
+    | Seq [Lm 2/3, Lm 1/2],
+    
+    chord | Lm 1/6 | Gm 2
+    | ModBy [
+      *(f: 0|400 [-1]) Take 30 
+    ] | Lm 5, 
+  ]
+  | Repeat 2
+} -> [bass, melody, chord]

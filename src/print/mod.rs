@@ -24,8 +24,6 @@ pub struct PrintState {
     pub op_stream: OpStream,
     pub time_elapsed: std::time::Duration,
     pub camera: Camera,
-    pub camera_controller: CameraController,
-    pub projection: Projection,
     pub canvas: Canvas,
     pub clear_color: (f64, f64, f64),
 }

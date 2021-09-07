@@ -47,13 +47,13 @@ fn main(
 
 
 
-  if (instance.life < 1.9999) {
+  if (instance.life < 1.99) {
     out.color = vec4<f32>(color_matrix, instance.life);
   } else {
     out.color = vec4<f32>(color_matrix * vec3<f32>(
-          30.0 * instance.life, 
-          30.0 * instance.life, 
-          30.0 * instance.life, 
+          40.0 * instance.life, 
+          40.0 * instance.life, 
+          40.0 * instance.life, 
         ), instance.life);
   };
 
@@ -71,7 +71,7 @@ fn main(
     * vec4<f32>(
         model.position.x * 2.0, 
         model.position.y * 1.4,
-        model.position.z + (instance.life * 80.0 * 2.0) - 160.0 * 2.0, 
+        model.position.z + (instance.life * 80.0 * 30.0) - 160.0 * 30.0, 
         1.0
     );
   return out;

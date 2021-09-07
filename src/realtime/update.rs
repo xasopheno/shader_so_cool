@@ -9,8 +9,6 @@ impl RealTimeState {
             &self.queue,
             (self.size.width, self.size.height),
             &mut self.camera,
-            &mut self.camera_controller,
-            &self.projection,
             &self.canvas,
             &mut self.op_stream,
         )

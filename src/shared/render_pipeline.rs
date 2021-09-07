@@ -1,4 +1,4 @@
-use crate::{instance::InstanceRaw, vertex::Vertex};
+use crate::{instance::raw::InstanceRaw, vertex::Vertex};
 
 pub fn create_render_pipeline(
     device: &wgpu::Device,

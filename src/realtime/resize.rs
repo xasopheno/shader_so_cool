@@ -16,6 +16,8 @@ impl RealTimeState {
         self.sc_desc.height = new_size.height;
 
         self.swap_chain = self.device.create_swap_chain(&self.surface, &self.sc_desc);
-        self.projection.resize(new_size.width, new_size.height);
+        self.camera
+            .projection
+            .resize(new_size.width, new_size.height);
     }
 }

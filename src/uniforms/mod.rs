@@ -57,12 +57,8 @@ impl Uniforms {
         )
     }
 
-    pub fn update_view_proj(
-        &mut self,
-        camera: &crate::camera::Camera,
-        projection: &crate::camera::Projection,
-    ) {
+    pub fn update_view_proj(&mut self, camera: &crate::camera::Camera) {
         self.view_position = camera.position.to_homogeneous().into();
-        self.view_proj = (projection.calc_matrix() * camera.calc_matrix()).into();
+        self.view_proj = (camera.projection.calc_matrix() * camera.calc_matrix()).into();
     }
 }

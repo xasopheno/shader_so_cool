@@ -20,28 +20,77 @@ pub struct Camera {
     pub position: Point3<f32>,
     yaw: Rad<f32>,
     pitch: Rad<f32>,
+    pub projection: Projection,
+    pub controller: CameraController,
 }
 
 impl Camera {
-    pub fn new(size: (u32, u32), config: &Config) -> (Self, Projection, CameraController) {
-        let camera = Self {
+    pub fn new(size: (u32, u32), config: &Config) -> Self {
+        Self {
             position: config.camera.position.into(),
             yaw: cgmath::Deg(config.camera.yaw).into(),
             pitch: cgmath::Deg(config.camera.pitch).into(),
-        };
+            projection: Projection::new(size.0, size.1, cgmath::Deg(50.0), 0.1, 10_000.0),
+            controller: CameraController::new(8.0, 0.7),
+        }
+    }
 
-        let projection = Projection::new(size.0, size.1, cgmath::Deg(45.0), 0.1, 10_000.0);
+    pub fn update_camera(&mut self, dt: f32) {
+        // Move forward/backward and left/right
+        let (yaw_sin, yaw_cos) = self.yaw.0.sin_cos();
+        let forward = Vector3::new(yaw_cos, 0.0, yaw_sin).normalize();
+        let right = Vector3::new(-yaw_sin, 0.0, yaw_cos).normalize();
+        self.position += forward
+            * (self.controller.amount_forward - self.controller.amount_backward)
+            * self.controller.speed
+            * dt;
+        self.position += right
+            * (self.controller.amount_right - self.controller.amount_left)
+            * self.controller.speed
+            * dt;
 
-        let camera_controller = crate::camera::CameraController::new(8.0, 0.7);
+        // Move in/out (aka. "zoom")
+        // Note: this isn't an actual zoom. The camera's position
+        // changes when zooming. I've added this to make it easier
+        // to get closer to an object you want to focus on.
+        let (pitch_sin, pitch_cos) = self.pitch.0.sin_cos();
+        let scrollward =
+            Vector3::new(pitch_cos * yaw_cos, pitch_sin, pitch_cos * yaw_sin).normalize();
+        self.position += scrollward
+            * self.controller.scroll
+            * self.controller.speed
+            * self.controller.sensitivity
+            * dt;
+        self.controller.scroll = 0.0;
 
-        (camera, projection, camera_controller)
+        // Move up/down. Since we don't use roll, we can just
+        // modify the y coordinate directly.
+        self.position.y +=
+            (self.controller.amount_up - self.controller.amount_down) * self.controller.speed * dt;
+
+        // Rotate
+        self.yaw += Rad(self.controller.rotate_horizontal) * self.controller.sensitivity * dt;
+        self.pitch += Rad(-self.controller.rotate_vertical) * self.controller.sensitivity * dt;
+
+        // If process_mouse isn't called every frame, these values
+        // will not get set to zero, and the camera will rotate
+        // when moving in a non cardinal direction.
+        self.controller.rotate_horizontal = 0.0;
+        self.controller.rotate_vertical = 0.0;
+
+        // Keep the camera's angle from going too high/low.
+        if self.pitch < -Rad(SAFE_FRAC_PI_2) {
+            self.pitch = -Rad(SAFE_FRAC_PI_2);
+        } else if self.pitch > Rad(SAFE_FRAC_PI_2) {
+            self.pitch = Rad(SAFE_FRAC_PI_2);
+        }
     }
 
     pub fn calc_matrix(&self) -> Matrix4<f32> {
         // TODO: print current camera
-        // let yaw: cgmath::Deg<f32> = self.yaw.into();
-        // let pitch: cgmath::Deg<f32> = self.pitch.into();
-        // dbg!(&self.position, yaw, pitch);
+        let yaw: cgmath::Deg<f32> = self.yaw.into();
+        let pitch: cgmath::Deg<f32> = self.pitch.into();
+        dbg!(&self.position, yaw, pitch);
         let (sin_pitch, cos_pitch) = self.pitch.0.sin_cos();
         let (sin_yaw, cos_yaw) = self.yaw.0.sin_cos();
 
@@ -80,7 +129,7 @@ impl Projection {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct CameraController {
     amount_left: f32,
     amount_right: f32,
@@ -167,45 +216,5 @@ impl CameraController {
             MouseScrollDelta::LineDelta(_, scroll) => -scroll * 0.5,
             MouseScrollDelta::PixelDelta(PhysicalPosition { y: scroll, .. }) => -*scroll as f32,
         };
-    }
-
-    pub fn update_camera(&mut self, camera: &mut Camera, dt: f32) {
-        // Move forward/backward and left/right
-        let (yaw_sin, yaw_cos) = camera.yaw.0.sin_cos();
-        let forward = Vector3::new(yaw_cos, 0.0, yaw_sin).normalize();
-        let right = Vector3::new(-yaw_sin, 0.0, yaw_cos).normalize();
-        camera.position += forward * (self.amount_forward - self.amount_backward) * self.speed * dt;
-        camera.position += right * (self.amount_right - self.amount_left) * self.speed * dt;
-
-        // Move in/out (aka. "zoom")
-        // Note: this isn't an actual zoom. The camera's position
-        // changes when zooming. I've added this to make it easier
-        // to get closer to an object you want to focus on.
-        let (pitch_sin, pitch_cos) = camera.pitch.0.sin_cos();
-        let scrollward =
-            Vector3::new(pitch_cos * yaw_cos, pitch_sin, pitch_cos * yaw_sin).normalize();
-        camera.position += scrollward * self.scroll * self.speed * self.sensitivity * dt;
-        self.scroll = 0.0;
-
-        // Move up/down. Since we don't use roll, we can just
-        // modify the y coordinate directly.
-        camera.position.y += (self.amount_up - self.amount_down) * self.speed * dt;
-
-        // Rotate
-        camera.yaw += Rad(self.rotate_horizontal) * self.sensitivity * dt;
-        camera.pitch += Rad(-self.rotate_vertical) * self.sensitivity * dt;
-
-        // If process_mouse isn't called every frame, these values
-        // will not get set to zero, and the camera will rotate
-        // when moving in a non cardinal direction.
-        self.rotate_horizontal = 0.0;
-        self.rotate_vertical = 0.0;
-
-        // Keep the camera's angle from going too high/low.
-        if camera.pitch < -Rad(SAFE_FRAC_PI_2) {
-            camera.pitch = -Rad(SAFE_FRAC_PI_2);
-        } else if camera.pitch > Rad(SAFE_FRAC_PI_2) {
-            camera.pitch = Rad(SAFE_FRAC_PI_2);
-        }
     }
 }

@@ -50,9 +50,9 @@ impl Vertex {
 
     #[allow(dead_code)]
     pub fn update(&mut self) {
-        self.position[0] += self.velocity * self.direction[0] * 0.01;
-        self.position[1] += self.velocity * self.direction[1] * 0.01;
-        self.position[2] += self.velocity * self.direction[2] * 0.01;
+        self.position[0] += self.velocity * self.direction[0] * 0.02;
+        self.position[1] += self.velocity * self.direction[1] * 0.02;
+        self.position[2] += self.velocity * self.direction[2] * 0.02;
     }
 
     pub fn desc<'a>() -> wgpu::VertexBufferLayout<'a> {

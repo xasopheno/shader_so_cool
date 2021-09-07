@@ -105,8 +105,7 @@ impl PrintState {
         let (instances, instance_buffer) =
             make_instances_and_instance_buffer(0, (texture_width, texture_height), &device);
 
-        let (camera, projection, camera_controller) =
-            crate::camera::Camera::new((texture_width, texture_height), &config);
+        let camera = crate::camera::Camera::new((texture_width, texture_height), &config);
 
         let vertex_buffer = create_vertex_buffer(&device, &vertices.as_slice());
         let index_buffer = create_index_buffer(&device, &indices.as_slice());
@@ -139,8 +138,6 @@ impl PrintState {
             time_elapsed: std::time::Duration::from_millis(0),
             canvas,
             camera,
-            camera_controller,
-            projection,
             clear_color: new_random_clear_color(),
         }
     }
