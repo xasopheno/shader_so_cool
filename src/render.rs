@@ -1,6 +1,6 @@
-use crate::{shared::render_pass, State};
+use crate::{realtime::RealTimeState, shared::render_pass};
 
-impl State {
+impl RealTimeState {
     pub fn render(&mut self) -> Result<(), wgpu::SwapChainError> {
         self.update();
         let frame = self.swap_chain.get_current_frame().unwrap().output;

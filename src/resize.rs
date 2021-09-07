@@ -1,9 +1,9 @@
 use crate::{
     instance::make_instances_and_instance_buffer,
-    state::{canvas_info, State},
+    realtime::{canvas_info, RealTimeState},
 };
 
-impl State {
+impl RealTimeState {
     pub fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
         self.size = new_size;
         self.canvas = canvas_info((new_size.width, new_size.height));

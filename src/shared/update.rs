@@ -1,8 +1,8 @@
 use crate::camera::{Camera, CameraController, Projection};
 use crate::clock::{Clock, ClockResult};
 use crate::instance::{make_instance_buffer, Instance};
+use crate::realtime::{Canvas, RenderPassInput};
 use crate::render_op::{OpStream, ToInstance};
-use crate::state::{Canvas, RenderPassInput};
 use crate::vertex::make_vertex_buffer;
 
 pub fn update(

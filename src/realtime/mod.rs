@@ -27,7 +27,7 @@ pub struct RenderPassInput {
     pub vertices: Vec<Vertex>,
 }
 
-pub struct State {
+pub struct RealTimeState {
     pub clock: RenderClock,
     pub config: Config,
     pub renderpass: RenderPassInput,
@@ -74,8 +74,8 @@ pub fn canvas_info(size: (u32, u32)) -> Canvas {
     }
 }
 
-impl State {
-    pub fn init(window: &Window, config: &Config) -> State {
+impl RealTimeState {
+    pub fn init(window: &Window, config: &Config) -> RealTimeState {
         let Setup {
             device,
             surface,
@@ -90,7 +90,7 @@ impl State {
         let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
             label: Some("Shader"),
             flags: wgpu::ShaderFlags::all(),
-            source: wgpu::ShaderSource::Wgsl(include_str!("shader.wgsl").into()),
+            source: wgpu::ShaderSource::Wgsl(include_str!("../shader.wgsl").into()),
         });
 
         let vertices = (config.vertices_fn)();

@@ -1,6 +1,6 @@
-use crate::{shared::update, state::State};
+use crate::{realtime::RealTimeState, shared::update};
 
-impl State {
+impl RealTimeState {
     pub fn update(&mut self) {
         update(
             &mut self.clock,

@@ -7,18 +7,18 @@ mod helpers;
 mod input;
 mod instance;
 mod print;
+mod realtime;
 mod render;
 mod render_op;
 mod resize;
 mod setup;
 mod shared;
-mod state;
 mod uniforms;
 mod update;
 mod vertex;
 use crate::config::Config;
 use crate::print::PrintState;
-use crate::state::State;
+use crate::realtime::RealTimeState;
 use winit::{
     event::*,
     event_loop::{ControlFlow, EventLoop},
@@ -28,8 +28,8 @@ use winit::{
 use futures::executor::block_on;
 
 fn main() {
-    // play();
-    print();
+    play();
+    // print();
 }
 
 fn print() {
@@ -56,7 +56,7 @@ fn play() {
         .build(&event_loop)
         .expect("Unable to create window");
 
-    let mut state = State::init(&window, &config);
+    let mut state = RealTimeState::init(&window, &config);
     let (_stream, _stream_handle) = crate::audio::play_audio(&config);
 
     event_loop.run(move |event, _, control_flow| {

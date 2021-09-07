@@ -1,6 +1,6 @@
 use crate::config::Config;
 use crate::helpers::make_color_attachments;
-use crate::state::RenderPassInput;
+use crate::realtime::RenderPassInput;
 
 pub fn render_pass<'a>(
     encoder: &mut wgpu::CommandEncoder,

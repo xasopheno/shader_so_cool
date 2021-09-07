@@ -6,8 +6,8 @@ use crate::{
     camera::{Camera, CameraController, Projection},
     clock::PrintClock,
     config::Config,
+    realtime::{Canvas, RenderPassInput},
     render_op::OpStream,
-    state::{Canvas, RenderPassInput},
 };
 
 pub struct PrintState {

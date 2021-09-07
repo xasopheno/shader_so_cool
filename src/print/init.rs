@@ -3,8 +3,8 @@ use crate::{
     clock::{Clock, PrintClock},
     config::Config,
     instance::make_instances_and_instance_buffer,
+    realtime::{canvas_info, RenderPassInput},
     shared::create_render_pipeline,
-    state::{canvas_info, RenderPassInput},
     vertex::{create_index_buffer, create_vertex_buffer},
 };
 
