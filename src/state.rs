@@ -4,8 +4,8 @@ use crate::{
     config::Config,
     instance::{make_instances_and_instance_buffer, Instance},
     render_op::OpStream,
-    render_pipleline::create_render_pipeline,
     setup::Setup,
+    shared::create_render_pipeline,
     vertex::{create_index_buffer, create_vertex_buffer, Vertex},
 };
 use futures::executor::block_on;

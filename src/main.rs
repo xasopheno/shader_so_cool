@@ -9,10 +9,9 @@ mod instance;
 mod print;
 mod render;
 mod render_op;
-mod render_pipleline;
-mod renderable;
 mod resize;
 mod setup;
+mod shared;
 mod state;
 mod uniforms;
 mod update;
@@ -29,8 +28,8 @@ use winit::{
 use futures::executor::block_on;
 
 fn main() {
-    play();
-    // print();
+    // play();
+    print();
 }
 
 fn print() {

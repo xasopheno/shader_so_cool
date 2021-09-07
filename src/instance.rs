@@ -3,8 +3,6 @@ use rand::Rng;
 use rayon::prelude::*;
 use wgpu::util::DeviceExt;
 
-use crate::config::Config;
-
 #[derive(Copy, Clone, Debug)]
 pub struct Instance {
     pub position: cgmath::Vector3<f32>,

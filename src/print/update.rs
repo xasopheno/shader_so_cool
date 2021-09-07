@@ -1,13 +1,15 @@
-use crate::{shared::update, state::State};
+use crate::shared::update;
 
-impl State {
+use super::PrintState;
+
+impl PrintState {
     pub fn update(&mut self) {
         update(
             &mut self.clock,
             &mut self.renderpass,
             &self.device,
             &self.queue,
-            (self.size.width, self.size.height),
+            (self.size.0, self.size.1),
             &mut self.camera,
             &mut self.camera_controller,
             &self.projection,
