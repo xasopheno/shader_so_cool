@@ -1,12 +1,11 @@
 use crate::{
-    instance::make_instances_and_instance_buffer,
-    realtime::{canvas_info, RealTimeState},
+    canvas::Canvas, instance::make_instances_and_instance_buffer, realtime::RealTimeState,
 };
 
 impl RealTimeState {
     pub fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
         self.size = new_size;
-        self.canvas = canvas_info((new_size.width, new_size.height));
+        self.canvas = Canvas::init((new_size.width, new_size.height));
 
         let (instances, instance_buffer) =
             make_instances_and_instance_buffer(0, (new_size.width, new_size.height), &self.device);

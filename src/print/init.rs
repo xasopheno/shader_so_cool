@@ -1,10 +1,10 @@
 use super::PrintState;
 use crate::{
+    canvas::Canvas,
     clock::{Clock, PrintClock},
     config::Config,
     instance::make_instances_and_instance_buffer,
-    realtime::{canvas_info, RenderPassInput},
-    shared::create_render_pipeline,
+    shared::{create_render_pipeline, RenderPassInput},
     vertex::{create_index_buffer, create_vertex_buffer},
 };
 
@@ -107,7 +107,7 @@ impl PrintState {
 
         let vertex_buffer = create_vertex_buffer(&device, &vertices.as_slice());
         let index_buffer = create_index_buffer(&device, &indices.as_slice());
-        let canvas = canvas_info((texture_width, texture_height));
+        let canvas = Canvas::init((texture_width, texture_height));
         PrintState {
             renderpass: RenderPassInput {
                 vertex_buffer,

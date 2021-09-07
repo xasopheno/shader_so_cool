@@ -1,6 +1,5 @@
 use cgmath::Rotation3;
 use rand::Rng;
-use rayon::prelude::*;
 use wgpu::util::DeviceExt;
 
 #[derive(Copy, Clone, Debug)]

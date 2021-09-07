@@ -1,20 +1,15 @@
 mod audio;
 mod camera;
-mod channel;
+mod canvas;
 mod clock;
 mod config;
 mod helpers;
-mod input;
 mod instance;
 mod print;
 mod realtime;
-mod render;
 mod render_op;
-mod resize;
-mod setup;
 mod shared;
 mod uniforms;
-mod update;
 mod vertex;
 use crate::config::Config;
 use crate::print::PrintState;
@@ -28,8 +23,12 @@ use winit::{
 use futures::executor::block_on;
 
 fn main() {
-    play();
-    // print();
+    let play = true;
+    if play {
+        realtime();
+    } else {
+        print();
+    }
 }
 
 fn print() {
@@ -41,7 +40,7 @@ fn print() {
     }
 }
 
-fn play() {
+fn realtime() {
     env_logger::init();
     let config = Config::new();
     let title = env!("CARGO_PKG_NAME");

@@ -4,10 +4,11 @@ mod update;
 mod write;
 use crate::{
     camera::{Camera, CameraController, Projection},
+    canvas::Canvas,
     clock::PrintClock,
     config::Config,
-    realtime::{Canvas, RenderPassInput},
     render_op::OpStream,
+    shared::RenderPassInput,
 };
 
 pub struct PrintState {

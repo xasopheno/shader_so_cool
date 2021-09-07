@@ -1,6 +1,23 @@
 use crate::config::Config;
 use crate::helpers::make_color_attachments;
-use crate::realtime::RenderPassInput;
+use crate::instance::Instance;
+use crate::vertex::Vertex;
+
+pub struct RenderPassInput {
+    pub vertex_buffer: wgpu::Buffer,
+    pub render_pipeline: wgpu::RenderPipeline,
+    pub uniform_bind_group: wgpu::BindGroup,
+    pub index_buffer: wgpu::Buffer,
+    pub instance_buffer: wgpu::Buffer,
+    pub instances: Vec<Instance>,
+    pub num_vertices: u32,
+    pub vertices_fn: fn() -> Vec<Vertex>,
+    pub indices_fn: fn(u16) -> Vec<u16>,
+    pub num_indices: u32,
+    pub uniforms: crate::uniforms::Uniforms,
+    pub uniform_buffer: wgpu::Buffer,
+    pub vertices: Vec<Vertex>,
+}
 
 pub fn render_pass<'a>(
     encoder: &mut wgpu::CommandEncoder,

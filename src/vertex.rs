@@ -47,6 +47,8 @@ impl Vertex {
             velocity: r() * 0.4,
         }
     }
+
+    #[allow(dead_code)]
     pub fn update(&mut self) {
         self.position[0] += self.velocity * self.direction[0] * 0.01;
         self.position[1] += self.velocity * self.direction[1] * 0.01;
