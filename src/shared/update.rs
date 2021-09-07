@@ -33,7 +33,7 @@ pub fn update(
         size,
     );
 
-    if time.frame_count % 400 == 0 {
+    if time.frame_count % 200 == 0 {
         renderpass.vertices = (renderpass.vertices_fn)();
         // self.clear_color = crate::helpers::new_random_clear_color();
     }

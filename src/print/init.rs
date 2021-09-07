@@ -81,8 +81,8 @@ impl PrintState {
         }
     }
     pub async fn init(config: Config) -> PrintState {
-        let texture_width = 1792;
-        let texture_height = 1120;
+        let texture_width = 1792 * 4;
+        let texture_height = 1120 * 4;
         println!("{}/{}", texture_width, texture_height);
         let Setup {
             device,

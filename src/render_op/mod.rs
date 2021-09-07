@@ -89,16 +89,16 @@ impl ToInstance for Op4D {
         n_column: u32,
         n_row: u32,
     ) -> Instance {
-        // let mut rng = rand::thread_rng();
+        let mut rng = rand::thread_rng();
         let rotation = cgmath::Quaternion::from_axis_angle(
             cgmath::Vector3::unit_x(),
-            cgmath::Deg(0.0),
-            // cgmath::Deg(rng.gen_range(-0.1..0.1)),
+            // cgmath::Deg(0.0),
+            cgmath::Deg(rng.gen_range(-0.3..0.3)),
         );
         Instance {
             position: Vector3::new(
-                self.x as f32 * n_row as f32 * 3.0,
-                self.y as f32 * n_column as f32 * 7.0,
+                self.x as f32 * n_row as f32 * 2.0 * f32::tan(self.y as f32),
+                self.y as f32 * n_column as f32 * 9.0,
                 1.0,
             ) - displacement,
             rotation,

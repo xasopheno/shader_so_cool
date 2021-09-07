@@ -3,11 +3,7 @@ mod render;
 mod update;
 mod write;
 use crate::{
-    camera::{Camera, CameraController, Projection},
-    canvas::Canvas,
-    clock::PrintClock,
-    config::Config,
-    render_op::OpStream,
+    camera::Camera, canvas::Canvas, clock::PrintClock, config::Config, render_op::OpStream,
     shared::RenderPassInput,
 };
 

@@ -22,7 +22,7 @@ pub struct Config {
 impl Config {
     pub fn new() -> Self {
         Config {
-            accumulation: true,
+            accumulation: false,
             filename: "kintaro".into(),
             volume: 0.5,
             window_size: (1792, 1120),

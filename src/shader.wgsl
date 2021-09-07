@@ -49,18 +49,20 @@ fn main(
 
   if (instance.life < 1.99) {
     out.color = vec4<f32>(color_matrix, instance.life);
+    let scaler = 10.0;
   } else {
     out.color = vec4<f32>(color_matrix * vec3<f32>(
           40.0 * instance.life, 
           40.0 * instance.life, 
           40.0 * instance.life, 
         ), instance.life);
+    let scaler = 1.0;
   };
 
   let scale = mat4x4<f32>(
-      vec4<f32>(instance.size * 1.2, 0.0, 0.0, 0.0),
-      vec4<f32>(0.0, instance.size * 1.2, 0.0, 0.0),
-      vec4<f32>(0.0, 0.0, instance.size * 1.2, 0.0),
+      vec4<f32>(instance.size * 1.2 * scaler, 0.0, 0.0, 0.0),
+      vec4<f32>(0.0, instance.size * 1.2 * scaler, 0.0, 0.0),
+      vec4<f32>(0.0, 0.0, instance.size * 1.2 * scaler, 0.0),
       vec4<f32>(0.0, 0.0, 0.0, 1.0)
   );
 
@@ -71,7 +73,7 @@ fn main(
     * vec4<f32>(
         model.position.x * 2.0, 
         model.position.y * 1.4,
-        model.position.z + (instance.life * 80.0 * 30.0) - 160.0 * 30.0, 
+        model.position.z + (instance.life * 80.0 * 1.0) - 160.0 * 1.0, 
         1.0
     );
   return out;
