@@ -4,7 +4,10 @@ use crate::{
     clock::{Clock, PrintClock},
     config::Config,
     instance::make_instances_and_instance_buffer,
-    shared::{create_render_pipeline, RenderPassInput},
+    shared::{
+        create_render_pipeline, new_random_clear_color, new_random_indices, new_random_vertices,
+        RenderPassInput,
+    },
     vertex::{create_index_buffer, create_vertex_buffer},
 };
 
@@ -93,8 +96,8 @@ impl PrintState {
         } = PrintState::setup(texture_width, texture_height, &config).await;
 
         let op_stream = crate::render_op::OpStream::from_json(&config.filename);
-        let vertices_fn = crate::helpers::new_random_vertices;
-        let indices_fn = crate::helpers::new_random_indices;
+        let vertices_fn = new_random_vertices;
+        let indices_fn = new_random_indices;
 
         let vertices = vertices_fn();
         let num_vertices = vertices.len() as u32;
@@ -121,8 +124,8 @@ impl PrintState {
                 num_vertices,
                 num_indices: indices.len() as u32,
                 vertices,
-                vertices_fn: crate::helpers::new_random_vertices,
-                indices_fn: crate::helpers::new_random_indices,
+                vertices_fn: new_random_vertices,
+                indices_fn: new_random_indices,
             },
             clock: PrintClock::init(&config),
             config,
@@ -138,7 +141,7 @@ impl PrintState {
             camera,
             camera_controller,
             projection,
-            clear_color: crate::helpers::new_random_clear_color(),
+            clear_color: new_random_clear_color(),
         }
     }
 }

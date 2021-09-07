@@ -13,7 +13,7 @@ use crate::{
     config::Config,
     instance::make_instances_and_instance_buffer,
     render_op::OpStream,
-    shared::{create_render_pipeline, RenderPassInput},
+    shared::{create_render_pipeline, helpers::new_clear_color, RenderPassInput},
     vertex::{create_index_buffer, create_vertex_buffer},
 };
 use futures::executor::block_on;
@@ -105,7 +105,7 @@ impl RealTimeState {
             sc_desc,
             swap_chain,
             size: window.inner_size(),
-            clear_color: crate::helpers::new_clear_color(),
+            clear_color: new_clear_color(),
             mouse_pressed: false,
             camera,
             camera_controller,

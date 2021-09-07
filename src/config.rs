@@ -1,3 +1,4 @@
+use crate::shared::helpers::{new_random_indices, new_random_vertices};
 use crate::vertex::Vertex;
 
 #[derive(Clone)]
@@ -25,8 +26,8 @@ impl Config {
             filename: "kintaro".into(),
             volume: 0.5,
             window_size: (1792, 1120),
-            vertices_fn: crate::helpers::new_random_vertices,
-            indices_fn: crate::helpers::new_random_indices,
+            vertices_fn: new_random_vertices,
+            indices_fn: new_random_indices,
             // camera: CameraConfig {
             // position: (0.0, 50.0, 150.0),
             // yaw: -90.0,

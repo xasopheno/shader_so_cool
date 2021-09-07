@@ -3,7 +3,6 @@ mod camera;
 mod canvas;
 mod clock;
 mod config;
-mod helpers;
 mod instance;
 mod print;
 mod realtime;

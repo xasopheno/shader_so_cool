@@ -1,7 +1,8 @@
 use crate::config::Config;
-use crate::helpers::make_color_attachments;
 use crate::instance::Instance;
 use crate::vertex::Vertex;
+
+use super::make_color_attachments;
 
 pub struct RenderPassInput {
     pub vertex_buffer: wgpu::Buffer,
