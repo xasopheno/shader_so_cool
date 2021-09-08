@@ -4,6 +4,7 @@ mod resize;
 mod setup;
 mod update;
 
+use crate::instance::Instance;
 use setup::Setup;
 
 use crate::{

@@ -71,9 +71,9 @@ fn main(
     * model_matrix 
     * scale 
     * vec4<f32>(
-        model.position.x * 2.0, 
-        model.position.y * 1.4,
-        model.position.z + (instance.life * 80.0 * 1.0) - 160.0 * 1.0, 
+        model.position.x * 2.0 * sin(2.0 * instance.life), 
+        model.position.y * 1.4 * sin(45.0 * instance.life),
+        model.position.z + (instance.life * 80.0 * 2.0) - 160.0 * 2.0, 
         1.0
     );
   return out;

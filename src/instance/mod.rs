@@ -90,5 +90,6 @@ impl Instance {
 
     pub fn update_state(&mut self, dt: f32) {
         self.life -= dt * 0.1;
+        // f32::sin(dt * 0.1 * f32::sin(self.position.x / self.position.y) * f32::tan(self.life));
     }
 }
