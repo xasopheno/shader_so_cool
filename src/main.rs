@@ -22,7 +22,7 @@ use winit::{
 use futures::executor::block_on;
 
 fn main() {
-    let play = true;
+    let play = false;
     if play {
         realtime();
     } else {
@@ -34,7 +34,7 @@ fn print() {
     let config = Config::new();
     let mut state = block_on(PrintState::init(config));
     // for _ in 0..2700 {
-    for _ in 0..11_000 {
+    for _ in 0..10_000 {
         block_on(state.render());
     }
 }

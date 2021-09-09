@@ -97,14 +97,16 @@ impl ToInstance for Op4D {
         );
         Instance {
             position: Vector3::new(
-                (self.x as f32 * n_row as f32 * 2.0 / self.y as f32) / 3.0,
+                // n_row as f32 * (self.x * self.x) as f32 * 2.0 / self.y as f32,
+                // n_column as f32 * (self.y * self.y) as f32 / 2.0 * 10.0,
+                (self.x as f32 * n_row as f32 * 4.0 / self.y as f32) / 3.0,
                 // * f32::sin(1000.0 * self.y as f32),
                 self.y as f32 * n_column as f32 * 9.0,
                 1.0,
             ) - displacement,
             rotation,
             life: 2.0,
-            size: 3.0 * self.z as f32,
+            size: 5.0 * self.z as f32,
             length: self.l as f32,
         }
     }

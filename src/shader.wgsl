@@ -49,7 +49,7 @@ fn main(
 
   if (instance.life < 1.99) {
     out.color = vec4<f32>(color_matrix, instance.life);
-    let scaler = 10.0;
+    let scaler = 100.0;
   } else {
     out.color = vec4<f32>(color_matrix * vec3<f32>(
           40.0 * instance.life, 
