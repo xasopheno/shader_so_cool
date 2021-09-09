@@ -22,7 +22,7 @@ use winit::{
 use futures::executor::block_on;
 
 fn main() {
-    let play = false;
+    let play = true;
     if play {
         realtime();
     } else {

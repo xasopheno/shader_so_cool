@@ -22,22 +22,27 @@ pub struct Config {
 impl Config {
     pub fn new() -> Self {
         Config {
-            accumulation: true,
+            accumulation: false,
             filename: "kintaro".into(),
             volume: 0.05,
             window_size: (1792, 1120),
             vertices_fn: new_random_vertices,
             indices_fn: new_random_indices,
             // camera: CameraConfig {
-            // position: (0.0, 50.0, 250.0),
+            // position: (0.0, 0.0, 150.0),
             // yaw: -90.0,
             // pitch: 0.0,
             // },
             camera: CameraConfig {
-                position: (-1.0, 0.79, 435.0),
+                position: (0.0, 50.0, 200.0),
                 yaw: -90.0,
-                pitch: 22.0,
+                pitch: 0.0,
             },
+            // camera: CameraConfig {
+            // position: (-1.0, 0.79, 435.0),
+            // yaw: -90.0,
+            // pitch: 22.0,
+            // },
             // camera: CameraConfig {
             // position: (-22.83299, -5.1967072, -35.540905),
             // yaw: 16.77102,
