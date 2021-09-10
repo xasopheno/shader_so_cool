@@ -5,13 +5,14 @@ use wgpu::util::DeviceExt;
 
 use self::raw::InstanceRaw;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct Instance {
     pub position: cgmath::Vector3<f32>,
     pub rotation: cgmath::Quaternion<f32>,
     pub life: f32,
     pub size: f32,
     pub length: f32,
+    pub names: Vec<String>,
 }
 
 pub fn make_instances(n: usize, size: (u32, u32)) -> Vec<Instance> {
@@ -46,6 +47,7 @@ pub fn make_instances(n: usize, size: (u32, u32)) -> Vec<Instance> {
                 life: 1.0,
                 size,
                 length: 1.0,
+                names: vec![],
             }
         })
         .collect::<Vec<_>>()

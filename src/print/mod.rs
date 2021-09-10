@@ -3,8 +3,7 @@ mod render;
 mod update;
 mod write;
 use crate::{
-    camera::Camera, canvas::Canvas, clock::PrintClock, config::Config, render_op::OpStream,
-    shared::RenderPassInput,
+    camera::Camera, canvas::Canvas, clock::PrintClock, config::Config, shared::RenderPassInput,
 };
 
 pub struct PrintState {
@@ -17,7 +16,6 @@ pub struct PrintState {
     pub texture: wgpu::Texture,
     pub texture_view: wgpu::TextureView,
     pub count: u32,
-    pub op_stream: OpStream,
     pub time_elapsed: std::time::Duration,
     pub camera: Camera,
     pub canvas: Canvas,

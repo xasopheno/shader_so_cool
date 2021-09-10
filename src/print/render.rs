@@ -1,4 +1,4 @@
-use crate::shared::render_pass;
+use crate::{clock::Clock, shared::render_pass};
 
 use super::{
     write::{copy_texture_to_buffer, write_img},
@@ -7,7 +7,11 @@ use super::{
 
 impl PrintState {
     pub async fn render(&mut self) {
-        self.update();
+        self.clock.update();
+        let time = self.clock.current();
+        self.camera.update(time.last_period);
+        self.renderpass.uniforms.update_view_proj(&self.camera);
+        self.update(time);
 
         let mut encoder = self
             .device
@@ -20,6 +24,7 @@ impl PrintState {
             &self.renderpass,
             &self.texture_view,
             &self.config,
+            false,
         );
 
         let output_buffer =

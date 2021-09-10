@@ -4,7 +4,6 @@ mod resize;
 mod setup;
 mod update;
 
-use crate::instance::Instance;
 use setup::Setup;
 
 use crate::{
@@ -13,7 +12,6 @@ use crate::{
     clock::{Clock, RenderClock},
     config::Config,
     instance::make_instances_and_instance_buffer,
-    render_op::OpStream,
     shared::{create_render_pipeline, helpers::new_clear_color, RenderPassInput},
     vertex::{create_index_buffer, create_vertex_buffer},
 };
@@ -37,7 +35,6 @@ pub struct RealTimeState {
     pub count: u32,
     pub camera: Camera,
     pub mouse_pressed: bool,
-    pub op_stream: OpStream,
 }
 
 impl RealTimeState {
@@ -51,7 +48,8 @@ impl RealTimeState {
             ..
         } = block_on(Setup::init(window, config));
 
-        let op_stream = crate::render_op::OpStream::from_json(&config.filename);
+        let op_streams = crate::render_op::OpStream::from_json(&config.filename);
+        let op_stream = op_streams[0].clone();
 
         let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
             label: Some("Shader"),
@@ -67,49 +65,44 @@ impl RealTimeState {
             (window.inner_size().height, window.inner_size().height),
             &device,
         );
-        let camera = crate::camera::Camera::new((sc_desc.width, sc_desc.height), &config);
         let (uniforms, uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
             crate::uniforms::Uniforms::new(&device);
         let render_pipeline =
             create_render_pipeline(&device, &shader, &uniform_bind_group_layout, sc_desc.format);
-        let vertex_buffer = create_vertex_buffer(&device, &vertices.as_slice());
-        let index_buffer = create_index_buffer(&device, &indices.as_slice());
-        let canvas = Canvas::init((window.inner_size().height, window.inner_size().height));
 
         let renderpass_input = RenderPassInput {
-            vertex_buffer,
-            render_pipeline,
+            vertex_buffer: create_vertex_buffer(&device, &vertices.as_slice()),
+            index_buffer: create_index_buffer(&device, &indices.as_slice()),
+            vertices: vertices.into(),
+            op_stream,
             uniform_bind_group,
-            index_buffer,
-            instance_buffer,
             instances,
-            num_vertices,
+            instance_buffer,
             num_indices: indices.len() as u32,
             uniform_buffer,
             uniforms,
-            vertices: vertices.into(),
             vertices_fn: config.vertices_fn,
             indices_fn: config.indices_fn,
+            render_pipeline,
         };
 
         Self {
             clock: RenderClock::init(&config),
+            camera: crate::camera::Camera::new((sc_desc.width, sc_desc.height), &config),
             renderpass: renderpass_input,
             count: 0,
             config: config.clone(),
+            size: window.inner_size(),
+            clear_color: new_clear_color(),
+            mouse_pressed: false,
+            last_render_time: std::time::Instant::now(),
+            start_time: std::time::Instant::now(),
             surface,
             device,
             queue,
             sc_desc,
             swap_chain,
-            size: window.inner_size(),
-            clear_color: new_clear_color(),
-            mouse_pressed: false,
-            camera,
-            last_render_time: std::time::Instant::now(),
-            start_time: std::time::Instant::now(),
-            canvas,
-            op_stream,
+            canvas: Canvas::init((window.inner_size().height, window.inner_size().height)),
         }
     }
 }

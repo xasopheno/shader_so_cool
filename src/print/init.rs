@@ -95,7 +95,8 @@ impl PrintState {
             uniform_bind_group,
         } = PrintState::setup(texture_width, texture_height, &config).await;
 
-        let op_stream = crate::render_op::OpStream::from_json(&config.filename);
+        let op_streams = crate::render_op::OpStream::from_json(&config.filename);
+        let op_stream = op_streams[0].clone();
         let vertices_fn = new_random_vertices;
         let indices_fn = new_random_indices;
 
@@ -120,11 +121,11 @@ impl PrintState {
                 instances,
                 uniforms,
                 uniform_buffer,
-                num_vertices,
                 num_indices: indices.len() as u32,
                 vertices,
                 vertices_fn: new_random_vertices,
                 indices_fn: new_random_indices,
+                op_stream,
             },
             clock: PrintClock::init(&config),
             config,
@@ -134,7 +135,6 @@ impl PrintState {
             texture,
             texture_view,
             count: 0,
-            op_stream,
             time_elapsed: std::time::Duration::from_millis(0),
             canvas,
             camera,

@@ -1,5 +1,6 @@
 use crate::config::Config;
 use crate::instance::Instance;
+use crate::render_op::OpStream;
 use crate::vertex::Vertex;
 
 use super::make_color_attachments;
@@ -11,13 +12,13 @@ pub struct RenderPassInput {
     pub index_buffer: wgpu::Buffer,
     pub instance_buffer: wgpu::Buffer,
     pub instances: Vec<Instance>,
-    pub num_vertices: u32,
     pub vertices_fn: fn() -> Vec<Vertex>,
     pub indices_fn: fn(u16) -> Vec<u16>,
     pub num_indices: u32,
     pub uniforms: crate::uniforms::Uniforms,
     pub uniform_buffer: wgpu::Buffer,
     pub vertices: Vec<Vertex>,
+    pub op_stream: OpStream,
 }
 
 pub fn render_pass<'a>(
@@ -25,11 +26,12 @@ pub fn render_pass<'a>(
     input: &'a RenderPassInput,
     view: &wgpu::TextureView,
     config: &Config,
+    accumulation: bool,
 ) {
     let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
         label: Some("Render Pass"),
         // This is what [[location(0)]] in the fragment shader targets
-        color_attachments: &make_color_attachments(view, config.accumulation),
+        color_attachments: &make_color_attachments(view, accumulation || config.accumulation),
         depth_stencil_attachment: None,
     });
 

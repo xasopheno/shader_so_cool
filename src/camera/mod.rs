@@ -35,7 +35,7 @@ impl Camera {
         }
     }
 
-    pub fn update_camera(&mut self, dt: f32) {
+    pub fn update(&mut self, dt: f32) {
         // Move forward/backward and left/right
         let (yaw_sin, yaw_cos) = self.yaw.0.sin_cos();
         let forward = Vector3::new(yaw_cos, 0.0, yaw_sin).normalize();

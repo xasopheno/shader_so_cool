@@ -1,5 +1,6 @@
 use crate::config::Config;
 
+#[derive(Copy, Clone, Debug)]
 pub struct ClockResult {
     pub total_elapsed: f32,
     pub last_period: f32,

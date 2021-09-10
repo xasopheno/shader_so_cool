@@ -2,21 +2,40 @@ use crate::instance::Instance;
 use cgmath::{Rotation3, Vector3};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 pub use weresocool::generation::json::{EventType, Op4D};
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct OpStream {
     pub ops: Vec<Op4D>,
     pub length: f32,
 }
 
 impl OpStream {
-    pub fn from_json(filename: &str) -> OpStream {
+    pub fn from_json(filename: &str) -> Vec<OpStream> {
         let data = std::fs::read_to_string(format!("./{}.socool.json", filename))
             .expect("Unable to read file");
 
         let deserialized: OpStream = serde_json::from_str(&data).unwrap();
-        deserialized
+        let mut op_streams = HashMap::<String, Vec<Op4D>>::new();
+        deserialized.ops.iter().for_each(|op| {
+            if op.names.is_empty() {
+                let stream = op_streams.entry("nameless".to_string()).or_insert(vec![]);
+                stream.push(op.clone());
+            } else {
+                let names = op.names.join("_");
+                let stream = op_streams.entry(names).or_insert(vec![]);
+                stream.push(op.clone());
+            }
+        });
+
+        op_streams
+            .into_iter()
+            .map(|(_name, ops)| OpStream {
+                ops,
+                length: deserialized.length,
+            })
+            .collect()
     }
     pub fn get_batch(&mut self, t: f32) -> Vec<Op4D> {
         let result: Vec<Op4D> = self
@@ -61,6 +80,7 @@ impl ToInstance for Op4D {
             y: rng.gen_range(0.0..1.0),
             z: rng.gen_range(0.0..1.0),
             l: rng.gen_range(0.2..2.0),
+            names: vec![],
         }
     }
 
@@ -112,6 +132,7 @@ impl ToInstance for Op4D {
             life: 2.0,
             size: 5.0 * self.z as f32,
             length: self.l as f32,
+            names: self.names.to_owned(),
         }
     }
 }

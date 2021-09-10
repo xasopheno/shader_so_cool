@@ -1,7 +1,6 @@
-use crate::camera::Camera;
 use crate::{
     canvas::Canvas,
-    clock::{Clock, ClockResult},
+    clock::ClockResult,
     instance::{make_instance_buffer, Instance},
     render_op::{OpStream, ToInstance},
     shared::RenderPassInput,
@@ -9,23 +8,18 @@ use crate::{
 };
 
 pub fn update(
-    clock: &mut impl Clock,
+    time: ClockResult,
     renderpass: &mut RenderPassInput,
     device: &wgpu::Device,
     queue: &wgpu::Queue,
     size: (u32, u32),
-    camera: &mut Camera,
     canvas: &Canvas,
-    op_stream: &mut OpStream,
 ) {
-    clock.update();
-    let time = clock.current();
-
     renderpass.vertex_buffer = make_vertex_buffer(device, renderpass.vertices.as_slice());
 
     update_instances(
         &time,
-        op_stream,
+        &mut renderpass.op_stream,
         canvas,
         device,
         &mut renderpass.instances,
@@ -38,8 +32,6 @@ pub fn update(
         // self.clear_color = crate::helpers::new_random_clear_color();
     }
     // renderpass.vertices.iter_mut().for_each(|v| v.update());
-    camera.update_camera(time.last_period);
-    renderpass.uniforms.update_view_proj(&camera);
     queue.write_buffer(
         &renderpass.uniform_buffer,
         0,
