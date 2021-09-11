@@ -21,7 +21,7 @@ use winit::window::Window;
 pub struct RealTimeState {
     pub clock: RenderClock,
     pub config: Config,
-    pub renderpass: RenderPassInput,
+    pub renderpasses: Vec<RenderPassInput>,
     pub surface: wgpu::Surface,
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
@@ -49,7 +49,6 @@ impl RealTimeState {
         } = block_on(Setup::init(window, config));
 
         let op_streams = crate::render_op::OpStream::from_json(&config.filename);
-        let op_stream = op_streams[0].clone();
 
         let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
             label: Some("Shader"),
@@ -57,39 +56,47 @@ impl RealTimeState {
             source: wgpu::ShaderSource::Wgsl(include_str!("../shader.wgsl").into()),
         });
 
-        let vertices = (config.vertices_fn)();
-        let num_vertices = vertices.len() as u32;
-        let indices = (config.indices_fn)(num_vertices as u16);
-        let (instances, instance_buffer) = make_instances_and_instance_buffer(
-            0,
-            (window.inner_size().height, window.inner_size().height),
-            &device,
-        );
-        let (uniforms, uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
-            crate::uniforms::Uniforms::new(&device);
-        let render_pipeline =
-            create_render_pipeline(&device, &shader, &uniform_bind_group_layout, sc_desc.format);
-
-        let renderpass_input = RenderPassInput {
-            vertex_buffer: create_vertex_buffer(&device, &vertices.as_slice()),
-            index_buffer: create_index_buffer(&device, &indices.as_slice()),
-            vertices: vertices.into(),
-            op_stream,
-            uniform_bind_group,
-            instances,
-            instance_buffer,
-            num_indices: indices.len() as u32,
-            uniform_buffer,
-            uniforms,
-            vertices_fn: config.vertices_fn,
-            indices_fn: config.indices_fn,
-            render_pipeline,
-        };
+        let renderpasses = op_streams
+            .iter()
+            .map(|op_stream| {
+                let vertices = (config.vertices_fn)();
+                let num_vertices = vertices.len() as u32;
+                let indices = (config.indices_fn)(num_vertices as u16);
+                let (instances, instance_buffer) = make_instances_and_instance_buffer(
+                    0,
+                    (window.inner_size().height, window.inner_size().height),
+                    &device,
+                );
+                let (uniforms, uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
+                    crate::uniforms::Uniforms::new(&device);
+                let render_pipeline = create_render_pipeline(
+                    &device,
+                    &shader,
+                    &uniform_bind_group_layout,
+                    sc_desc.format,
+                );
+                RenderPassInput {
+                    vertex_buffer: create_vertex_buffer(&device, &vertices.as_slice()),
+                    index_buffer: create_index_buffer(&device, &indices.as_slice()),
+                    vertices: vertices.into(),
+                    op_stream: op_stream.to_owned(),
+                    uniform_bind_group,
+                    instances,
+                    instance_buffer,
+                    num_indices: indices.len() as u32,
+                    uniform_buffer,
+                    uniforms,
+                    vertices_fn: config.vertices_fn,
+                    indices_fn: config.indices_fn,
+                    render_pipeline,
+                }
+            })
+            .collect();
 
         Self {
             clock: RenderClock::init(&config),
             camera: crate::camera::Camera::new((sc_desc.width, sc_desc.height), &config),
-            renderpass: renderpass_input,
+            renderpasses: renderpasses,
             count: 0,
             config: config.clone(),
             size: window.inner_size(),

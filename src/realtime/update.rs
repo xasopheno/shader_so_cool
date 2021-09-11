@@ -1,10 +1,14 @@
-use crate::{clock::ClockResult, realtime::RealTimeState, shared::update};
+use crate::{
+    clock::ClockResult,
+    realtime::RealTimeState,
+    shared::{update, RenderPassInput},
+};
 
 impl RealTimeState {
-    pub fn update(&mut self, time: ClockResult) {
+    pub fn update(&mut self, time: ClockResult, renderpass: &mut RenderPassInput) {
         update(
             time,
-            &mut self.renderpass,
+            renderpass,
             &self.device,
             &self.queue,
             (self.size.width, self.size.height),

@@ -15,6 +15,10 @@ pub fn update(
     size: (u32, u32),
     canvas: &Canvas,
 ) {
+    if time.frame_count % 200 == 0 {
+        renderpass.vertices = (renderpass.vertices_fn)();
+        // self.clear_color = crate::helpers::new_random_clear_color();
+    }
     renderpass.vertex_buffer = make_vertex_buffer(device, renderpass.vertices.as_slice());
 
     update_instances(
@@ -27,10 +31,6 @@ pub fn update(
         size,
     );
 
-    if time.frame_count % 200 == 0 {
-        renderpass.vertices = (renderpass.vertices_fn)();
-        // self.clear_color = crate::helpers::new_random_clear_color();
-    }
     // renderpass.vertices.iter_mut().for_each(|v| v.update());
     queue.write_buffer(
         &renderpass.uniform_buffer,
