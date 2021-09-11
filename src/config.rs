@@ -33,16 +33,16 @@ impl Config {
             // yaw: -90.0,
             // pitch: 0.0,
             // },
-            camera: CameraConfig {
-                position: (0.0, 50.0, 200.0),
-                yaw: -90.0,
-                pitch: 0.0,
-            },
             // camera: CameraConfig {
-            // position: (-1.0, 0.79, 435.0),
+            // position: (0.0, 50.0, 200.0),
             // yaw: -90.0,
-            // pitch: 22.0,
+            // pitch: 0.0,
             // },
+            camera: CameraConfig {
+                position: (-1.0, 0.79, 435.0),
+                yaw: -90.0,
+                pitch: 22.0,
+            },
             // camera: CameraConfig {
             // position: (-22.83299, -5.1967072, -35.540905),
             // yaw: 16.77102,

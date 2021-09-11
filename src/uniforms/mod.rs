@@ -1,6 +1,8 @@
 use bytemuck;
 use wgpu::util::DeviceExt;
 
+use crate::camera::Camera;
+
 #[repr(C)]
 #[derive(Debug, Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct Uniforms {
@@ -57,8 +59,8 @@ impl Uniforms {
         )
     }
 
-    pub fn update_view_proj(&mut self, camera: &crate::camera::Camera) {
-        self.view_position = camera.position.to_homogeneous().into();
-        self.view_proj = (camera.projection.calc_matrix() * camera.calc_matrix()).into();
+    pub fn update_view_proj(&mut self, view_position: [f32; 4], view_proj: [[f32; 4]; 4]) {
+        self.view_position = view_position;
+        self.view_proj = view_proj;
     }
 }

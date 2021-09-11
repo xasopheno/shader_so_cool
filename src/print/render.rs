@@ -10,7 +10,7 @@ impl PrintState {
         self.clock.update();
         let time = self.clock.current();
         self.camera.update(time.last_period);
-        self.renderpass.uniforms.update_view_proj(&self.camera);
+        // self.renderpass.uniforms.update_view_proj(&self.camera);
         self.update(time);
 
         let mut encoder = self

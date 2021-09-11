@@ -9,21 +9,28 @@ impl RealTimeState {
         self.clock.update();
         let time = self.clock.current();
         self.camera.update(time.last_period);
-        for renderpass in self.renderpasses.iter_mut() {
-            renderpass.uniforms.update_view_proj(&self.camera);
-        }
 
-        let frame = self.swap_chain.get_current_frame().unwrap().output;
-        // let mut encoders = vec![];
-        for (n, mut renderpass) in self.renderpasses.iter_mut().enumerate() {
+        let view_position: [f32; 4] = self.camera.position.to_homogeneous().into();
+        let view_proj: [[f32; 4]; 4] =
+            (&self.camera.projection.calc_matrix() * self.camera.calc_matrix()).into();
+
+        for renderpass in self.renderpasses.iter_mut() {
             update(
                 time,
-                &mut renderpass,
+                renderpass,
                 &self.device,
                 &self.queue,
                 (self.size.width, self.size.height),
                 &self.canvas,
             );
+        }
+
+        let frame = self.swap_chain.get_current_frame().unwrap().output;
+        // let mut encoders = vec![];
+        for (n, renderpass) in self.renderpasses.iter_mut().enumerate() {
+            renderpass
+                .uniforms
+                .update_view_proj(view_position, view_proj);
             let mut encoder = self
                 .device
                 .create_command_encoder(&wgpu::CommandEncoderDescriptor {
@@ -31,13 +38,15 @@ impl RealTimeState {
                 });
             let accumulation = if n == 0 { false } else { true };
 
-            render_pass(&mut encoder, &renderpass, &frame.view, &self.config, true);
-            // if n == 1 {
-            // encoders.push(encoder.finish());
+            render_pass(
+                &mut encoder,
+                &renderpass,
+                &frame.view,
+                &self.config,
+                accumulation,
+            );
 
             self.queue.submit(std::iter::once(encoder.finish()));
-            // }
-            // self.queue.submit(encoders);
         }
 
         Ok(())
