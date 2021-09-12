@@ -50,7 +50,7 @@ fn realtime() {
             height: config.window_size.1,
         })
         .with_title(title)
-        // .with_fullscreen(Some(Fullscreen::Borderless(None)))
+        .with_fullscreen(Some(Fullscreen::Borderless(None)))
         .build(&event_loop)
         .expect("Unable to create window");
 

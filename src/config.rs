@@ -24,10 +24,15 @@ impl Config {
         Config {
             accumulation: false,
             filename: "kintaro".into(),
-            volume: 0.05,
+            volume: 0.45,
             window_size: (1792, 1120),
             vertices_fn: new_random_vertices,
             indices_fn: new_random_indices,
+            camera: CameraConfig {
+                position: (-27.0, -42.0, 152.0),
+                yaw: -82.0,
+                pitch: 25.0,
+            },
             // camera: CameraConfig {
             // position: (0.0, 0.0, 150.0),
             // yaw: -90.0,
@@ -38,11 +43,11 @@ impl Config {
             // yaw: -90.0,
             // pitch: 0.0,
             // },
-            camera: CameraConfig {
-                position: (-1.0, 0.79, 435.0),
-                yaw: -90.0,
-                pitch: 22.0,
-            },
+            // camera: CameraConfig {
+            // position: (-1.0, 0.79, 435.0),
+            // yaw: -90.0,
+            // pitch: 22.0,
+            // },
             // camera: CameraConfig {
             // position: (-22.83299, -5.1967072, -35.540905),
             // yaw: 16.77102,
