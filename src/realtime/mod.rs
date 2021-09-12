@@ -96,7 +96,7 @@ impl RealTimeState {
         Self {
             clock: RenderClock::init(&config),
             camera: crate::camera::Camera::new((sc_desc.width, sc_desc.height), &config),
-            renderpasses: renderpasses,
+            renderpasses,
             count: 0,
             config: config.clone(),
             size: window.inner_size(),

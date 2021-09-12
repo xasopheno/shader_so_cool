@@ -9,7 +9,7 @@ use crate::{
 pub struct PrintState {
     pub clock: PrintClock,
     pub config: Config,
-    pub renderpass: RenderPassInput,
+    pub renderpasses: Vec<RenderPassInput>,
     pub size: (u32, u32),
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,

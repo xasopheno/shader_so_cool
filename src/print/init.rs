@@ -4,26 +4,15 @@ use crate::{
     clock::{Clock, PrintClock},
     config::Config,
     instance::make_instances_and_instance_buffer,
-    shared::{
-        create_render_pipeline, new_random_clear_color, new_random_indices, new_random_vertices,
-        RenderPassInput,
-    },
+    shared::{create_render_pipeline, new_random_clear_color, RenderPassInput},
     vertex::{create_index_buffer, create_vertex_buffer},
 };
 
-pub struct Setup {
-    pub device: wgpu::Device,
-    pub queue: wgpu::Queue,
-    pub texture: wgpu::Texture,
-    pub texture_view: wgpu::TextureView,
-    pub render_pipeline: wgpu::RenderPipeline,
-    pub uniforms: crate::uniforms::Uniforms,
-    pub uniform_buffer: wgpu::Buffer,
-    pub uniform_bind_group: wgpu::BindGroup,
-}
-
 impl PrintState {
-    async fn setup(texture_width: u32, texture_height: u32, _config: &Config) -> Setup {
+    pub async fn init(config: Config) -> PrintState {
+        let texture_width = 1792 / 2;
+        let texture_height = 1120 / 2;
+
         let instance = wgpu::Instance::new(wgpu::BackendBit::PRIMARY);
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
@@ -59,75 +48,50 @@ impl PrintState {
             source: wgpu::ShaderSource::Wgsl(include_str!("../shader.wgsl").into()),
         });
 
-        let (uniforms, uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
-            crate::uniforms::Uniforms::new(&device);
-
-        let render_pipeline = create_render_pipeline(
-            &device,
-            &shader,
-            &uniform_bind_group_layout,
-            texture_desc.format,
-        );
-
-        Setup {
-            device,
-            queue,
-            texture,
-            texture_view,
-            render_pipeline,
-            uniforms,
-            uniform_buffer,
-            uniform_bind_group,
-        }
-    }
-    pub async fn init(config: Config) -> PrintState {
-        let texture_width = 1792 * 4;
-        let texture_height = 1120 * 4;
         println!("{}/{}", texture_width, texture_height);
-        let Setup {
-            device,
-            queue,
-            texture,
-            texture_view,
-            render_pipeline,
-            uniforms,
-            uniform_buffer,
-            uniform_bind_group,
-        } = PrintState::setup(texture_width, texture_height, &config).await;
 
         let op_streams = crate::render_op::OpStream::from_json(&config.filename);
-        let op_stream = op_streams[0].clone();
-        let vertices_fn = new_random_vertices;
-        let indices_fn = new_random_indices;
 
-        let vertices = vertices_fn();
-        let num_vertices = vertices.len() as u32;
-        let indices = indices_fn(num_vertices as u16);
-        let (instances, instance_buffer) =
-            make_instances_and_instance_buffer(0, (texture_width, texture_height), &device);
+        let renderpasses = op_streams
+            .iter()
+            .map(|op_stream| {
+                let vertices = (config.vertices_fn)();
+                let num_vertices = vertices.len() as u32;
+                let indices = (config.indices_fn)(num_vertices as u16);
+                let (instances, instance_buffer) =
+                    make_instances_and_instance_buffer(0, (texture_width, texture_height), &device);
+                let (uniforms, uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
+                    crate::uniforms::Uniforms::new(&device);
+                let render_pipeline = create_render_pipeline(
+                    &device,
+                    &shader,
+                    &uniform_bind_group_layout,
+                    texture_desc.format,
+                );
 
-        let camera = crate::camera::Camera::new((texture_width, texture_height), &config);
-
-        let vertex_buffer = create_vertex_buffer(&device, &vertices.as_slice());
-        let index_buffer = create_index_buffer(&device, &indices.as_slice());
-        let canvas = Canvas::init((texture_width, texture_height));
+                RenderPassInput {
+                    vertex_buffer: create_vertex_buffer(&device, &vertices.as_slice()),
+                    index_buffer: create_index_buffer(&device, &indices.as_slice()),
+                    vertices: vertices.into(),
+                    op_stream: op_stream.to_owned(),
+                    uniform_bind_group,
+                    instances,
+                    instance_buffer,
+                    num_indices: indices.len() as u32,
+                    uniform_buffer,
+                    uniforms,
+                    vertices_fn: config.vertices_fn,
+                    indices_fn: config.indices_fn,
+                    render_pipeline,
+                }
+            })
+            .collect();
         PrintState {
-            renderpass: RenderPassInput {
-                vertex_buffer,
-                render_pipeline,
-                uniform_bind_group,
-                index_buffer,
-                instance_buffer,
-                instances,
-                uniforms,
-                uniform_buffer,
-                num_indices: indices.len() as u32,
-                vertices,
-                vertices_fn: new_random_vertices,
-                indices_fn: new_random_indices,
-                op_stream,
-            },
+            renderpasses,
             clock: PrintClock::init(&config),
+
+            canvas: Canvas::init((texture_width, texture_height)),
+            camera: crate::camera::Camera::new((texture_width, texture_height), &config),
             config,
             size: (texture_width, texture_height),
             device,
@@ -136,8 +100,6 @@ impl PrintState {
             texture_view,
             count: 0,
             time_elapsed: std::time::Duration::from_millis(0),
-            canvas,
-            camera,
             clear_color: new_random_clear_color(),
         }
     }
