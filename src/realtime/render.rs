@@ -5,7 +5,7 @@ use crate::{
 };
 
 impl RealTimeState {
-    pub fn render(&mut self) -> Result<(), wgpu::SwapChainError> {
+    pub fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
         self.clock.update();
         let time = self.clock.current();
         self.camera.update(time.last_period);
@@ -25,7 +25,10 @@ impl RealTimeState {
             );
         }
 
-        let frame = self.swap_chain.get_current_frame().unwrap().output;
+        let output = self.surface.get_current_frame()?.output;
+        let view = output
+            .texture
+            .create_view(&wgpu::TextureViewDescriptor::default());
         // let mut encoders = vec![];
         for (n, renderpass) in self.renderpasses.iter_mut().enumerate() {
             renderpass
@@ -38,13 +41,7 @@ impl RealTimeState {
                 });
             let accumulation = if n == 0 { false } else { true };
 
-            render_pass(
-                &mut encoder,
-                &renderpass,
-                &frame.view,
-                &self.config,
-                accumulation,
-            );
+            render_pass(&mut encoder, &renderpass, &view, &self.config, accumulation);
 
             self.queue.submit(std::iter::once(encoder.finish()));
         }

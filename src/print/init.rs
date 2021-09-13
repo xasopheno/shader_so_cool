@@ -10,10 +10,10 @@ use crate::{
 
 impl PrintState {
     pub async fn init(config: Config) -> PrintState {
-        let texture_width = 1792 * 4;
-        let texture_height = 1120 * 4;
+        let texture_width = 1792 / 2;
+        let texture_height = 1120 / 2;
 
-        let instance = wgpu::Instance::new(wgpu::BackendBit::PRIMARY);
+        let instance = wgpu::Instance::new(wgpu::Backends::PRIMARY);
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
                 power_preference: wgpu::PowerPreference::default(),
@@ -36,7 +36,7 @@ impl PrintState {
             sample_count: 1,
             dimension: wgpu::TextureDimension::D2,
             format: wgpu::TextureFormat::Rgba8UnormSrgb,
-            usage: wgpu::TextureUsage::COPY_SRC | wgpu::TextureUsage::RENDER_ATTACHMENT,
+            usage: wgpu::TextureUsages::COPY_SRC | wgpu::TextureUsages::RENDER_ATTACHMENT,
             label: None,
         };
         let texture = device.create_texture(&texture_desc);
@@ -44,7 +44,6 @@ impl PrintState {
 
         let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
             label: Some("Shader"),
-            flags: wgpu::ShaderFlags::all(),
             source: wgpu::ShaderSource::Wgsl(include_str!("../shader.wgsl").into()),
         });
 

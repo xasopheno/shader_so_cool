@@ -35,6 +35,7 @@ pub fn copy_texture_to_buffer(
 
     encoder.copy_texture_to_buffer(
         wgpu::ImageCopyTexture {
+            aspect: wgpu::TextureAspect::All,
             texture,
             mip_level: 0,
             origin: wgpu::Origin3d::ZERO,
@@ -60,9 +61,9 @@ fn make_output_buffer(device: &wgpu::Device, size: (u32, u32)) -> wgpu::Buffer {
     let output_buffer_size = (U32_SIZE * size.0 * size.1) as wgpu::BufferAddress;
     let output_buffer_desc = wgpu::BufferDescriptor {
         size: output_buffer_size,
-        usage: wgpu::BufferUsage::COPY_DST
+        usage: wgpu::BufferUsages::COPY_DST
         // this tells wpgu that we want to read this buffer from the cpu
-        | wgpu::BufferUsage::MAP_READ,
+        | wgpu::BufferUsages::MAP_READ,
         label: None,
         mapped_at_creation: false,
     };

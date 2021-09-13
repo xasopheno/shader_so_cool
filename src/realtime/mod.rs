@@ -26,8 +26,8 @@ pub struct RealTimeState {
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
     pub size: winit::dpi::PhysicalSize<u32>,
-    pub sc_desc: wgpu::SwapChainDescriptor,
-    pub swap_chain: wgpu::SwapChain,
+    // pub sc_desc: wgpu::SwapChainDescriptor,
+    // pub swap_chain: wgpu::SwapChain,
     pub last_render_time: std::time::Instant,
     pub start_time: std::time::Instant,
     pub canvas: Canvas,
@@ -43,8 +43,8 @@ impl RealTimeState {
             device,
             surface,
             queue,
-            swap_chain,
-            sc_desc,
+            // swap_chain,
+            // sc_desc,
             ..
         } = block_on(Setup::init(window, config));
 
@@ -52,7 +52,6 @@ impl RealTimeState {
 
         let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
             label: Some("Shader"),
-            flags: wgpu::ShaderFlags::all(),
             source: wgpu::ShaderSource::Wgsl(include_str!("../shader.wgsl").into()),
         });
 
@@ -73,7 +72,7 @@ impl RealTimeState {
                     &device,
                     &shader,
                     &uniform_bind_group_layout,
-                    sc_desc.format,
+                    wgpu::TextureFormat::Bgra8UnormSrgb,
                 );
                 RenderPassInput {
                     vertex_buffer: create_vertex_buffer(&device, &vertices.as_slice()),
@@ -92,14 +91,15 @@ impl RealTimeState {
                 }
             })
             .collect();
+        let size = window.inner_size();
 
         Self {
             clock: RenderClock::init(&config),
-            camera: crate::camera::Camera::new((sc_desc.width, sc_desc.height), &config),
+            camera: crate::camera::Camera::new((size.width, size.height), &config),
             renderpasses,
             count: 0,
             config: config.clone(),
-            size: window.inner_size(),
+            size: (size.width.into(), size.height).into(),
             clear_color: new_clear_color(),
             mouse_pressed: false,
             last_render_time: std::time::Instant::now(),
@@ -107,8 +107,8 @@ impl RealTimeState {
             surface,
             device,
             queue,
-            sc_desc,
-            swap_chain,
+            // sc_desc,
+            // swap_chain,
             canvas: Canvas::init((window.inner_size().height, window.inner_size().height)),
         }
     }

@@ -13,6 +13,11 @@ mod vertex;
 use crate::config::Config;
 use crate::print::PrintState;
 use crate::realtime::RealTimeState;
+// use chrono::Timelike;
+// use egui::FontDefinitions;
+// use egui_wgpu_backend::{RenderPass, ScreenDescriptor};
+// use egui_winit_platform::{Platform, PlatformDescriptor};
+// use epi::*;
 use winit::{
     event::*,
     event_loop::{ControlFlow, EventLoop},
@@ -22,11 +27,16 @@ use winit::{
 use futures::executor::block_on;
 
 fn main() {
-    let play = false;
-    if play {
-        realtime();
-    } else {
+    let print_it = std::env::args()
+        .into_iter()
+        .any(|arg| if arg == "--print" { true } else { false });
+
+    if print_it {
+        println!("****PRINTING****");
         print();
+    } else {
+        println!("****REALTIME****");
+        realtime();
     }
 }
 
@@ -95,9 +105,9 @@ fn realtime() {
                 match state.render() {
                     Ok(_) => {}
                     // Recreate the swap_chain if lost
-                    Err(wgpu::SwapChainError::Lost) => state.resize(state.size),
+                    Err(wgpu::SurfaceError::Lost) => state.resize(state.size),
                     // The system is out of memory, we should probably quit
-                    Err(wgpu::SwapChainError::OutOfMemory) => *control_flow = ControlFlow::Exit,
+                    Err(wgpu::SurfaceError::OutOfMemory) => *control_flow = ControlFlow::Exit,
                     // All other errors (Outdated, Timeout) should be resolved by the next frame
                     Err(e) => eprintln!("{:?}", e),
                 }
