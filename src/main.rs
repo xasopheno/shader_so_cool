@@ -16,7 +16,7 @@ use crate::realtime::render::ExampleRepaintSignal;
 use crate::realtime::RealTimeState;
 use winit::{
     event::*,
-    event_loop::{ControlFlow, EventLoop},
+    event_loop::ControlFlow,
     window::{Fullscreen, WindowBuilder},
 };
 
@@ -72,7 +72,6 @@ fn realtime() {
     let (_stream, _stream_handle) = crate::audio::play_audio(&config);
 
     event_loop.run(move |event, _, control_flow| {
-        *control_flow = ControlFlow::Poll;
         match event {
             Event::MainEventsCleared => window.request_redraw(),
             Event::DeviceEvent { ref event, .. } => {
@@ -106,7 +105,7 @@ fn realtime() {
             }
 
             Event::RedrawRequested(_) => {
-                match state.render() {
+                match state.render(&window) {
                     Ok(_) => {}
                     // Recreate the swap_chain if lost
                     Err(wgpu::SurfaceError::Lost) => state.resize(state.size),
@@ -114,7 +113,9 @@ fn realtime() {
                     Err(wgpu::SurfaceError::OutOfMemory) => *control_flow = ControlFlow::Exit,
                     // All other errors (Outdated, Timeout) should be resolved by the next frame
                     Err(e) => eprintln!("{:?}", e),
-                }
+                };
+
+                *control_flow = ControlFlow::Poll;
             }
             _ => {}
         }

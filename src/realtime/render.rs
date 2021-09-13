@@ -4,6 +4,7 @@ use crate::{
     shared::{render_pass, update},
 };
 use chrono::Timelike;
+use egui_wgpu_backend::ScreenDescriptor;
 use epi::*;
 /// Time of day as seconds since midnight. Used for clock in demo app.
 pub fn seconds_since_midnight() -> f64 {
@@ -25,7 +26,7 @@ impl epi::RepaintSignal for ExampleRepaintSignal {
 }
 
 impl RealTimeState {
-    pub fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
+    pub fn render(&mut self, window: &winit::window::Window) -> Result<(), wgpu::SurfaceError> {
         self.clock.update();
         let time = self.clock.current();
         self.camera.update(time.last_period);
@@ -50,8 +51,24 @@ impl RealTimeState {
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
 
+        for (n, renderpass) in self.renderpasses.iter_mut().enumerate() {
+            renderpass
+                .uniforms
+                .update_view_proj(view_position, view_proj);
+            let mut encoder = self
+                .device
+                .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                    label: Some("Render Encoder"),
+                });
+            let accumulation = if n == 0 { false } else { true };
+
+            render_pass(&mut encoder, &renderpass, &view, &self.config, accumulation);
+
+            self.queue.submit(std::iter::once(encoder.finish()));
+        }
+
         self.gui.platform.begin_frame();
-        let frame_time = time.total_elapsed;
+        // let frame_time = time.total_elapsed;
         let previous_frame_time = time.last_period;
         let mut app_output = epi::backend::AppOutput::default();
 
@@ -75,24 +92,49 @@ impl RealTimeState {
             .update(&self.gui.platform.context(), &mut frame);
 
         // End the UI frame. We could now handle the output and draw the UI with the backend.
-        let (_output, paint_commands) = self.gui.platform.end_frame(Some(&self.window));
-        // let paint_jobs = self.gui.platform.context().tessellate(paint_commands);
+        let (_output, paint_commands) = self.gui.platform.end_frame(Some(window));
+        let paint_jobs = self.gui.platform.context().tessellate(paint_commands);
+        let mut encoder = self
+            .device
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                label: Some("encoder"),
+            });
 
-        for (n, renderpass) in self.renderpasses.iter_mut().enumerate() {
-            renderpass
-                .uniforms
-                .update_view_proj(view_position, view_proj);
-            let mut encoder = self
-                .device
-                .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                    label: Some("Render Encoder"),
-                });
-            let accumulation = if n == 0 { false } else { true };
+        // Upload all resources for the GPU.
+        let screen_descriptor = ScreenDescriptor {
+            physical_width: self.size.width,
+            physical_height: self.size.height,
+            scale_factor: window.scale_factor() as f32,
+        };
+        self.gui.renderpass.update_texture(
+            &self.device,
+            &self.queue,
+            &self.gui.platform.context().texture(),
+        );
+        self.gui
+            .renderpass
+            .update_user_textures(&self.device, &self.queue);
+        self.gui.renderpass.update_buffers(
+            &mut self.device,
+            &mut self.queue,
+            &paint_jobs,
+            &screen_descriptor,
+        );
 
-            render_pass(&mut encoder, &renderpass, &view, &self.config, accumulation);
+        // Record all render passes.
+        self.gui
+            .renderpass
+            .execute(
+                &mut encoder,
+                &view,
+                &paint_jobs,
+                &screen_descriptor,
+                None, // Some(wgpu::Color::TRANSPARENT),
+            )
+            .unwrap();
 
-            self.queue.submit(std::iter::once(encoder.finish()));
-        }
+        // // Submit the commands.
+        self.queue.submit(std::iter::once(encoder.finish()));
 
         Ok(())
     }
