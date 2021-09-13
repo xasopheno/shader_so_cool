@@ -1,5 +1,5 @@
 mod input;
-mod render;
+pub mod render;
 mod resize;
 mod setup;
 mod update;
@@ -12,11 +12,14 @@ use crate::{
     clock::{Clock, RenderClock},
     config::Config,
     instance::make_instances_and_instance_buffer,
+    realtime::render::ExampleRepaintSignal,
     shared::{create_render_pipeline, helpers::new_clear_color, RenderPassInput},
     vertex::{create_index_buffer, create_vertex_buffer},
 };
 use futures::executor::block_on;
-use winit::window::Window;
+use winit::{event::Event, event_loop::EventLoop, window::Window};
+
+use self::setup::Gui;
 
 pub struct RealTimeState {
     pub clock: RenderClock,
@@ -26,8 +29,6 @@ pub struct RealTimeState {
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
     pub size: winit::dpi::PhysicalSize<u32>,
-    // pub sc_desc: wgpu::SwapChainDescriptor,
-    // pub swap_chain: wgpu::SwapChain,
     pub last_render_time: std::time::Instant,
     pub start_time: std::time::Instant,
     pub canvas: Canvas,
@@ -35,17 +36,21 @@ pub struct RealTimeState {
     pub count: u32,
     pub camera: Camera,
     pub mouse_pressed: bool,
+    pub gui: Gui,
+    pub repaint_signal: std::sync::Arc<ExampleRepaintSignal>,
 }
 
 impl RealTimeState {
-    pub fn init(window: &Window, config: &Config) -> RealTimeState {
+    pub fn init(
+        window: &Window,
+        config: &Config,
+        repaint_signal: std::sync::Arc<ExampleRepaintSignal>,
+    ) -> RealTimeState {
         let Setup {
             device,
             surface,
             queue,
-            // swap_chain,
-            // sc_desc,
-            ..
+            gui,
         } = block_on(Setup::init(window, config));
 
         let op_streams = crate::render_op::OpStream::from_json(&config.filename);
@@ -107,9 +112,9 @@ impl RealTimeState {
             surface,
             device,
             queue,
-            // sc_desc,
-            // swap_chain,
             canvas: Canvas::init((window.inner_size().height, window.inner_size().height)),
+            gui,
+            repaint_signal: repaint_signal.clone(),
         }
     }
 }

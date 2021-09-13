@@ -12,12 +12,8 @@ mod uniforms;
 mod vertex;
 use crate::config::Config;
 use crate::print::PrintState;
+use crate::realtime::render::ExampleRepaintSignal;
 use crate::realtime::RealTimeState;
-// use chrono::Timelike;
-// use egui::FontDefinitions;
-// use egui_wgpu_backend::{RenderPass, ScreenDescriptor};
-// use egui_winit_platform::{Platform, PlatformDescriptor};
-// use epi::*;
 use winit::{
     event::*,
     event_loop::{ControlFlow, EventLoop},
@@ -53,7 +49,8 @@ fn realtime() {
     env_logger::init();
     let config = Config::new();
     let title = env!("CARGO_PKG_NAME");
-    let event_loop = EventLoop::new();
+    // let event_loop = EventLoop::new();
+    let event_loop = winit::event_loop::EventLoop::with_user_event();
     let window = WindowBuilder::new()
         .with_inner_size(winit::dpi::PhysicalSize {
             width: config.window_size.0,
@@ -61,10 +58,17 @@ fn realtime() {
         })
         .with_title(title)
         .with_fullscreen(Some(Fullscreen::Borderless(None)))
+        .with_decorations(true)
         .build(&event_loop)
         .expect("Unable to create window");
 
-    let mut state = RealTimeState::init(&window, &config);
+    let repaint_signal = std::sync::Arc::new(ExampleRepaintSignal(std::sync::Mutex::new(
+        event_loop.create_proxy(),
+    )));
+
+    // dbg!(window.scale_factor());
+
+    let mut state = RealTimeState::init(&window, &config, repaint_signal.clone());
     let (_stream, _stream_handle) = crate::audio::play_audio(&config);
 
     event_loop.run(move |event, _, control_flow| {
