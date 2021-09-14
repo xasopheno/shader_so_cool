@@ -1,7 +1,6 @@
 use crate::config::Config;
-use chrono::Timelike;
 use egui::FontDefinitions;
-use egui_wgpu_backend::{RenderPass, ScreenDescriptor};
+use egui_wgpu_backend::RenderPass;
 use egui_winit_platform::{Platform, PlatformDescriptor};
 use epi::*;
 use winit::window::Window;
@@ -39,25 +38,25 @@ impl Setup {
                     features: wgpu::Features::empty(),
                     limits: wgpu::Limits::default(),
                 },
-                None, // Trace path
+                None,
             )
             .await
             .unwrap();
+        let surface_format = surface.get_preferred_format(&adapter).unwrap();
 
         let config = wgpu::SurfaceConfiguration {
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
-            format: wgpu::TextureFormat::Bgra8UnormSrgb,
+            format: surface_format,
             width: size.width,
             height: size.height,
             present_mode: wgpu::PresentMode::Fifo,
         };
         surface.configure(&device, &config);
-        let surface_format = surface.get_preferred_format(&adapter).unwrap();
 
         // We use the egui_winit_platform crate as the platform.
         let platform = Platform::new(PlatformDescriptor {
-            physical_width: 300,
-            physical_height: 300,
+            physical_width: size.width,
+            physical_height: size.height,
             scale_factor: window.scale_factor(),
             font_definitions: FontDefinitions::default(),
             style: Default::default(),

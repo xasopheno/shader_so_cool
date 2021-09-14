@@ -56,6 +56,7 @@ fn realtime() {
             width: config.window_size.0,
             height: config.window_size.1,
         })
+        .with_transparent(true)
         .with_title(title)
         .with_fullscreen(Some(Fullscreen::Borderless(None)))
         .with_decorations(true)
@@ -72,6 +73,7 @@ fn realtime() {
     let (_stream, _stream_handle) = crate::audio::play_audio(&config);
 
     event_loop.run(move |event, _, control_flow| {
+        state.gui.platform.handle_event(&event);
         match event {
             Event::MainEventsCleared => window.request_redraw(),
             Event::DeviceEvent { ref event, .. } => {

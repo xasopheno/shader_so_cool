@@ -68,7 +68,6 @@ impl RealTimeState {
         }
 
         self.gui.platform.begin_frame();
-        // let frame_time = time.total_elapsed;
         let previous_frame_time = time.last_period;
         let mut app_output = epi::backend::AppOutput::default();
 
@@ -77,9 +76,7 @@ impl RealTimeState {
                 web_info: None,
                 cpu_usage: Some(previous_frame_time),
                 seconds_since_midnight: Some(seconds_since_midnight()),
-                native_pixels_per_point: Some(2.0),
-
-                // Some(self.window.scale_factor() as _),
+                native_pixels_per_point: Some(window.scale_factor() as _),
                 prefer_dark_mode: None,
             },
             tex_allocator: &mut self.gui.renderpass,
@@ -114,6 +111,7 @@ impl RealTimeState {
         self.gui
             .renderpass
             .update_user_textures(&self.device, &self.queue);
+
         self.gui.renderpass.update_buffers(
             &mut self.device,
             &mut self.queue,
@@ -129,7 +127,8 @@ impl RealTimeState {
                 &view,
                 &paint_jobs,
                 &screen_descriptor,
-                None, // Some(wgpu::Color::TRANSPARENT),
+                None,
+                // Some(wgpu::Color::TRANSPARENT),
             )
             .unwrap();
 
