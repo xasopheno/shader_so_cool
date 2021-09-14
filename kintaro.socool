@@ -50,7 +50,7 @@ bd = {
 groove = {
   Seq [
     bd | Seq [
-      &[Fm 0, Fm 1/2, Fm 1, Fm 2, Fm 7/16] @ [1, 1, 3, 2, 4, 3, 0, 3, 2, 1]
+      &[Fm 0, Fm 1/2, Fm 1, Fm 2, Fm 7/16] @ [1, 1, 3 | #high, 2, 4, 3 | #high, 0, 3 | #high, 2, 1]
     ]
     | Repeat 2
     | Seq [Fm 1, Fm 7/8],

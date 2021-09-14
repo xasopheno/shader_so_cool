@@ -130,7 +130,7 @@ impl ToInstance for Op4D {
             ) - displacement,
             rotation,
             life: 2.0,
-            size: 5.0 * self.z as f32,
+            size: 5.0 * f32::max(self.z as f32, 0.2) * f32::max(self.l as f32, 1.0),
             length: self.l as f32,
             names: self.names.to_owned(),
         }
