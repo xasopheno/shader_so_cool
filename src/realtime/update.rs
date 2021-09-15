@@ -5,7 +5,7 @@ use crate::{
 };
 
 impl RealTimeState {
-    pub fn update(&mut self, time: ClockResult, renderpass: &mut RenderPassInput) {
+    pub fn _update(&mut self, time: ClockResult, renderpass: &mut RenderPassInput) {
         update(
             time,
             renderpass,

@@ -1,8 +1,6 @@
 use bytemuck;
 use wgpu::util::DeviceExt;
 
-use crate::camera::Camera;
-
 #[repr(C)]
 #[derive(Debug, Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct Uniforms {

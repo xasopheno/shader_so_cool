@@ -17,7 +17,7 @@ use crate::{
     vertex::{create_index_buffer, create_vertex_buffer},
 };
 use futures::executor::block_on;
-use winit::{event::Event, event_loop::EventLoop, window::Window};
+use winit::window::Window;
 
 use self::setup::Gui;
 

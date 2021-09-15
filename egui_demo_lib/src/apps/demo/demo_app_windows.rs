@@ -1,5 +1,5 @@
 use super::Demo;
-use egui::{CtxRef, ScrollArea, Ui};
+use egui::{CtxRef, Ui};
 use std::collections::BTreeSet;
 
 // ----------------------------------------------------------------------------
@@ -31,15 +31,6 @@ impl Demos {
         );
 
         Self { demos, open }
-    }
-
-    pub fn checkboxes(&mut self, ui: &mut Ui) {
-        let Self { demos, open } = self;
-        for demo in demos {
-            let mut is_open = open.contains(demo.name());
-            ui.checkbox(&mut is_open, demo.name());
-            set_open(open, demo.name(), is_open);
-        }
     }
 
     pub fn windows(&mut self, ctx: &CtxRef) {
@@ -81,15 +72,6 @@ impl Tests {
         Self { demos, open }
     }
 
-    pub fn checkboxes(&mut self, ui: &mut Ui) {
-        let Self { demos, open } = self;
-        for demo in demos {
-            let mut is_open = open.contains(demo.name());
-            ui.checkbox(&mut is_open, demo.name());
-            set_open(open, demo.name(), is_open);
-        }
-    }
-
     pub fn windows(&mut self, ctx: &CtxRef) {
         let Self { demos, open } = self;
         for demo in demos {
@@ -127,49 +109,7 @@ impl DemoWindows {
     /// Show the app ui (menu bar and windows).
     /// `sidebar_ui` can be used to optionally show some things in the sidebar
     pub fn ui(&mut self, ctx: &CtxRef) {
-        let Self { demos, tests } = self;
-
-        egui::SidePanel::right("egui_demo_panel")
-            .min_width(150.0)
-            .default_width(190.0)
-            .show(ctx, |ui| {
-                egui::trace!(ui);
-                ui.vertical_centered(|ui| {
-                    ui.heading("✒ egui demos");
-                });
-
-                ui.separator();
-
-                ScrollArea::from_max_height(400.0).show(ui, |ui| {
-                    use egui::special_emojis::{GITHUB, OS_APPLE, OS_LINUX, OS_WINDOWS};
-
-                    ui.vertical_centered(|ui| {
-                        ui.label("egui is an immediate mode GUI library written in Rust.");
-
-                        ui.label(format!(
-                            "egui runs on the web, or natively on {}{}{}",
-                            OS_APPLE, OS_LINUX, OS_WINDOWS,
-                        ));
-
-                        ui.hyperlink_to(
-                            format!("{} egui home page", GITHUB),
-                            "https://github.com/emilk/egui",
-                        );
-                    });
-
-                    ui.separator();
-                    demos.checkboxes(ui);
-                    ui.separator();
-                    tests.checkboxes(ui);
-                    ui.separator();
-
-                    ui.vertical_centered(|ui| {
-                        if ui.button("Organize windows").clicked() {
-                            ui.ctx().memory().reset_areas();
-                        }
-                    });
-                });
-            });
+        let Self { demos: _, tests: _ } = self;
 
         egui::TopBottomPanel::top("menu_bar").show(ctx, |ui| {
             show_menu_bar(ui);
