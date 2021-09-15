@@ -1,36 +1,12 @@
 #[derive(Debug, PartialEq)]
-#[cfg_attr(feature = "persistence", derive(serde::Deserialize, serde::Serialize))]
-enum Enum {
-    First,
-    Second,
-    Third,
-}
-
 /// Shows off one example of each major type of widget.
-#[cfg_attr(feature = "persistence", derive(serde::Deserialize, serde::Serialize))]
 pub struct WidgetGallery {
-    enabled: bool,
-    visible: bool,
     boolean: bool,
-    radio: Enum,
-    scalar: f32,
-    string: String,
-    color: egui::Color32,
-    animate_progress_bar: bool,
 }
 
 impl Default for WidgetGallery {
     fn default() -> Self {
-        Self {
-            enabled: true,
-            visible: true,
-            boolean: false,
-            radio: Enum::First,
-            scalar: 42.0,
-            string: Default::default(),
-            color: egui::Color32::LIGHT_BLUE.linear_multiply(0.5),
-            animate_progress_bar: false,
-        }
+        Self { boolean: false }
     }
 }
 
@@ -54,9 +30,6 @@ impl super::Demo for WidgetGallery {
 impl super::View for WidgetGallery {
     fn ui(&mut self, ui: &mut egui::Ui) {
         ui.scope(|ui| {
-            ui.set_visible(self.visible);
-            ui.set_enabled(self.enabled);
-
             egui::Grid::new("my_grid")
                 .num_columns(2)
                 .spacing([40.0, 4.0])
@@ -67,53 +40,21 @@ impl super::View for WidgetGallery {
         });
 
         ui.separator();
-
-        ui.horizontal(|ui| {
-            ui.checkbox(&mut self.visible, "Visible")
-                .on_hover_text("Uncheck to hide all the widgets.");
-            if self.visible {
-                ui.checkbox(&mut self.enabled, "Interactive")
-                    .on_hover_text("Uncheck to inspect how the widgets look when disabled.");
-            }
-        });
-
-        ui.separator();
     }
 }
 
 impl WidgetGallery {
     fn gallery_grid_contents(&mut self, ui: &mut egui::Ui) {
-        let Self {
-            enabled: _,
-            visible: _,
-            boolean,
-            radio,
-            ..
-        } = self;
+        let Self { boolean, .. } = self;
 
-        ui.add(doc_link_label("Label", "label,heading"));
-        ui.label("");
-        ui.end_row();
-
-        ui.add(doc_link_label("Button", "button"));
-        if ui.button("Click me!").clicked() {
+        ui.add(doc_link_label("Camera", "button"));
+        if ui.button("Camera1").clicked() {
             *boolean = !*boolean;
         }
-        ui.end_row();
-
-        ui.add(doc_link_label("Checkbox", "checkbox"));
-        ui.checkbox(boolean, "Checkbox");
-        ui.end_row();
-
-        ui.add(doc_link_label("RadioButton", "radio"));
-        ui.horizontal(|ui| {
-            ui.radio_value(radio, Enum::First, "First");
-            ui.radio_value(radio, Enum::Second, "Second");
-            ui.radio_value(radio, Enum::Third, "Third");
-        });
-        ui.end_row();
-
-        ui.add(doc_link_label("Separator", "separator"));
+        // ui.add(doc_link_label("CameraButton2", "button"));
+        if ui.button("Camera2").clicked() {
+            *boolean = !*boolean;
+        }
         ui.end_row();
     }
 }
