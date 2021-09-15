@@ -20,9 +20,9 @@ pub fn make_color_attachments(
             resolve_target: None,
             ops: wgpu::Operations {
                 load: wgpu::LoadOp::Clear(wgpu::Color {
-                    r: 0.0,
+                    r: 0.01,
                     g: 0.0,
-                    b: 0.02,
+                    b: 0.008,
                     a: 1.0,
                 }),
                 store: true,
