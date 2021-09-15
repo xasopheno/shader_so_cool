@@ -111,9 +111,9 @@ impl DemoWindows {
     pub fn ui(&mut self, ctx: &CtxRef) {
         let Self { demos: _, tests: _ } = self;
 
-        egui::TopBottomPanel::top("menu_bar").show(ctx, |ui| {
-            show_menu_bar(ui);
-        });
+        // egui::TopBottomPanel::top("menu_bar").show(ctx, |ui| {
+        // show_menu_bar(ui);
+        // });
 
         {
             let mut fill = ctx.style().visuals.extreme_bg_color;
@@ -132,10 +132,10 @@ impl DemoWindows {
 
     /// Show the open windows.
     fn windows(&mut self, ctx: &CtxRef) {
-        let Self { demos, tests } = self;
+        let Self { demos, tests: _ } = self;
 
         demos.windows(ctx);
-        tests.windows(ctx);
+        // tests.windows(ctx);
     }
 }
 

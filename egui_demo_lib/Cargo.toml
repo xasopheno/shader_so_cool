@@ -50,7 +50,3 @@ syntax_highlighting = ["syntect"]
 extra_debug_asserts = ["egui/extra_debug_asserts"]
 # Always enable additional checks.
 extra_asserts = ["egui/extra_asserts"]
-
-[[bench]]
-name = "benchmark"
-harness = false
