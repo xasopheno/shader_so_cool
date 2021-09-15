@@ -122,14 +122,7 @@ impl RealTimeState {
         // Record all render passes.
         self.gui
             .renderpass
-            .execute(
-                &mut encoder,
-                &view,
-                &paint_jobs,
-                &screen_descriptor,
-                None,
-                // Some(wgpu::Color::TRANSPARENT),
-            )
+            .execute(&mut encoder, &view, &paint_jobs, &screen_descriptor, None)
             .unwrap();
 
         // // Submit the commands.

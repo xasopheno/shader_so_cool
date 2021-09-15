@@ -15,22 +15,9 @@ struct Demos {
 
 impl Default for Demos {
     fn default() -> Self {
-        Self::from_demos(vec![
-            Box::new(super::code_editor::CodeEditor::default()),
-            Box::new(super::dancing_strings::DancingStrings::default()),
-            Box::new(super::drag_and_drop::DragAndDropDemo::default()),
-            Box::new(super::font_book::FontBook::default()),
-            Box::new(super::MiscDemoWindow::default()),
-            Box::new(super::multi_touch::MultiTouch::default()),
-            Box::new(super::painting::Painting::default()),
-            Box::new(super::plot_demo::PlotDemo::default()),
-            Box::new(super::scrolling::Scrolling::default()),
-            Box::new(super::sliders::Sliders::default()),
-            Box::new(super::widget_gallery::WidgetGallery::default()),
-            Box::new(super::window_options::WindowOptions::default()),
-            Box::new(super::tests::WindowResizeTest::default()),
-            Box::new(super::window_with_panels::WindowWithPanels::default()),
-        ])
+        Self::from_demos(vec![Box::new(
+            super::widget_gallery::WidgetGallery::default(),
+        )])
     }
 }
 
@@ -78,14 +65,7 @@ struct Tests {
 
 impl Default for Tests {
     fn default() -> Self {
-        Self::from_demos(vec![
-            Box::new(super::tests::CursorTest::default()),
-            Box::new(super::tests::IdTest::default()),
-            Box::new(super::tests::InputTest::default()),
-            Box::new(super::layout_test::LayoutTest::default()),
-            Box::new(super::tests::ManualLayoutTest::default()),
-            Box::new(super::tests::TableTest::default()),
-        ])
+        Self::from_demos(vec![])
     }
 }
 
@@ -160,7 +140,7 @@ impl DemoWindows {
 
                 ui.separator();
 
-                ScrollArea::vertical().show(ui, |ui| {
+                ScrollArea::from_max_height(400.0).show(ui, |ui| {
                     use egui::special_emojis::{GITHUB, OS_APPLE, OS_LINUX, OS_WINDOWS};
 
                     ui.vertical_centered(|ui| {
@@ -201,7 +181,7 @@ impl DemoWindows {
                 // Native: WrapApp uses a transparent window, so let's show that off:
                 // NOTE: the OS compositor assumes "normal" blending, so we need to hack it:
                 let [r, g, b, _] = fill.to_array();
-                fill = egui::Color32::from_rgba_premultiplied(r, g, b, 180);
+                fill = egui::Color32::from_rgba_premultiplied(r, g, b, 0);
             }
             let frame = egui::Frame::none().fill(fill);
             egui::CentralPanel::default().frame(frame).show(ctx, |_| {});
