@@ -4,24 +4,13 @@
 #[cfg_attr(feature = "persistence", serde(default))]
 pub struct Apps {
     demo: crate::apps::DemoApp,
-    easy_mark_editor: crate::easy_mark::EasyMarkEditor,
     #[cfg(feature = "http")]
     http: crate::apps::HttpApp,
-    clock: crate::apps::FractalClock,
-    color_test: crate::apps::ColorTest,
 }
 
 impl Apps {
     fn iter_mut(&mut self) -> impl Iterator<Item = (&str, &mut dyn epi::App)> {
-        vec![
-            ("demo", &mut self.demo as &mut dyn epi::App),
-            ("easymark", &mut self.easy_mark_editor as &mut dyn epi::App),
-            #[cfg(feature = "http")]
-            ("http", &mut self.http as &mut dyn epi::App),
-            ("clock", &mut self.clock as &mut dyn epi::App),
-            ("colors", &mut self.color_test as &mut dyn epi::App),
-        ]
-        .into_iter()
+        vec![("demo", &mut self.demo as &mut dyn epi::App)].into_iter()
     }
 }
 

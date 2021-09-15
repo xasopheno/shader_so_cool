@@ -215,14 +215,14 @@ impl WidgetGallery {
         ui.add(example_plot());
         ui.end_row();
 
-        ui.hyperlink_to(
-            "Custom widget:",
-            super::toggle_switch::url_to_file_source_code(),
-        );
-        ui.add(super::toggle_switch::toggle(boolean)).on_hover_text(
-            "It's easy to create your own widgets!\n\
-            This toggle switch is just 15 lines of code.",
-        );
+        // ui.hyperlink_to(
+        // "Custom widget:",
+        // super::toggle_switch::url_to_file_source_code(),
+        // );
+        // ui.add(super::toggle_switch::toggle(boolean)).on_hover_text(
+        // "It's easy to create your own widgets!\n\
+        // This toggle switch is just 15 lines of code.",
+        // );
         ui.end_row();
     }
 }
