@@ -891,15 +891,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "egui_demo_lib"
-version = "0.14.0"
-dependencies = [
- "egui",
- "epi",
- "unicode_names2",
-]
-
-[[package]]
 name = "egui_wgpu_backend"
 version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1431,6 +1422,15 @@ checksum = "8c2352bd1d0bceb871cb9d40f24360c8133c11d7486b68b5381c1dd1a32015e3"
 dependencies = [
  "libc",
  "libloading 0.7.0",
+]
+
+[[package]]
+name = "kintaro_egui_lib"
+version = "0.14.0"
+dependencies = [
+ "egui",
+ "epi",
+ "unicode_names2",
 ]
 
 [[package]]
@@ -2574,7 +2574,6 @@ dependencies = [
  "chrono",
  "crossbeam-channel",
  "egui",
- "egui_demo_lib",
  "egui_wgpu_backend",
  "egui_winit_platform",
  "env_logger",
@@ -2583,6 +2582,7 @@ dependencies = [
  "futures",
  "glob",
  "image",
+ "kintaro_egui_lib",
  "log",
  "rand 0.8.4",
  "rayon",

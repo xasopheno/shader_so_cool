@@ -8,7 +8,7 @@ use winit::window::Window;
 pub struct Gui {
     pub platform: Platform,
     pub renderpass: RenderPass,
-    pub app: egui_demo_lib::WrapApp,
+    pub app: kintaro_egui_lib::WrapApp,
 }
 
 pub struct Setup {
@@ -53,7 +53,6 @@ impl Setup {
         };
         surface.configure(&device, &config);
 
-        // We use the egui_winit_platform crate as the platform.
         let platform = Platform::new(PlatformDescriptor {
             physical_width: size.width,
             physical_height: size.height,
@@ -61,12 +60,8 @@ impl Setup {
             font_definitions: FontDefinitions::default(),
             style: Default::default(),
         });
-
-        // We use the egui_wgpu_backend crate as the render backend.
         let renderpass = RenderPass::new(&device, surface_format, 1);
-
-        // Display the demo application that ships with egui.
-        let app = egui_demo_lib::WrapApp::default();
+        let app = kintaro_egui_lib::WrapApp::default();
 
         Self {
             surface,

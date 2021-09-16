@@ -117,9 +117,11 @@ impl ToInstance for Op4D {
         );
         let x = self.x as f32;
         let y = self.y as f32;
+        let z = self.z as f32;
+        let l = self.l as f32;
         Instance {
             position: Vector3::new(
-                n_row as f32 * x * 4.0,
+                n_row as f32 * x * 3.0,
                 n_column as f32 * y * 8.0,
                 // n_row as f32 * (self.x * self.x) as f32 * 2.0 / self.y as f32,
                 // n_column as f32 * (self.y * self.y) as f32 / 2.0 * 10.0,
@@ -130,8 +132,8 @@ impl ToInstance for Op4D {
             ) - displacement,
             rotation,
             life: 2.0,
-            size: 5.0 * f32::max(self.z as f32, 0.2) * f32::max(self.l as f32, 1.0),
-            length: self.l as f32,
+            size: 5.0 * f32::max(z, 0.2) * f32::max(l, 1.0),
+            length: l,
             names: self.names.to_owned(),
         }
     }
