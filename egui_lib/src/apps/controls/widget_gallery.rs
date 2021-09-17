@@ -1,13 +1,21 @@
+use std::sync::{Arc, Mutex};
+
 use egui::Color32;
 
-#[derive(Debug, PartialEq)]
+use crate::UiState;
+
+#[derive(Debug)]
 pub struct ControlsInner {
     boolean: bool,
+    state: Arc<Mutex<UiState>>,
 }
 
-impl Default for ControlsInner {
-    fn default() -> Self {
-        Self { boolean: false }
+impl ControlsInner {
+    pub fn init(state: Arc<Mutex<UiState>>) -> Self {
+        Self {
+            boolean: false,
+            state: state.clone(),
+        }
     }
 }
 

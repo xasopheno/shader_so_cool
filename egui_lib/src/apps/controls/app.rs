@@ -1,6 +1,17 @@
-#[derive(Default)]
+use std::sync::{Arc, Mutex};
+
+use crate::UiState;
+
 pub struct Controls {
     windows: super::Windows,
+}
+
+impl Controls {
+    pub fn init(state: Arc<Mutex<UiState>>) -> Self {
+        Self {
+            windows: super::Windows::init(state),
+        }
+    }
 }
 
 impl epi::App for Controls {

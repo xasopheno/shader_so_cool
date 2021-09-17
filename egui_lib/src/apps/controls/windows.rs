@@ -1,6 +1,11 @@
+use crate::UiState;
+
 use super::Module;
 use egui::CtxRef;
-use std::collections::BTreeSet;
+use std::{
+    collections::BTreeSet,
+    sync::{Arc, Mutex},
+};
 
 struct Kintaro {
     #[cfg_attr(feature = "persistence", serde(skip))]
@@ -8,19 +13,20 @@ struct Kintaro {
     open: BTreeSet<String>,
 }
 
-impl Default for Kintaro {
-    fn default() -> Self {
-        Self::from_modules(vec![Box::new(
-            super::widget_gallery::ControlsInner::default(),
-        )])
+impl Kintaro {
+    pub fn init(state: Arc<Mutex<UiState>>) -> Self {
+        Self::from_modules(
+            state.clone(),
+            vec![Box::new(super::widget_gallery::ControlsInner::init(state))],
+        )
     }
 }
 
 impl Kintaro {
-    pub fn from_modules(modules: Vec<Box<dyn Module>>) -> Self {
+    pub fn from_modules(state: Arc<Mutex<UiState>>, modules: Vec<Box<dyn Module>>) -> Self {
         let mut open = BTreeSet::new();
         open.insert(
-            super::widget_gallery::ControlsInner::default()
+            super::widget_gallery::ControlsInner::init(state.clone())
                 .name()
                 .to_owned(),
         );
@@ -48,12 +54,17 @@ fn set_open(open: &mut BTreeSet<String>, key: &'static str, is_open: bool) {
     }
 }
 
-#[derive(Default)]
 pub struct Windows {
     kintaro: Kintaro,
 }
 
 impl Windows {
+    pub fn init(state: Arc<Mutex<UiState>>) -> Self {
+        Self {
+            kintaro: Kintaro::init(state),
+        }
+    }
+
     /// Show the app ui (menu bar and windows).
     /// `sidebar_ui` can be used to optionally show some things in the sidebar
     pub fn ui(&mut self, ctx: &CtxRef) {

@@ -6,7 +6,7 @@ mod apps;
 mod wrap_app;
 
 pub use apps::Windows; // used for tests
-pub use wrap_app::WrapApp;
+pub use wrap_app::{UiState, WrapApp};
 
 #[test]
 fn test_egui_e2e() {

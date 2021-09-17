@@ -1,20 +1,40 @@
+use std::sync::{Arc, Mutex};
+
 /// All the different demo apps.
-#[derive(Default)]
 pub struct Apps {
-    demo: crate::apps::Controls,
+    controls: crate::apps::Controls,
 }
 
 impl Apps {
+    fn init(state: Arc<Mutex<UiState>>) -> Self {
+        Apps {
+            controls: crate::apps::Controls::init(state.clone()),
+        }
+    }
+
     fn iter_mut(&mut self) -> impl Iterator<Item = (&str, &mut dyn epi::App)> {
-        vec![("demo", &mut self.demo as &mut dyn epi::App)].into_iter()
+        vec![("demo", &mut self.controls as &mut dyn epi::App)].into_iter()
     }
 }
 
+#[derive(Debug, PartialEq)]
+pub struct UiState {
+    pub play: bool,
+}
+
 /// Wraps many demo/test apps into one.
-#[derive(Default)]
 pub struct WrapApp {
     selected_anchor: String,
     apps: Apps,
+}
+
+impl WrapApp {
+    pub fn init(state: Arc<Mutex<UiState>>) -> Self {
+        WrapApp {
+            selected_anchor: "".to_string(),
+            apps: Apps::init(state),
+        }
+    }
 }
 
 impl epi::App for WrapApp {

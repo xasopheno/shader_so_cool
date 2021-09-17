@@ -1,3 +1,5 @@
+use std::sync::{Arc, Mutex};
+
 use crate::config::Config;
 use egui::FontDefinitions;
 use egui_wgpu_backend::RenderPass;
@@ -61,7 +63,8 @@ impl Setup {
             style: Default::default(),
         });
         let renderpass = RenderPass::new(&device, surface_format, 1);
-        let app = kintaro_egui_lib::WrapApp::default();
+        let state = Arc::new(Mutex::new(kintaro_egui_lib::UiState { play: true }));
+        let app = kintaro_egui_lib::WrapApp::init(state.clone());
 
         Self {
             surface,
