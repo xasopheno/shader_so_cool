@@ -58,7 +58,7 @@ fn realtime() {
         })
         .with_transparent(true)
         .with_title(title)
-        .with_fullscreen(Some(Fullscreen::Borderless(None)))
+        // .with_fullscreen(Some(Fullscreen::Borderless(None)))
         .with_decorations(true)
         .build(&event_loop)
         .expect("Unable to create window");

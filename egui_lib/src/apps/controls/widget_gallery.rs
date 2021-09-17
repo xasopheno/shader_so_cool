@@ -52,11 +52,12 @@ impl super::View for ControlsInner {
 
 impl ControlsInner {
     fn gallery_grid_contents(&mut self, ui: &mut egui::Ui) {
-        let Self { boolean, .. } = self;
+        let Self { boolean, state } = self;
 
         ui.colored_label(Color32::GOLD, "Camera");
         if ui.button("A").clicked() {
-            *boolean = !*boolean;
+            let mut s = state.lock().unwrap();
+            s.play = !s.play
         }
         if ui.button("B").clicked() {
             *boolean = !*boolean;

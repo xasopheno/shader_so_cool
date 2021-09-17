@@ -66,6 +66,7 @@ impl RealTimeState {
 
             self.queue.submit(std::iter::once(encoder.finish()));
         }
+        dbg!(self.gui.state.lock().unwrap().play);
 
         self.gui.platform.begin_frame();
         let previous_frame_time = time.last_period;

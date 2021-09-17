@@ -5,12 +5,14 @@ use egui::FontDefinitions;
 use egui_wgpu_backend::RenderPass;
 use egui_winit_platform::{Platform, PlatformDescriptor};
 use epi::*;
+use kintaro_egui_lib::UiState;
 use winit::window::Window;
 
 pub struct Gui {
     pub platform: Platform,
     pub renderpass: RenderPass,
     pub app: kintaro_egui_lib::WrapApp,
+    pub state: Arc<Mutex<UiState>>,
 }
 
 pub struct Setup {
@@ -74,6 +76,7 @@ impl Setup {
                 platform,
                 renderpass,
                 app,
+                state,
             },
         }
     }
