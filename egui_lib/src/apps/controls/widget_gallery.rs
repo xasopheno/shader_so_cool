@@ -26,7 +26,7 @@ impl super::Module for ControlsInner {
 
     fn show(&mut self, ctx: &egui::CtxRef, open: &mut bool) {
         egui::Window::new(self.name())
-            .open(open)
+            // .open(open)
             .resizable(false)
             .default_width(200.0)
             .show(ctx, |ui| {
