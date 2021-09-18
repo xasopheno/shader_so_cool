@@ -23,7 +23,7 @@ pub struct Setup {
 }
 
 impl Setup {
-    pub async fn init(window: &Window, _config: &Config) -> Self {
+    pub async fn init(window: &Window, config: &Config) -> Self {
         let size = window.inner_size();
         let instance = wgpu::Instance::new(wgpu::Backends::all());
         let surface = unsafe { instance.create_surface(window) };
@@ -48,14 +48,14 @@ impl Setup {
             .unwrap();
         let surface_format = surface.get_preferred_format(&adapter).unwrap();
 
-        let config = wgpu::SurfaceConfiguration {
+        let surface_config = wgpu::SurfaceConfiguration {
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
             format: surface_format,
             width: size.width,
             height: size.height,
             present_mode: wgpu::PresentMode::Fifo,
         };
-        surface.configure(&device, &config);
+        surface.configure(&device, &surface_config);
 
         let platform = Platform::new(PlatformDescriptor {
             physical_width: size.width,
@@ -65,7 +65,10 @@ impl Setup {
             style: Default::default(),
         });
         let renderpass = RenderPass::new(&device, surface_format, 1);
-        let state = Arc::new(Mutex::new(kintaro_egui_lib::UiState { play: true }));
+        let state = Arc::new(Mutex::new(kintaro_egui_lib::UiState {
+            play: true,
+            volume: config.volume,
+        }));
         let app = kintaro_egui_lib::WrapApp::init(state.clone());
 
         Self {

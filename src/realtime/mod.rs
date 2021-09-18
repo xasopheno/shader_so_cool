@@ -38,6 +38,7 @@ pub struct RealTimeState {
     pub mouse_pressed: bool,
     pub gui: Gui,
     pub repaint_signal: std::sync::Arc<ExampleRepaintSignal>,
+    pub audio_stream_handle: rodio::Sink,
 }
 
 impl RealTimeState {
@@ -45,6 +46,7 @@ impl RealTimeState {
         window: &Window,
         config: &Config,
         repaint_signal: std::sync::Arc<ExampleRepaintSignal>,
+        audio_stream_handle: rodio::Sink,
     ) -> RealTimeState {
         let Setup {
             device,
@@ -115,6 +117,7 @@ impl RealTimeState {
             canvas: Canvas::init((window.inner_size().height, window.inner_size().height)),
             gui,
             repaint_signal: repaint_signal.clone(),
+            audio_stream_handle,
         }
     }
 }

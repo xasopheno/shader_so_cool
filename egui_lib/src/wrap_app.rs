@@ -20,6 +20,7 @@ impl Apps {
 #[derive(Debug, PartialEq)]
 pub struct UiState {
     pub play: bool,
+    pub volume: f32,
 }
 
 /// Wraps many demo/test apps into one.

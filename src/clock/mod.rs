@@ -20,7 +20,7 @@ pub struct PrintClock {
 }
 
 pub struct RenderClock {
-    start: std::time::Instant,
+    pub total_elapsed: std::time::Duration,
     last_render_time: std::time::Instant,
     last_period: std::time::Duration,
     pub frame_count: u32,
@@ -29,7 +29,7 @@ pub struct RenderClock {
 impl Clock for RenderClock {
     fn init(_config: &Config) -> Self {
         Self {
-            start: std::time::Instant::now(),
+            total_elapsed: std::time::Duration::ZERO,
             last_render_time: std::time::Instant::now(),
             last_period: std::time::Duration::ZERO,
             frame_count: 0,
@@ -38,6 +38,7 @@ impl Clock for RenderClock {
     fn update(&mut self) {
         let now = std::time::Instant::now();
         let dt = now - self.last_render_time;
+        self.total_elapsed += dt;
         self.last_period = dt;
         self.last_render_time = now;
         self.frame_count += 1;
@@ -46,7 +47,7 @@ impl Clock for RenderClock {
     fn current(&self) -> ClockResult {
         ClockResult {
             last_period: self.last_period.as_secs_f32(),
-            total_elapsed: (self.last_render_time - self.start).as_secs_f32(),
+            total_elapsed: self.total_elapsed.as_secs_f32(),
             frame_count: self.frame_count,
         }
     }

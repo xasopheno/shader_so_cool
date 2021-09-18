@@ -66,7 +66,9 @@ impl RealTimeState {
 
             self.queue.submit(std::iter::once(encoder.finish()));
         }
-        dbg!(self.gui.state.lock().unwrap().play);
+        // dbg!(self.gui.state.lock().unwrap().volume);
+        self.audio_stream_handle
+            .set_volume(self.gui.state.lock().unwrap().volume);
 
         self.gui.platform.begin_frame();
         let previous_frame_time = time.last_period;

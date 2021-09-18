@@ -69,8 +69,8 @@ fn realtime() {
 
     // dbg!(window.scale_factor());
 
-    let mut state = RealTimeState::init(&window, &config, repaint_signal.clone());
-    let (_stream, _stream_handle) = crate::audio::play_audio(&config);
+    let (_stream, stream_handle) = crate::audio::play_audio(&config);
+    let mut state = RealTimeState::init(&window, &config, repaint_signal.clone(), stream_handle);
 
     event_loop.run(move |event, _, control_flow| {
         state.gui.platform.handle_event(&event);

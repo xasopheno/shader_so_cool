@@ -28,7 +28,7 @@ impl super::Module for ControlsInner {
         egui::Window::new(self.name())
             // .open(open)
             .resizable(false)
-            .default_width(200.0)
+            .default_width(300.0)
             .show(ctx, |ui| {
                 use super::View;
                 self.ui(ui);
@@ -40,8 +40,8 @@ impl super::View for ControlsInner {
     fn ui(&mut self, ui: &mut egui::Ui) {
         ui.scope(|ui| {
             egui::Grid::new("Kintaro")
-                .num_columns(2)
-                .spacing([20.0, 1.0])
+                .num_columns(1)
+                // .spacing([10.0, 10.0])
                 .striped(true)
                 .show(ui, |ui| {
                     self.gallery_grid_contents(ui);
@@ -52,19 +52,33 @@ impl super::View for ControlsInner {
 
 impl ControlsInner {
     fn gallery_grid_contents(&mut self, ui: &mut egui::Ui) {
+        ui.visuals_mut().override_text_color = Some(egui::Color32::GOLD);
         let Self { boolean, state } = self;
+        let mut s = state.lock().unwrap();
+        let mut volume = s.volume;
 
-        ui.colored_label(Color32::GOLD, "Camera");
-        if ui.button("A").clicked() {
-            let mut s = state.lock().unwrap();
-            s.play = !s.play
-        }
-        if ui.button("B").clicked() {
-            *boolean = !*boolean;
-        }
-        if ui.button("C").clicked() {
-            *boolean = !*boolean;
-        }
-        ui.end_row();
+        ui.horizontal_wrapped(|ui| {
+            ui.spacing_mut().item_spacing.y = 10.0;
+            // ui.colored_label(Color32::GOLD, "Volume");
+            if ui.add(egui::Slider::new(&mut volume, 0.0..=1.0)).changed() {
+                s.volume = volume
+            };
+            ui.end_row();
+
+            // ui.colored_label(Color32::GOLD, "Camera");
+            if ui.button("Camera A").clicked() {
+                s.play = !s.play
+            }
+            if ui.button("Camera B").clicked() {
+                *boolean = !*boolean;
+            }
+            if ui.button("Camera C").clicked() {
+                *boolean = !*boolean;
+            }
+            if ui.button("Camera D").clicked() {
+                *boolean = !*boolean;
+            }
+            ui.end_row();
+        });
     }
 }
