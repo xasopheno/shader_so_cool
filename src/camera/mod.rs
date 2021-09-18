@@ -3,7 +3,7 @@ use std::f32::consts::FRAC_PI_2;
 use winit::dpi::PhysicalPosition;
 use winit::event::*;
 
-use crate::config::Config;
+use crate::config::{CameraConfig, Config};
 
 #[rustfmt::skip]
 pub const OPENGL_TO_WGPU_MATRIX: cgmath::Matrix4<f32> = cgmath::Matrix4::new(
@@ -22,16 +22,18 @@ pub struct Camera {
     pitch: Rad<f32>,
     pub projection: Projection,
     pub controller: CameraController,
+    pub index: usize,
 }
 
 impl Camera {
-    pub fn new(size: (u32, u32), config: &Config) -> Self {
+    pub fn new(camera_config: &CameraConfig, size: (u32, u32), _config: &Config) -> Self {
         Self {
-            position: config.camera.position.into(),
-            yaw: cgmath::Deg(config.camera.yaw).into(),
-            pitch: cgmath::Deg(config.camera.pitch).into(),
+            position: camera_config.position.into(),
+            yaw: cgmath::Deg(camera_config.yaw).into(),
+            pitch: cgmath::Deg(camera_config.pitch).into(),
             projection: Projection::new(size.0, size.1, cgmath::Deg(50.0), 0.1, 10_000.0),
             controller: CameraController::new(8.0, 0.7),
+            index: camera_config.index,
         }
     }
 
@@ -88,9 +90,9 @@ impl Camera {
 
     pub fn calc_matrix(&self) -> Matrix4<f32> {
         // TODO: print current camera
-        // let yaw: cgmath::Deg<f32> = self.yaw.into();
-        // let pitch: cgmath::Deg<f32> = self.pitch.into();
-        // dbg!(&self.position, yaw, pitch);
+        let yaw: cgmath::Deg<f32> = self.yaw.into();
+        let pitch: cgmath::Deg<f32> = self.pitch.into();
+        dbg!(&self.position, yaw, pitch);
         let (sin_pitch, cos_pitch) = self.pitch.0.sin_cos();
         let (sin_yaw, cos_yaw) = self.yaw.0.sin_cos();
 

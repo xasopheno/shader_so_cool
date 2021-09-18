@@ -67,16 +67,16 @@ impl ControlsInner {
 
             // ui.colored_label(Color32::GOLD, "Camera");
             if ui.button("Camera A").clicked() {
-                s.play = !s.play
+                s.camera_index = 0;
             }
             if ui.button("Camera B").clicked() {
-                *boolean = !*boolean;
+                s.camera_index = 1;
             }
             if ui.button("Camera C").clicked() {
-                *boolean = !*boolean;
+                s.camera_index = 2;
             }
             if ui.button("Camera D").clicked() {
-                *boolean = !*boolean;
+                s.camera_index = 3;
             }
             ui.end_row();
         });

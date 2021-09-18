@@ -102,7 +102,11 @@ impl RealTimeState {
 
         Self {
             clock: RenderClock::init(&config),
-            camera: crate::camera::Camera::new((size.width, size.height), &config),
+            camera: crate::camera::Camera::new(
+                &config.cameras[0],
+                (size.width, size.height),
+                &config,
+            ),
             renderpasses,
             count: 0,
             config: config.clone(),

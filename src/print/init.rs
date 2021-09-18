@@ -90,7 +90,11 @@ impl PrintState {
             clock: PrintClock::init(&config),
 
             canvas: Canvas::init((texture_width, texture_height)),
-            camera: crate::camera::Camera::new((texture_width, texture_height), &config),
+            camera: crate::camera::Camera::new(
+                &config.cameras[0],
+                (texture_width, texture_height),
+                &config,
+            ),
             config,
             size: (texture_width, texture_height),
             device,

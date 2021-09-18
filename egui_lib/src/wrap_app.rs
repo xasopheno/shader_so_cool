@@ -21,6 +21,7 @@ impl Apps {
 pub struct UiState {
     pub play: bool,
     pub volume: f32,
+    pub camera_index: usize,
 }
 
 /// Wraps many demo/test apps into one.

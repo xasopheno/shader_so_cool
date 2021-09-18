@@ -1,4 +1,5 @@
 use crate::{
+    camera::Camera,
     clock::Clock,
     realtime::RealTimeState,
     shared::{render_pass, update},
@@ -27,9 +28,24 @@ impl epi::RepaintSignal for ExampleRepaintSignal {
 
 impl RealTimeState {
     pub fn render(&mut self, window: &winit::window::Window) -> Result<(), wgpu::SurfaceError> {
+        {
+            let s = self.gui.state.lock().unwrap();
+            self.audio_stream_handle.set_volume(s.volume);
+            if s.camera_index != self.camera.index {
+                self.camera = Camera::new(
+                    &self.config.cameras[s.camera_index],
+                    self.config.window_size,
+                    &self.config,
+                )
+            }
+        }
+        self.audio_stream_handle
+            .set_volume(self.gui.state.lock().unwrap().volume);
         self.clock.update();
         let time = self.clock.current();
         self.camera.update(time.last_period);
+        self.audio_stream_handle
+            .set_volume(self.gui.state.lock().unwrap().volume);
 
         let view_position: [f32; 4] = self.camera.position.to_homogeneous().into();
         let view_proj: [[f32; 4]; 4] =
@@ -67,8 +83,6 @@ impl RealTimeState {
             self.queue.submit(std::iter::once(encoder.finish()));
         }
         // dbg!(self.gui.state.lock().unwrap().volume);
-        self.audio_stream_handle
-            .set_volume(self.gui.state.lock().unwrap().volume);
 
         self.gui.platform.begin_frame();
         let previous_frame_time = time.last_period;
