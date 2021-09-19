@@ -6,9 +6,9 @@ pub struct Apps {
 }
 
 impl Apps {
-    fn init(state: Arc<Mutex<UiState>>) -> Self {
+    fn init(state: Arc<Mutex<UiState>>, n_camera: usize) -> Self {
         Apps {
-            controls: crate::apps::Controls::init(state.clone()),
+            controls: crate::apps::Controls::init(state.clone(), n_camera),
         }
     }
 
@@ -31,10 +31,10 @@ pub struct WrapApp {
 }
 
 impl WrapApp {
-    pub fn init(state: Arc<Mutex<UiState>>) -> Self {
+    pub fn init(state: Arc<Mutex<UiState>>, n_camera: usize) -> Self {
         WrapApp {
             selected_anchor: "".to_string(),
-            apps: Apps::init(state),
+            apps: Apps::init(state, n_camera),
         }
     }
 }

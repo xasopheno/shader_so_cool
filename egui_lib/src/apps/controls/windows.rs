@@ -14,19 +14,26 @@ struct Kintaro {
 }
 
 impl Kintaro {
-    pub fn init(state: Arc<Mutex<UiState>>) -> Self {
+    pub fn init(state: Arc<Mutex<UiState>>, n_camera: usize) -> Self {
         Self::from_modules(
             state.clone(),
-            vec![Box::new(super::widget_gallery::ControlsInner::init(state))],
+            vec![Box::new(super::widget_gallery::ControlsInner::init(
+                state, n_camera,
+            ))],
+            n_camera,
         )
     }
 }
 
 impl Kintaro {
-    pub fn from_modules(state: Arc<Mutex<UiState>>, modules: Vec<Box<dyn Module>>) -> Self {
+    pub fn from_modules(
+        state: Arc<Mutex<UiState>>,
+        modules: Vec<Box<dyn Module>>,
+        n_camera: usize,
+    ) -> Self {
         let mut open = BTreeSet::new();
         open.insert(
-            super::widget_gallery::ControlsInner::init(state.clone())
+            super::widget_gallery::ControlsInner::init(state.clone(), n_camera)
                 .name()
                 .to_owned(),
         );
@@ -59,9 +66,9 @@ pub struct Windows {
 }
 
 impl Windows {
-    pub fn init(state: Arc<Mutex<UiState>>) -> Self {
+    pub fn init(state: Arc<Mutex<UiState>>, n_camera: usize) -> Self {
         Self {
-            kintaro: Kintaro::init(state),
+            kintaro: Kintaro::init(state, n_camera),
         }
     }
 

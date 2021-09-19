@@ -1,20 +1,18 @@
 use std::sync::{Arc, Mutex};
 
-use egui::Color32;
-
 use crate::UiState;
 
 #[derive(Debug)]
 pub struct ControlsInner {
-    boolean: bool,
     state: Arc<Mutex<UiState>>,
+    n_camera: usize,
 }
 
 impl ControlsInner {
-    pub fn init(state: Arc<Mutex<UiState>>) -> Self {
+    pub fn init(state: Arc<Mutex<UiState>>, n_camera: usize) -> Self {
         Self {
-            boolean: false,
             state: state.clone(),
+            n_camera,
         }
     }
 }
@@ -24,7 +22,7 @@ impl super::Module for ControlsInner {
         "Kintaro"
     }
 
-    fn show(&mut self, ctx: &egui::CtxRef, open: &mut bool) {
+    fn show(&mut self, ctx: &egui::CtxRef, _open: &mut bool) {
         egui::Window::new(self.name())
             // .open(open)
             .resizable(false)
@@ -41,7 +39,7 @@ impl super::View for ControlsInner {
         ui.scope(|ui| {
             egui::Grid::new("Kintaro")
                 .num_columns(1)
-                // .spacing([10.0, 10.0])
+                .spacing([10.0, 10.0])
                 .striped(true)
                 .show(ui, |ui| {
                     self.gallery_grid_contents(ui);
@@ -52,32 +50,28 @@ impl super::View for ControlsInner {
 
 impl ControlsInner {
     fn gallery_grid_contents(&mut self, ui: &mut egui::Ui) {
-        ui.visuals_mut().override_text_color = Some(egui::Color32::GOLD);
-        let Self { boolean, state } = self;
+        ui.visuals_mut().override_text_color = Some(egui::Color32::from_rgb(235, 72, 170));
+        ui.style_mut().body_text_style = egui::TextStyle::Heading;
+        let Self { state, n_camera } = self;
         let mut s = state.lock().unwrap();
         let mut volume = s.volume;
 
         ui.horizontal_wrapped(|ui| {
-            ui.spacing_mut().item_spacing.y = 10.0;
-            // ui.colored_label(Color32::GOLD, "Volume");
+            ui.label("Volume:");
             if ui.add(egui::Slider::new(&mut volume, 0.0..=1.0)).changed() {
                 s.volume = volume
             };
             ui.end_row();
 
-            // ui.colored_label(Color32::GOLD, "Camera");
-            if ui.button("Camera A").clicked() {
-                s.camera_index = 0;
-            }
-            if ui.button("Camera B").clicked() {
-                s.camera_index = 1;
-            }
-            if ui.button("Camera C").clicked() {
-                s.camera_index = 2;
-            }
-            if ui.button("Camera D").clicked() {
-                s.camera_index = 3;
-            }
+            ui.label("Camera:");
+            (0..*n_camera).into_iter().for_each(|idx| {
+                if ui
+                    .button(format!("  {}  ", (idx + 65) as u8 as char))
+                    .clicked()
+                {
+                    s.camera_index = idx as usize;
+                }
+            });
             ui.end_row();
         });
     }

@@ -22,6 +22,7 @@ pub struct Config {
 
 impl Config {
     pub fn new() -> Self {
+        let offset = (0.0, -20.0, 0.0);
         Config {
             accumulation: false,
             filename: "kintaro".into(),
@@ -32,46 +33,35 @@ impl Config {
             cameras: vec![
                 CameraConfig {
                     index: 0,
-                    position: (-27.0, -42.0, 152.0),
-                    yaw: -82.0,
-                    pitch: 25.0,
+                    position: (0.0 + offset.0, 90.0 + offset.1, 200.0 + offset.2),
+                    yaw: -90.0,
+                    pitch: 0.0,
                 },
                 CameraConfig {
                     index: 1,
-                    position: (310.0, 83.0, 77.0),
+                    position: (310.0 + offset.0, 83.0 + offset.1, 77.0 + offset.2),
                     yaw: -142.0,
                     pitch: 1.77,
                 },
                 CameraConfig {
                     index: 2,
-                    position: (0.0, 50.0, 200.0),
-                    yaw: -90.0,
-                    pitch: 0.0,
+                    position: (-218.0 + offset.0, -40.0 + offset.1, -89.0 + offset.2),
+                    yaw: -4.0,
+                    pitch: 31.8,
                 },
                 CameraConfig {
                     index: 3,
-                    position: (-1.0, 0.79, 435.0),
-                    yaw: -90.0,
-                    pitch: 22.0,
+                    position: (-116.2 + offset.0, 36.0 + offset.1, 106.0 + offset.2),
+                    yaw: -56.11,
+                    pitch: 5.917,
                 },
-                // CameraConfig {
-                    // index: 0,
-                    // position: (-22.83299, -5.1967072, -35.540905),
-                    // yaw: 16.77102,
-                    // pitch: 5.3154497,
-                // },
-            ]
-            //
-            // camera: CameraConfig {
-            // position: (-116.2, 36.0, 106.0),
-            // yaw: -56.11,
-            // pitch: 5.917,
-            // },
-            // camera: CameraConfig {
-            // position: (200.0, 39.0, -25.0),
-            // yaw: -155.11,
-            // pitch: -3.917,
-            // },
+                CameraConfig {
+                    index: 5,
+                    position: (0.0 + offset.0, 80.0 + offset.1, 400.0 + offset.2),
+                    yaw: -90.0,
+                    pitch: 11.0,
+                },
+            ],
         }
     }
 }

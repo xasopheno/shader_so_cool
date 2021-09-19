@@ -7,9 +7,9 @@ pub struct Controls {
 }
 
 impl Controls {
-    pub fn init(state: Arc<Mutex<UiState>>) -> Self {
+    pub fn init(state: Arc<Mutex<UiState>>, n_camera: usize) -> Self {
         Self {
-            windows: super::Windows::init(state),
+            windows: super::Windows::init(state, n_camera),
         }
     }
 }

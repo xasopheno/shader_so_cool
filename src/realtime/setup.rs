@@ -70,7 +70,7 @@ impl Setup {
             volume: config.volume,
             camera_index: 0,
         }));
-        let app = kintaro_egui_lib::WrapApp::init(state.clone());
+        let app = kintaro_egui_lib::WrapApp::init(state.clone(), config.cameras.len());
 
         Self {
             surface,
