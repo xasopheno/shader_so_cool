@@ -8,6 +8,7 @@ use crate::{
 };
 
 pub fn update(
+    is_playing: bool,
     time: ClockResult,
     renderpass: &mut RenderPassInput,
     device: &wgpu::Device,
@@ -20,17 +21,17 @@ pub fn update(
         // self.clear_color = crate::helpers::new_random_clear_color();
     }
     renderpass.vertex_buffer = make_vertex_buffer(device, renderpass.vertices.as_slice());
-
-    update_instances(
-        &time,
-        &mut renderpass.op_stream,
-        canvas,
-        device,
-        &mut renderpass.instances,
-        &mut renderpass.instance_buffer,
-        size,
-    );
-
+    if is_playing {
+        update_instances(
+            &time,
+            &mut renderpass.op_stream,
+            canvas,
+            device,
+            &mut renderpass.instances,
+            &mut renderpass.instance_buffer,
+            size,
+        );
+    }
     // renderpass.vertices.iter_mut().for_each(|v| v.update());
     queue.write_buffer(
         &renderpass.uniform_buffer,

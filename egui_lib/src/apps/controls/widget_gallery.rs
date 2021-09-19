@@ -50,29 +50,41 @@ impl super::View for ControlsInner {
 
 impl ControlsInner {
     fn gallery_grid_contents(&mut self, ui: &mut egui::Ui) {
-        ui.visuals_mut().override_text_color = Some(egui::Color32::from_rgb(235, 72, 170));
+        // ui.visuals_mut().override_text_color = Some(egui::Color32::from_rgb(235, 72, 170));
+        ui.visuals_mut().override_text_color = Some(egui::Color32::GOLD);
         ui.style_mut().body_text_style = egui::TextStyle::Heading;
         let Self { state, n_camera } = self;
         let mut s = state.lock().unwrap();
         let mut volume = s.volume;
 
-        ui.horizontal_wrapped(|ui| {
-            ui.label("Volume:");
-            if ui.add(egui::Slider::new(&mut volume, 0.0..=1.0)).changed() {
-                s.volume = volume
-            };
-            ui.end_row();
-
-            ui.label("Camera:");
-            (0..*n_camera).into_iter().for_each(|idx| {
-                if ui
-                    .button(format!("  {}  ", (idx + 65) as u8 as char))
-                    .clicked()
-                {
-                    s.camera_index = idx as usize;
+        ui.vertical(|ui| {
+            ui.horizontal(|ui| {
+                if ui.button("Play").clicked() {
+                    s.play = true
                 }
+                if ui.button("Pause").clicked() {
+                    s.play = false
+                }
+                ui.end_row();
             });
-            ui.end_row();
+            ui.horizontal_wrapped(|ui| {
+                ui.label("Volume:");
+                if ui.add(egui::Slider::new(&mut volume, 0.0..=1.0)).changed() {
+                    s.volume = volume
+                };
+                ui.end_row();
+
+                ui.label("Camera:");
+                (0..*n_camera).into_iter().for_each(|idx| {
+                    if ui
+                        .button(format!("  {}  ", (idx + 65) as u8 as char))
+                        .clicked()
+                    {
+                        s.camera_index = idx as usize;
+                    }
+                });
+                ui.end_row();
+            });
         });
     }
 }

@@ -38,12 +38,18 @@ impl RealTimeState {
                     &self.config,
                 )
             }
+            if !s.play && !self.audio_stream_handle.is_paused() {
+                self.audio_stream_handle.pause();
+            };
+            if s.play && self.audio_stream_handle.is_paused() {
+                self.audio_stream_handle.play();
+            };
+            self.clock.set_playing(s.play);
         }
         self.audio_stream_handle
             .set_volume(self.gui.state.lock().unwrap().volume);
-        if self.clock.is_playing() {
-            self.clock.update();
-        }
+
+        self.clock.update();
         let time = self.clock.current();
         self.camera.update(time.last_period);
         self.audio_stream_handle
@@ -55,6 +61,7 @@ impl RealTimeState {
 
         for renderpass in self.renderpasses.iter_mut() {
             update(
+                self.clock.is_playing(),
                 time,
                 renderpass,
                 &self.device,

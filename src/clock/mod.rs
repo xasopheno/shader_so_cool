@@ -12,8 +12,9 @@ pub trait Clock {
     fn update(&mut self);
     fn current(&self) -> ClockResult;
     fn play(&mut self);
-    fn is_playing(&self) -> bool;
     fn pause(&mut self);
+    fn set_playing(&mut self, play: bool);
+    fn is_playing(&self) -> bool;
 }
 
 pub struct PrintClock {
@@ -38,13 +39,15 @@ impl Clock for RenderClock {
             last_render_time: std::time::Instant::now(),
             last_period: std::time::Duration::ZERO,
             frame_count: 0,
-            playing: true,
+            playing: false,
         }
     }
     fn update(&mut self) {
         let now = std::time::Instant::now();
         let dt = now - self.last_render_time;
-        self.total_elapsed += dt;
+        if self.is_playing() {
+            self.total_elapsed += dt;
+        }
         self.last_period = dt;
         self.last_render_time = now;
         self.frame_count += 1;
@@ -69,6 +72,10 @@ impl Clock for RenderClock {
 
     fn is_playing(&self) -> bool {
         self.playing
+    }
+
+    fn set_playing(&mut self, play: bool) {
+        self.playing = play
     }
 }
 
@@ -107,5 +114,9 @@ impl Clock for PrintClock {
 
     fn is_playing(&self) -> bool {
         self.playing
+    }
+
+    fn set_playing(&mut self, play: bool) {
+        self.playing = play
     }
 }

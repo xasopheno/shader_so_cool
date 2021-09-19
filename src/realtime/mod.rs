@@ -124,4 +124,13 @@ impl RealTimeState {
             audio_stream_handle,
         }
     }
+
+    pub fn play(&mut self) {
+        self.audio_stream_handle.play();
+        self.clock.play();
+    }
+    pub fn pause(&mut self) {
+        self.audio_stream_handle.pause();
+        self.clock.pause();
+    }
 }

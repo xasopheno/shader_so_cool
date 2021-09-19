@@ -20,6 +20,7 @@ impl PrintState {
 
         for renderpass in self.renderpasses.iter_mut() {
             update(
+                true,
                 time,
                 renderpass,
                 &self.device,
