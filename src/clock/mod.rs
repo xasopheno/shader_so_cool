@@ -38,7 +38,7 @@ impl Clock for RenderClock {
             last_render_time: std::time::Instant::now(),
             last_period: std::time::Duration::ZERO,
             frame_count: 0,
-            playing: false,
+            playing: true,
         }
     }
     fn update(&mut self) {

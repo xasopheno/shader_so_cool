@@ -41,7 +41,9 @@ impl RealTimeState {
         }
         self.audio_stream_handle
             .set_volume(self.gui.state.lock().unwrap().volume);
-        self.clock.update();
+        if self.clock.is_playing() {
+            self.clock.update();
+        }
         let time = self.clock.current();
         self.camera.update(time.last_period);
         self.audio_stream_handle
