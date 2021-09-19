@@ -56,10 +56,16 @@ impl Config {
                     pitch: 5.917,
                 },
                 CameraConfig {
-                    index: 5,
+                    index: 4,
                     position: (0.0 + offset.0, 80.0 + offset.1, 400.0 + offset.2),
                     yaw: -90.0,
                     pitch: 11.0,
+                },
+                CameraConfig {
+                    index: 5,
+                    position: (0.0 + offset.0, 670.0 + offset.1, -226.0 + offset.2),
+                    yaw: 0.0,
+                    pitch: -90.0,
                 },
             ],
         }

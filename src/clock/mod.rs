@@ -11,12 +11,16 @@ pub trait Clock {
     fn init(config: &Config) -> Self;
     fn update(&mut self);
     fn current(&self) -> ClockResult;
+    fn play(&mut self);
+    fn is_playing(&self) -> bool;
+    fn pause(&mut self);
 }
 
 pub struct PrintClock {
     rate: std::time::Duration,
     time_elapsed: std::time::Duration,
     pub frame_count: u32,
+    pub playing: bool,
 }
 
 pub struct RenderClock {
@@ -24,6 +28,7 @@ pub struct RenderClock {
     last_render_time: std::time::Instant,
     last_period: std::time::Duration,
     pub frame_count: u32,
+    pub playing: bool,
 }
 
 impl Clock for RenderClock {
@@ -33,6 +38,7 @@ impl Clock for RenderClock {
             last_render_time: std::time::Instant::now(),
             last_period: std::time::Duration::ZERO,
             frame_count: 0,
+            playing: false,
         }
     }
     fn update(&mut self) {
@@ -51,6 +57,19 @@ impl Clock for RenderClock {
             frame_count: self.frame_count,
         }
     }
+
+    fn play(&mut self) {
+        self.last_render_time = std::time::Instant::now();
+        self.playing = true;
+    }
+
+    fn pause(&mut self) {
+        self.playing = false;
+    }
+
+    fn is_playing(&self) -> bool {
+        self.playing
+    }
 }
 
 impl Clock for PrintClock {
@@ -59,6 +78,7 @@ impl Clock for PrintClock {
             rate: std::time::Duration::from_millis(20),
             time_elapsed: std::time::Duration::ZERO,
             frame_count: 0,
+            playing: false,
         }
     }
     fn update(&mut self) {
@@ -75,5 +95,17 @@ impl Clock for PrintClock {
             total_elapsed: self.time_elapsed.as_secs_f32(),
             frame_count: self.frame_count,
         }
+    }
+
+    fn play(&mut self) {
+        self.playing = true;
+    }
+
+    fn pause(&mut self) {
+        self.playing = false;
+    }
+
+    fn is_playing(&self) -> bool {
+        self.playing
     }
 }
