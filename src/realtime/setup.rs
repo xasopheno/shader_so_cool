@@ -5,7 +5,7 @@ use egui::FontDefinitions;
 use egui_wgpu_backend::RenderPass;
 use egui_winit_platform::{Platform, PlatformDescriptor};
 use epi::*;
-use kintaro_egui_lib::UiState;
+use kintaro_egui_lib::{InstanceMul, UiState};
 use winit::window::Window;
 
 pub struct Gui {
@@ -69,6 +69,7 @@ impl Setup {
             play: true,
             volume: config.volume,
             camera_index: 0,
+            instance_mul: InstanceMul::default(),
         }));
         let app = kintaro_egui_lib::WrapApp::init(state.clone(), config.cameras.len());
 

@@ -22,6 +22,29 @@ pub struct UiState {
     pub play: bool,
     pub volume: f32,
     pub camera_index: usize,
+    pub instance_mul: InstanceMul,
+}
+
+#[derive(Copy, Debug, Clone, PartialEq)]
+pub struct InstanceMul {
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+    pub life: f32,
+    pub size: f32,
+    pub length: f32,
+}
+impl Default for InstanceMul {
+    fn default() -> Self {
+        Self {
+            x: 3.0,
+            y: 8.0,
+            z: 1.0,
+            life: 2.0,
+            size: 6.0,
+            length: 1.0,
+        }
+    }
 }
 
 /// Wraps many demo/test apps into one.

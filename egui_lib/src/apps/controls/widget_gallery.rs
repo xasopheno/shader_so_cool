@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex};
 
-use crate::UiState;
+use crate::{InstanceMul, UiState};
 
 #[derive(Debug)]
 pub struct ControlsInner {
@@ -56,25 +56,34 @@ impl ControlsInner {
         let Self { state, n_camera } = self;
         let mut s = state.lock().unwrap();
         let mut volume = s.volume;
+        // let mut instance_mul_x = s.instance_mul.x;
+        // let mut instance_mul_y = s.instance_mul.y;
+        // let mut instance_mul_size = s.instance_mul.size;
+        let InstanceMul {
+            mut x,
+            mut y,
+            mut z,
+            mut size,
+            mut life,
+            mut length,
+        } = s.instance_mul;
 
         ui.vertical(|ui| {
+            // ui.style_mut().override_text_style = Some(egui::TextStyle::Heading);
             ui.horizontal(|ui| {
-                if ui.button("Play").clicked() {
-                    s.play = true
-                }
-                if ui.button("Pause").clicked() {
-                    s.play = false
+                if ui.button(if s.play { "Pause" } else { "Play" }).clicked() {
+                    s.play = !s.play
                 }
                 ui.end_row();
             });
             ui.horizontal_wrapped(|ui| {
-                ui.label("Volume:");
+                // ui.label("Volume:");
                 if ui.add(egui::Slider::new(&mut volume, 0.0..=1.0)).changed() {
                     s.volume = volume
                 };
                 ui.end_row();
 
-                ui.label("Camera:");
+                // ui.label("Camera:");
                 (0..*n_camera).into_iter().for_each(|idx| {
                     if ui
                         .button(format!("  {}  ", (idx + 65) as u8 as char))
@@ -83,6 +92,35 @@ impl ControlsInner {
                         s.camera_index = idx as usize;
                     }
                 });
+                ui.end_row();
+            });
+            ui.vertical(|ui| {
+                ui.label("x:");
+                if ui.add(egui::Slider::new(&mut x, 0.0..=25.0)).changed() {
+                    s.instance_mul.x = x
+                };
+                ui.end_row();
+                ui.label("y:");
+                if ui.add(egui::Slider::new(&mut y, 0.0..=25.0)).changed() {
+                    s.instance_mul.y = y
+                };
+                ui.label("z:");
+                if ui.add(egui::Slider::new(&mut z, 0.0..=25.0)).changed() {
+                    s.instance_mul.z = z
+                };
+                ui.end_row();
+                ui.label("size:");
+                if ui.add(egui::Slider::new(&mut size, 0.0..=25.0)).changed() {
+                    s.instance_mul.size = size
+                };
+                ui.label("life:");
+                if ui.add(egui::Slider::new(&mut life, 0.0..=10.0)).changed() {
+                    s.instance_mul.life = life
+                };
+                ui.label("length:");
+                if ui.add(egui::Slider::new(&mut length, 0.0..=25.0)).changed() {
+                    s.instance_mul.length = length
+                };
                 ui.end_row();
             });
         });

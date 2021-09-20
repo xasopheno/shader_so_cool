@@ -1,5 +1,6 @@
 use crate::instance::Instance;
 use cgmath::{Rotation3, Vector3};
+use kintaro_egui_lib::InstanceMul;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -65,6 +66,7 @@ pub trait ToInstance {
         displacement: &cgmath::Vector3<f32>,
         n_column: u32,
         n_row: u32,
+        mul: InstanceMul,
     ) -> Instance;
 }
 
@@ -108,6 +110,7 @@ impl ToInstance for Op4D {
         displacement: &cgmath::Vector3<f32>,
         n_column: u32,
         n_row: u32,
+        mul: InstanceMul,
     ) -> Instance {
         let mut rng = rand::thread_rng();
         let rotation = cgmath::Quaternion::from_axis_angle(
@@ -115,15 +118,17 @@ impl ToInstance for Op4D {
             // cgmath::Deg(0.0),
             cgmath::Deg(rng.gen_range(-0.3..0.3)),
         );
-        let x = self.x as f32;
-        let y = self.y as f32;
-        let z = self.z as f32;
-        let l = self.l as f32;
+        let x = -self.x as f32 * mul.x;
+        let y = self.y as f32 * mul.y;
+        let z = self.z as f32 * mul.z;
+        let length = self.l as f32 * mul.length;
+        let life = 1.0 * mul.life;
+        let size = mul.size * f32::max(z, 0.2);
         Instance {
             position: Vector3::new(
-                n_row as f32 * x * 3.0,
+                n_row as f32 * x,
                 // n_row as f32 * 1.0 * y / x,
-                n_column as f32 * y * 8.0,
+                n_column as f32 * y,
                 // n_row as f32 * (self.x * self.x) as f32 * 2.0 / self.y as f32,
                 // n_column as f32 * (self.y * self.y) as f32 / 2.0 * 10.0,
                 // (self.x as f32 * n_row as f32 * 4.0 / self.y as f32) / 3.0,
@@ -132,9 +137,9 @@ impl ToInstance for Op4D {
                 1.0,
             ) - displacement,
             rotation,
-            life: 2.0,
-            size: 5.0 * f32::max(z, 0.2) * f32::max(l, 1.0),
-            length: l,
+            life,
+            size,
+            length,
             names: self.names.to_owned(),
         }
     }

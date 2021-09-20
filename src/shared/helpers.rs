@@ -48,7 +48,7 @@ pub fn new_random_clear_color() -> (f64, f64, f64) {
 
 #[allow(dead_code)]
 pub fn new_random_vertices() -> Vec<Vertex> {
-    (0..50).into_iter().map(|_| Vertex::new_random()).collect()
+    (0..30).into_iter().map(|_| Vertex::new_random()).collect()
 }
 
 #[allow(dead_code)]
@@ -56,7 +56,7 @@ pub fn new_random_indices(n: u16) -> Vec<u16> {
     let mut rng = rand::thread_rng();
     let mut num = || rng.gen_range(0..n);
 
-    (0..50).map(|_| num()).collect()
+    (0..30).map(|_| num()).collect()
 }
 
 #[allow(dead_code)]

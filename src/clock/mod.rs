@@ -62,7 +62,6 @@ impl Clock for RenderClock {
     }
 
     fn play(&mut self) {
-        self.last_render_time = std::time::Instant::now();
         self.playing = true;
     }
 

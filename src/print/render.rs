@@ -1,3 +1,5 @@
+use kintaro_egui_lib::InstanceMul;
+
 use crate::{
     clock::Clock,
     shared::{render_pass, update},
@@ -27,6 +29,7 @@ impl PrintState {
                 &self.queue,
                 (self.size.0, self.size.1),
                 &self.canvas,
+                InstanceMul::default(),
             );
         }
 

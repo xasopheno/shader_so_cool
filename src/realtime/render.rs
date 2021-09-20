@@ -28,27 +28,6 @@ impl epi::RepaintSignal for ExampleRepaintSignal {
 
 impl RealTimeState {
     pub fn render(&mut self, window: &winit::window::Window) -> Result<(), wgpu::SurfaceError> {
-        {
-            let s = self.gui.state.lock().unwrap();
-            self.audio_stream_handle.set_volume(s.volume);
-            if s.camera_index != self.camera.index {
-                self.camera = Camera::new(
-                    &self.config.cameras[s.camera_index],
-                    self.config.window_size,
-                    &self.config,
-                )
-            }
-            if !s.play && !self.audio_stream_handle.is_paused() {
-                self.audio_stream_handle.pause();
-            };
-            if s.play && self.audio_stream_handle.is_paused() {
-                self.audio_stream_handle.play();
-            };
-            self.clock.set_playing(s.play);
-        }
-        self.audio_stream_handle
-            .set_volume(self.gui.state.lock().unwrap().volume);
-
         self.clock.update();
         let time = self.clock.current();
         self.camera.update(time.last_period);
@@ -68,6 +47,7 @@ impl RealTimeState {
                 &self.queue,
                 (self.size.width, self.size.height),
                 &self.canvas,
+                self.gui.state.lock().unwrap().instance_mul,
             );
         }
 
@@ -153,6 +133,26 @@ impl RealTimeState {
 
         // // Submit the commands.
         self.queue.submit(std::iter::once(encoder.finish()));
+
+        {
+            let s = self.gui.state.lock().unwrap();
+            self.audio_stream_handle.set_volume(s.volume);
+            if s.camera_index != self.camera.index {
+                self.camera = Camera::new(
+                    &self.config.cameras[s.camera_index],
+                    self.config.window_size,
+                    &self.config,
+                )
+            }
+            if !s.play && !self.audio_stream_handle.is_paused() {
+                self.audio_stream_handle.pause();
+            };
+            if s.play && self.audio_stream_handle.is_paused() {
+                self.audio_stream_handle.play();
+            };
+            self.clock.set_playing(s.play);
+            self.audio_stream_handle.set_volume(s.volume);
+        }
 
         Ok(())
     }
