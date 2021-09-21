@@ -129,6 +129,8 @@ impl RealTimeState {
         self.clock.play();
         self.audio_stream_handle.play();
     }
+
+    #[allow(dead_code)]
     pub fn pause(&mut self) {
         self.clock.pause();
         self.audio_stream_handle.pause();

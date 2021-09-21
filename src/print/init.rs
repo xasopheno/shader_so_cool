@@ -10,8 +10,8 @@ use crate::{
 
 impl PrintState {
     pub async fn init(config: Config) -> PrintState {
-        let texture_width = 1792 / 2;
-        let texture_height = 1120 / 2;
+        let texture_width = 1792 / 4;
+        let texture_height = 1120 / 4;
 
         let instance = wgpu::Instance::new(wgpu::Backends::PRIMARY);
         let adapter = instance

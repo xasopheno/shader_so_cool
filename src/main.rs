@@ -67,8 +67,6 @@ fn realtime() {
         event_loop.create_proxy(),
     )));
 
-    // dbg!(window.scale_factor());
-
     let (_stream, stream_handle) = crate::audio::play_audio(&config);
     let mut state = RealTimeState::init(&window, &config, repaint_signal.clone(), stream_handle);
     state.play();
