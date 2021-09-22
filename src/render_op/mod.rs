@@ -126,7 +126,9 @@ impl ToInstance for Op4D {
         let size = mul.size * f32::max(z, 0.2);
         Instance {
             position: Vector3::new(
+                // n_row as f32 * 1.0 / 2.0 * f32::powi(x, 2),
                 n_row as f32 * x,
+                // sin(x^1/2 - y^-2)
                 // n_row as f32 * 1.0 * y / x,
                 n_column as f32 * y,
                 // n_row as f32 * (self.x * self.x) as f32 * 2.0 / self.y as f32,
