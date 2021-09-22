@@ -101,7 +101,7 @@ impl ControlsInner {
                 };
                 ui.end_row();
                 ui.label("y:");
-                if ui.add(egui::Slider::new(&mut y, 0.0..=25.0)).changed() {
+                if ui.add(egui::Slider::new(&mut y, 0.0..=30.0)).changed() {
                     s.instance_mul.y = y
                 };
                 ui.label("z:");
@@ -110,7 +110,7 @@ impl ControlsInner {
                 };
                 ui.end_row();
                 ui.label("size:");
-                if ui.add(egui::Slider::new(&mut size, 0.0..=25.0)).changed() {
+                if ui.add(egui::Slider::new(&mut size, 0.0..=50.0)).changed() {
                     s.instance_mul.size = size
                 };
                 ui.label("life:");
