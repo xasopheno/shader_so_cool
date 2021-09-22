@@ -90,12 +90,47 @@ cymb = {
   | FitLength thing1
 }
 
+melody = {
+  Seq [
+    Fm 0 | Lm 32,
+    Fm 1, Fm 4/3, Fm 5/3, Fm 3/2, Fm 9/8, Fm 3/4, Fm 7/8, 
+    Fm 4/5, Fm 3/4, Fm 5/8, Fm 5/6, Fm 9/8, Fm 5/4, Fm 9/8, 
+    Fm 3/4, Fm 2/3, Fm 5/6, Fm 1, Fm 5/4, 
+    Fm 9/8, Fm 3/4, Fm 5/6,
+    Seq [
+      Fm 5/4, Fm 9/8, Fm 1 | Lm 3,
+    ]
+    | Seq [
+      Fm 1, 
+      Lm 2/3 | Overlay [
+        Fm 1, Fm 5/4
+      ], 
+      Lm 1/2 | Overlay [AsIs, Fm 3/2], 
+    ],
+    Fm 0 | Lm 8 
+  ]
+  | Repeat 2
+  | O[
+    (4/1, 0, 1/2, -1/7),
+    (4/1, 0, 1/2, 1/7),
+    (4/1, 0, 1/2, -1/6),
+    (4/1, 0, 1/2, 1/6),
+    (3/1, 0, 1/2, -1/5),
+    (3/1, 0, 1/2, 1/5),
+    (2/1, 0, 1/2, -1/4),
+    (2/1, 0, 1/2, 1/4),
+  ]
+  | Overlay [AsIs, Pm -1]
+  | FitLength thing1
+}
+
 main = {
   Overlay [
     #a | thing1,
     #b | thing2,
     #n | hh,
-    #c | cymb
+    #c | cymb,
+    #melody | melody
   ]
   | Seq [
     Lm 12/10,
