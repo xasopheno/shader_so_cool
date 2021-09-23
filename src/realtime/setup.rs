@@ -70,6 +70,7 @@ impl Setup {
             volume: config.volume,
             camera_index: 0,
             instance_mul: InstanceMul::default(),
+            reset: false,
         }));
         let app = kintaro_egui_lib::WrapApp::init(state.clone(), config.cameras.len());
 

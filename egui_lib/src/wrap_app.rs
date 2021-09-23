@@ -23,6 +23,7 @@ pub struct UiState {
     pub volume: f32,
     pub camera_index: usize,
     pub instance_mul: InstanceMul,
+    pub reset: bool,
 }
 
 #[derive(Copy, Debug, Clone, PartialEq)]

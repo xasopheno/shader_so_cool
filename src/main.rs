@@ -67,7 +67,7 @@ fn realtime() {
         event_loop.create_proxy(),
     )));
 
-    let (_stream, stream_handle) = crate::audio::play_audio(&config);
+    let (mut _stream, stream_handle) = crate::audio::play_audio(&config);
     let mut state = RealTimeState::init(&window, &config, repaint_signal.clone(), stream_handle);
     state.play();
 
@@ -119,6 +119,16 @@ fn realtime() {
                 *control_flow = ControlFlow::Poll;
             }
             _ => {}
+        }
+
+        if state.gui.state.lock().unwrap().reset {
+            state.pause();
+            let (_nstream, nstream_handle) = crate::audio::play_audio(&config);
+            _stream = _nstream;
+
+            state = RealTimeState::init(&window, &config, repaint_signal.clone(), nstream_handle);
+            state.play();
+            // state.gui.state.reset = false;
         }
     });
 }

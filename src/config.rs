@@ -26,7 +26,7 @@ impl Config {
         Config {
             accumulation: false,
             filename: "kintaro".into(),
-            volume: 0.05,
+            volume: 0.20,
             window_size: (1792, 1120),
             vertices_fn: new_random_vertices,
             indices_fn: new_random_indices,
