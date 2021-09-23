@@ -49,7 +49,6 @@ fn realtime() {
     env_logger::init();
     let config = Config::new();
     let title = env!("CARGO_PKG_NAME");
-    // let event_loop = EventLoop::new();
     let event_loop = winit::event_loop::EventLoop::with_user_event();
     let window = WindowBuilder::new()
         .with_inner_size(winit::dpi::PhysicalSize {
@@ -67,11 +66,22 @@ fn realtime() {
         event_loop.create_proxy(),
     )));
 
-    let (mut _stream, stream_handle) = crate::audio::play_audio(&config);
+    let (mut stream, stream_handle) = crate::audio::play_audio(&config);
     let mut state = RealTimeState::init(&window, &config, repaint_signal.clone(), stream_handle);
     state.play();
 
     event_loop.run(move |event, _, control_flow| {
+        #[allow(unused_assignments)]
+        if state.gui.state.lock().unwrap().reset {
+            state.pause();
+            let (new_stream, new_stream_handle) = crate::audio::play_audio(&config);
+            stream = new_stream;
+
+            state =
+                RealTimeState::init(&window, &config, repaint_signal.clone(), new_stream_handle);
+            state.play();
+            // state.gui.state.reset = false;
+        }
         state.gui.platform.handle_event(&event);
         match event {
             Event::MainEventsCleared => window.request_redraw(),
@@ -119,16 +129,6 @@ fn realtime() {
                 *control_flow = ControlFlow::Poll;
             }
             _ => {}
-        }
-
-        if state.gui.state.lock().unwrap().reset {
-            state.pause();
-            let (_nstream, nstream_handle) = crate::audio::play_audio(&config);
-            _stream = _nstream;
-
-            state = RealTimeState::init(&window, &config, repaint_signal.clone(), nstream_handle);
-            state.play();
-            // state.gui.state.reset = false;
         }
     });
 }
