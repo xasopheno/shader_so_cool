@@ -72,16 +72,16 @@ fn realtime() {
 
     event_loop.run(move |event, _, control_flow| {
         #[allow(unused_assignments)]
-        if state.gui.state.lock().unwrap().reset {
-            state.pause();
-            let (new_stream, new_stream_handle) = crate::audio::play_audio(&config);
-            stream = new_stream;
+        // if state.gui.state.lock().unwrap().reset {
+        // state.pause();
+        // let (new_stream, new_stream_handle) = crate::audio::play_audio(&config);
+        // stream = new_stream;
 
-            state =
-                RealTimeState::init(&window, &config, repaint_signal.clone(), new_stream_handle);
-            state.play();
-            // state.gui.state.reset = false;
-        }
+        // state =
+        // RealTimeState::init(&window, &config, repaint_signal.clone(), new_stream_handle);
+        // state.play();
+        // // state.gui.state.reset = false;
+        // }
         state.gui.platform.handle_event(&event);
         match event {
             Event::MainEventsCleared => window.request_redraw(),

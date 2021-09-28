@@ -75,10 +75,10 @@ impl ControlsInner {
                     s.play = !s.play
                 }
                 ui.end_row();
-                if ui.button("Reset").clicked() {
-                    s.reset = true
-                }
-                ui.end_row();
+                // if ui.button("Reset").clicked() {
+                // s.reset = true
+                // }
+                // ui.end_row();
             });
             ui.horizontal_wrapped(|ui| {
                 // ui.label("Volume:");
