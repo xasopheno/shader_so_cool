@@ -38,7 +38,7 @@ impl RealTimeState {
         let view_proj: [[f32; 4]; 4] =
             (&self.camera.projection.calc_matrix() * self.camera.calc_matrix()).into();
 
-        for renderpass in self.renderpasses.iter_mut() {
+        for renderpass in self.renderpasses.iter_mut().take(1) {
             update(
                 self.clock.is_playing(),
                 time,
@@ -56,7 +56,7 @@ impl RealTimeState {
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
 
-        for (n, renderpass) in self.renderpasses.iter_mut().enumerate() {
+        for (n, renderpass) in self.renderpasses.iter_mut().take(1).enumerate() {
             renderpass
                 .uniforms
                 .update_view_proj(view_position, view_proj);
@@ -67,7 +67,7 @@ impl RealTimeState {
                 });
             let accumulation = if n == 0 { false } else { true };
 
-            render_pass(&mut encoder, &renderpass, &view, &self.config, accumulation);
+            render_pass(&mut encoder, &renderpass, &view, &self.config, false);
 
             self.queue.submit(std::iter::once(encoder.finish()));
         }

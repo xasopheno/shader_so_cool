@@ -40,5 +40,5 @@ pub fn render_pass<'a>(
     render_pass.set_vertex_buffer(0, input.vertex_buffer.slice(..));
     render_pass.set_vertex_buffer(1, input.instance_buffer.slice(..));
     render_pass.set_index_buffer(input.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
-    render_pass.draw_indexed(0..input.num_indices, 0, 0..input.instances.len() as _);
+    render_pass.draw(0..3, 0..1);
 }

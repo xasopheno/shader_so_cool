@@ -60,17 +60,12 @@ async fn run(
         .map(|surface| device.create_swap_chain(&surface, &sc_desc));
 
     let mut shader = Shader::new(&device, swapchain_format);
-
     let start = std::time::Instant::now();
-    let (mut cursor_x, mut cursor_y) = (0.0, 0.0);
-    let (mut drag_start_x, mut drag_start_y) = (0.0, 0.0);
-    let (mut drag_end_x, mut drag_end_y) = (0.0, 0.0);
-    let mut mouse_left_pressed = false;
-    let mut mouse_left_clicked = false;
 
     let mut frame_count = 0.0;
 
     event_loop.run(move |event, _, control_flow| {
+        // TODO: unnecessary
         // Have the closure take ownership of the resources.
         // `event_loop.run` never returns, therefore we must do this to ensure
         // the resources are properly cleaned up.
@@ -102,7 +97,6 @@ async fn run(
                 event: WindowEvent::Resized(size),
                 ..
             } => {
-                // Recreate the swap chain with the new size
                 sc_desc.width = size.width;
                 sc_desc.height = size.height;
                 if let Some(surface) = &surface {
@@ -119,10 +113,10 @@ async fn run(
                         .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
                     {
                         let clear_color = wgpu::Color {
-                            r: 0.2,
-                            g: 0.2,
-                            b: 0.25,
-                            a: 1.0,
+                            r: 0.0,
+                            g: 0.0,
+                            b: 0.0,
+                            a: 0.0,
                         };
                         let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                             label: None,
@@ -141,16 +135,7 @@ async fn run(
                             height: window.inner_size().height as _,
                             frame: frame_count,
                             time: start.elapsed().as_secs_f32(),
-                            cursor_x,
-                            cursor_y,
-                            drag_start_x,
-                            drag_start_y,
-                            drag_end_x,
-                            drag_end_y,
-                            mouse_left_pressed,
-                            mouse_left_clicked,
                         };
-                        mouse_left_clicked = false;
                         rpass.set_pipeline(shader.pipeline());
                         rpass.set_push_constants(wgpu::ShaderStage::all(), 0, unsafe {
                             as_u8_slice(&push_constants)
@@ -187,27 +172,11 @@ async fn run(
                         ..
                     },
                 ..
-            } => {
-                mouse_left_pressed = state == ElementState::Pressed;
-                if mouse_left_pressed {
-                    drag_start_x = cursor_x;
-                    drag_start_y = cursor_y;
-                    drag_end_x = cursor_x;
-                    drag_end_y = cursor_y;
-                    mouse_left_clicked = true;
-                }
-            }
+            } => {}
             Event::WindowEvent {
                 event: WindowEvent::CursorMoved { position, .. },
                 ..
-            } => {
-                cursor_x = position.x as f32;
-                cursor_y = position.y as f32;
-                if mouse_left_pressed {
-                    drag_end_x = cursor_x;
-                    drag_end_y = cursor_y;
-                }
-            }
+            } => {}
             _ => {}
         }
     });
@@ -216,11 +185,11 @@ async fn run(
 fn main() {
     let event_loop = EventLoop::new();
     let window = winit::window::WindowBuilder::new()
-        .with_title("Rust GPU - wgpu")
+        .with_title("shadertoy")
         .with_inner_size(winit::dpi::LogicalSize::new(1280.0, 720.0))
         .build(&event_loop)
         .unwrap();
-    // join filesd
+
     let root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
 
     let shader_path = root.join("src/shader.wgsl");

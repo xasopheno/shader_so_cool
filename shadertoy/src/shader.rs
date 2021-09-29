@@ -6,14 +6,6 @@ pub struct ShaderConstants {
     pub height: f32,
     pub frame: f32,
     pub time: f32,
-    pub cursor_x: f32,
-    pub cursor_y: f32,
-    pub drag_start_x: f32,
-    pub drag_start_y: f32,
-    pub drag_end_x: f32,
-    pub drag_end_y: f32,
-    pub mouse_left_pressed: bool,
-    pub mouse_left_clicked: bool,
 }
 
 pub struct Shader {
