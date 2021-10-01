@@ -41,6 +41,16 @@ pub struct RealTimeState {
     pub audio_stream_handle: rodio::Sink,
 }
 
+#[derive(Copy, Clone)]
+#[allow(unused_attributes)]
+// #[spirv(block)]
+pub struct ShaderConstants {
+    pub width: f32,
+    pub height: f32,
+    pub frame: f32,
+    pub time: f32,
+}
+
 impl RealTimeState {
     pub fn init(
         window: &Window,
@@ -48,6 +58,14 @@ impl RealTimeState {
         repaint_signal: std::sync::Arc<ExampleRepaintSignal>,
         audio_stream_handle: rodio::Sink,
     ) -> RealTimeState {
+        let start = std::time::Instant::now();
+        let push_constants = ShaderConstants {
+            width: window.inner_size().width as _,
+            height: window.inner_size().height as _,
+            frame: 0,
+            time: start.elapsed().as_secs_f32(),
+        };
+
         let Setup {
             device,
             surface,
@@ -114,7 +132,7 @@ impl RealTimeState {
             clear_color: new_clear_color(),
             mouse_pressed: false,
             last_render_time: std::time::Instant::now(),
-            start_time: std::time::Instant::now(),
+            start_time: start,
             surface,
             device,
             queue,
