@@ -51,6 +51,39 @@ pub struct ShaderConstants {
     pub time: f32,
 }
 
+unsafe fn as_u8_slice<T: Sized>(p: &T) -> &[u8] {
+    ::std::slice::from_raw_parts((p as *const T) as *const u8, ::std::mem::size_of::<T>())
+}
+
+pub fn new_thing(window: winit::window::Window) {
+    let start = std::time::Instant::now();
+    let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+        label: None,
+        color_attachments: &[wgpu::RenderPassColorAttachment {
+            view: &frame.view,
+            resolve_target: None,
+            ops: wgpu::Operations {
+                load: wgpu::LoadOp::Clear(clear_color),
+                store: true,
+            },
+        }],
+        depth_stencil_attachment: None,
+    });
+
+    let push_constants = ShaderConstants {
+        width: window.inner_size().width as _,
+        height: window.inner_size().height as _,
+        frame: 0.0,
+        time: start.elapsed().as_secs_f32(),
+    };
+
+    rpass.set_pipeline(shader.pipeline());
+    rpass.set_push_constants(wgpu::ShaderStage::all(), 0, unsafe {
+        as_u8_slice(&push_constants)
+    });
+    rpass.draw(0..3, 0..1);
+}
+
 impl RealTimeState {
     pub fn init(
         window: &Window,
@@ -62,9 +95,15 @@ impl RealTimeState {
         let push_constants = ShaderConstants {
             width: window.inner_size().width as _,
             height: window.inner_size().height as _,
-            frame: 0,
+            frame: 0.0,
             time: start.elapsed().as_secs_f32(),
         };
+
+        rpass.set_pipeline(shader.pipeline());
+        rpass.set_push_constants(wgpu::ShaderStage::all(), 0, unsafe {
+            as_u8_slice(&push_constants)
+        });
+        rpass.draw(0..3, 0..1);
 
         let Setup {
             device,
