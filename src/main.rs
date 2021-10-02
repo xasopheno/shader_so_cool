@@ -8,6 +8,7 @@ mod print;
 mod realtime;
 mod render_op;
 mod shared;
+mod toy;
 mod uniforms;
 mod vertex;
 use crate::config::Config;

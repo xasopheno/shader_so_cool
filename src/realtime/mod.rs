@@ -1,7 +1,7 @@
 mod input;
 pub mod render;
 mod resize;
-mod setup;
+pub mod setup;
 mod update;
 
 use setup::Setup;
