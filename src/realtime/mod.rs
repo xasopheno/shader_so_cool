@@ -14,6 +14,7 @@ use crate::{
     instance::make_instances_and_instance_buffer,
     realtime::render::ExampleRepaintSignal,
     shared::{create_render_pipeline, helpers::new_clear_color, RenderPassInput},
+    toy::Toy,
     vertex::{create_index_buffer, create_vertex_buffer},
 };
 use futures::executor::block_on;
@@ -48,12 +49,22 @@ impl RealTimeState {
         repaint_signal: std::sync::Arc<ExampleRepaintSignal>,
         audio_stream_handle: rodio::Sink,
     ) -> RealTimeState {
+        let start_time = std::time::Instant::now();
+        let size = window.inner_size();
         let Setup {
             device,
             surface,
             queue,
             gui,
         } = block_on(Setup::init(window, config));
+
+        let toy = Toy::setup(
+            &device,
+            &queue,
+            &surface,
+            start_time,
+            (size.width, size.height),
+        );
 
         let op_streams = crate::render_op::OpStream::from_json(&config.filename);
 
@@ -74,7 +85,7 @@ impl RealTimeState {
                     &device,
                 );
                 let (uniforms, uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
-                    crate::uniforms::Uniforms::new(&device);
+                    crate::uniforms::RealtimeUniforms::new(&device);
                 let render_pipeline = create_render_pipeline(
                     &device,
                     &shader,
@@ -98,7 +109,6 @@ impl RealTimeState {
                 }
             })
             .collect();
-        let size = window.inner_size();
 
         Self {
             clock: RenderClock::init(&config),
@@ -114,7 +124,7 @@ impl RealTimeState {
             clear_color: new_clear_color(),
             mouse_pressed: false,
             last_render_time: std::time::Instant::now(),
-            start_time: std::time::Instant::now(),
+            start_time,
             surface,
             device,
             queue,

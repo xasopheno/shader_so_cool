@@ -13,7 +13,7 @@ pub struct RenderPassInput {
     pub index_buffer: wgpu::Buffer,
     pub instance_buffer: wgpu::Buffer,
     pub instances: Vec<Instance>,
-    pub uniforms: crate::uniforms::Uniforms,
+    pub uniforms: crate::uniforms::RealtimeUniforms,
     pub uniform_bind_group: wgpu::BindGroup,
     pub uniform_buffer: wgpu::Buffer,
     pub indices_fn: fn(u16) -> Vec<u16>,

@@ -3,18 +3,22 @@ use wgpu::util::DeviceExt;
 
 #[repr(C)]
 #[derive(Debug, Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
-pub struct RealtimeUniforms {
-    view_proj: [[f32; 4]; 4],
-    view_position: [f32; 4],
+pub struct ToyUniforms {
+    pub width: f32,
+    pub height: f32,
+    pub frame: f32,
+    pub time: f32,
 }
-impl RealtimeUniforms {
+
+impl ToyUniforms {
     pub fn new(
         device: &wgpu::Device,
     ) -> (Self, wgpu::Buffer, wgpu::BindGroupLayout, wgpu::BindGroup) {
-        use cgmath::SquareMatrix;
         let uniforms = Self {
-            view_position: [0.0; 4],
-            view_proj: cgmath::Matrix4::identity().into(),
+            width: 10.0,
+            height: 10.0,
+            frame: 0.0,
+            time: 0.0,
         };
 
         let uniform_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
@@ -27,7 +31,7 @@ impl RealtimeUniforms {
             device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
                 entries: &[wgpu::BindGroupLayoutEntry {
                     binding: 0,
-                    visibility: wgpu::ShaderStages::VERTEX,
+                    visibility: wgpu::ShaderStages::VERTEX_FRAGMENT,
                     ty: wgpu::BindingType::Buffer {
                         ty: wgpu::BufferBindingType::Uniform,
                         has_dynamic_offset: false,
@@ -55,8 +59,10 @@ impl RealtimeUniforms {
         )
     }
 
-    pub fn update_view_proj(&mut self, view_position: [f32; 4], view_proj: [[f32; 4]; 4]) {
-        self.view_position = view_position;
-        self.view_proj = view_proj;
+    pub fn update_uniforms(&mut self, window: winit::window::Window, start: std::time::Instant) {
+        self.width = window.inner_size().width as _;
+        self.height = window.inner_size().height as _;
+        self.frame += 1.0;
+        self.time = start.elapsed().as_secs_f32();
     }
 }

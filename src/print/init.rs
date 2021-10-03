@@ -60,7 +60,7 @@ impl PrintState {
                 let (instances, instance_buffer) =
                     make_instances_and_instance_buffer(0, (texture_width, texture_height), &device);
                 let (uniforms, uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
-                    crate::uniforms::Uniforms::new(&device);
+                    crate::uniforms::RealtimeUniforms::new(&device);
                 let render_pipeline = create_render_pipeline(
                     &device,
                     &shader,
