@@ -25,6 +25,7 @@ use self::setup::Gui;
 pub struct RealTimeState {
     pub clock: RenderClock,
     pub config: Config,
+    pub toy: Toy,
     pub renderpasses: Vec<RenderPassInput>,
     pub surface: wgpu::Surface,
     pub device: wgpu::Device,
@@ -58,7 +59,7 @@ impl RealTimeState {
             gui,
         } = block_on(Setup::init(window, config));
 
-        let toy = Toy::setup(
+        let toy = crate::toy::setup_toy(
             &device,
             &queue,
             &surface,
@@ -117,6 +118,7 @@ impl RealTimeState {
                 (size.width, size.height),
                 &config,
             ),
+            toy,
             renderpasses,
             count: 0,
             config: config.clone(),
