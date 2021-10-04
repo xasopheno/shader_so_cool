@@ -47,7 +47,6 @@ pub fn toy_renderpass(
     toy: &Toy,
     device: &wgpu::Device,
     queue: &wgpu::Queue,
-    surface: &wgpu::Surface,
     view: &wgpu::TextureView,
 ) -> Result<(), wgpu::SurfaceError> {
     let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {

@@ -15,11 +15,9 @@ use crate::config::Config;
 use crate::print::PrintState;
 use crate::realtime::render::ExampleRepaintSignal;
 use crate::realtime::RealTimeState;
-use winit::{
-    event::*,
-    event_loop::ControlFlow,
-    window::{Fullscreen, WindowBuilder},
-};
+#[allow(unused_imports)]
+use winit::window::Fullscreen;
+use winit::{event::*, event_loop::ControlFlow, window::WindowBuilder};
 
 use futures::executor::block_on;
 
@@ -67,7 +65,7 @@ fn realtime() {
         event_loop.create_proxy(),
     )));
 
-    let (mut stream, stream_handle) = crate::audio::play_audio(&config);
+    let (mut _stream, stream_handle) = crate::audio::play_audio(&config);
     let mut state = RealTimeState::init(&window, &config, repaint_signal.clone(), stream_handle);
     state.play();
 

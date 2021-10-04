@@ -2,7 +2,6 @@ mod input;
 pub mod render;
 mod resize;
 pub mod setup;
-mod update;
 
 use setup::Setup;
 
@@ -25,7 +24,7 @@ use self::setup::Gui;
 pub struct RealTimeState {
     pub clock: RenderClock,
     pub config: Config,
-    pub toy: Toy,
+    pub toy: Option<Toy>,
     pub renderpasses: Vec<RenderPassInput>,
     pub surface: wgpu::Surface,
     pub device: wgpu::Device,
@@ -112,7 +111,7 @@ impl RealTimeState {
                 (size.width, size.height),
                 &config,
             ),
-            toy,
+            toy: Some(toy),
             renderpasses,
             count: 0,
             config: config.clone(),
