@@ -1,6 +1,7 @@
 [[block]]
 struct Uniforms {
-    resolution: vec2<f32>;
+    width: f32;
+    height: f32;
     frame: f32;
     time: f32;
 };
@@ -8,9 +9,9 @@ struct Uniforms {
 [[group(0), binding(0)]]
 var<uniform> u: Uniforms;
 
+
 [[stage(vertex)]]
-fn main([[builtin(vertex_index)]] vertex_index: u32) -> [[builtin(position)]] vec4<f32> {
-    // var out: vec2<f32>;
+fn vs_main([[builtin(vertex_index)]] vertex_index: u32) -> [[builtin(position)]] vec4<f32> {
     var x = f32(i32((vertex_index << 1u32) & 2u32));
     var y = f32(i32(vertex_index & 2u32));
     var uv = vec2<f32>(x, y);
@@ -20,11 +21,12 @@ fn main([[builtin(vertex_index)]] vertex_index: u32) -> [[builtin(position)]] ve
 }
 
 [[stage(fragment)]]
-fn main(
+fn fs_main(
     [[builtin(position)]] frag_coord: vec4<f32>
 ) -> [[location(0)]] vec4<f32> {
-    // return vec4<f32>(cos(u.time), sin(u.time), 1.0 - cos(u.time), 1.0);
-
-    var uv = frag_coord.xy / u.resolution;
-    return vec4<f32>(uv.x, uv.x, uv.x, 1.0);
+    var resolution = vec2<f32>(u.width, u.height);
+    var uv = frag_coord.xy / resolution;
+    return vec4<f32>(sin(50.0 * uv.y + uv.x) / 100.0, sin(10.0 * uv.x + uv.y) / 100.0, 0.4, 1.0);
 }
+
+

@@ -59,13 +59,7 @@ impl RealTimeState {
             gui,
         } = block_on(Setup::init(window, config));
 
-        let toy = crate::toy::setup_toy(
-            &device,
-            &queue,
-            &surface,
-            start_time,
-            (size.width, size.height),
-        );
+        let toy = crate::toy::setup_toy(&device, start_time, (size.width, size.height));
 
         let op_streams = crate::render_op::OpStream::from_json(&config.filename);
 

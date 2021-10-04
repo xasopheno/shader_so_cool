@@ -3,6 +3,7 @@ use crate::{
     clock::Clock,
     realtime::RealTimeState,
     shared::{render_pass, update},
+    toy::toy_renderpass,
 };
 use chrono::Timelike;
 use egui_wgpu_backend::ScreenDescriptor;
@@ -56,6 +57,8 @@ impl RealTimeState {
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
 
+        toy_renderpass(&self.toy, &self.device, &self.queue, &self.surface, &view)?;
+
         for (n, renderpass) in self.renderpasses.iter_mut().enumerate() {
             renderpass
                 .uniforms
@@ -65,7 +68,7 @@ impl RealTimeState {
                 .create_command_encoder(&wgpu::CommandEncoderDescriptor {
                     label: Some("Render Encoder"),
                 });
-            let accumulation = if n == 0 { false } else { true };
+            let accumulation = if n == 0 { true } else { true };
 
             render_pass(&mut encoder, &renderpass, &view, &self.config, accumulation);
 

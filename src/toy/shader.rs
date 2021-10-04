@@ -51,7 +51,6 @@
 // fn create_shader(device: &wgpu::Device) -> wgpu::ShaderModule {
 // let root = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
 // let shader_path = root.join("src/shader.wgsl");
-
 // let prelude_path = root.join("src/prelude.wgsl");
 
 // let prelude = std::fs::read_to_string(prelude_path).unwrap();

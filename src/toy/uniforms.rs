@@ -15,8 +15,8 @@ impl ToyUniforms {
         device: &wgpu::Device,
     ) -> (Self, wgpu::Buffer, wgpu::BindGroupLayout, wgpu::BindGroup) {
         let uniforms = Self {
-            width: 10.0,
-            height: 10.0,
+            width: 200.0,
+            height: 200.0,
             frame: 0.0,
             time: 0.0,
         };

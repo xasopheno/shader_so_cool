@@ -1,9 +1,8 @@
+mod create_toy_render_pipeline;
 mod shader;
 mod uniforms;
 
 pub use shader::*;
-
-use crate::shared::create_render_pipeline;
 
 use self::uniforms::ToyUniforms;
 
@@ -17,13 +16,7 @@ pub struct Toy {
     pub size: (u32, u32),
 }
 
-pub fn setup_toy(
-    device: &wgpu::Device,
-    queue: &wgpu::Queue,
-    surface: &wgpu::Surface,
-    start_time: std::time::Instant,
-    size: (u32, u32),
-) -> Toy {
+pub fn setup_toy(device: &wgpu::Device, start_time: std::time::Instant, size: (u32, u32)) -> Toy {
     let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
         label: Some("Shader"),
         source: wgpu::ShaderSource::Wgsl(include_str!("./toy.wgsl").into()),
@@ -32,7 +25,7 @@ pub fn setup_toy(
     let (uniforms, uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
         uniforms::ToyUniforms::new(device);
 
-    let render_pipeline = create_render_pipeline(
+    let render_pipeline = create_toy_render_pipeline::create_toy_render_pipeline(
         device,
         &shader,
         &uniform_bind_group_layout,
@@ -50,14 +43,16 @@ pub fn setup_toy(
     }
 }
 
-fn toy_renderpass(
-    toy: Toy,
+pub fn toy_renderpass(
+    toy: &Toy,
     device: &wgpu::Device,
     queue: &wgpu::Queue,
     surface: &wgpu::Surface,
+    view: &wgpu::TextureView,
 ) -> Result<(), wgpu::SurfaceError> {
-    let mut encoder =
-        device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+    let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+        label: Some("Render Encoder"),
+    });
 
     {
         queue.write_buffer(
@@ -72,11 +67,6 @@ fn toy_renderpass(
             b: 0.25,
             a: 1.0,
         };
-
-        let output = surface.get_current_frame()?.output;
-        let view = output
-            .texture
-            .create_view(&wgpu::TextureViewDescriptor::default());
 
         let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             label: None,
