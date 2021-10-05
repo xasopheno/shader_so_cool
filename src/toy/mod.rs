@@ -44,14 +44,21 @@ pub fn setup_toy(device: &wgpu::Device, start_time: std::time::Instant, size: (u
 }
 
 pub fn toy_renderpass(
-    toy: &Toy,
+    is_playing: bool,
+    toy: &mut Toy,
     device: &wgpu::Device,
     queue: &wgpu::Queue,
     view: &wgpu::TextureView,
+    size: (u32, u32),
 ) -> Result<(), wgpu::SurfaceError> {
     let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
         label: Some("Render Encoder"),
     });
+
+    if is_playing {
+        toy.uniforms
+            .update_uniforms((size.0, size.1), toy.start_time);
+    }
 
     {
         queue.write_buffer(

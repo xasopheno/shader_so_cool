@@ -15,8 +15,8 @@ impl ToyUniforms {
         device: &wgpu::Device,
     ) -> (Self, wgpu::Buffer, wgpu::BindGroupLayout, wgpu::BindGroup) {
         let uniforms = Self {
-            width: 200.0,
-            height: 200.0,
+            width: 1000.0,
+            height: 1000.0,
             frame: 0.0,
             time: 0.0,
         };
@@ -59,9 +59,9 @@ impl ToyUniforms {
         )
     }
 
-    pub fn update_uniforms(&mut self, window: winit::window::Window, start: std::time::Instant) {
-        self.width = window.inner_size().width as _;
-        self.height = window.inner_size().height as _;
+    pub fn update_uniforms(&mut self, size: (u32, u32), start: std::time::Instant) {
+        self.width = size.0 as f32;
+        self.height = size.1 as f32;
         self.frame += 1.0;
         self.time = start.elapsed().as_secs_f32();
     }

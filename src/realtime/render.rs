@@ -57,8 +57,15 @@ impl RealTimeState {
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
 
-        if let Some(toy) = &self.toy {
-            toy_renderpass(toy, &self.device, &self.queue, &view)?;
+        if let Some(toy) = &mut self.toy {
+            toy_renderpass(
+                self.clock.is_playing(),
+                toy,
+                &self.device,
+                &self.queue,
+                &view,
+                (self.size.width, self.size.height),
+            )?;
         }
 
         for (n, renderpass) in self.renderpasses.iter_mut().enumerate() {
