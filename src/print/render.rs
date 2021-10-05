@@ -1,3 +1,4 @@
+use crate::toy::toy_renderpass;
 use kintaro_egui_lib::InstanceMul;
 
 use crate::{
@@ -33,6 +34,18 @@ impl PrintState {
             );
         }
 
+        // if let Some(toy) = &mut self.toy {
+        // toy_renderpass(
+        // self.clock.is_playing(),
+        // toy,
+        // &self.device,
+        // &self.queue,
+        // &self.texture_view,
+        // self.size,
+        // )
+        // .unwrap();
+        // }
+
         for (n, renderpass) in self.renderpasses.iter_mut().enumerate() {
             renderpass
                 .uniforms
@@ -42,7 +55,7 @@ impl PrintState {
                 .create_command_encoder(&wgpu::CommandEncoderDescriptor {
                     label: Some("Render Encoder"),
                 });
-            let accumulation = if n == 0 { false } else { true };
+            let accumulation = if n == 0 { true } else { true };
 
             render_pass(
                 &mut encoder,

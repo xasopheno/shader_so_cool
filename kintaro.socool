@@ -2,278 +2,144 @@
 
 thing1 = {
   O[
-    (1/1, 1, 1, 7/8),
-    (1/1, 0, 1, -7/8),
+    (3, -10, 1/8, 0),
+    (2, -4, 1/2, 0),
+    (1/1, 2, 1, 1/2),
+    (1/1, 0, 1, -1/2),
     (1/2, 0, 1, 0),
   ]
-  | Seq [
-    Fm 1 | Pm 1/2, Fm 7/8, Fm 0 
-  ] 
-  | Lm 1/30
-  | Seq [
-    Fm 1/2, Fm 1, Fm 0, Fm 1, 
-    Fm 1, Fm 1, Fm 0, Fm 1, 
-    Fm 0, Fm 1, Fm 0, Fm 1, 
-    Fm 1, Fm 1, Fm 1, Fm 1, 
-    Fm 0, Overlay [Fm 1, Fm 1/2 | Lm 2], 
-    Fm 1, Fm 1/2, 
-    Fm 0, Fm 1, Fm 0, Fm 1, 
-    Fm 0, Fm 0, Fm 0, Fm 3, 
-    Fm 0, Fm 0, Fm 2, Fm 0, 
-    Fm 0, Fm 1/2, Fm 0, Fm 0, 
-  ]
   | Overlay [
-    Overlay [
-      Sine 4, 
-      Sine 4 | Fm 2,
-      Sine 5,
-    ] | Gm 1/4 | Pm -4/5,
-    Reverse 
-    | Overlay [
-      Fm 3/2, 
-      Fm 1/2,
-      Fm 1/4
+    Seq [Fm 1/2 | Lm 1/8, Fm 0, Fm 0],
+    Fm 1 | Lm 1/3 | Gm 1/8,
+    Seq [
+      Fm 1/2, #high | Fm 1, #high |  Fm 5/4 | Lm 1/10
     ]
+  ]
+  | Seq [
+    Repeat 9,
+    Fm 7/8 | Repeat 7, 
+    Fm 5/8, Fm 5/4, Fm 5/4 | Reverse
+  ]
+  | Repeat 2
+  | Lm 1/8
+  | Overlay [
+    Sine, 
+    Sine 2 | Gm 1/8 | Fm 1/2
   ]
 }
 
 thing2 = {
-  Seq [
-    O[
-      (5/2, 2, 1, 1),
-      (5/2, 0, 1, -1),
-      (3/2, 2, 1, 1),
-      (3/2, 0, 1, -1),
-      (1/1, 2, 1, 1),
-      (1/1, 0, 1, -1),
-      (3/4, 2, 1, 1),
-      (3/4, 0, 1, -1),
-      (1/2, 2, 1, 1),
-      (1/2, 0, 1, -1),
+  Overlay [
+    Fm 1,
+    Seq [
+      Fm 1, Fm 0, Fm 0, Fm 1, Fm 0, Fm 1, Fm 0
+    ] 
+    | Repeat 3
+    | Fm 2 | FitLength Fm 1 | Gm 1/2, 
+  ]
+  | O[
+    (3/2, 2, 1/3, -9/10),
+    (3/2, 0, 1/3, 9/10),
+    (1/1, 2, 1, 1),
+    (1/1, 0, 1, -1),
+  ]
+  | Overlay [
+    Seq [
+      Seq [Fm 1, Fm 9/8] | Lm 1/2, 
+      Seq [Fm 9/8, Fm 7/6, Fm 25/24, Seq [Fm 9/8, Fm 7/6, Fm 9/8] | Lm 1/3 ] | Lm 1/4
+    ],
+    Seq [
+      Fm 3/4, 
+      Seq [Fm 4/5, Fm 7/8, Fm 5/6, Fm 15/16] | Lm 1/4
     ]
   ]
-  | ModBy [
-    Fm 1, Fm 1, Fm 0, Fm 1, 
-    Fm 1, Fm 1, Fm 0, Fm 1, 
-    Fm 0, Fm 1, Fm 0, Fm 1, 
-    Fm 1, Fm 1, Fm 1, Fm 1, 
-    Fm 0, Fm 1, Fm 0, Fm 1, 
-    Fm 0, Fm 0, Fm 0, Fm 3, 
-    Fm 0, Fm 0, Fm 2, Fm 0, 
+  | FitLength thing1
+  | Overlay [
+    Sine, 
+    Sine 3/2 | Gm 1/8 | Pm 9/10,
+    Sine 4 | Reverb 1.0 | Gm 1/3 | Fm 3,   
   ]
-  | Fm 3/2
-  | Seq [Fm 0, Fm 0, Fm 1, Fm 0, Reverse | Overlay [Fm 1/2] | Sine 3/2 | Gm 1/4]
+}
+
+hh = {
+  O[
+    (1/1, 0, 1/2, 6/7),
+    (1/1, 0, 1/2, -5/7),
+  ]
+  | Noise | Seq [
+    Fm 1, Fm 0, Fm 1, Fm 0 | Lm 2, Fm 1, Fm 0, Lm 2, Fm 0, Fm 1
+  ]
+  | Seq [AsIs, Reverse,AsIs, Reverse | Lm 1/2, Fm 3, Fm 4 | Lm 1/4]
+  | ModBy [*(p: 0|10 [-3, 3, -2, 2, -3, 3, -4, 4]) Take 8]
+  | Repeat 6
+  | Gm 2/3
   | FitLength thing1
 }
 
-thing3 = {
+cymb = {
   O[
-    (15/8, 2, 1/8, 1),
-    (15/8, 0, 1/8, -1),
-    (5/3, 2, 1/2, 1),
-    (5/3, 0, 1/2, -1),
-    (3/2, 2, 1, 1),
-    (3/2, 0, 1, -1),
-    (1/1, 2, 1, 1),
-    (1/1, 0, 1, -1),
-    (3/4, 2, 1, 1),
-    (3/4, 0, 1, -1),
-    (1/2, 2, 1, 1),
-    (1/2, 0, 1, -1),
-    (1/8, 16, 1/3, 0),
-    (1/8, 0, 1/3, 0),
+    (5/1, 0, 1/2, -5/7),
+    (5/1, 0, 1/2, 6/7),
   ]
-  | Seq [
-    Fm 5/4
-    | ModBy [
-      *(
-        f: -2|120 [3, 3, -1*8],
-        g: 6|10 [1*3, 0*5, -1*2]
-      ) Take 10
-    ], 
-    Fm 0  
-  ]
-  | FitLength thing1  
-}
-
-aphid_twicks_inner = {
-  Fm 8/9 | 
-  Overlay [
-    thing1,
-    thing2,
-    thing3
-  ]
-}
-
-chord = {
+  | Overlay [Noise | Gm 1/4, Fm 1 | Gm 1/5] | 
   Seq [
-    Fm 0 | Lm 1/2,    
-    O[
-      (4, 0, 1/2, 1),
-      (4, 11, 1/2, -1),
-      (3, 4, 1/2, 1),
-      (3, 0, 1/2, -1),
-      (5/2, 3, 1, 1),
-      (5/2, 0, 1, -1),
-      (3/2, 3, 1, 1),
-      (3/2, 0, 1, -1),
-      (1/1, 3, 1, 1),
-      (1/1, 0, 1, -1),
-      (3/4, 3, 1, 1),
-      (3/4, 0, 1, -1),
-      (1/2, 3, 1, 1),
-      (1/2, 0, 1, -1),
-    ] | Fm 3/2 | Lm 2,
-    Fm 0 | Lm 1/2,
+    Fm 0, Fm 1, Fm 0, Fm 0
   ]
-  | Overlay [Sine, Sine 3/2, Fm 1/2]
-  | Gm 1/3
-  | ModBy [
-    *(
-      f: 4|120 [-8*32],
-      g: 0|32 [1*10],
-    ) Take 32
-  ]
+  | Repeat 64
+  | Gm 1/1
+  | FitLength thing1
 }
 
-aphid_twicks = {
+melody = {
   Seq [
-    aphid_twicks_inner | Lm 3/2,
+    Fm 0 | Lm 32,
+    Fm 1, Fm 4/3, Fm 5/3, Fm 3/2, Fm 9/8, Fm 3/4, Fm 7/8, 
+    Fm 4/5, Fm 3/4, Fm 5/8, Fm 5/6, Fm 9/8, Fm 5/4, Fm 9/8, 
+    Fm 3/4, Fm 2/3, Fm 5/6, Fm 1, Fm 5/4, 
+    Fm 9/8, Fm 3/4, Fm 5/6,
     Seq [
-      aphid_twicks_inner 
-      | Repeat 3
-      | Seq [
-        Fm 1, 
-        Fm 25/24, Fm 9/8, 
-        Fm 25/24
-      ],
-      Fm 0 | Lm 1/10,
-      O[
-        (2, 11, 1, 1),
-        (2, 0, 1, -1),
-        (3/2, 3, 1, 1),
-        (3/2, 0, 1, -1),
-        (1/1, 3, 1, 1),
-        (1/1, 0, 1, -1),
-        (3/4, 3, 1, 1),
-        (3/4, 0, 1, -1),
-      ]
-      | Seq [
-        Fm 5/3, Fm 3/2, Fm 5/4, Fm 9/8, Fm 1
-      ] 
-      | Seq [
-        Fm 5/4, Fm 9/8, Fm 7/8 | Reverse, Fm 3/4, 
-        Fm 1/2 | Overlay [Fm 1, Fm 3/2]
-      ]
-      | Lm 1/17,
-      Fm 0 | Lm 1/10,
+      Fm 5/4, Fm 9/8, Fm 1 | Lm 3,
     ]
     | Seq [
-      Repeat 3,
+      Fm 1, 
+      Lm 2/3 | Overlay [
+        Fm 1, Fm 5/4
+      ], 
+      Lm 1/2 | Overlay [AsIs, Fm 3/2], 
     ],
-    aphid_twicks_inner | Lm 3/2,
+    Fm 0 | Lm 8 
   ]
-}
-
-earth_chords = {
-  Seq [
-    O[
-      (4, 0, 1/2, 1),
-      (4, 11, 1/2, -1),
-      (3, 4, 1/2, 1),
-      (3, 0, 1/2, -1),
-      (5/2, 3, 1, 1),
-      (5/2, 0, 1, -1),
-      (3/2, 3, 1, 1),
-      (3/2, 0, 1, -1),
-      (1/1, 3, 1, 1),
-      (1/1, 0, 1, -1),
-      (3/4, 3, 1, 1),
-      (3/4, 0, 1, -1),
-      (1/2, 3, 1, 1),
-      (1/2, 0, 1, -1),
-    ],
-    O[
-      (4, 0, 1/2, 1),
-      (4, 2, 1/2, -1),
-      (3, -2, 1/2, 1),
-      (3, 0, 1/2, -1),
-      (8/3, 4, 1, 1),
-      (8/3, 0, 1, -1),
-      (5/3, 1, 1, 1),
-      (5/3, 0, 1, -1),
-      (1/1, 2, 1, 1),
-      (1/1, 0, 1, -1),
-      (2/3, 1, 1, 1),
-      (2/3, 0, 1, -1),
-      (1/3, 2, 1, 1),
-      (1/3, 0, 1, -1),
-    ],
-    O[
-      (4, 0, 1/8, 1),
-      (4, 11, 1/8, -1),
-      (3, 4, 1/8, 1),
-      (3, 4, 1/8, -1),
-      (8/3, 5, 1, 1),
-      (8/3, 0, 1, -1),
-      (5/3, 5, 1, 1),
-      (5/3, 0, 1, -1),
-      (1/1, 5, 1, 1),
-      (1/1, 0, 1, -1),
-      (2/3, 5, 1, 1),
-      (2/3, 0, 1, -1),
-      (1/6, 5, 1, 1),
-      (1/6, 0, 1, -1),
-    ] | Lm 1/6
-    | ModBy [
-      *(
-        f: 4|120 [-1*8],
-      ) Take 10
-    ],
+  | Repeat 2
+  | Overlay [AsIs, Invert | Fm 5/3 | Gm 1/16]
+  | O[
+    (4/1, 0, 1/2, -1/2),
+    (4/1, 0, 1/2, 1/2),
+    (4/1, 0, 1/2, -1/2),
+    (4/1, 0, 1/2, 1/2),
+    (3/1, 0, 1/2, -1/2),
+    (3/1, 0, 1/2, 1/2),
+    (2/1, 0, 1/2, -1/2),
+    (2/1, 0, 1/2, 1/2),
   ]
-}
-
-middle_earth = {
-  Overlay [
-    earth_chords,
-    Seq [
-      Fm 0 | Lm 2,
-      Fm 1 | Overlay [Fm 1, Fm 3/2, Fm 5/2] | Lm 3 | Pm 2, 
-      Fm 5/4, Fm 5/3, Fm 3/2, Fm 9/4, 
-      Fm 2, Fm 15/8, Fm 5/3, Fm 3/2, Fm 4/3, 
-      Fm 5/4 | Lm 3 | Overlay [Fm 1, Fm 3/2, Fm 5/2] | Pm 2, 
-      Fm 9/8, Fm 1, Fm 5/4, 
-      Fm 3/2 | Lm 3 | Overlay [Fm 1, Fm 3/2, Fm 5/2] | Pm 2, 
-      Fm 15/8, Fm 9/4, Fm 2, Fm 3/2, Fm 4/3, Fm 3/2, 
-      Fm 4/3 | Lm 2 | Overlay [Fm 1, Fm 3/2, Fm 5/2] | Pm 2, 
-      Fm 5/4, Fm 3/2, Fm 2, Fm 9/8, Fm 5/4, Fm 4/3, Fm 9/8, 
-      Seq [Fm 15/8, Fm 3/2, Fm 4/3, Fm 5/4, Fm 5/3, Fm 9/4, Fm 10/3] 
-      | Overlay [AsIs, Invert]
-    ]
-    | O[
-      (2/1, 1, 1, 1/2),
-      (2/1, 0, 1, -1/2),
-      (3/2, 1, 1, 1/2),
-      (3/2, 0, 1, -1/2),
-      (1/1, 1, 1, 1/2),
-      (1/1, 0, 1, -1/2),
-    ]
-    | FitLength earth_chords
-    | Gm 2/3
-    | Overlay [
-      AsIs, 
-      Fm 3 | Lm 1/3 | Seq [Fm 1, Fm 0, Fm 0] | Gm 1/16
-    ]
-  ] 
-  | Lm 3/2
-  | Seq [Fm 11/8, Fm 5/4, Fm 9/8, Fm 1]
+  | Overlay [AsIs, Pm -1]
+  | FitLength thing1
+  
 }
 
 main = {
-  Seq [
-    middle_earth,
-    Fm 0 | Lm 1/100,
-    aphid_twicks,
-    
+  Overlay [
+    #a | thing1,
+    #b | thing2 | Gm 5/3,
+    #n | hh,
+    #c | cymb,
+    #melody | melody
+  ]
+  | Seq [
+    Lm 12/10,
+    Lm 11/10
+  ]
+  | Seq[
+    Seq [Fm 1, Fm 9/8] | Lm 5/4,
+    Seq [Fm 1, Fm 9/8, Fm 5/4]
   ]
 }

@@ -38,11 +38,11 @@ pub struct InstanceMul {
 impl Default for InstanceMul {
     fn default() -> Self {
         Self {
-            x: 3.0,
-            y: 8.0,
+            x: 9.0,
+            y: 17.0,
             z: 1.0,
             life: 2.0,
-            size: 6.0,
+            size: 35.0,
             length: 1.0,
         }
     }

@@ -68,7 +68,7 @@ impl Setup {
         let state = Arc::new(Mutex::new(kintaro_egui_lib::UiState {
             play: true,
             volume: config.volume,
-            camera_index: 0,
+            camera_index: 4,
             instance_mul: InstanceMul::default(),
             reset: false,
         }));

@@ -59,13 +59,14 @@ impl RealTimeState {
 
         if let Some(toy) = &mut self.toy {
             toy_renderpass(
-                self.clock.is_playing(),
+                true,
                 toy,
                 &self.device,
                 &self.queue,
                 &view,
                 (self.size.width, self.size.height),
-            )?;
+            )
+            .expect("toy error");
         }
 
         for (n, renderpass) in self.renderpasses.iter_mut().enumerate() {

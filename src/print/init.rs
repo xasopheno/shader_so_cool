@@ -10,8 +10,8 @@ use crate::{
 
 impl PrintState {
     pub async fn init(config: Config) -> PrintState {
-        let texture_width = 1792 / 4;
-        let texture_height = 1120 / 4;
+        let texture_width = 1792 * 4;
+        let texture_height = 1120 * 4;
 
         let instance = wgpu::Instance::new(wgpu::Backends::PRIMARY);
         let adapter = instance
@@ -51,6 +51,12 @@ impl PrintState {
 
         let op_streams = crate::render_op::OpStream::from_json(&config.filename);
 
+        let toy = crate::toy::setup_toy(
+            &device,
+            std::time::Instant::now(),
+            (texture_width, texture_height),
+        );
+
         let renderpasses = op_streams
             .iter()
             .map(|op_stream| {
@@ -87,6 +93,7 @@ impl PrintState {
             .collect();
         PrintState {
             renderpasses,
+            toy: Some(toy),
             clock: PrintClock::init(&config),
 
             canvas: Canvas::init((texture_width, texture_height)),
