@@ -16,7 +16,12 @@ pub struct Toy {
     pub size: (u32, u32),
 }
 
-pub fn setup_toy(device: &wgpu::Device, start_time: std::time::Instant, size: (u32, u32)) -> Toy {
+pub fn setup_toy(
+    device: &wgpu::Device,
+    start_time: std::time::Instant,
+    size: (u32, u32),
+    format: wgpu::TextureFormat,
+) -> Toy {
     let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
         label: Some("Shader"),
         source: wgpu::ShaderSource::Wgsl(include_str!("./toy.wgsl").into()),
@@ -29,7 +34,7 @@ pub fn setup_toy(device: &wgpu::Device, start_time: std::time::Instant, size: (u
         device,
         &shader,
         &uniform_bind_group_layout,
-        wgpu::TextureFormat::Bgra8UnormSrgb,
+        format,
     );
 
     Toy {
@@ -55,18 +60,16 @@ pub fn toy_renderpass(
         label: Some("Render Encoder"),
     });
 
-    if is_playing {
-        toy.uniforms
-            .update_uniforms((size.0, size.1), toy.start_time);
-    }
+    // if is_playing {
+    toy.uniforms
+        .update_uniforms((size.0, size.1), toy.start_time);
+    queue.write_buffer(
+        &toy.uniform_buffer,
+        0,
+        bytemuck::cast_slice(&[toy.uniforms]),
+    );
 
     {
-        queue.write_buffer(
-            &toy.uniform_buffer,
-            0,
-            bytemuck::cast_slice(&[toy.uniforms]),
-        );
-
         let clear_color = wgpu::Color {
             r: 0.2,
             g: 0.2,

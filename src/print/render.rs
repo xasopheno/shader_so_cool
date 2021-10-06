@@ -12,7 +12,7 @@ use super::{
 };
 
 impl PrintState {
-    pub async fn render(&mut self) {
+    pub async fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
         self.clock.update();
         let time = self.clock.current();
         self.camera.update(time.last_period);
@@ -34,17 +34,16 @@ impl PrintState {
             );
         }
 
-        // if let Some(toy) = &mut self.toy {
-        // toy_renderpass(
-        // self.clock.is_playing(),
-        // toy,
-        // &self.device,
-        // &self.queue,
-        // &self.texture_view,
-        // self.size,
-        // )
-        // .unwrap();
-        // }
+        if let Some(toy) = &mut self.toy {
+            toy_renderpass(
+                self.clock.is_playing(),
+                toy,
+                &self.device,
+                &self.queue,
+                &self.texture_view,
+                self.size,
+            )?
+        }
 
         for (n, renderpass) in self.renderpasses.iter_mut().enumerate() {
             renderpass
@@ -86,5 +85,6 @@ impl PrintState {
             &self.device,
         )
         .await;
+        Ok(())
     }
 }
