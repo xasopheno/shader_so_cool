@@ -38,8 +38,8 @@ fn main() {
 fn print() {
     let config = Config::new();
     let mut state = block_on(PrintState::init(config));
-    // for _ in 0..2700 {
-    for _ in 0..1000 {
+    for _ in 0..20000 {
+        // for _ in 0..1000 {
         block_on(state.render());
     }
 }
