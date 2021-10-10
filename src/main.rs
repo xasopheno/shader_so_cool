@@ -8,6 +8,7 @@ mod print;
 mod realtime;
 mod render_op;
 mod shared;
+mod texture;
 mod toy;
 mod uniforms;
 mod vertex;
@@ -38,9 +39,8 @@ fn main() {
 fn print() {
     let config = Config::new();
     let mut state = block_on(PrintState::init(config));
-    // for _ in 0..2700 {
-    for _ in 0..1000 {
-        block_on(state.render());
+    for i in 0..1000 {
+        block_on(state.render()).expect(format!("Unable to render frame: {}", i).as_str());
     }
 }
 
@@ -71,16 +71,6 @@ fn realtime() {
 
     event_loop.run(move |event, _, control_flow| {
         #[allow(unused_assignments)]
-        // if state.gui.state.lock().unwrap().reset {
-        // state.pause();
-        // let (new_stream, new_stream_handle) = crate::audio::play_audio(&config);
-        // stream = new_stream;
-
-        // state =
-        // RealTimeState::init(&window, &config, repaint_signal.clone(), new_stream_handle);
-        // state.play();
-        // // state.gui.state.reset = false;
-        // }
         state.gui.platform.handle_event(&event);
         match event {
             Event::MainEventsCleared => window.request_redraw(),
