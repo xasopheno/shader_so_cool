@@ -1,4 +1,7 @@
-use crate::vertex::{ColorSet, Vertex};
+use crate::{
+    color::{ColorSet, Gen},
+    vertex::Vertex,
+};
 use rand::Rng;
 
 pub fn make_color_attachments(
@@ -51,13 +54,13 @@ pub fn new_random_vertices() -> Vec<Vertex> {
     (0..30).into_iter().map(|_| Vertex::new_random()).collect()
 }
 
-#[allow(dead_code)]
-pub fn new_random_vertices_with_colorset(colorset: ColorSet) -> Vec<Vertex> {
-    (0..30)
-        .into_iter()
-        .map(|_| Vertex::new_random_from_colorset(colorset))
-        .collect()
-}
+// #[allow(dead_code)]
+// pub fn new_random_vertices_with_colorset(colorset: ColorSet) -> Vec<Vertex> {
+// (0..30)
+// .into_iter()
+// .map(|_| Vertex::new_random_from_colorset(colorset.clone()))
+// .collect()
+// }
 
 #[allow(dead_code)]
 pub fn new_random_indices(n: u16) -> Vec<u16> {

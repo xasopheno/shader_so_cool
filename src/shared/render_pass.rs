@@ -1,6 +1,7 @@
 use crate::config::Config;
 use crate::instance::Instance;
 use crate::render_op::OpStream;
+use crate::vertex::shape::Shape;
 use crate::vertex::Vertex;
 
 use super::make_color_attachments;
@@ -10,6 +11,7 @@ pub struct RenderPassInput {
     pub vertices: Vec<Vertex>,
     pub vertex_buffer: wgpu::Buffer,
     pub vertices_fn: fn() -> Vec<Vertex>,
+    pub shape: Shape,
     pub index_buffer: wgpu::Buffer,
     pub instance_buffer: wgpu::Buffer,
     pub instances: Vec<Instance>,

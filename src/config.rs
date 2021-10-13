@@ -1,4 +1,8 @@
+use std::rc::Rc;
+
+use crate::color::{Gen, RandColor};
 use crate::shared::helpers::{new_random_indices, new_random_vertices};
+use crate::vertex::shape::{RandPosition, Shape};
 use crate::vertex::Vertex;
 
 #[derive(Clone, Copy)]
@@ -18,6 +22,7 @@ pub struct Config {
     pub accumulation: bool,
     pub vertices_fn: fn() -> Vec<Vertex>,
     pub indices_fn: fn(u16) -> Vec<u16>,
+    pub shape: Shape,
 }
 
 impl Config {
@@ -30,6 +35,11 @@ impl Config {
             window_size: (1792, 1120),
             vertices_fn: new_random_vertices,
             indices_fn: new_random_indices,
+            shape: Shape {
+                n_vertices: 30,
+                position_gen: Rc::new(RandPosition),
+                color_gen: Rc::new(RandColor),
+            },
             cameras: vec![
                 CameraConfig {
                     index: 0,

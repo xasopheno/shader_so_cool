@@ -14,7 +14,10 @@ use crate::{
     realtime::render::ExampleRepaintSignal,
     shared::{create_render_pipeline, helpers::new_clear_color, RenderPassInput},
     toy::Toy,
-    vertex::{create_index_buffer, create_vertex_buffer},
+    vertex::{
+        create_index_buffer, create_vertex_buffer,
+        shape::{RandPosition, Shape},
+    },
 };
 use futures::executor::block_on;
 use winit::window::Window;
@@ -103,6 +106,7 @@ impl RealTimeState {
                     uniform_buffer,
                     uniforms,
                     vertices_fn: config.vertices_fn,
+                    shape: config.shape.clone(),
                     indices_fn: config.indices_fn,
                     render_pipeline,
                 }

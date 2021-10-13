@@ -1,6 +1,9 @@
+pub mod shape;
 use rand::prelude::*;
 use rand::seq::SliceRandom;
 use wgpu::util::DeviceExt;
+
+use crate::color::{ColorSet, Gen, RandColor};
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
@@ -9,16 +12,6 @@ pub struct Vertex {
     pub color: [f32; 3],
     pub direction: [f32; 3],
     pub velocity: f32,
-}
-
-pub type ColorSet = &'static Vec<Color>;
-
-#[derive(Copy, Clone, Debug)]
-pub struct Color {
-    pub r: f32,
-    pub g: f32,
-    pub b: f32,
-    pub shade: f32,
 }
 
 pub fn create_vertex_buffer(device: &wgpu::Device, vertices: &[Vertex]) -> wgpu::Buffer {
@@ -49,11 +42,13 @@ impl Vertex {
         }
     }
     pub fn new_random() -> Self {
+        let mut color_gen = RandColor;
         let mut rng = rand::thread_rng();
         let mut r = || rng.gen::<f32>() * 2.0 - 1.0;
+        let color = color_gen.gen(0);
         Self {
             position: [r() * 1.0, r() * 1.0, r() * 3.0],
-            color: [r() * 0.7, r() * 0.7, 1.0],
+            color: [color.r, color.g, color.b],
             direction: [r(), r(), r()],
             velocity: r() * 0.4,
         }

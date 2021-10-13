@@ -2,6 +2,7 @@ mod audio;
 mod camera;
 mod canvas;
 mod clock;
+mod color;
 mod config;
 mod instance;
 mod print;

@@ -86,6 +86,7 @@ impl PrintState {
                     num_indices: indices.len() as u32,
                     uniform_buffer,
                     uniforms,
+                    shape: config.shape.clone(),
                     vertices_fn: config.vertices_fn,
                     indices_fn: config.indices_fn,
                     render_pipeline,
