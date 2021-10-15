@@ -3,7 +3,7 @@ use rand::prelude::*;
 use rand::seq::SliceRandom;
 use wgpu::util::DeviceExt;
 
-use crate::color::{ColorSet, Gen, RandColor};
+use crate::color::{ColorSet, GenColor, RandColor};
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
@@ -42,10 +42,10 @@ impl Vertex {
         }
     }
     pub fn new_random() -> Self {
-        let mut color_gen = RandColor;
+        let color_gen = RandColor;
         let mut rng = rand::thread_rng();
         let mut r = || rng.gen::<f32>() * 2.0 - 1.0;
-        let color = color_gen.gen(0);
+        let color = color_gen.gen();
         Self {
             position: [r() * 1.0, r() * 1.0, r() * 3.0],
             color: [color.r, color.g, color.b],
@@ -55,7 +55,7 @@ impl Vertex {
     }
 
     pub fn new_random_from_colorset(colorset: ColorSet) -> Self {
-        let color = colorset.choose(&mut rand::thread_rng()).unwrap();
+        let color = colorset.colors.choose(&mut rand::thread_rng()).unwrap();
         let mut rng = rand::thread_rng();
         let mut r = || rng.gen::<f32>() * 2.0 - 1.0;
         let shade = color.shade;

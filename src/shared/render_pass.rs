@@ -10,7 +10,6 @@ pub struct RenderPassInput {
     pub render_pipeline: wgpu::RenderPipeline,
     pub vertices: Vec<Vertex>,
     pub vertex_buffer: wgpu::Buffer,
-    pub vertices_fn: fn() -> Vec<Vertex>,
     pub shape: Shape,
     pub index_buffer: wgpu::Buffer,
     pub instance_buffer: wgpu::Buffer,

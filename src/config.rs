@@ -1,9 +1,6 @@
-use std::rc::Rc;
-
-use crate::color::{Gen, RandColor};
+use crate::color::RandColor;
 use crate::shared::helpers::{new_random_indices, new_random_vertices};
-use crate::vertex::shape::{RandPosition, Shape};
-use crate::vertex::Vertex;
+use crate::vertex::shape::{RandIndex, RandPosition, Shape};
 
 #[derive(Clone, Copy)]
 pub struct CameraConfig {
@@ -20,7 +17,6 @@ pub struct Config {
     pub window_size: (u32, u32),
     pub cameras: Vec<CameraConfig>,
     pub accumulation: bool,
-    pub vertices_fn: fn() -> Vec<Vertex>,
     pub indices_fn: fn(u16) -> Vec<u16>,
     pub shape: Shape,
 }
@@ -33,12 +29,12 @@ impl Config {
             filename: "kintaro".into(),
             volume: 0.20,
             window_size: (1792, 1120),
-            vertices_fn: new_random_vertices,
             indices_fn: new_random_indices,
             shape: Shape {
                 n_vertices: 30,
-                position_gen: Rc::new(RandPosition),
-                color_gen: Rc::new(RandColor),
+                position_gen: Box::new(RandPosition),
+                color_gen: Box::new(RandColor),
+                indices_gen: Box::new(RandIndex),
             },
             cameras: vec![
                 CameraConfig {

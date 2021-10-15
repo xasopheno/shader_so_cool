@@ -1,10 +1,22 @@
 use rand::prelude::*;
 use rand::seq::SliceRandom;
 
-pub type ColorSet = Vec<Color>;
+use crate::vertex::{
+    shape::{Position, Shape},
+    Vertex,
+};
+
+#[derive(Clone, Debug)]
 pub struct RandColor;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Clone, Debug)]
+pub struct ColorSet {
+    pub colors: Vec<Color>,
+}
+
+pub type Index = u16;
+
+#[derive(Clone, Debug)]
 pub struct Color {
     pub r: f32,
     pub g: f32,
@@ -12,23 +24,42 @@ pub struct Color {
     pub shade: f32,
 }
 
-pub trait Gen<T>
-where
-    T: Sized + Clone,
-{
-    fn gen(&self, idx: usize) -> T;
+pub trait GenColor: dyn_clone::DynClone {
+    fn gen(&self) -> Color;
 }
 
-impl Gen<Color> for ColorSet {
-    fn gen(&self, _idx: usize) -> Color {
-        *self
+pub trait GenPosition: dyn_clone::DynClone {
+    fn gen(&self) -> Position;
+}
+
+pub trait GenIndex: dyn_clone::DynClone {
+    fn gen(&self, n_vertices: usize) -> Index;
+}
+
+pub trait GenVertex: dyn_clone::DynClone {
+    fn gen(&self) -> Vec<Vertex>;
+}
+
+// pub trait GenOrdered<T>: dyn_clone::DynClone {
+// fn gen(&self, idx: usize) -> T;
+// }
+
+dyn_clone::clone_trait_object!(GenColor);
+dyn_clone::clone_trait_object!(GenPosition);
+dyn_clone::clone_trait_object!(GenIndex);
+dyn_clone::clone_trait_object!(GenVertex);
+
+impl GenColor for ColorSet {
+    fn gen(&self) -> Color {
+        self.colors
             .choose(&mut rand::thread_rng())
             .expect("color choice failed")
+            .to_owned()
     }
 }
 
-impl Gen<Color> for RandColor {
-    fn gen(&self, _idx: usize) -> Color {
+impl GenColor for RandColor {
+    fn gen(&self) -> Color {
         let mut rng = rand::thread_rng();
         let mut r = || rng.gen::<f32>() * 2.0 - 1.0;
 

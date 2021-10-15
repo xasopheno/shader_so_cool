@@ -9,15 +9,13 @@ use crate::{
     camera::Camera,
     canvas::Canvas,
     clock::{Clock, RenderClock},
+    color::GenVertex,
     config::Config,
     instance::make_instances_and_instance_buffer,
     realtime::render::ExampleRepaintSignal,
     shared::{create_render_pipeline, helpers::new_clear_color, RenderPassInput},
     toy::Toy,
-    vertex::{
-        create_index_buffer, create_vertex_buffer,
-        shape::{RandPosition, Shape},
-    },
+    vertex::{create_index_buffer, create_vertex_buffer},
 };
 use futures::executor::block_on;
 use winit::window::Window;
@@ -78,9 +76,8 @@ impl RealTimeState {
         let renderpasses = op_streams
             .iter()
             .map(|op_stream| {
-                let vertices = (config.vertices_fn)();
-                let num_vertices = vertices.len() as u32;
-                let indices = (config.indices_fn)(num_vertices as u16);
+                let vertices = config.shape.gen();
+                let indices = (config.indices_fn)(config.shape.n_vertices as u16);
                 let (instances, instance_buffer) = make_instances_and_instance_buffer(
                     0,
                     (window.inner_size().height, window.inner_size().height),
@@ -105,7 +102,6 @@ impl RealTimeState {
                     num_indices: indices.len() as u32,
                     uniform_buffer,
                     uniforms,
-                    vertices_fn: config.vertices_fn,
                     shape: config.shape.clone(),
                     indices_fn: config.indices_fn,
                     render_pipeline,

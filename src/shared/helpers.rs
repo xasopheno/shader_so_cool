@@ -1,7 +1,4 @@
-use crate::{
-    color::{ColorSet, Gen},
-    vertex::Vertex,
-};
+use crate::vertex::Vertex;
 use rand::Rng;
 
 pub fn make_color_attachments(

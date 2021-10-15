@@ -3,6 +3,7 @@ use kintaro_egui_lib::InstanceMul;
 use crate::{
     canvas::Canvas,
     clock::ClockResult,
+    color::GenVertex,
     instance::{make_instance_buffer, Instance},
     render_op::{OpStream, ToInstance},
     shared::RenderPassInput,
@@ -20,7 +21,7 @@ pub fn update(
     instance_mul: InstanceMul,
 ) {
     if time.frame_count % 1000 == 0 {
-        renderpass.vertices = (renderpass.vertices_fn)();
+        renderpass.vertices = renderpass.shape.gen();
         // self.clear_color = crate::helpers::new_random_clear_color();
     }
     renderpass.vertex_buffer = make_vertex_buffer(device, renderpass.vertices.as_slice());
