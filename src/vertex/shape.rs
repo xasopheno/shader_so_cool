@@ -32,14 +32,6 @@ impl GenIndex for RandIndex {
     }
 }
 
-#[allow(dead_code)]
-pub fn new_random_indices(n: u16) -> Vec<u16> {
-    let mut rng = rand::thread_rng();
-    let mut num = || rng.gen_range(0..n);
-
-    (0..30).map(|_| num()).collect()
-}
-
 impl GenPosition for RandPosition {
     fn gen(&self) -> Position {
         let mut rng = rand::thread_rng();
