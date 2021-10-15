@@ -21,7 +21,7 @@ pub fn update(
     instance_mul: InstanceMul,
 ) {
     if time.frame_count % 1000 == 0 {
-        renderpass.vertices = renderpass.shape.gen();
+        renderpass.vertices = renderpass.shape.gen().0;
         // self.clear_color = crate::helpers::new_random_clear_color();
     }
     renderpass.vertex_buffer = make_vertex_buffer(device, renderpass.vertices.as_slice());

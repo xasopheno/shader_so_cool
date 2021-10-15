@@ -17,8 +17,6 @@ pub struct RenderPassInput {
     pub uniforms: crate::uniforms::RealtimeUniforms,
     pub uniform_bind_group: wgpu::BindGroup,
     pub uniform_buffer: wgpu::Buffer,
-    pub indices_fn: fn(u16) -> Vec<u16>,
-    pub num_indices: u32,
     pub op_stream: OpStream,
 }
 
@@ -41,5 +39,9 @@ pub fn render_pass<'a>(
     render_pass.set_vertex_buffer(0, input.vertex_buffer.slice(..));
     render_pass.set_vertex_buffer(1, input.instance_buffer.slice(..));
     render_pass.set_index_buffer(input.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
-    render_pass.draw_indexed(0..input.num_indices, 0, 0..input.instances.len() as _);
+    render_pass.draw_indexed(
+        0..input.shape.n_indices as u32,
+        0,
+        0..input.instances.len() as _,
+    );
 }

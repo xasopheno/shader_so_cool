@@ -76,8 +76,7 @@ impl RealTimeState {
         let renderpasses = op_streams
             .iter()
             .map(|op_stream| {
-                let vertices = config.shape.gen();
-                let indices = (config.indices_fn)(config.shape.n_vertices as u16);
+                let (vertices, indices) = config.shape.gen();
                 let (instances, instance_buffer) = make_instances_and_instance_buffer(
                     0,
                     (window.inner_size().height, window.inner_size().height),
@@ -99,11 +98,9 @@ impl RealTimeState {
                     uniform_bind_group,
                     instances,
                     instance_buffer,
-                    num_indices: indices.len() as u32,
                     uniform_buffer,
                     uniforms,
                     shape: config.shape.clone(),
-                    indices_fn: config.indices_fn,
                     render_pipeline,
                 }
             })

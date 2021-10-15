@@ -1,20 +1,17 @@
 use rand::prelude::*;
 use rand::seq::SliceRandom;
 
-use crate::vertex::{
-    shape::{Position, Shape},
-    Vertex,
-};
+use crate::vertex::{shape::Position, Vertex};
 
 #[derive(Clone, Debug)]
 pub struct RandColor;
+
+pub type Index = u16;
 
 #[derive(Clone, Debug)]
 pub struct ColorSet {
     pub colors: Vec<Color>,
 }
-
-pub type Index = u16;
 
 #[derive(Clone, Debug)]
 pub struct Color {
@@ -27,22 +24,15 @@ pub struct Color {
 pub trait GenColor: dyn_clone::DynClone {
     fn gen(&self) -> Color;
 }
-
 pub trait GenPosition: dyn_clone::DynClone {
     fn gen(&self) -> Position;
 }
-
-pub trait GenIndex: dyn_clone::DynClone {
-    fn gen(&self, n_vertices: usize) -> Index;
-}
-
 pub trait GenVertex: dyn_clone::DynClone {
     fn gen(&self) -> Vec<Vertex>;
 }
-
-// pub trait GenOrdered<T>: dyn_clone::DynClone {
-// fn gen(&self, idx: usize) -> T;
-// }
+pub trait GenIndex: dyn_clone::DynClone {
+    fn gen(&self, n_vertices: usize) -> Index;
+}
 
 dyn_clone::clone_trait_object!(GenColor);
 dyn_clone::clone_trait_object!(GenPosition);

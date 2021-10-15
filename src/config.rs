@@ -17,7 +17,6 @@ pub struct Config {
     pub window_size: (u32, u32),
     pub cameras: Vec<CameraConfig>,
     pub accumulation: bool,
-    pub indices_fn: fn(u16) -> Vec<u16>,
     pub shape: Shape,
 }
 
@@ -29,9 +28,9 @@ impl Config {
             filename: "kintaro".into(),
             volume: 0.20,
             window_size: (1792, 1120),
-            indices_fn: new_random_indices,
             shape: Shape {
                 n_vertices: 30,
+                n_indices: 30,
                 position_gen: Box::new(RandPosition),
                 color_gen: Box::new(RandColor),
                 indices_gen: Box::new(RandIndex),
