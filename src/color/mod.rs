@@ -1,3 +1,4 @@
+pub mod helpers;
 use std::fmt::Debug;
 
 use rand::prelude::*;
@@ -15,7 +16,7 @@ pub struct ColorSet {
     pub colors: Vec<Color>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Color {
     pub r: f32,
     pub g: f32,
