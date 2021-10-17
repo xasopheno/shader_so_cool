@@ -1,4 +1,4 @@
-use crate::color::RandColor;
+use crate::color::{Color, ColorSet, RandColor};
 use crate::shared::helpers::{new_random_indices, new_random_vertices};
 use crate::vertex::shape::{RandIndex, RandPosition, Shape};
 
@@ -22,6 +22,57 @@ pub struct Config {
 
 impl Config {
     pub fn new() -> Self {
+        let colorset = ColorSet {
+            colors: vec![
+                Color {
+                    r: 179.0,
+                    g: 118.0,
+                    b: 71.0,
+                    shade: 70.0,
+                },
+                Color {
+                    r: 154.0,
+                    g: 255.0,
+                    b: 153.0,
+                    shade: 100.0,
+                },
+                Color {
+                    r: 255.0,
+                    g: 183.0,
+                    b: 128.0,
+                    shade: 100.0,
+                },
+                Color {
+                    r: 129.0,
+                    g: 102.0,
+                    b: 255.0,
+                    shade: 100.0,
+                },
+                Color {
+                    r: 97.0,
+                    g: 80.0,
+                    b: 179.0,
+                    shade: 70.0,
+                },
+                Color {
+                    r: 255.0,
+                    g: 0.0,
+                    b: 0.0,
+                    shade: 70.0,
+                },
+            ],
+        };
+        let colors = colorset
+            .colors
+            .iter()
+            .map(|c| Color {
+                r: c.r / 255.0,
+                g: c.g / 255.0,
+                b: c.b / 255.0,
+                shade: c.shade / 100.0,
+            })
+            .collect();
+        let colorset = ColorSet { colors };
         let offset = (0.0, -20.0, 0.0);
         Config {
             accumulation: false,
@@ -32,7 +83,7 @@ impl Config {
                 n_vertices: 30,
                 n_indices: 30,
                 position_gen: Box::new(RandPosition),
-                color_gen: Box::new(RandColor),
+                color_gen: Box::new(colorset),
                 indices_gen: Box::new(RandIndex),
             },
             cameras: vec![

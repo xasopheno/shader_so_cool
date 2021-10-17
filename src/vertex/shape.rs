@@ -1,9 +1,9 @@
-use crate::color::{Color, GenColor, GenIndex, GenPosition, GenVertex, Index};
+use crate::color::{GenColor, GenIndex, GenPosition, GenVertex, Index};
 use rand::prelude::*;
 
 use super::Vertex;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Shape {
     pub n_vertices: usize,
     pub n_indices: usize,

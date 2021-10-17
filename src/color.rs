@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use rand::prelude::*;
 use rand::seq::SliceRandom;
 
@@ -21,16 +23,16 @@ pub struct Color {
     pub shade: f32,
 }
 
-pub trait GenColor: dyn_clone::DynClone {
+pub trait GenColor: dyn_clone::DynClone + Debug {
     fn gen(&self) -> Color;
 }
-pub trait GenPosition: dyn_clone::DynClone {
+pub trait GenPosition: dyn_clone::DynClone + Debug {
     fn gen(&self) -> Position;
 }
-pub trait GenVertex: dyn_clone::DynClone {
+pub trait GenVertex: dyn_clone::DynClone + Debug {
     fn gen(&self) -> Vec<Vertex>;
 }
-pub trait GenIndex: dyn_clone::DynClone {
+pub trait GenIndex: dyn_clone::DynClone + Debug {
     fn gen(&self, n_vertices: usize) -> Index;
 }
 
@@ -60,4 +62,58 @@ impl GenColor for RandColor {
             shade: r(),
         }
     }
+}
+
+fn new() {
+    let colorset = ColorSet {
+        colors: vec![
+            Color {
+                r: 179.0,
+                g: 118.0,
+                b: 71.0,
+                shade: 70.0,
+            },
+            Color {
+                r: 154.0,
+                g: 255.0,
+                b: 153.0,
+                shade: 100.0,
+            },
+            Color {
+                r: 255.0,
+                g: 183.0,
+                b: 128.0,
+                shade: 100.0,
+            },
+            Color {
+                r: 129.0,
+                g: 102.0,
+                b: 255.0,
+                shade: 100.0,
+            },
+            Color {
+                r: 97.0,
+                g: 80.0,
+                b: 179.0,
+                shade: 70.0,
+            },
+            Color {
+                r: 255.0,
+                g: 0.0,
+                b: 0.0,
+                shade: 70.0,
+            },
+        ],
+    };
+    let colors = colorset
+        .colors
+        .iter()
+        .map(|c| Color {
+            r: c.r / 255.0,
+            g: c.g / 255.0,
+            b: c.b / 255.0,
+            shade: c.shade / 100.0,
+        })
+        .collect();
+    let colorset = ColorSet { colors };
 }
