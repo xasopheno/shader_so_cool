@@ -1,5 +1,4 @@
-use crate::color::{helpers::*, Color, ColorSet, RandColor};
-use crate::shared::helpers::{new_random_indices, new_random_vertices};
+use crate::color::helpers::*;
 use crate::vertex::shape::{RandIndex, RandPosition, Shape};
 
 #[derive(Clone, Copy)]
@@ -24,13 +23,14 @@ impl Config {
     pub fn new() -> Self {
         let colorsets = colorsets_from_vec_hex_strings(vec![
             vec!["#4778B8", "#333333"],
-            vec!["#FA0C8F", "#121312", "#333333"],
+            vec!["#AA0C8F", "#121312", "#333333"],
             vec!["#325380", "#333333"],
             vec!["#473859", "#222222"],
             vec!["#ababab", "#291931"],
             vec![
                 "#213CFB", "#310CFA", "#FADE19", "#111111", "#121212", "#101010",
             ],
+            vec!["#0034ff", "#0304dd"],
         ]);
         let offset = (0.0, -20.0, 0.0);
         Config {
@@ -39,8 +39,8 @@ impl Config {
             volume: 0.20,
             window_size: (1792, 1120),
             shape: Shape {
-                n_vertices: 30,
-                n_indices: 30,
+                n_vertices: 40,
+                n_indices: 100,
                 position: Box::new(RandPosition),
                 color: Box::new(colorsets),
                 indices: Box::new(RandIndex),

@@ -30,11 +30,7 @@ pub struct Color {
 
 impl GenColor for ColorSets {
     fn gen(&self) -> Color {
-        self.colorsets[self.n]
-            .colors
-            .choose(&mut rand::thread_rng())
-            .expect("color choice failed")
-            .to_owned()
+        self.colorsets[self.n].gen()
     }
     fn update(&mut self) {
         self.n = (self.n + 1) % self.colorsets.len();
