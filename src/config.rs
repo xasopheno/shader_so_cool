@@ -22,25 +22,24 @@ pub struct Config {
 impl Config {
     pub fn new() -> Self {
         let colorsets = colorsets_from_vec_hex_strings(vec![
-            vec!["#4778B8", "#333333"],
-            vec!["#AA0C8F", "#121312", "#333333"],
-            vec!["#325380", "#333333"],
-            vec!["#473859", "#222222"],
-            vec!["#ababab", "#291931"],
+            vec!["#6655aa", "#222222"],
+            vec!["#eeaC88", "#121312", "#333333"],
             vec![
-                "#213CFB", "#310CFA", "#FADE19", "#111111", "#121212", "#101010",
+                "#213CFB", "#310CFA", "#6688aa", "#111111", "#121212", "#101010",
             ],
-            vec!["#0034ff", "#0304dd"],
+            vec!["#473859", "#222222"],
+            vec!["#300300", "#333333"],
+            vec!["#001931", "#000000", "#222200"],
         ]);
-        let offset = (0.0, -20.0, 0.0);
+        let offset = (0.0, 20.0, 0.0);
         Config {
             accumulation: false,
             filename: "kintaro".into(),
             volume: 0.20,
             window_size: (1792, 1120),
             shape: Shape {
-                n_vertices: 40,
-                n_indices: 100,
+                n_vertices: 70,
+                n_indices: 70,
                 position: Box::new(RandPosition),
                 color: Box::new(colorsets),
                 indices: Box::new(RandIndex),

@@ -28,12 +28,12 @@ fn fs_main(
     var uv = frag_coord.xy / resolution;
     if (
         sin((100.0 + u.time) * 0.3 * uv.x) > 0.499 
-        && sin(uv.x * 100.0) < 0.501
-        && sin((uv.y * uv.x) * 200.0) < 0.4
+        && sin(uv.x * 10.0) < 0.801
+        && sin(u.time * uv.y * uv.x * 5000.0) < 0.1
     ) {
-        return vec4<f32>(sin(u.time * 0.3) * 0.1, 0.01, 0.02, 1.0);
+        return vec4<f32>(sin(u.time * 0.3) * 0.01, 0.01, 0.02, 1.0);
     }
-    return vec4<f32>(sin(u.time * 0.333) * uv.x * 0.1, sin(u.time) * uv.x * 0.1, sin(u.time * 0.1) * uv.x * 0.1, 1.0);
+    return vec4<f32>(sin(u.time * 0.333) * uv.x * 0.01, sin(u.time) * uv.x * 0.01, sin(u.time * 0.1) * uv.x * 0.01, 1.0);
 }
 
 
