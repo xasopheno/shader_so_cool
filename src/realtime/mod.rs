@@ -9,13 +9,14 @@ use crate::{
     camera::Camera,
     canvas::Canvas,
     clock::{Clock, RenderClock},
-    color::GenVertex,
+    color::RandColor,
     config::Config,
+    gen::GenVertex,
     instance::make_instances_and_instance_buffer,
     realtime::render::ExampleRepaintSignal,
     shared::{create_render_pipeline, helpers::new_clear_color, RenderPassInput},
     toy::Toy,
-    vertex::{create_index_buffer, create_vertex_buffer},
+    vertex::{create_index_buffer, create_vertex_buffer, shape::ShapeGenResult},
 };
 use futures::executor::block_on;
 use winit::window::Window;
@@ -46,7 +47,7 @@ pub struct RealTimeState {
 impl RealTimeState {
     pub fn init(
         window: &Window,
-        config: &Config,
+        config: &mut Config,
         repaint_signal: std::sync::Arc<ExampleRepaintSignal>,
         audio_stream_handle: rodio::Sink,
     ) -> RealTimeState {
@@ -76,7 +77,8 @@ impl RealTimeState {
         let renderpasses = op_streams
             .iter()
             .map(|op_stream| {
-                let (vertices, indices) = config.shape.gen();
+                let ShapeGenResult { vertices, indices } = config.shape.gen();
+                config.shape.update();
                 let (instances, instance_buffer) = make_instances_and_instance_buffer(
                     0,
                     (window.inner_size().height, window.inner_size().height),

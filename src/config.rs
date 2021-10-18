@@ -22,9 +22,16 @@ pub struct Config {
 
 impl Config {
     pub fn new() -> Self {
-        let hex_strings = vec!["#4778B8", "#325380", "#63A7FF", "#192A40", "#5A96E6"];
-        let hex_strings = vec!["#FA0C8F", "#FADE19", "#AF00FA", "#21FA19", "#310CFA"];
-        let colorset = colorset_from_hex_strings(hex_strings);
+        let colorsets = colorsets_from_vec_hex_strings(vec![
+            vec!["#4778B8", "#333333"],
+            vec!["#FA0C8F", "#121312", "#333333"],
+            vec!["#325380", "#333333"],
+            vec!["#473859", "#222222"],
+            vec!["#ababab", "#291931"],
+            vec![
+                "#213CFB", "#310CFA", "#FADE19", "#111111", "#121212", "#101010",
+            ],
+        ]);
         let offset = (0.0, -20.0, 0.0);
         Config {
             accumulation: false,
@@ -34,9 +41,9 @@ impl Config {
             shape: Shape {
                 n_vertices: 30,
                 n_indices: 30,
-                position_gen: Box::new(RandPosition),
-                color_gen: Box::new(colorset),
-                indices_gen: Box::new(RandIndex),
+                position: Box::new(RandPosition),
+                color: Box::new(colorsets),
+                indices: Box::new(RandIndex),
             },
             cameras: vec![
                 CameraConfig {

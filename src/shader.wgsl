@@ -45,15 +45,15 @@ fn main(
       pow(model.color[2] * instance.life, 3.0),
   );
 
-  if (instance.life < 1.99) {
+//  if (instance.life < 1.99) {
     out.color = vec4<f32>(color_matrix, instance.life);
-  } else {
-    out.color = vec4<f32>(color_matrix * vec3<f32>(
-          40.0 * instance.life, 
-          40.0 * instance.life, 
-          40.0 * instance.life, 
-        ), instance.life);
-  };
+// } else {
+//   out.color = vec4<f32>(color_matrix * vec3<f32>(
+//         40.0 * instance.life, 
+//         40.0 * instance.life, 
+//         40.0 * instance.life, 
+//       ), instance.life);
+// };
 
   let scale = mat4x4<f32>(
       vec4<f32>(instance.size, 0.0, 0.0, 0.0),

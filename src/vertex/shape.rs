@@ -1,15 +1,20 @@
-use crate::color::{GenColor, GenIndex, GenPosition, GenVertex, Index};
+use crate::gen::{GenColor, GenIndex, GenPosition, GenVertex, Index};
 use rand::prelude::*;
 
 use super::Vertex;
+
+pub struct ShapeGenResult {
+    pub vertices: Vec<Vertex>,
+    pub indices: Vec<Index>,
+}
 
 #[derive(Clone, Debug)]
 pub struct Shape {
     pub n_vertices: usize,
     pub n_indices: usize,
-    pub position_gen: Box<dyn GenPosition>,
-    pub color_gen: Box<dyn GenColor>,
-    pub indices_gen: Box<dyn GenIndex>,
+    pub position: Box<dyn GenPosition>,
+    pub color: Box<dyn GenColor>,
+    pub indices: Box<dyn GenIndex>,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -25,7 +30,6 @@ pub struct Position {
 }
 
 impl GenIndex for RandIndex {
-    #[allow(dead_code)]
     fn gen(&self, n_vertices: usize) -> u16 {
         let mut rng = rand::thread_rng();
         rng.gen_range(0..n_vertices as u16)
@@ -45,24 +49,34 @@ impl GenPosition for RandPosition {
 }
 
 impl Shape {
-    pub fn gen(&self) -> (Vec<Vertex>, Vec<Index>) {
-        (
-            (0..self.n_vertices)
+    pub fn gen(&mut self) -> ShapeGenResult {
+        ShapeGenResult {
+            vertices: (0..self.n_vertices)
                 .into_iter()
                 .map(|_| Vertex::from_shape(self))
                 .collect(),
-            (0..self.n_indices)
+            indices: (0..self.n_indices)
                 .into_iter()
-                .map(|_| self.indices_gen.gen(self.n_indices))
+                .map(|_| self.indices.gen(self.n_indices))
                 .collect(),
-        )
+        }
+    }
+
+    pub fn update(&mut self) {
+        self.color.update()
+    }
+
+    pub fn with_color(&self, color: Box<dyn GenColor>) -> Self {
+        let mut clone = self.clone();
+        clone.color = color;
+        clone
     }
 }
 
 impl Vertex {
-    pub fn from_shape(shape: &Shape) -> Self {
-        let position = shape.position_gen.gen();
-        let color = shape.color_gen.gen();
+    pub fn from_shape(shape: &mut Shape) -> Self {
+        let position = shape.position.gen();
+        let color = shape.color.gen();
         let mut rng = rand::thread_rng();
         let mut r = || rng.gen::<f32>() * 2.0 - 1.0;
         Self {

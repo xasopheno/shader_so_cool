@@ -1,4 +1,16 @@
-use super::{Color, ColorSet};
+use super::{Color, ColorSet, ColorSets};
+
+pub fn colorsets_from_vec_hex_strings(vec_hex_strings: Vec<Vec<&str>>) -> ColorSets {
+    ColorSets {
+        n: 0,
+        colorsets: vec_hex_strings
+            .iter()
+            .map(|hex_strings| ColorSet {
+                colors: vec_hex_to_vec_color(hex_strings.to_owned()),
+            })
+            .collect(),
+    }
+}
 
 pub fn colorset_from_hex_strings(hex_strings: Vec<&str>) -> ColorSet {
     ColorSet {

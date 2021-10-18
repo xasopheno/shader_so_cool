@@ -127,10 +127,10 @@ impl ToInstance for Op4D {
         Instance {
             position: Vector3::new(
                 // n_row as f32 * 1.0 / 2.0 * f32::powi(x, 2),
-                // n_row as f32 * x,
+                n_row as f32 * x,
                 // n_row as f32 * x / 3.0 * y,
                 // sin(x ^ 1.0 / 2.0 - y ^ -2.0),
-                n_row as f32 * 1.0 * y / x,
+                // n_row as f32 * 1.0 * y / x,
                 n_column as f32 * y,
                 // n_row as f32 * (self.x * self.x) as f32 * 2.0 / self.y as f32,
                 // n_column as f32 * (self.y * self.y) as f32 / 2.0 * 10.0,

@@ -42,7 +42,7 @@ impl Default for InstanceMul {
             y: 17.0,
             z: 1.0,
             life: 2.0,
-            size: 35.0,
+            size: 15.0,
             length: 1.0,
         }
     }

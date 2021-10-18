@@ -2,11 +2,10 @@ use super::PrintState;
 use crate::{
     canvas::Canvas,
     clock::{Clock, PrintClock},
-    color::GenVertex,
     config::Config,
     instance::make_instances_and_instance_buffer,
     shared::{create_render_pipeline, new_random_clear_color, RenderPassInput},
-    vertex::{create_index_buffer, create_vertex_buffer},
+    vertex::{create_index_buffer, create_vertex_buffer, shape::ShapeGenResult},
 };
 
 impl PrintState {
@@ -62,7 +61,7 @@ impl PrintState {
         let renderpasses = op_streams
             .iter()
             .map(|op_stream| {
-                let (vertices, indices) = config.shape.gen();
+                let ShapeGenResult { vertices, indices } = config.shape.clone().gen();
                 let (instances, instance_buffer) =
                     make_instances_and_instance_buffer(0, (texture_width, texture_height), &device);
                 let (uniforms, uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =

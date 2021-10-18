@@ -26,7 +26,14 @@ fn fs_main(
 ) -> [[location(0)]] vec4<f32> {
     var resolution = vec2<f32>(u.width, u.height);
     var uv = frag_coord.xy / resolution;
-    return vec4<f32>(sin(u.time * 0.333) * uv.x * 0.5, sin(u.time) * uv.x * 0.5, sin(u.time * 0.1) * uv.x * 0.5, 1.0);
+    if (
+        sin((100.0 + u.time) * 0.3 * uv.x) > 0.499 
+        && sin(uv.x * 100.0) < 0.501
+        && sin((uv.y * uv.x) * 200.0) < 0.4
+    ) {
+        return vec4<f32>(sin(u.time * 0.3) * 0.1, 0.01, 0.02, 1.0);
+    }
+    return vec4<f32>(sin(u.time * 0.333) * uv.x * 0.1, sin(u.time) * uv.x * 0.1, sin(u.time * 0.1) * uv.x * 0.1, 1.0);
 }
 
 

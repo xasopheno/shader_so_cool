@@ -4,6 +4,7 @@ mod canvas;
 mod clock;
 mod color;
 mod config;
+mod gen;
 mod instance;
 mod print;
 mod realtime;
@@ -47,7 +48,7 @@ fn print() {
 
 fn realtime() {
     env_logger::init();
-    let config = Config::new();
+    let mut config = Config::new();
     let title = env!("CARGO_PKG_NAME");
     let event_loop = winit::event_loop::EventLoop::with_user_event();
     let window = WindowBuilder::new()
@@ -67,7 +68,8 @@ fn realtime() {
     )));
 
     let (mut _stream, stream_handle) = crate::audio::play_audio(&config);
-    let mut state = RealTimeState::init(&window, &config, repaint_signal.clone(), stream_handle);
+    let mut state =
+        RealTimeState::init(&window, &mut config, repaint_signal.clone(), stream_handle);
     state.play();
 
     event_loop.run(move |event, _, control_flow| {
