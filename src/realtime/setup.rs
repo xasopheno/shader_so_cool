@@ -5,7 +5,7 @@ use egui::FontDefinitions;
 use egui_wgpu_backend::RenderPass;
 use egui_winit_platform::{Platform, PlatformDescriptor};
 use epi::*;
-use kintaro_egui_lib::{InstanceMul, UiState};
+use kintaro_egui_lib::UiState;
 use winit::window::Window;
 
 pub struct Gui {

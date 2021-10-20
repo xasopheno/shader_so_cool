@@ -3,7 +3,6 @@ use kintaro_egui_lib::InstanceMul;
 use crate::{
     canvas::Canvas,
     clock::ClockResult,
-    gen::GenVertex,
     instance::{make_instance_buffer, Instance},
     render_op::{OpStream, ToInstance},
     shared::RenderPassInput,

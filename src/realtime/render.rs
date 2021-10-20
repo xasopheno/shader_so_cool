@@ -5,14 +5,8 @@ use crate::{
     shared::{render_pass, update},
     toy::toy_renderpass,
 };
-use chrono::Timelike;
 use egui_wgpu_backend::ScreenDescriptor;
 use epi::*;
-/// Time of day as seconds since midnight. Used for clock in demo app.
-pub fn seconds_since_midnight() -> f64 {
-    let time = chrono::Local::now().time();
-    time.num_seconds_from_midnight() as f64 + 1e-9 * (time.nanosecond() as f64)
-}
 
 /// A custom event type for the winit app.
 pub enum Event {
@@ -46,7 +40,7 @@ impl RealTimeState {
                 renderpass,
                 &self.device,
                 &self.queue,
-                (self.size.width, self.size.height),
+                self.size.into(),
                 &self.canvas,
                 self.gui.state.lock().unwrap().instance_mul,
             );
@@ -64,7 +58,7 @@ impl RealTimeState {
                 &self.device,
                 &self.queue,
                 &view,
-                (self.size.width, self.size.height),
+                self.size.into(),
             )
             .expect("toy error");
         }
@@ -78,14 +72,14 @@ impl RealTimeState {
                 .create_command_encoder(&wgpu::CommandEncoderDescriptor {
                     label: Some("Render Encoder"),
                 });
-            let accumulation = if n == 0 { true } else { true };
 
+            let accumulation = n > 0 && self.toy.is_some();
             render_pass(&mut encoder, &renderpass, &view, &self.config, accumulation);
 
             self.queue.submit(std::iter::once(encoder.finish()));
         }
-        // dbg!(self.gui.state.lock().unwrap().volume);
 
+        //TODO: Move to another file
         self.gui.platform.begin_frame();
         let previous_frame_time = time.last_period;
         let mut app_output = epi::backend::AppOutput::default();
@@ -93,8 +87,8 @@ impl RealTimeState {
         let mut frame = epi::backend::FrameBuilder {
             info: epi::IntegrationInfo {
                 web_info: None,
+                seconds_since_midnight: None,
                 cpu_usage: Some(previous_frame_time),
-                seconds_since_midnight: Some(seconds_since_midnight()),
                 native_pixels_per_point: Some(window.scale_factor() as _),
                 prefer_dark_mode: None,
             },

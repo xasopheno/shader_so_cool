@@ -9,7 +9,6 @@ use crate::{
     camera::Camera,
     canvas::Canvas,
     clock::{Clock, RenderClock},
-    color::RandColor,
     config::Config,
     gen::GenVertex,
     instance::make_instances_and_instance_buffer,
