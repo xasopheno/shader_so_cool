@@ -10,9 +10,6 @@ use crate::{
 
 impl PrintState {
     pub async fn init(config: Config) -> PrintState {
-        let texture_width = 1792 * 4;
-        let texture_height = 1120 * 4;
-
         let instance = wgpu::Instance::new(wgpu::Backends::PRIMARY);
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
@@ -28,8 +25,8 @@ impl PrintState {
 
         let texture_desc = wgpu::TextureDescriptor {
             size: wgpu::Extent3d {
-                width: texture_width,
-                height: texture_height,
+                width: config.window_size.0,
+                height: config.window_size.1,
                 depth_or_array_layers: 1,
             },
             mip_level_count: 1,
@@ -47,14 +44,14 @@ impl PrintState {
             source: wgpu::ShaderSource::Wgsl(include_str!("../shader.wgsl").into()),
         });
 
-        println!("{}/{}", texture_width, texture_height);
+        println!("{}/{}", config.window_size.0, config.window_size.1);
 
         let op_streams = crate::render_op::OpStream::from_json(&config.filename);
 
         let toy = crate::toy::setup_toy(
             &device,
             std::time::Instant::now(),
-            (texture_width, texture_height),
+            config.window_size,
             texture_desc.format,
         );
 
@@ -63,7 +60,7 @@ impl PrintState {
             .map(|op_stream| {
                 let ShapeGenResult { vertices, indices } = config.shape.clone().gen();
                 let (instances, instance_buffer) =
-                    make_instances_and_instance_buffer(0, (texture_width, texture_height), &device);
+                    make_instances_and_instance_buffer(0, config.window_size, &device);
                 let (uniforms, uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
                     crate::uniforms::RealtimeUniforms::new(&device);
                 let render_pipeline = create_render_pipeline(
@@ -93,14 +90,10 @@ impl PrintState {
             toy: Some(toy),
             clock: PrintClock::init(&config),
 
-            canvas: Canvas::init((texture_width, texture_height)),
-            camera: crate::camera::Camera::new(
-                &config.cameras[4],
-                (texture_width, texture_height),
-                &config,
-            ),
+            canvas: Canvas::init(config.window_size),
+            camera: crate::camera::Camera::new(&config.cameras[4], config.window_size, &config),
+            size: config.window_size,
             config,
-            size: (texture_width, texture_height),
             device,
             queue,
             texture,
