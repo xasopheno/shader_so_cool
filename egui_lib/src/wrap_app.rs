@@ -1,3 +1,4 @@
+use serde::{Deserialize, Serialize};
 use std::sync::{Arc, Mutex};
 
 /// All the different demo apps.
@@ -17,7 +18,7 @@ impl Apps {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct UiState {
     pub play: bool,
     pub volume: f32,
@@ -26,7 +27,7 @@ pub struct UiState {
     pub reset: bool,
 }
 
-#[derive(Copy, Debug, Clone, PartialEq)]
+#[derive(Copy, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct InstanceMul {
     pub x: f32,
     pub y: f32,

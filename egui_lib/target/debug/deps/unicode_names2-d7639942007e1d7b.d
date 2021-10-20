@@ -1,0 +1,11 @@
+/Users/danny/code/shader_so_cool/egui_lib/target/debug/deps/unicode_names2-d7639942007e1d7b.rmeta: /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/unicode_names2-0.4.0/src/lib.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/unicode_names2-0.4.0/src/generated.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/unicode_names2-0.4.0/src/generated_phf.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/unicode_names2-0.4.0/src/jamo.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/unicode_names2-0.4.0/src/iter_str.rs
+
+/Users/danny/code/shader_so_cool/egui_lib/target/debug/deps/libunicode_names2-d7639942007e1d7b.rlib: /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/unicode_names2-0.4.0/src/lib.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/unicode_names2-0.4.0/src/generated.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/unicode_names2-0.4.0/src/generated_phf.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/unicode_names2-0.4.0/src/jamo.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/unicode_names2-0.4.0/src/iter_str.rs
+
+/Users/danny/code/shader_so_cool/egui_lib/target/debug/deps/unicode_names2-d7639942007e1d7b.d: /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/unicode_names2-0.4.0/src/lib.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/unicode_names2-0.4.0/src/generated.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/unicode_names2-0.4.0/src/generated_phf.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/unicode_names2-0.4.0/src/jamo.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/unicode_names2-0.4.0/src/iter_str.rs
+
+/Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/unicode_names2-0.4.0/src/lib.rs:
+/Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/unicode_names2-0.4.0/src/generated.rs:
+/Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/unicode_names2-0.4.0/src/generated_phf.rs:
+/Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/unicode_names2-0.4.0/src/jamo.rs:
+/Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/unicode_names2-0.4.0/src/iter_str.rs:
