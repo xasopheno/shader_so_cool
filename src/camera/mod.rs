@@ -1,5 +1,6 @@
 use cgmath::*;
 pub mod default;
+use serde::{Deserialize, Serialize};
 use std::f32::consts::FRAC_PI_2;
 use winit::dpi::PhysicalPosition;
 use winit::event::*;
@@ -16,11 +17,11 @@ pub const OPENGL_TO_WGPU_MATRIX: cgmath::Matrix4<f32> = cgmath::Matrix4::new(
 
 const SAFE_FRAC_PI_2: f32 = FRAC_PI_2 - 0.0001;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Camera {
     pub position: Point3<f32>,
-    yaw: Rad<f32>,
-    pitch: Rad<f32>,
+    pub yaw: Rad<f32>,
+    pub pitch: Rad<f32>,
     pub projection: Projection,
     pub controller: CameraController,
     pub index: usize,
@@ -33,7 +34,7 @@ impl Camera {
             yaw: cgmath::Deg(camera_config.yaw).into(),
             pitch: cgmath::Deg(camera_config.pitch).into(),
             projection: Projection::new(size.0, size.1, cgmath::Deg(50.0), 0.1, 10_000.0),
-            controller: CameraController::new(8.0, 0.7),
+            controller: CameraController::new(10.0, 1.0),
             index: camera_config.index,
         }
     }
@@ -105,7 +106,7 @@ impl Camera {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Projection {
     aspect: f32,
     fovy: Rad<f32>,
@@ -132,7 +133,7 @@ impl Projection {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct CameraController {
     amount_left: f32,
     amount_right: f32,
