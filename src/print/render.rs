@@ -30,7 +30,7 @@ impl PrintState {
                 &self.queue,
                 (self.size.0, self.size.1),
                 &self.canvas,
-                InstanceMul::default(),
+                self.config.instance_mul,
             );
         }
 

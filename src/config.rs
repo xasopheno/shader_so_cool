@@ -1,3 +1,6 @@
+use kintaro_egui_lib::InstanceMul;
+
+use crate::camera::default::default_cameras;
 use crate::color::helpers::*;
 use crate::vertex::shape::{RandIndex, RandPosition, Shape};
 
@@ -17,6 +20,7 @@ pub struct Config {
     pub cameras: Vec<CameraConfig>,
     pub accumulation: bool,
     pub shape: Shape,
+    pub instance_mul: InstanceMul,
 }
 
 impl Config {
@@ -31,7 +35,6 @@ impl Config {
             vec!["#300300", "#333333"],
             vec!["#001931", "#000000", "#222200"],
         ]);
-        let offset = (0.0, 20.0, 0.0);
         Config {
             accumulation: false,
             filename: "kintaro".into(),
@@ -44,44 +47,15 @@ impl Config {
                 color: Box::new(colorsets),
                 indices: Box::new(RandIndex),
             },
-            cameras: vec![
-                CameraConfig {
-                    index: 0,
-                    position: (0.0 + offset.0, 90.0 + offset.1, 200.0 + offset.2),
-                    yaw: -90.0,
-                    pitch: 0.0,
-                },
-                CameraConfig {
-                    index: 1,
-                    position: (310.0 + offset.0, 83.0 + offset.1, 77.0 + offset.2),
-                    yaw: -142.0,
-                    pitch: 1.77,
-                },
-                CameraConfig {
-                    index: 2,
-                    position: (-218.0 + offset.0, -40.0 + offset.1, -89.0 + offset.2),
-                    yaw: -4.0,
-                    pitch: 31.8,
-                },
-                CameraConfig {
-                    index: 3,
-                    position: (-116.2 + offset.0, 36.0 + offset.1, 106.0 + offset.2),
-                    yaw: -56.11,
-                    pitch: 5.917,
-                },
-                CameraConfig {
-                    index: 4,
-                    position: (0.0 + offset.0, 80.0 + offset.1, 400.0 + offset.2),
-                    yaw: -90.0,
-                    pitch: 11.0,
-                },
-                CameraConfig {
-                    index: 5,
-                    position: (0.0 + offset.0, 670.0 + offset.1, -226.0 + offset.2),
-                    yaw: 0.0,
-                    pitch: -90.0,
-                },
-            ],
+            instance_mul: InstanceMul {
+                x: 9.0,
+                y: 17.0,
+                z: 1.0,
+                life: 2.0,
+                size: 23.0,
+                length: 1.0,
+            },
+            cameras: default_cameras(Some((0.0, 20.0, 0.0))),
         }
     }
 }

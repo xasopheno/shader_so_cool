@@ -79,6 +79,7 @@ impl RealTimeState {
             .map(|op_stream| {
                 let ShapeGenResult { vertices, indices } = config.shape.gen();
                 config.shape.update();
+
                 let (instances, instance_buffer) = make_instances_and_instance_buffer(
                     0,
                     (window.inner_size().height, window.inner_size().height),
