@@ -1,3 +1,5 @@
+use std::{fs::File, thread};
+
 use crate::{
     camera::Camera,
     clock::Clock,
@@ -28,6 +30,17 @@ impl RealTimeState {
         self.camera.update(time.last_period);
         self.audio_stream_handle
             .set_volume(self.gui.state.lock().unwrap().volume);
+
+        {
+            let mut state = self.gui.state.lock().unwrap();
+            if state.save {
+                // TODO: save
+                let filename = "../kintaros/saved.json";
+                thread::spawn(move || File::create(filename).unwrap());
+                state.save = false;
+                println!("Saved {}", filename);
+            }
+        }
 
         let view_position: [f32; 4] = self.camera.position.to_homogeneous().into();
         let view_proj: [[f32; 4]; 4] =

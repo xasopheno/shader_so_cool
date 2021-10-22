@@ -49,7 +49,7 @@ impl Config {
             },
             instance_mul: InstanceMul {
                 x: 9.0,
-                y: 17.0,
+                y: 19.0,
                 z: 1.0,
                 life: 2.0,
                 size: 23.0,
