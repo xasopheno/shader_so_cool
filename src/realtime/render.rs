@@ -59,6 +59,7 @@ impl RealTimeState {
                 &self.queue,
                 &view,
                 self.size.into(),
+                time.total_elapsed,
             )
             .expect("toy error");
         }

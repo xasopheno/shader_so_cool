@@ -59,10 +59,10 @@ impl ToyUniforms {
         )
     }
 
-    pub fn update_uniforms(&mut self, size: (u32, u32), start: std::time::Instant) {
+    pub fn update_uniforms(&mut self, size: (u32, u32), total_elapsed: f32) {
         self.width = size.0 as f32;
         self.height = size.1 as f32;
         self.frame += 1.0;
-        self.time = start.elapsed().as_secs_f32();
+        self.time = total_elapsed;
     }
 }

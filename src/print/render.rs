@@ -42,6 +42,7 @@ impl PrintState {
                 &self.queue,
                 &self.texture_view,
                 self.size,
+                time.total_elapsed,
             )?
         }
 
