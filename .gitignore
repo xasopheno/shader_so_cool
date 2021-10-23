@@ -1,1 +1,6 @@
 /target
+*.wav
+*.spv
+out/*
+out.mov
+.DS_Store

@@ -1,65 +1,90 @@
-mod state;
+mod audio;
+mod camera;
+mod canvas;
+mod clock;
+mod color;
+mod config;
+mod gen;
+mod instance;
+mod print;
+mod realtime;
+mod render_op;
+mod shared;
+mod texture;
+mod toy;
+mod uniforms;
 mod vertex;
-use crate::state::State;
-use crate::vertex::Vertex;
-use winit::{
-    event::*,
-    event_loop::{ControlFlow, EventLoop},
-    window::WindowBuilder,
-};
+use crate::config::Config;
+use crate::print::PrintState;
+use crate::realtime::render::ExampleRepaintSignal;
+use crate::realtime::RealTimeState;
+#[allow(unused_imports)]
+use winit::window::Fullscreen;
+use winit::{event::*, event_loop::ControlFlow, window::WindowBuilder};
 
 use futures::executor::block_on;
 
 fn main() {
-    let event_loop = EventLoop::new();
+    let print_it = std::env::args()
+        .into_iter()
+        .any(|arg| if arg == "--print" { true } else { false });
+
+    if print_it {
+        println!("****PRINTING****");
+        print();
+    } else {
+        println!("****REALTIME****");
+        realtime();
+    }
+}
+
+fn print() {
+    let config = Config::new();
+    let mut state = block_on(PrintState::init(config));
+    for i in 0..1000 {
+        block_on(state.render()).expect(format!("Unable to render frame: {}", i).as_str());
+    }
+}
+
+fn realtime() {
+    env_logger::init();
+    let mut config = Config::new();
+    let title = env!("CARGO_PKG_NAME");
+    let event_loop = winit::event_loop::EventLoop::with_user_event();
     let window = WindowBuilder::new()
+        .with_inner_size(winit::dpi::PhysicalSize {
+            width: config.window_size.0,
+            height: config.window_size.1,
+        })
+        .with_transparent(true)
+        .with_title(title)
+        // .with_fullscreen(Some(Fullscreen::Borderless(None)))
+        .with_decorations(true)
         .build(&event_loop)
         .expect("Unable to create window");
-    const VERTICES: &[Vertex] = &[
-        Vertex {
-            position: [-0.0868241, 0.49240386, 0.0],
-            color: [0.2, 0.0, 0.5],
-        },
-        Vertex {
-            position: [-0.49513406, 0.06958647, 0.0],
-            color: [0.5, 1.0, 0.5],
-        },
-        Vertex {
-            position: [-0.21918549, -0.44939706, 0.0],
-            color: [0.1, 0.0, 0.8],
-        },
-        Vertex {
-            position: [0.35966998, -0.3473291, 0.0],
-            color: [0.8, 0.0, 0.2],
-        },
-        Vertex {
-            position: [0.44147372, 0.2347359, 0.0],
-            color: [0.5, 0.4, 0.2],
-        },
-    ];
 
-    const INDICES: &[u16] = &[0, 1, 4, 3, 2, 4, 2, 1, 4, 0];
+    let repaint_signal = std::sync::Arc::new(ExampleRepaintSignal(std::sync::Mutex::new(
+        event_loop.create_proxy(),
+    )));
 
-    let mut state = block_on(State::new(&window, VERTICES, INDICES));
+    let (mut _stream, stream_handle) = crate::audio::play_audio(&config);
+    let mut state =
+        RealTimeState::init(&window, &mut config, repaint_signal.clone(), stream_handle);
+    state.play();
 
-    event_loop.run(move |event, _, control_flow| match event {
-        Event::RedrawRequested(_) => {
-            state.update();
-            match state.render() {
-                Ok(_) => {}
-                Err(wgpu::SwapChainError::Lost) => state.resize(state.size),
-                Err(wgpu::SwapChainError::OutOfMemory) => *control_flow = ControlFlow::Exit,
-                Err(e) => println!("{:?}", e),
+    event_loop.run(move |event, _, control_flow| {
+        #[allow(unused_assignments)]
+        state.gui.platform.handle_event(&event);
+        match event {
+            Event::MainEventsCleared => window.request_redraw(),
+            Event::DeviceEvent { ref event, .. } => {
+                state.input(event);
             }
-        }
-        Event::MainEventsCleared => {
-            window.request_redraw();
-        }
-        Event::WindowEvent {
-            ref event,
-            window_id,
-        } if window_id == window.id() => {
-            if !state.input(event) {
+            Event::WindowEvent {
+                ref event,
+                window_id,
+            } if window_id == window.id() => {
+                // dbg!(event);
                 match event {
                     WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
                     WindowEvent::KeyboardInput { input, .. } => match input {
@@ -67,8 +92,10 @@ fn main() {
                             state: ElementState::Pressed,
                             virtual_keycode: Some(VirtualKeyCode::Escape),
                             ..
-                        } => *control_flow = ControlFlow::Exit,
-                        _ => {}
+                        } => {
+                            *control_flow = ControlFlow::Exit;
+                        }
+                        _ => state.keyboard_input(event),
                     },
                     WindowEvent::Resized(physical_size) => {
                         state.resize(*physical_size);
@@ -79,7 +106,21 @@ fn main() {
                     _ => {}
                 }
             }
+
+            Event::RedrawRequested(_) => {
+                match state.render(&window) {
+                    Ok(_) => {}
+                    // Recreate the swap_chain if lost
+                    Err(wgpu::SurfaceError::Lost) => state.resize(state.size),
+                    // The system is out of memory, we should probably quit
+                    Err(wgpu::SurfaceError::OutOfMemory) => *control_flow = ControlFlow::Exit,
+                    // All other errors (Outdated, Timeout) should be resolved by the next frame
+                    Err(e) => eprintln!("{:?}", e),
+                };
+
+                *control_flow = ControlFlow::Poll;
+            }
+            _ => {}
         }
-        _ => {}
     });
 }

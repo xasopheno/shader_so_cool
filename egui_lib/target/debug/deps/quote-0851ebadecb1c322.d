@@ -1,0 +1,13 @@
+/Users/danny/code/shader_so_cool/egui_lib/target/debug/deps/quote-0851ebadecb1c322.rmeta: /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.10/src/lib.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.10/src/ext.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.10/src/format.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.10/src/ident_fragment.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.10/src/to_tokens.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.10/src/runtime.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.10/src/spanned.rs
+
+/Users/danny/code/shader_so_cool/egui_lib/target/debug/deps/libquote-0851ebadecb1c322.rlib: /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.10/src/lib.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.10/src/ext.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.10/src/format.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.10/src/ident_fragment.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.10/src/to_tokens.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.10/src/runtime.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.10/src/spanned.rs
+
+/Users/danny/code/shader_so_cool/egui_lib/target/debug/deps/quote-0851ebadecb1c322.d: /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.10/src/lib.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.10/src/ext.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.10/src/format.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.10/src/ident_fragment.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.10/src/to_tokens.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.10/src/runtime.rs /Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.10/src/spanned.rs
+
+/Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.10/src/lib.rs:
+/Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.10/src/ext.rs:
+/Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.10/src/format.rs:
+/Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.10/src/ident_fragment.rs:
+/Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.10/src/to_tokens.rs:
+/Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.10/src/runtime.rs:
+/Users/danny/.cargo/registry/src/github.com-1ecc6299db9ec823/quote-1.0.10/src/spanned.rs:
