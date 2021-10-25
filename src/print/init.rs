@@ -9,7 +9,7 @@ use crate::{
 };
 
 impl PrintState {
-    pub async fn init(config: Config) -> PrintState {
+    pub async fn init(config: &mut Config) -> PrintState {
         let instance = wgpu::Instance::new(wgpu::Backends::PRIMARY);
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
@@ -58,7 +58,8 @@ impl PrintState {
         let renderpasses = op_streams
             .iter()
             .map(|op_stream| {
-                let ShapeGenResult { vertices, indices } = config.shape.clone().gen();
+                let ShapeGenResult { vertices, indices } = config.shape.gen();
+                config.shape.update();
                 let (instances, instance_buffer) =
                     make_instances_and_instance_buffer(0, config.window_size, &device);
                 let (uniforms, uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
@@ -93,7 +94,7 @@ impl PrintState {
             canvas: Canvas::init(config.window_size),
             camera: crate::camera::Camera::new(&config.cameras[4], config.window_size, &config),
             size: config.window_size,
-            config,
+            config: config.clone(),
             device,
             queue,
             texture,

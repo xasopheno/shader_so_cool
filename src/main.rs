@@ -39,8 +39,8 @@ fn main() {
 }
 
 fn print() {
-    let config = Config::new();
-    let mut state = block_on(PrintState::init(config));
+    let mut config = Config::new();
+    let mut state = block_on(PrintState::init(&mut config));
     for i in 0..1000 {
         block_on(state.render()).expect(format!("Unable to render frame: {}", i).as_str());
     }

@@ -87,7 +87,7 @@ impl RealTimeState {
                     label: Some("Render Encoder"),
                 });
 
-            let accumulation = n > 0 && self.toy.is_some();
+            let accumulation = n > 0 || self.toy.is_some();
             render_pass(&mut encoder, &renderpass, &view, &self.config, accumulation);
 
             self.queue.submit(std::iter::once(encoder.finish()));

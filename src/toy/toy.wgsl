@@ -27,7 +27,7 @@ fn fs_main(
     var resolution = vec2<f32>(u.width, u.height);
     var uv = frag_coord.xy / resolution;
     if (
-        sin((100.0 + u.time) * 0.3 * uv.x) > 0.499 
+        sin((80.0 + u.time) * 0.3 * uv.x) > 0.499 
         && sin(uv.x * 10.0) < 0.801
         && sin(u.time * uv.y * uv.x * 5000.0) < 0.1
     ) {
