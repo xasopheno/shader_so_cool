@@ -15,7 +15,8 @@ pub const OPENGL_TO_WGPU_MATRIX: cgmath::Matrix4<f32> = cgmath::Matrix4::new(
     0.0, 0.0, 0.5, 1.0,
 );
 
-pub struct CameraResult {
+#[derive(Clone, Serialize, Deserialize)]
+pub struct CameraState {
     pub position: Point3<f32>,
     pub yaw: Deg<f32>,
     pub pitch: Deg<f32>,
@@ -96,8 +97,8 @@ impl Camera {
         }
     }
 
-    pub fn current_settings(&self) -> CameraResult {
-        CameraResult {
+    pub fn current_state(&self) -> CameraState {
+        CameraState {
             position: self.position,
             yaw: self.yaw.into(),
             pitch: self.pitch.into(),

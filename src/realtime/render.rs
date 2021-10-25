@@ -1,9 +1,10 @@
-use std::{fs::File, thread};
+use std::{fs::File, io::Write, thread};
 
 use crate::{
     camera::Camera,
     clock::Clock,
     realtime::RealTimeState,
+    save::ConfigState,
     shared::{render_pass, update},
     toy::toy_renderpass,
 };
@@ -34,9 +35,20 @@ impl RealTimeState {
         {
             let mut state = self.gui.state.lock().unwrap();
             if state.save {
-                // TODO: save
                 let filename = "../kintaro/saved.json";
-                thread::spawn(move || File::create(filename).unwrap());
+                let instance_mul = state.instance_mul.to_owned();
+                let camera = self.camera.current_state().clone();
+                thread::spawn(move || {
+                    let mut file = File::create(filename).unwrap();
+                    let config_state = ConfigState {
+                        camera,
+                        instance_mul,
+                    };
+                    let serialized = serde_json::to_string(&config_state)
+                        .expect(&format!("unable to serialize, {}", filename));
+                    file.write(serialized.as_bytes())
+                        .expect("unable to write to file on save");
+                });
                 state.save = false;
                 println!("Saved {}", filename);
             }

@@ -9,6 +9,7 @@ mod instance;
 mod print;
 mod realtime;
 mod render_op;
+mod save;
 mod shared;
 mod texture;
 mod toy;

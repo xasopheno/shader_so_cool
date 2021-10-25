@@ -4,6 +4,8 @@ mod uniforms;
 
 pub use shader::*;
 
+use crate::camera::Camera;
+
 use self::uniforms::ToyUniforms;
 
 pub struct Toy {
@@ -70,7 +72,6 @@ pub fn toy_renderpass(
             bytemuck::cast_slice(&[toy.uniforms]),
         );
     }
-
     {
         let clear_color = wgpu::Color {
             r: 0.2,
