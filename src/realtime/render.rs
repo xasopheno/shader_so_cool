@@ -59,7 +59,7 @@ impl RealTimeState {
             );
         }
 
-        let output = self.surface.get_current_texture()?;
+        let output = self.surface.get_current_frame()?.output;
         let view = output
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());

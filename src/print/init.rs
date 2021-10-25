@@ -13,7 +13,6 @@ impl PrintState {
         let instance = wgpu::Instance::new(wgpu::Backends::PRIMARY);
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
-                force_fallback_adapter: false,
                 power_preference: wgpu::PowerPreference::default(),
                 compatible_surface: None,
             })
