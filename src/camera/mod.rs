@@ -15,6 +15,12 @@ pub const OPENGL_TO_WGPU_MATRIX: cgmath::Matrix4<f32> = cgmath::Matrix4::new(
     0.0, 0.0, 0.5, 1.0,
 );
 
+pub struct CameraResult {
+    pub position: Point3<f32>,
+    pub yaw: Deg<f32>,
+    pub pitch: Deg<f32>,
+}
+
 const SAFE_FRAC_PI_2: f32 = FRAC_PI_2 - 0.0001;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -90,11 +96,15 @@ impl Camera {
         }
     }
 
+    pub fn current_settings(&self) -> CameraResult {
+        CameraResult {
+            position: self.position,
+            yaw: self.yaw.into(),
+            pitch: self.pitch.into(),
+        }
+    }
+
     pub fn calc_matrix(&self) -> Matrix4<f32> {
-        // TODO: print current camera
-        // let yaw: cgmath::Deg<f32> = self.yaw.into();
-        // let pitch: cgmath::Deg<f32> = self.pitch.into();
-        // dbg!(&self.position, yaw, pitch);
         let (sin_pitch, cos_pitch) = self.pitch.0.sin_cos();
         let (sin_yaw, cos_yaw) = self.yaw.0.sin_cos();
 
