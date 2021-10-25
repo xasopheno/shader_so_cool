@@ -35,7 +35,7 @@ impl RealTimeState {
             let mut state = self.gui.state.lock().unwrap();
             if state.save {
                 // TODO: save
-                let filename = "../kintaros/saved.json";
+                let filename = "../kintaro/saved.json";
                 thread::spawn(move || File::create(filename).unwrap());
                 state.save = false;
                 println!("Saved {}", filename);
@@ -59,7 +59,7 @@ impl RealTimeState {
             );
         }
 
-        let output = self.surface.get_current_frame()?.output;
+        let output = self.surface.get_current_texture()?;
         let view = output
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());

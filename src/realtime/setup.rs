@@ -31,6 +31,7 @@ impl Setup {
             .request_adapter(&wgpu::RequestAdapterOptions {
                 power_preference: wgpu::PowerPreference::default(),
                 compatible_surface: Some(&surface),
+                force_fallback_adapter: false,
             })
             .await
             .unwrap();
@@ -69,7 +70,7 @@ impl Setup {
             play: true,
             save: false,
             volume: config.volume,
-            camera_index: 4,
+            camera_index: 1,
             instance_mul: config.instance_mul,
             reset: false,
         }));
