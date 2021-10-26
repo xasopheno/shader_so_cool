@@ -1,10 +1,10 @@
 use kintaro_egui_lib::InstanceMul;
 use serde::{Deserialize, Serialize};
 
-use crate::camera::CameraState;
+use crate::config::CameraConfig;
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ConfigState {
-    pub camera: CameraState,
+    pub camera: CameraConfig,
     pub instance_mul: InstanceMul,
 }

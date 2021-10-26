@@ -175,6 +175,7 @@ impl RealTimeState {
                     &self.config.cameras[s.camera_index],
                     self.config.window_size,
                     &self.config,
+                    s.camera_index,
                 )
             }
             if !s.play && !self.audio_stream_handle.is_paused() {

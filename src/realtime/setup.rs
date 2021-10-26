@@ -69,7 +69,7 @@ impl Setup {
             play: true,
             save: false,
             volume: config.volume,
-            camera_index: 1,
+            camera_index: 0,
             instance_mul: config.instance_mul,
             reset: false,
         }));

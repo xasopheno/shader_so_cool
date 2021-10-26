@@ -114,6 +114,7 @@ impl RealTimeState {
                 &config.cameras[0],
                 (size.width, size.height),
                 &config,
+                0,
             ),
             toy: Some(toy),
             renderpasses,

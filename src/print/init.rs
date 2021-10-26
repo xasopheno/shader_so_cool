@@ -92,7 +92,7 @@ impl PrintState {
             clock: PrintClock::init(&config),
 
             canvas: Canvas::init(config.window_size),
-            camera: crate::camera::Camera::new(&config.cameras[4], config.window_size, &config),
+            camera: crate::camera::Camera::new(&config.cameras[0], config.window_size, &config, 0),
             size: config.window_size,
             config: config.clone(),
             device,
