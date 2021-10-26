@@ -1,7 +1,10 @@
+use std::{fs::File, io::Write, thread};
+
 use crate::{
     camera::Camera,
     clock::Clock,
     realtime::RealTimeState,
+    save::ConfigState,
     shared::{render_pass, update},
     toy::toy_renderpass,
 };
@@ -28,6 +31,28 @@ impl RealTimeState {
         self.camera.update(time.last_period);
         self.audio_stream_handle
             .set_volume(self.gui.state.lock().unwrap().volume);
+
+        {
+            let mut state = self.gui.state.lock().unwrap();
+            if state.save {
+                let filename = "../kintaro/saved.json";
+                let instance_mul = state.instance_mul.to_owned();
+                let camera = self.camera.current_state().clone();
+                thread::spawn(move || {
+                    let mut file = File::create(filename).unwrap();
+                    let config_state = ConfigState {
+                        camera,
+                        instance_mul,
+                    };
+                    let serialized = serde_json::to_string(&config_state)
+                        .expect(&format!("unable to serialize, {}", filename));
+                    file.write(serialized.as_bytes())
+                        .expect("unable to write to file on save");
+                });
+                state.save = false;
+                println!("Saved {}", filename);
+            }
+        }
 
         let view_position: [f32; 4] = self.camera.position.to_homogeneous().into();
         let view_proj: [[f32; 4]; 4] =
@@ -59,6 +84,7 @@ impl RealTimeState {
                 &self.queue,
                 &view,
                 self.size.into(),
+                time.total_elapsed,
             )
             .expect("toy error");
         }
@@ -73,7 +99,7 @@ impl RealTimeState {
                     label: Some("Render Encoder"),
                 });
 
-            let accumulation = n > 0 && self.toy.is_some();
+            let accumulation = n > 0 || self.toy.is_some();
             render_pass(&mut encoder, &renderpass, &view, &self.config, accumulation);
 
             self.queue.submit(std::iter::once(encoder.finish()));
@@ -149,6 +175,7 @@ impl RealTimeState {
                     &self.config.cameras[s.camera_index],
                     self.config.window_size,
                     &self.config,
+                    s.camera_index,
                 )
             }
             if !s.play && !self.audio_stream_handle.is_paused() {

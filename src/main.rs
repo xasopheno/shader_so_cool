@@ -9,15 +9,16 @@ mod instance;
 mod print;
 mod realtime;
 mod render_op;
+mod save;
 mod shared;
 mod texture;
 mod toy;
 mod uniforms;
 mod vertex;
-use crate::config::Config;
 use crate::print::PrintState;
 use crate::realtime::render::ExampleRepaintSignal;
 use crate::realtime::RealTimeState;
+use crate::{config::Config, save::ConfigState};
 #[allow(unused_imports)]
 use winit::window::Fullscreen;
 use winit::{event::*, event_loop::ControlFlow, window::WindowBuilder};
@@ -39,16 +40,26 @@ fn main() {
 }
 
 fn print() {
-    let config = Config::new();
-    let mut state = block_on(PrintState::init(config));
-    for i in 0..1000 {
+    let saved = load_saved();
+    let mut config = Config::new(Some(saved));
+    let mut state = block_on(PrintState::init(&mut config));
+    for i in 0..10000 {
         block_on(state.render()).expect(format!("Unable to render frame: {}", i).as_str());
     }
 }
 
+fn load_saved() -> ConfigState {
+    let path = "../kintaro/saved.json";
+    let saved_data = std::fs::read_to_string(path).expect("Unable to read file");
+    let saved: ConfigState =
+        serde_json::from_str(&saved_data).expect("nable to deserialize saved data");
+    saved
+}
+
 fn realtime() {
     env_logger::init();
-    let mut config = Config::new();
+    let saved = load_saved();
+    let mut config = Config::new(Some(saved));
     let title = env!("CARGO_PKG_NAME");
     let event_loop = winit::event_loop::EventLoop::with_user_event();
     let window = WindowBuilder::new()

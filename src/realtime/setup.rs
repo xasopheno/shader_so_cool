@@ -67,8 +67,9 @@ impl Setup {
         let renderpass = RenderPass::new(&device, surface_format, 1);
         let state = Arc::new(Mutex::new(kintaro_egui_lib::UiState {
             play: true,
+            save: false,
             volume: config.volume,
-            camera_index: 4,
+            camera_index: 0,
             instance_mul: config.instance_mul,
             reset: false,
         }));

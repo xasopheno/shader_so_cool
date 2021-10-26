@@ -1,15 +1,17 @@
+use cgmath::Deg;
 use kintaro_egui_lib::InstanceMul;
+use serde::{Deserialize, Serialize};
 
 use crate::camera::default::default_cameras;
 use crate::color::helpers::*;
+use crate::save::ConfigState;
 use crate::vertex::shape::{RandIndex, RandPosition, Shape};
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
 pub struct CameraConfig {
     pub position: (f32, f32, f32),
     pub yaw: f32,
     pub pitch: f32,
-    pub index: usize,
 }
 
 #[derive(Clone)]
@@ -24,7 +26,15 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new() -> Self {
+    pub fn new(saved: Option<ConfigState>) -> Self {
+        let cameras = default_cameras(
+            if let Some(ref s) = saved {
+                vec![s.camera]
+            } else {
+                vec![]
+            },
+            Some((0.0, 20.0, 0.0)),
+        );
         let colorsets = colorsets_from_vec_hex_strings(vec![
             vec!["#6655aa", "#222222"],
             vec!["#eeaC88", "#121312", "#333333"],
@@ -34,6 +44,8 @@ impl Config {
             vec!["#473859", "#222222"],
             vec!["#300300", "#333333"],
             vec!["#001931", "#000000", "#222200"],
+            vec!["#660000", "#100101", "#300002"],
+            vec!["#330001", "#300300", "#200001"],
         ]);
         Config {
             accumulation: false,
@@ -47,15 +59,19 @@ impl Config {
                 color: Box::new(colorsets),
                 indices: Box::new(RandIndex),
             },
-            instance_mul: InstanceMul {
-                x: 9.0,
-                y: 17.0,
-                z: 1.0,
-                life: 2.0,
-                size: 23.0,
-                length: 1.0,
+            instance_mul: if let Some(s) = saved {
+                s.instance_mul
+            } else {
+                InstanceMul {
+                    x: 9.0,
+                    y: 19.0,
+                    z: 1.0,
+                    life: 2.0,
+                    size: 23.0,
+                    length: 1.0,
+                }
             },
-            cameras: default_cameras(Some((0.0, 20.0, 0.0))),
+            cameras,
         }
     }
 }

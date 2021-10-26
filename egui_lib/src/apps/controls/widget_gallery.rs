@@ -74,6 +74,9 @@ impl ControlsInner {
                 if ui.button(if s.play { "Pause" } else { "Play" }).clicked() {
                     s.play = !s.play
                 }
+                if ui.button("Save").clicked() {
+                    s.save = true
+                }
                 ui.end_row();
                 // if ui.button("Reset").clicked() {
                 // s.reset = true

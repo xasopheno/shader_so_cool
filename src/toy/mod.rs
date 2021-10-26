@@ -4,6 +4,8 @@ mod uniforms;
 
 pub use shader::*;
 
+use crate::camera::Camera;
+
 use self::uniforms::ToyUniforms;
 
 pub struct Toy {
@@ -55,6 +57,7 @@ pub fn toy_renderpass(
     queue: &wgpu::Queue,
     view: &wgpu::TextureView,
     size: (u32, u32),
+    total_elapsed: f32,
 ) -> Result<(), wgpu::SurfaceError> {
     let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
         label: Some("Render Encoder"),
@@ -62,13 +65,13 @@ pub fn toy_renderpass(
 
     // if is_playing {
     toy.uniforms
-        .update_uniforms((size.0, size.1), toy.start_time);
+        .update_uniforms((size.0, size.1), total_elapsed);
     queue.write_buffer(
         &toy.uniform_buffer,
         0,
         bytemuck::cast_slice(&[toy.uniforms]),
     );
-
+    // }
     {
         let clear_color = wgpu::Color {
             r: 0.2,
