@@ -230,7 +230,7 @@ main = {
         fasty,
       ] | Gm 3/4
     ]
-    | Repeat 3
+    | Repeat 3,
     Fm 0 | Lm 10, 
   ]
 }
