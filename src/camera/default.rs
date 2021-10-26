@@ -1,17 +1,15 @@
 use crate::config::CameraConfig;
 
-pub fn default_cameras(offset: Option<(f32, f32, f32)>) -> Vec<CameraConfig> {
+pub fn default_cameras(
+    mut vec_saved_cameras: Vec<CameraConfig>,
+    offset: Option<(f32, f32, f32)>,
+) -> Vec<CameraConfig> {
     let offset = if let Some(o) = offset {
         o
     } else {
         (0.0, 0.0, 0.0)
     };
-    vec![
-        CameraConfig {
-            position: (0.0 + offset.0, 90.0 + offset.1, 200.0 + offset.2),
-            yaw: -90.0,
-            pitch: 0.0,
-        },
+    vec_saved_cameras.append(&mut vec![
         CameraConfig {
             position: (310.0 + offset.0, 83.0 + offset.1, 77.0 + offset.2),
             yaw: -142.0,
@@ -37,5 +35,6 @@ pub fn default_cameras(offset: Option<(f32, f32, f32)>) -> Vec<CameraConfig> {
             yaw: 0.0,
             pitch: -90.0,
         },
-    ]
+    ]);
+    vec_saved_cameras
 }

@@ -27,12 +27,14 @@ pub struct Config {
 
 impl Config {
     pub fn new(saved: Option<ConfigState>) -> Self {
-        let mut cameras = default_cameras(Some((0.0, 20.0, 0.0)));
-        if let Some(ref s) = saved {
-            let mut new = vec![s.camera];
-            new.append(&mut cameras);
-            cameras = new;
-        };
+        let cameras = default_cameras(
+            if let Some(ref s) = saved {
+                vec![s.camera]
+            } else {
+                vec![]
+            },
+            Some((0.0, 20.0, 0.0)),
+        );
         let colorsets = colorsets_from_vec_hex_strings(vec![
             vec!["#6655aa", "#222222"],
             vec!["#eeaC88", "#121312", "#333333"],
