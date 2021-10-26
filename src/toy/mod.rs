@@ -63,15 +63,15 @@ pub fn toy_renderpass(
         label: Some("Render Encoder"),
     });
 
-    if is_playing {
-        toy.uniforms
-            .update_uniforms((size.0, size.1), total_elapsed);
-        queue.write_buffer(
-            &toy.uniform_buffer,
-            0,
-            bytemuck::cast_slice(&[toy.uniforms]),
-        );
-    }
+    // if is_playing {
+    toy.uniforms
+        .update_uniforms((size.0, size.1), total_elapsed);
+    queue.write_buffer(
+        &toy.uniform_buffer,
+        0,
+        bytemuck::cast_slice(&[toy.uniforms]),
+    );
+    // }
     {
         let clear_color = wgpu::Color {
             r: 0.2,

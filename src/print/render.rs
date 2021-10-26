@@ -55,7 +55,8 @@ impl PrintState {
                 .create_command_encoder(&wgpu::CommandEncoderDescriptor {
                     label: Some("Render Encoder"),
                 });
-            let accumulation = if n == 0 { true } else { true };
+
+            let accumulation = n > 0 || self.toy.is_some();
 
             render_pass(
                 &mut encoder,

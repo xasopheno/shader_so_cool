@@ -23,7 +23,7 @@ pub fn make_color_attachments(
                     r: 0.01,
                     g: 0.0,
                     b: 0.008,
-                    a: 1.0,
+                    a: 0.0,
                 }),
                 store: true,
             },
