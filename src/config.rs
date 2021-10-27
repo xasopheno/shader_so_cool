@@ -1,4 +1,3 @@
-use cgmath::Deg;
 use kintaro_egui_lib::InstanceMul;
 use serde::{Deserialize, Serialize};
 
@@ -26,9 +25,10 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(saved: Option<ConfigState>) -> Self {
+    pub fn new() -> Self {
+        let saved = ConfigState::load_saved();
         let cameras = default_cameras(
-            if let Some(ref s) = saved {
+            if let Ok(ref s) = saved {
                 vec![s.camera]
             } else {
                 vec![]
@@ -59,7 +59,7 @@ impl Config {
                 color: Box::new(colorsets),
                 indices: Box::new(RandIndex),
             },
-            instance_mul: if let Some(s) = saved {
+            instance_mul: if let Ok(s) = saved {
                 s.instance_mul
             } else {
                 InstanceMul {
