@@ -14,6 +14,7 @@ use crate::{
     instance::make_instances_and_instance_buffer,
     realtime::render::ExampleRepaintSignal,
     shared::{create_render_pipeline, helpers::new_clear_color, RenderPassInput},
+    texture::ImageTexture,
     toy::Toy,
     vertex::{create_index_buffer, create_vertex_buffer, shape::ShapeGenResult},
 };
@@ -65,6 +66,53 @@ impl RealTimeState {
             (size.width, size.height),
             wgpu::TextureFormat::Bgra8UnormSrgb,
         );
+
+        //NEW
+        let texture_bind_group_layout =
+            device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+                entries: &[
+                    wgpu::BindGroupLayoutEntry {
+                        binding: 0,
+                        visibility: wgpu::ShaderStages::FRAGMENT,
+                        ty: wgpu::BindingType::Texture {
+                            multisampled: false,
+                            view_dimension: wgpu::TextureViewDimension::D2,
+                            sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                        },
+                        count: None,
+                    },
+                    wgpu::BindGroupLayoutEntry {
+                        binding: 1,
+                        visibility: wgpu::ShaderStages::FRAGMENT,
+                        ty: wgpu::BindingType::Sampler {
+                            // This is only for TextureSampleType::Depth
+                            comparison: false,
+                            // This should be true if the sample_type of the texture is:
+                            //     TextureSampleType::Float { filterable: true }
+                            // Otherwise you'll get an error.
+                            filtering: true,
+                        },
+                        count: None,
+                    },
+                ],
+                label: Some("texture_bind_group_layout"),
+            });
+        let diffuse_texture = ImageTexture::from_image(&device, &queue).unwrap(); // CHANGED!
+        let diffuse_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            layout: &texture_bind_group_layout,
+            entries: &[
+                wgpu::BindGroupEntry {
+                    binding: 0,
+                    resource: wgpu::BindingResource::TextureView(&diffuse_texture.view), // CHANGED!
+                },
+                wgpu::BindGroupEntry {
+                    binding: 1,
+                    resource: wgpu::BindingResource::Sampler(&diffuse_texture.sampler), // CHANGED!
+                },
+            ],
+            label: Some("diffuse_bind_group"),
+        });
+        //WEN
 
         let op_streams = crate::render_op::OpStream::from_json(&config.filename);
 
