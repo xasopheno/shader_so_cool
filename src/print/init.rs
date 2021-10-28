@@ -67,7 +67,7 @@ impl PrintState {
                 let render_pipeline = create_render_pipeline(
                     &device,
                     &shader,
-                    &uniform_bind_group_layout,
+                    Some(&uniform_bind_group_layout),
                     texture_desc.format,
                 );
 

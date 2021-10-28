@@ -10,11 +10,10 @@ use crate::{
     canvas::Canvas,
     clock::{Clock, RenderClock},
     config::Config,
-    gen::GenVertex,
     instance::make_instances_and_instance_buffer,
     realtime::render::ExampleRepaintSignal,
     shared::{create_render_pipeline, helpers::new_clear_color, RenderPassInput},
-    texture::ImageTexture,
+    texture::create_image_bind_group,
     toy::Toy,
     vertex::{create_index_buffer, create_vertex_buffer, shape::ShapeGenResult},
 };
@@ -67,7 +66,8 @@ impl RealTimeState {
             wgpu::TextureFormat::Bgra8UnormSrgb,
         );
 
-        //NEW
+        let image_bind_group = create_image_bind_group(&device, &queue);
+
         let op_streams = crate::render_op::OpStream::from_json(&config.filename);
 
         let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
@@ -91,7 +91,7 @@ impl RealTimeState {
                 let render_pipeline = create_render_pipeline(
                     &device,
                     &shader,
-                    &uniform_bind_group_layout,
+                    Some(&uniform_bind_group_layout),
                     wgpu::TextureFormat::Bgra8UnormSrgb,
                 );
                 RenderPassInput {

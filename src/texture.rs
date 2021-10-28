@@ -3,6 +3,8 @@ use std::num::NonZeroU32;
 use anyhow::*;
 use image::GenericImageView;
 
+use crate::shared::create_render_pipeline;
+
 #[derive(Debug)]
 pub struct ImageTexture {
     pub texture: wgpu::Texture,
@@ -16,13 +18,47 @@ pub struct ImageDims {
     ncols: u32,
 }
 
-// impl ImageDims {
-// pub fn num_pixels(&self) -> u32 {
-// self.nrows * self.ncols
-// }
-// }
-//
-pub fn create_diffuse_bind_group(device: &wgpu::Device, queue: &wgpu::Queue) -> wgpu::BindGroup {
+pub struct ImageRender {
+    pub frame: usize,
+    // pub shader: wgpu::ShaderModule,
+    pub render_pipeline: wgpu::RenderPipeline,
+}
+
+impl ImageRender {
+    pub fn new(device: &wgpu::Device, queue: &wgpu::Queue) -> Self {
+        let (pipeline_layout, render_pipeline) = create_image_render_pipeline(device, queue);
+        Self {
+            frame: 0,
+            render_pipeline,
+        }
+    }
+}
+
+pub fn create_image_render_pipeline(
+    device: &wgpu::Device,
+    queue: &wgpu::Queue,
+) -> (wgpu::PipelineLayout, wgpu::RenderPipeline) {
+    let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
+        label: Some("Shader"),
+        source: wgpu::ShaderSource::Wgsl(include_str!("./shader.wgsl").into()),
+    });
+    let (image_bind_group, image_bind_group_layout, image_texture) =
+        create_image_bind_group(device, queue);
+    let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+        label: Some("Render Pipeline Layout"),           // NEW!
+        bind_group_layouts: &[&image_bind_group_layout], // NEW!
+        push_constant_ranges: &[],
+    });
+    (
+        render_pipeline_layout,
+        create_render_pipeline(device, &shader, None, wgpu::TextureFormat::Bgra8UnormSrgb),
+    )
+}
+
+pub fn create_image_bind_group(
+    device: &wgpu::Device,
+    queue: &wgpu::Queue,
+) -> (wgpu::BindGroup, wgpu::BindGroupLayout, ImageTexture) {
     let texture_bind_group_layout =
         device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             entries: &[
@@ -68,7 +104,11 @@ pub fn create_diffuse_bind_group(device: &wgpu::Device, queue: &wgpu::Queue) -> 
         label: Some("diffuse_bind_group"),
     });
 
-    diffuse_bind_group
+    (
+        diffuse_bind_group,
+        texture_bind_group_layout,
+        diffuse_texture,
+    )
 }
 
 impl ImageTexture {
@@ -124,9 +164,9 @@ impl ImageTexture {
 
         let view = texture.create_view(&wgpu::TextureViewDescriptor::default());
         let sampler = device.create_sampler(&wgpu::SamplerDescriptor {
-            address_mode_u: wgpu::AddressMode::ClampToEdge,
-            address_mode_v: wgpu::AddressMode::ClampToEdge,
-            address_mode_w: wgpu::AddressMode::ClampToEdge,
+            address_mode_u: wgpu::AddressMode::Repeat,
+            address_mode_v: wgpu::AddressMode::Repeat,
+            address_mode_w: wgpu::AddressMode::Repeat,
             mag_filter: wgpu::FilterMode::Linear,
             min_filter: wgpu::FilterMode::Nearest,
             mipmap_filter: wgpu::FilterMode::Nearest,
