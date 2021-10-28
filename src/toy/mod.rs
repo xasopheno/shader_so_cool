@@ -4,8 +4,6 @@ mod uniforms;
 
 pub use shader::*;
 
-use crate::camera::Camera;
-
 use self::uniforms::ToyUniforms;
 
 pub struct Toy {

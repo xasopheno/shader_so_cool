@@ -1,9 +1,39 @@
 use std::num::NonZeroU32;
+use wgpu::util::DeviceExt;
 
 use anyhow::*;
 use image::GenericImageView;
 
 use crate::shared::create_render_pipeline;
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
+struct ImageVertex {
+    position: [f32; 3],
+    tex_coords: [f32; 2],
+}
+
+impl ImageVertex {
+    fn desc<'a>() -> wgpu::VertexBufferLayout<'a> {
+        use std::mem;
+        wgpu::VertexBufferLayout {
+            array_stride: mem::size_of::<ImageVertex>() as wgpu::BufferAddress,
+            step_mode: wgpu::VertexStepMode::Vertex,
+            attributes: &[
+                wgpu::VertexAttribute {
+                    offset: 0,
+                    shader_location: 0,
+                    format: wgpu::VertexFormat::Float32x3,
+                },
+                wgpu::VertexAttribute {
+                    offset: mem::size_of::<[f32; 3]>() as wgpu::BufferAddress,
+                    shader_location: 1,
+                    format: wgpu::VertexFormat::Float32x2,
+                },
+            ],
+        }
+    }
+}
 
 #[derive(Debug)]
 pub struct ImageTexture {
@@ -45,8 +75,8 @@ pub fn create_image_render_pipeline(
     let (image_bind_group, image_bind_group_layout, image_texture) =
         create_image_bind_group(device, queue);
     let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-        label: Some("Render Pipeline Layout"),           // NEW!
-        bind_group_layouts: &[&image_bind_group_layout], // NEW!
+        label: Some("Render Pipeline Layout"),
+        bind_group_layouts: &[&image_bind_group_layout],
         push_constant_ranges: &[],
     });
     (
@@ -180,92 +210,43 @@ impl ImageTexture {
         })
     }
 
-    // pub fn save_rgb_texture(
-    // device: &wgpu::Device,
-    // queue: &wgpu::Queue,
-    // dims: &ImageDims,
-    // texture: &wgpu::Texture,
-    // // path: P,
-    // ) -> Result<(), anyhow::Error> {
-    // dbg!(dims);
-    // let staging = device.create_buffer(&wgpu::BufferDescriptor {
-    // label: None,
-    // size: (dims.num_pixels() * 4) as _,
-    // usage: wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::MAP_READ,
-    // mapped_at_creation: false,
-    // });
-    // let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-    // label: Some("ImageEncoder"),
-    // });
-    // encoder.copy_texture_to_buffer(
-    // wgpu::ImageCopyTexture {
-    // texture,
-    // mip_level: 0,
-    // origin: wgpu::Origin3d::ZERO,
-    // aspect: wgpu::TextureAspect::All,
-    // },
-    // wgpu::ImageCopyBuffer {
-    // buffer: &staging,
-    // layout: wgpu::ImageDataLayout {
-    // offset: 0,
-    // bytes_per_row: std::num::NonZeroU32::new(4 * dims.ncols),
-    // rows_per_image: std::num::NonZeroU32::new(dims.nrows),
-    // },
-    // },
-    // wgpu::Extent3d {
-    // width: dims.ncols,
-    // height: dims.nrows,
-    // depth_or_array_layers: 1,
-    // },
-    // );
-    // queue.submit(Some(encoder.finish()));
-    // Ok(())
-    // }
+    fn gen_image_vertices_and_indices(device: &wgpu::Device) -> (wgpu::Buffer, wgpu::Buffer, u32) {
+        let image_vertices = vec![
+            ImageVertex {
+                position: [-0.0868241, 0.49240386, 0.0],
+                tex_coords: [0.4131759, 0.00759614],
+            }, // A
+            ImageVertex {
+                position: [-0.49513406, 0.06958647, 0.0],
+                tex_coords: [0.0048659444, 0.43041354],
+            }, // B
+            ImageVertex {
+                position: [-0.21918549, -0.44939706, 0.0],
+                tex_coords: [0.28081453, 0.949397],
+            }, // C
+            ImageVertex {
+                position: [0.35966998, -0.3473291, 0.0],
+                tex_coords: [0.85967, 0.84732914],
+            }, // D
+            ImageVertex {
+                position: [0.44147372, 0.2347359, 0.0],
+                tex_coords: [0.9414737, 0.2652641],
+            }, // E
+        ];
 
-    // pub fn load_texture(
-    // device: &wgpu::Device,
-    // queue: &wgpu::Queue,
-    // // path: &str,
-    // ) -> Result<(ImageDims, wgpu::Texture, Vec<u8>), anyhow::Error> {
-    // let img = image::io::Reader::open("./happy-tree-cartoon.png")?.decode()?;
-    // let rgba = img
-    // .as_rgba8()
-    // .ok_or_else(|| anyhow::format_err!("Image can't be interpreted as rgba8"))?;
-    // let nrows = rgba.height();
-    // let ncols = rgba.width();
-    // let texture = device.create_texture(&wgpu::TextureDescriptor {
-    // label: None,
-    // size: wgpu::Extent3d {
-    // width: ncols,
-    // height: nrows,
-    // depth_or_array_layers: 1,
-    // },
-    // mip_level_count: 1,
-    // sample_count: 1,
-    // dimension: wgpu::TextureDimension::D2,
-    // format: wgpu::TextureFormat::Rgba8Unorm,
-    // usage: wgpu::TextureUsages::COPY_SRC | wgpu::TextureUsages::COPY_DST,
-    // });
-    // queue.write_texture(
-    // wgpu::ImageCopyTexture {
-    // texture: &texture,
-    // mip_level: 0,
-    // origin: wgpu::Origin3d::ZERO,
-    // aspect: wgpu::TextureAspect::All,
-    // },
-    // &rgba,
-    // wgpu::ImageDataLayout {
-    // offset: 0,
-    // bytes_per_row: std::num::NonZeroU32::new(4 * ncols),
-    // rows_per_image: std::num::NonZeroU32::new(nrows),
-    // },
-    // wgpu::Extent3d {
-    // width: ncols,
-    // height: nrows,
-    // depth_or_array_layers: 1,
-    // },
-    // );
-    // let dims = ImageDims { nrows, ncols };
-    // Ok((dims, texture, rgba.to_vec()))
-    // }
+        let image_indices = vec![0, 1, 4, 1, 2, 4, 2, 3, 4, /* padding */ 0];
+        let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Vertex Buffer"),
+            contents: bytemuck::cast_slice(&image_vertices),
+            usage: wgpu::BufferUsages::VERTEX,
+        });
+        let index_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Index Buffer"),
+            contents: bytemuck::cast_slice(&image_indices),
+            usage: wgpu::BufferUsages::INDEX,
+        });
+        let num_indices = image_indices.len() as u32;
+
+        (vertex_buffer, index_buffer, num_indices)
+    }
 }
