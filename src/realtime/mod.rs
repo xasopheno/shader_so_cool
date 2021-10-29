@@ -13,7 +13,7 @@ use crate::{
     instance::make_instances_and_instance_buffer,
     realtime::render::ExampleRepaintSignal,
     shared::{create_render_pipeline, helpers::new_clear_color, RenderPassInput},
-    texture::create_image_bind_group,
+    texture::ImageRender,
     toy::Toy,
     vertex::{create_index_buffer, create_vertex_buffer, shape::ShapeGenResult},
 };
@@ -26,6 +26,7 @@ pub struct RealTimeState {
     pub clock: RenderClock,
     pub config: Config,
     pub toy: Option<Toy>,
+    pub image_render: ImageRender,
     pub renderpasses: Vec<RenderPassInput>,
     pub surface: wgpu::Surface,
     pub device: wgpu::Device,
@@ -59,14 +60,14 @@ impl RealTimeState {
             gui,
         } = block_on(Setup::init(window, config));
 
+        let image_render = ImageRender::new(&device, &queue);
+
         let toy = crate::toy::setup_toy(
             &device,
             start_time,
             (size.width, size.height),
             wgpu::TextureFormat::Bgra8UnormSrgb,
         );
-
-        let image_bind_group = create_image_bind_group(&device, &queue);
 
         let op_streams = crate::render_op::OpStream::from_json(&config.filename);
 
@@ -119,6 +120,7 @@ impl RealTimeState {
                 0,
             ),
             toy: Some(toy),
+            image_render,
             renderpasses,
             count: 0,
             config: config.clone(),
