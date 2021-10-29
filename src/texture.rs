@@ -13,6 +13,53 @@ struct ImageVertex {
     tex_coords: [f32; 2],
 }
 
+fn create_image_render_pipeline() {
+    let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+        label: Some("Render Pipeline Layout"),
+        bind_group_layouts: &[&texture_bind_group_layout],
+        push_constant_ranges: &[],
+    });
+    let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+        label: Some("Render Pipeline"),
+        layout: Some(&render_pipeline_layout),
+        vertex: wgpu::VertexState {
+            module: &shader,
+            entry_point: "main",
+            buffers: &[Vertex::desc()],
+        },
+        fragment: Some(wgpu::FragmentState {
+            module: &shader,
+            entry_point: "main",
+            targets: &[wgpu::ColorTargetState {
+                format: config.format,
+                blend: Some(wgpu::BlendState {
+                    color: wgpu::BlendComponent::REPLACE,
+                    alpha: wgpu::BlendComponent::REPLACE,
+                }),
+                write_mask: wgpu::ColorWrites::ALL,
+            }],
+        }),
+        primitive: wgpu::PrimitiveState {
+            topology: wgpu::PrimitiveTopology::TriangleList,
+            strip_index_format: None,
+            front_face: wgpu::FrontFace::Ccw,
+            cull_mode: Some(wgpu::Face::Back),
+            // Setting this to anything other than Fill requires Features::NON_FILL_POLYGON_MODE
+            polygon_mode: wgpu::PolygonMode::Fill,
+            // Requires Features::DEPTH_CLAMPING
+            clamp_depth: false,
+            // Requires Features::CONSERVATIVE_RASTERIZATION
+            conservative: false,
+        },
+        depth_stencil: None,
+        multisample: wgpu::MultisampleState {
+            count: 1,
+            mask: !0,
+            alpha_to_coverage_enabled: false,
+        },
+    });
+}
+
 impl ImageVertex {
     fn desc<'a>() -> wgpu::VertexBufferLayout<'a> {
         use std::mem;
