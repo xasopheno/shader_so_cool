@@ -50,16 +50,68 @@ pub struct ImageDims {
 
 pub struct ImageRender {
     pub frame: usize,
-    // pub shader: wgpu::ShaderModule,
+    pub num_indices: u32,
+    pub vertex_buffer: wgpu::Buffer,
+    pub index_buffer: wgpu::Buffer,
+    pub bind_group: wgpu::BindGroup,
     pub render_pipeline: wgpu::RenderPipeline,
 }
 
 impl ImageRender {
+    pub fn render_pass(
+        &mut self,
+        device: &wgpu::Device,
+        queue: &wgpu::Queue,
+        view: &wgpu::TextureView,
+    ) -> Result<(), wgpu::SurfaceError> {
+        let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some("Render Encoder"),
+        });
+
+        {
+            let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+                label: Some("Render Pass"),
+                color_attachments: &[wgpu::RenderPassColorAttachment {
+                    view: &view,
+                    resolve_target: None,
+                    ops: wgpu::Operations {
+                        load: wgpu::LoadOp::Clear(wgpu::Color {
+                            r: 0.1,
+                            g: 0.2,
+                            b: 0.3,
+                            a: 1.0,
+                        }),
+                        store: true,
+                    },
+                }],
+                depth_stencil_attachment: None,
+            });
+
+            render_pass.set_pipeline(&self.render_pipeline);
+            render_pass.set_bind_group(0, &self.bind_group, &[]);
+            render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
+            render_pass.set_index_buffer(self.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
+            render_pass.draw_indexed(0..self.num_indices, 0, 0..1);
+        }
+
+        queue.submit(std::iter::once(encoder.finish()));
+
+        Ok(())
+    }
+}
+
+impl ImageRender {
     pub fn new(device: &wgpu::Device, queue: &wgpu::Queue) -> Self {
-        let (pipeline_layout, render_pipeline) = create_image_render_pipeline(device, queue);
+        let (_pipeline_layout, bind_group, render_pipeline) =
+            create_image_render_pipeline(device, queue);
+        let (vertex_buffer, index_buffer, num_indices) = make_image_vertices_and_indices(device);
         Self {
             frame: 0,
             render_pipeline,
+            vertex_buffer,
+            index_buffer,
+            num_indices,
+            bind_group,
         }
     }
 }
@@ -67,7 +119,7 @@ impl ImageRender {
 pub fn create_image_render_pipeline(
     device: &wgpu::Device,
     queue: &wgpu::Queue,
-) -> (wgpu::PipelineLayout, wgpu::RenderPipeline) {
+) -> (wgpu::PipelineLayout, wgpu::BindGroup, wgpu::RenderPipeline) {
     let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
         label: Some("Shader"),
         source: wgpu::ShaderSource::Wgsl(include_str!("./shader.wgsl").into()),
@@ -81,6 +133,7 @@ pub fn create_image_render_pipeline(
     });
     (
         render_pipeline_layout,
+        image_bind_group,
         create_render_pipeline(device, &shader, None, wgpu::TextureFormat::Bgra8UnormSrgb),
     )
 }
@@ -209,44 +262,44 @@ impl ImageTexture {
             sampler,
         })
     }
+}
 
-    fn gen_image_vertices_and_indices(device: &wgpu::Device) -> (wgpu::Buffer, wgpu::Buffer, u32) {
-        let image_vertices = vec![
-            ImageVertex {
-                position: [-0.0868241, 0.49240386, 0.0],
-                tex_coords: [0.4131759, 0.00759614],
-            }, // A
-            ImageVertex {
-                position: [-0.49513406, 0.06958647, 0.0],
-                tex_coords: [0.0048659444, 0.43041354],
-            }, // B
-            ImageVertex {
-                position: [-0.21918549, -0.44939706, 0.0],
-                tex_coords: [0.28081453, 0.949397],
-            }, // C
-            ImageVertex {
-                position: [0.35966998, -0.3473291, 0.0],
-                tex_coords: [0.85967, 0.84732914],
-            }, // D
-            ImageVertex {
-                position: [0.44147372, 0.2347359, 0.0],
-                tex_coords: [0.9414737, 0.2652641],
-            }, // E
-        ];
+fn make_image_vertices_and_indices(device: &wgpu::Device) -> (wgpu::Buffer, wgpu::Buffer, u32) {
+    let image_vertices = vec![
+        ImageVertex {
+            position: [-0.0868241, 0.49240386, 0.0],
+            tex_coords: [0.4131759, 0.00759614],
+        }, // A
+        ImageVertex {
+            position: [-0.49513406, 0.06958647, 0.0],
+            tex_coords: [0.0048659444, 0.43041354],
+        }, // B
+        ImageVertex {
+            position: [-0.21918549, -0.44939706, 0.0],
+            tex_coords: [0.28081453, 0.949397],
+        }, // C
+        ImageVertex {
+            position: [0.35966998, -0.3473291, 0.0],
+            tex_coords: [0.85967, 0.84732914],
+        }, // D
+        ImageVertex {
+            position: [0.44147372, 0.2347359, 0.0],
+            tex_coords: [0.9414737, 0.2652641],
+        }, // E
+    ];
 
-        let image_indices = vec![0, 1, 4, 1, 2, 4, 2, 3, 4, /* padding */ 0];
-        let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("Vertex Buffer"),
-            contents: bytemuck::cast_slice(&image_vertices),
-            usage: wgpu::BufferUsages::VERTEX,
-        });
-        let index_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("Index Buffer"),
-            contents: bytemuck::cast_slice(&image_indices),
-            usage: wgpu::BufferUsages::INDEX,
-        });
-        let num_indices = image_indices.len() as u32;
+    let image_indices = vec![0, 1, 4, 1, 2, 4, 2, 3, 4, /* padding */ 0];
+    let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        label: Some("Vertex Buffer"),
+        contents: bytemuck::cast_slice(&image_vertices),
+        usage: wgpu::BufferUsages::VERTEX,
+    });
+    let index_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        label: Some("Index Buffer"),
+        contents: bytemuck::cast_slice(&image_indices),
+        usage: wgpu::BufferUsages::INDEX,
+    });
+    let num_indices = image_indices.len() as u32;
 
-        (vertex_buffer, index_buffer, num_indices)
-    }
+    (vertex_buffer, index_buffer, num_indices)
 }
