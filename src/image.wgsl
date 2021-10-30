@@ -10,14 +10,25 @@ struct VertexOutput {
     [[location(0)]] tex_coords: vec2<f32>;
 };
 
+
+
 [[stage(vertex)]]
 fn main(
     model: VertexInput,
 ) -> VertexOutput {
     var out: VertexOutput;
     out.tex_coords = model.tex_coords;
-    out.clip_position = vec4<f32>(model.position, 1.0);
-    return out;
+  let size = 10000.0;
+
+  let scale = mat4x4<f32>(
+      vec4<f32>(size, 0.0, 0.0, 0.0),
+      vec4<f32>(0.0, size, 0.0, 0.0),
+      vec4<f32>(0.0, 0.0, size, 0.0),
+      vec4<f32>(0.0, 0.0, 0.0, 1.0)
+  );
+
+  out.clip_position = vec4<f32>(model.position, 1.0) * scale;
+  return out;
 }
 
 // Fragment shader

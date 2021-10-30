@@ -4,60 +4,11 @@ use wgpu::util::DeviceExt;
 use anyhow::*;
 use image::GenericImageView;
 
-use crate::shared::create_render_pipeline;
-
 #[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
 struct ImageVertex {
     position: [f32; 3],
     tex_coords: [f32; 2],
-}
-
-fn create_image_render_pipeline() {
-    let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-        label: Some("Render Pipeline Layout"),
-        bind_group_layouts: &[&texture_bind_group_layout],
-        push_constant_ranges: &[],
-    });
-    let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-        label: Some("Render Pipeline"),
-        layout: Some(&render_pipeline_layout),
-        vertex: wgpu::VertexState {
-            module: &shader,
-            entry_point: "main",
-            buffers: &[Vertex::desc()],
-        },
-        fragment: Some(wgpu::FragmentState {
-            module: &shader,
-            entry_point: "main",
-            targets: &[wgpu::ColorTargetState {
-                format: config.format,
-                blend: Some(wgpu::BlendState {
-                    color: wgpu::BlendComponent::REPLACE,
-                    alpha: wgpu::BlendComponent::REPLACE,
-                }),
-                write_mask: wgpu::ColorWrites::ALL,
-            }],
-        }),
-        primitive: wgpu::PrimitiveState {
-            topology: wgpu::PrimitiveTopology::TriangleList,
-            strip_index_format: None,
-            front_face: wgpu::FrontFace::Ccw,
-            cull_mode: Some(wgpu::Face::Back),
-            // Setting this to anything other than Fill requires Features::NON_FILL_POLYGON_MODE
-            polygon_mode: wgpu::PolygonMode::Fill,
-            // Requires Features::DEPTH_CLAMPING
-            clamp_depth: false,
-            // Requires Features::CONSERVATIVE_RASTERIZATION
-            conservative: false,
-        },
-        depth_stencil: None,
-        multisample: wgpu::MultisampleState {
-            count: 1,
-            mask: !0,
-            alpha_to_coverage_enabled: false,
-        },
-    });
 }
 
 impl ImageVertex {
@@ -169,20 +120,56 @@ pub fn create_image_render_pipeline(
 ) -> (wgpu::PipelineLayout, wgpu::BindGroup, wgpu::RenderPipeline) {
     let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
         label: Some("Shader"),
-        source: wgpu::ShaderSource::Wgsl(include_str!("./shader.wgsl").into()),
+        source: wgpu::ShaderSource::Wgsl(include_str!("./image.wgsl").into()),
     });
-    let (image_bind_group, image_bind_group_layout, image_texture) =
+    let (image_bind_group, image_bind_group_layout, _image_texture) =
         create_image_bind_group(device, queue);
     let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-        label: Some("Render Pipeline Layout"),
+        label: Some("Image Render Pipeline Layout"),
         bind_group_layouts: &[&image_bind_group_layout],
         push_constant_ranges: &[],
     });
-    (
-        render_pipeline_layout,
-        image_bind_group,
-        create_render_pipeline(device, &shader, None, wgpu::TextureFormat::Bgra8UnormSrgb),
-    )
+
+    let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+        label: Some("Image Render Pipeline"),
+        layout: Some(&render_pipeline_layout),
+        vertex: wgpu::VertexState {
+            module: &shader,
+            entry_point: "main",
+            buffers: &[ImageVertex::desc()],
+        },
+        fragment: Some(wgpu::FragmentState {
+            module: &shader,
+            entry_point: "main",
+            targets: &[wgpu::ColorTargetState {
+                format: wgpu::TextureFormat::Bgra8UnormSrgb,
+                blend: Some(wgpu::BlendState {
+                    color: wgpu::BlendComponent::REPLACE,
+                    alpha: wgpu::BlendComponent::REPLACE,
+                }),
+                write_mask: wgpu::ColorWrites::ALL,
+            }],
+        }),
+        primitive: wgpu::PrimitiveState {
+            topology: wgpu::PrimitiveTopology::TriangleList,
+            strip_index_format: None,
+            front_face: wgpu::FrontFace::Ccw,
+            cull_mode: Some(wgpu::Face::Back),
+            // Setting this to anything other than Fill requires Features::NON_FILL_POLYGON_MODE
+            polygon_mode: wgpu::PolygonMode::Fill,
+            // Requires Features::DEPTH_CLAMPING
+            clamp_depth: false,
+            // Requires Features::CONSERVATIVE_RASTERIZATION
+            conservative: false,
+        },
+        depth_stencil: None,
+        multisample: wgpu::MultisampleState {
+            count: 1,
+            mask: !0,
+            alpha_to_coverage_enabled: false,
+        },
+    });
+    (render_pipeline_layout, image_bind_group, render_pipeline)
 }
 
 pub fn create_image_bind_group(
