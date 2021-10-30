@@ -18,16 +18,17 @@ fn main(
 ) -> VertexOutput {
     var out: VertexOutput;
     out.tex_coords = model.tex_coords;
-  let size = 10000.0;
+  //let size = 10000.0;
 
-  let scale = mat4x4<f32>(
-      vec4<f32>(size, 0.0, 0.0, 0.0),
-      vec4<f32>(0.0, size, 0.0, 0.0),
-      vec4<f32>(0.0, 0.0, size, 0.0),
-      vec4<f32>(0.0, 0.0, 0.0, 1.0)
-  );
+  //let scale = mat4x4<f32>(
+  //    vec4<f32>(size, 0.0, 0.0, 0.0),
+  //    vec4<f32>(0.0, size, 0.0, 0.0),
+  //    vec4<f32>(0.0, 0.0, size, 0.0),
+  //    vec4<f32>(0.0, 0.0, 0.0, 1.0)
+  //);
 
-  out.clip_position = vec4<f32>(model.position, 1.0) * scale;
+  //out.clip_position = vec4<f32>(model.position, 1.0) * scale;
+  out.clip_position = vec4<f32>(model.position, 0.0);
   return out;
 }
 
@@ -39,6 +40,8 @@ var t_diffuse: texture_2d<f32>;
 var s_diffuse: sampler;
 
 [[stage(fragment)]]
+
 fn main(in: VertexOutput) -> [[location(0)]] vec4<f32> {
-    return textureSample(t_diffuse, s_diffuse, in.tex_coords);
+    // return textureSample(t_diffuse, s_diffuse, in.tex_coords);
+    return vec4<f32>(1.0, 1.0, 1.0, 1.0);
 }

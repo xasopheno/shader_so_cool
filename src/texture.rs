@@ -299,25 +299,26 @@ impl ImageTexture {
 }
 
 fn make_image_vertices_and_indices(device: &wgpu::Device) -> (wgpu::Buffer, wgpu::Buffer, u32) {
+    let x = 1.0;
     let image_vertices = vec![
         ImageVertex {
-            position: [-0.0868241, 0.49240386, 0.0],
+            position: [x * -0.0868241, x * 0.49240386, 0.0],
             tex_coords: [0.4131759, 0.00759614],
         }, // A
         ImageVertex {
-            position: [-0.49513406, 0.06958647, 0.0],
+            position: [x * -0.49513406, x * 0.06958647, 0.0],
             tex_coords: [0.0048659444, 0.43041354],
         }, // B
         ImageVertex {
-            position: [-0.21918549, -0.44939706, 0.0],
+            position: [x * -0.21918549, x * -0.44939706, 0.0],
             tex_coords: [0.28081453, 0.949397],
         }, // C
         ImageVertex {
-            position: [0.35966998, -0.3473291, 0.0],
+            position: [x * 0.35966998, x * -0.3473291, 0.0],
             tex_coords: [0.85967, 0.84732914],
         }, // D
         ImageVertex {
-            position: [0.44147372, 0.2347359, 0.0],
+            position: [x * 0.44147372, x * 0.2347359, 0.0],
             tex_coords: [0.9414737, 0.2652641],
         }, // E
     ];
