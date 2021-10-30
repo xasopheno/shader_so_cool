@@ -38,12 +38,19 @@ impl GenIndex for RandIndex {
 
 impl GenPosition for RandPosition {
     fn gen(&self) -> Position {
-        let mut rng = rand::thread_rng();
-        let mut r = || rng.gen::<f32>() * 2.0 - 1.0;
+        let mut xrng = rand::thread_rng();
+        let mut yrng = rand::thread_rng();
+        let mut zrng = rand::thread_rng();
+        let mut xr = || xrng.gen::<f32>() * 2.0 - 1.0;
+        let mut yr = || yrng.gen::<f32>() * 2.0 - 1.0;
+        let mut zr = || zrng.gen::<f32>() * 2.0 - 1.0;
+        // let mut zr = || zrng.gen::<f32>();
+        let mut z = zr();
+        let z = if z < 0.5 { z * -10.0 } else { z };
         Position {
-            x: r(),
-            y: r(),
-            z: r(),
+            x: xr(),
+            y: yr(),
+            z,
         }
     }
 }

@@ -89,9 +89,9 @@ impl RealTimeState {
             .expect("toy error");
         }
 
-        self.image_render
-            .render_pass(&self.device, &self.queue, &view)
-            .unwrap();
+        // self.image_render
+        // .render_pass(&self.device, &self.queue, &view)
+        // .unwrap();
 
         for (n, renderpass) in self.renderpasses.iter_mut().enumerate() {
             renderpass
