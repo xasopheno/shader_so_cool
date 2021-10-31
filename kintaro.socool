@@ -51,10 +51,13 @@ thing2 = {
 }
 
 main = {
-  Overlay [
-    #a | thing1,
-    #b | thing2
+  Seq [
+    Overlay [
+      #a | thing1,
+      #b | thing2
+    ]
+    | Seq [AsIs, Reverse | Fm 7/6]
+    | Repeat 4,
+    Fm 0 | Lm 8
   ]
-  | Seq [AsIs, Reverse | Fm 7/6]
-  | Repeat 8
 }
