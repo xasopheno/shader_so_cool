@@ -38,7 +38,7 @@ impl Camera {
             position: camera_config.position.into(),
             yaw: cgmath::Deg(camera_config.yaw).into(),
             pitch: cgmath::Deg(camera_config.pitch).into(),
-            projection: Projection::new(size.0, size.1, cgmath::Deg(50.0), 0.1, 10_000.0),
+            projection: Projection::new(size.0, size.1, cgmath::Deg(50.0), 0.1, 30_000.0),
             controller: CameraController::new(10.0, 1.0),
             index,
         }
