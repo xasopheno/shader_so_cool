@@ -175,7 +175,7 @@ bd = {
       l: 40|40 [-1]
     ) Take 32
   ] 
-  | Seq [Fm 1, Repeat 7 | Gm 0]
+  | Seq [Repeat 3 | Gm 0, Fm 1 | #first, Repeat 3 | Gm 0, Reverse | #second]
   | Gm 1/3
   | Overlay [AsIs, Invert]
   | O[

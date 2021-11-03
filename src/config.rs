@@ -55,6 +55,7 @@ impl Config {
             vec!["#112112", "#000033"],
             vec!["#ff00ff", "#000000"],
             vec!["#38881a", "#333333"],
+            vec!["#aa10e4", "#333333"],
         ]);
         Config {
             accumulation: false,
