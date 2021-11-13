@@ -26,11 +26,16 @@ fn fs_main(
 ) -> [[location(0)]] vec4<f32> {
     var resolution = vec2<f32>(u.width, u.height);
     var uv = frag_coord.xy / resolution;
-    var color = vec4<f32>(sin(u.time * 0.008) * (uv.x + uv.y) * uv.y, sin(u.time * 0.001) * uv.y - uv.x, sin(u.time * 0.01) * uv.x - uv.y, 1.0);
-    return color 
-    * vec4<f32>(atan(u.time * 50.0 * (1.0 - uv.x - uv.y / uv.x)) * 0.1, atan(u.time * 100.0 * (uv.y - uv.y / uv.x))
-    * 0.01, atan(u.time * 300.0 * (1.0 - uv.x - uv.y / uv.x)) * 0.03, 1.0)
-    * vec4<f32>(20.0, 0.1, 0.1, 1.0); 
+//    var color = vec4<f32>(sin(u.time * 0.008) * (uv.x + uv.y) * uv.y, sin(u.time * 0.001) * uv.y - uv.x, sin(u.time * 0.01) * uv.x - uv.y, 1.0);
+ //   return color 
+ //   * vec4<f32>(atan(u.time * 50.0 * (1.0 - uv.x - uv.y / uv.x)) * 0.1, atan(u.time * 100.0 * (uv.y - uv.y / uv.x))
+ //   * 0.01, atan(u.time * 300.0 * (1.0 - uv.x - uv.y / uv.x)) * 0.03, 1.0)
+ //   * vec4<f32>(20.0, 0.1, 0.1, 1.0); 
+    if (uv.y * 1000.0 % 25.0 < 1.0) {
+        return vec4<f32>(0.1, 0.1, 0.1, 1.0);
+    } else {
+        return vec4<f32>(0.0, 0.0, 0.0, 1.0);
+    }
 }
 
 
