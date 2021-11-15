@@ -2,5 +2,5 @@
 *.wav
 *.spv
 out/*
-out.mov
+*.mov
 .DS_Store
