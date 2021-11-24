@@ -321,12 +321,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "cache-padded"
-version = "1.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "631ae5198c9be5e753e5cc215e1bd73c2b466a3565173db433f52bb9d3e66dba"
-
-[[package]]
 name = "calloop"
 version = "0.6.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -400,15 +394,6 @@ dependencies = [
  "num-traits",
  "time",
  "winapi",
-]
-
-[[package]]
-name = "circular-queue"
-version = "0.2.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1d34327ead1c743a10db339de35fb58957564b99d248a67985c55638b22c59b5"
-dependencies = [
- "version_check",
 ]
 
 [[package]]
@@ -2425,12 +2410,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rb"
-version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a27f4c5756bd2bfb5942758d8168805655c62388eef0544e581a2bfa5b532f15"
-
-[[package]]
 name = "redox_syscall"
 version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2483,13 +2462,8 @@ name = "reverb"
 version = "0.3.0"
 
 [[package]]
-name = "ringbuf"
-version = "0.2.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6c60f3923939c33e6c543ddbff14d0ee6a407fcd186d560be37282559616adf3"
-dependencies = [
- "cache-padded",
-]
+name = "ring_buffer"
+version = "0.1.0"
 
 [[package]]
 name = "rodio"
@@ -3171,6 +3145,7 @@ dependencies = [
  "portaudio",
  "rand 0.7.3",
  "rayon",
+ "ring_buffer",
  "scop",
  "serde",
  "serde_derive",
@@ -3199,7 +3174,6 @@ dependencies = [
 name = "weresocool_ast"
 version = "0.5.0"
 dependencies = [
- "circular-queue",
  "colored",
  "csv",
  "indexmap",
@@ -3210,8 +3184,7 @@ dependencies = [
  "polynomials",
  "pretty_assertions",
  "rand 0.7.3",
- "rb",
- "ringbuf",
+ "ring_buffer",
  "scop",
  "serde",
  "weresocool_error",

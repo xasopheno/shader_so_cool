@@ -62,7 +62,7 @@ impl Config {
             accumulation: false,
             filename: "kintaro".into(),
             volume: 0.20,
-            window_size: (1792 * 4, 1120 * 4),
+            window_size: (1792 * 2, 1120 * 2),
             shape: Shape {
                 n_vertices: 70,
                 n_indices: 70,

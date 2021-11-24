@@ -19,13 +19,24 @@ use crate::config::Config;
 use crate::print::PrintState;
 use crate::realtime::render::ExampleRepaintSignal;
 use crate::realtime::RealTimeState;
+use weresocool::error::Error;
+use weresocool::generation::parsed_to_render::AudioVisual;
+use weresocool::generation::{RenderReturn, RenderType};
+use weresocool::interpretable::{InputType, Interpretable};
 #[allow(unused_imports)]
 use winit::window::Fullscreen;
 use winit::{event::*, event_loop::ControlFlow, window::WindowBuilder};
 
 use futures::executor::block_on;
 
-fn main() {
+fn main() -> Result<(), Error> {
+    // let filename = "kintaro.socool";
+    // let AudioVisual {
+    // name,
+    // length,
+    // audio,
+    // visual,
+    // } = get_audiovisual_data(filename)?;
     let print_it = std::env::args()
         .into_iter()
         .any(|arg| if arg == "--print" { true } else { false });
@@ -37,6 +48,7 @@ fn main() {
         println!("****REALTIME****");
         realtime();
     }
+    Ok(())
 }
 
 fn print() {
@@ -44,6 +56,16 @@ fn print() {
     let mut state = block_on(PrintState::init(&mut config));
     for i in 0..5500 {
         block_on(state.render()).expect(format!("Unable to render frame: {}", i).as_str());
+    }
+}
+
+fn get_audiovisual_data(filename: &str) -> Result<AudioVisual, Error> {
+    if let RenderReturn::AudioVisual(av) =
+        InputType::Filename(&filename).make(RenderType::AudioVisual, None)?
+    {
+        Ok(av)
+    } else {
+        Err(Error::with_msg(format!("Error rendering {}", filename)))
     }
 }
 
