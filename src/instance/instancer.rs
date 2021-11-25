@@ -5,15 +5,23 @@ use cgmath::Vector3;
 use kintaro_egui_lib::InstanceMul;
 use rand::Rng;
 
-pub struct Instancer {
+pub struct SimpleInstancer {
     instance_mul: InstanceMul,
-    update_instance: fn(&mut Instance, f32),
-    op4d_to_instance:
-        fn(op4d: Op4D, displacement: &cgmath::Vector3<f32>, n_column: u32, n_row: u32) -> Instance,
 }
 
-impl Instancer {
-    pub fn update_state(instance: &mut Instance, dt: f32) {
+pub trait Instancer {
+    fn update_instance(instance: &mut Instance, dt: f32);
+    fn op4d_to_instance(
+        &mut self,
+        op4d: &Op4D,
+        displacement: &cgmath::Vector3<f32>,
+        n_column: u32,
+        n_row: u32,
+    ) -> Instance;
+}
+
+impl Instancer for SimpleInstancer {
+    fn update_instance(instance: &mut Instance, dt: f32) {
         instance.life -= dt * 0.1;
         // instance.position.y += f32::sin(3.0 * (2.0 - instance.life));
         instance.position.x += 800.0 * (2.0 - instance.life) * f32::signum(instance.position.x);
@@ -22,11 +30,11 @@ impl Instancer {
     }
 
     fn op4d_to_instance(
+        &mut self,
         op4d: &Op4D,
         displacement: &cgmath::Vector3<f32>,
         n_column: u32,
         n_row: u32,
-        mul: InstanceMul,
     ) -> Instance {
         let mut rng = rand::thread_rng();
         let rotation = cgmath::Quaternion::from_axis_angle(
@@ -34,12 +42,12 @@ impl Instancer {
             // cgmath::Deg(0.0),
             cgmath::Deg(rng.gen_range(-0.3..0.3)),
         );
-        let x = -op4d.x as f32 * mul.x;
-        let y = op4d.y as f32 * mul.y;
-        let z = op4d.z as f32 * mul.z;
-        let length = op4d.l as f32 * mul.length;
-        let life = 1.0 * mul.life;
-        let size = mul.size * f32::max(z, 0.2);
+        let x = -op4d.x as f32 * self.instance_mul.x;
+        let y = op4d.y as f32 * self.instance_mul.y;
+        let z = op4d.z as f32 * self.instance_mul.z;
+        let length = op4d.l as f32 * self.instance_mul.length;
+        let life = 1.0 * self.instance_mul.life;
+        let size = self.instance_mul.size * f32::max(z, 0.2);
         Instance {
             position: Vector3::new(
                 // n_row as f32 * 1.0 / 2.0 * f32::powi(x, 2),
