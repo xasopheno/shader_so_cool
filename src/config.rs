@@ -1,8 +1,10 @@
 use kintaro_egui_lib::InstanceMul;
 use serde::{Deserialize, Serialize};
+use weresocool::generation::Op4D;
 
 use crate::camera::default::default_cameras;
 use crate::color::helpers::*;
+use crate::instance::Instance;
 use crate::save::ConfigState;
 use crate::vertex::shape::{RandIndex, RandPosition, Shape};
 
@@ -22,6 +24,12 @@ pub struct Config {
     pub accumulation: bool,
     pub shape: Shape,
     pub instance_mul: InstanceMul,
+}
+
+pub struct Instancer {
+    instance_mul: InstanceMul,
+    update_instance: fn(&mut Instance),
+    op4d_to_instance: fn(Op4D) -> Instance,
 }
 
 impl Config {
