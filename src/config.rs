@@ -1,10 +1,9 @@
 use kintaro_egui_lib::InstanceMul;
 use serde::{Deserialize, Serialize};
-use weresocool::generation::Op4D;
 
 use crate::camera::default::default_cameras;
 use crate::color::helpers::*;
-use crate::instance::Instance;
+use crate::instance::instancer::{Instancer, SimpleInstancer};
 use crate::save::ConfigState;
 use crate::vertex::shape::{RandIndex, RandPosition, Shape};
 
@@ -24,6 +23,7 @@ pub struct Config {
     pub accumulation: bool,
     pub shape: Shape,
     pub instance_mul: InstanceMul,
+    pub instancer: Box<dyn Instancer>,
 }
 
 impl Config {
@@ -65,6 +65,7 @@ impl Config {
             filename: "kintaro".into(),
             volume: 0.20,
             window_size: (1792 * 2, 1120 * 2),
+            cameras,
             shape: Shape {
                 n_vertices: 70,
                 n_indices: 70,
@@ -84,7 +85,6 @@ impl Config {
                     length: 1.0,
                 }
             },
-            cameras,
         }
     }
 }

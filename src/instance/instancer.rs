@@ -4,13 +4,15 @@ use cgmath::Rotation3;
 use cgmath::Vector3;
 use kintaro_egui_lib::InstanceMul;
 use rand::Rng;
+use std::fmt::Debug;
 
+#[derive(Debug, Clone)]
 pub struct SimpleInstancer {
     instance_mul: InstanceMul,
 }
 
-pub trait Instancer {
-    fn update_instance(instance: &mut Instance, dt: f32);
+pub trait Instancer: dyn_clone::DynClone + Debug {
+    fn update_instance(&mut self, instance: &mut Instance, dt: f32);
     fn op4d_to_instance(
         &mut self,
         op4d: &Op4D,
@@ -19,9 +21,10 @@ pub trait Instancer {
         n_row: u32,
     ) -> Instance;
 }
+dyn_clone::clone_trait_object!(Instancer);
 
 impl Instancer for SimpleInstancer {
-    fn update_instance(instance: &mut Instance, dt: f32) {
+    fn update_instance(&mut self, instance: &mut Instance, dt: f32) {
         instance.life -= dt * 0.1;
         // instance.position.y += f32::sin(3.0 * (2.0 - instance.life));
         instance.position.x += 800.0 * (2.0 - instance.life) * f32::signum(instance.position.x);
