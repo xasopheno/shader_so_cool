@@ -38,6 +38,25 @@ impl OpStream {
             })
             .collect()
     }
+
+    pub fn from_vec_op4d(ops: Vec<Op4D>, length: f32) -> Vec<OpStream> {
+        let mut op_streams = BTreeMap::<String, Vec<Op4D>>::new();
+        ops.iter().for_each(|op| {
+            if op.names.is_empty() {
+                let stream = op_streams.entry("nameless".to_string()).or_insert(vec![]);
+                stream.push(op.clone());
+            } else {
+                let names = op.names.join("_");
+                let stream = op_streams.entry(names).or_insert(vec![]);
+                stream.push(op.clone());
+            }
+        });
+
+        op_streams
+            .into_iter()
+            .map(|(_name, ops)| OpStream { ops, length })
+            .collect()
+    }
     pub fn get_batch(&mut self, t: f32) -> Vec<Op4D> {
         let result: Vec<Op4D> = self
             .ops

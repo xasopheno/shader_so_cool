@@ -30,13 +30,9 @@ use winit::{event::*, event_loop::ControlFlow, window::WindowBuilder};
 use futures::executor::block_on;
 
 fn main() -> Result<(), Error> {
-    // let filename = "kintaro.socool";
-    // let AudioVisual {
-    // name,
-    // length,
-    // audio,
-    // visual,
-    // } = get_audiovisual_data(filename)?;
+    let filename = "kintaro.socool";
+    println!("preparing for audiovisualization: {}", &filename);
+    let av = get_audiovisual_data(filename)?;
     let print_it = std::env::args()
         .into_iter()
         .any(|arg| if arg == "--print" { true } else { false });
@@ -46,17 +42,9 @@ fn main() -> Result<(), Error> {
         print();
     } else {
         println!("****REALTIME****");
-        realtime();
+        realtime(av);
     }
     Ok(())
-}
-
-fn print() {
-    let mut config = Config::new();
-    let mut state = block_on(PrintState::init(&mut config));
-    for i in 0..5500 {
-        block_on(state.render()).expect(format!("Unable to render frame: {}", i).as_str());
-    }
 }
 
 fn get_audiovisual_data(filename: &str) -> Result<AudioVisual, Error> {
@@ -69,7 +57,15 @@ fn get_audiovisual_data(filename: &str) -> Result<AudioVisual, Error> {
     }
 }
 
-fn realtime() {
+fn print() {
+    let mut config = Config::new();
+    let mut state = block_on(PrintState::init(&mut config));
+    for i in 0..5500 {
+        block_on(state.render()).expect(format!("Unable to render frame: {}", i).as_str());
+    }
+}
+
+fn realtime(av: AudioVisual) {
     env_logger::init();
     let mut config = Config::new();
     let title = env!("CARGO_PKG_NAME");
@@ -90,9 +86,14 @@ fn realtime() {
         event_loop.create_proxy(),
     )));
 
-    let (mut _stream, stream_handle) = crate::audio::play_audio(&config);
-    let mut state =
-        RealTimeState::init(&window, &mut config, repaint_signal.clone(), stream_handle);
+    let (mut _stream, stream_handle) = crate::audio::play_audio(&config, &av.audio);
+    let mut state = RealTimeState::init(
+        &window,
+        &mut config,
+        repaint_signal.clone(),
+        stream_handle,
+        av,
+    );
     state.play();
 
     event_loop.run(move |event, _, control_flow| {

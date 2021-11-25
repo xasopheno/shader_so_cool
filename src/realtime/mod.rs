@@ -4,6 +4,7 @@ mod resize;
 pub mod setup;
 
 use setup::Setup;
+use weresocool::generation::parsed_to_render::AudioVisual;
 
 use crate::{
     camera::Camera,
@@ -50,6 +51,7 @@ impl RealTimeState {
         config: &mut Config,
         repaint_signal: std::sync::Arc<ExampleRepaintSignal>,
         audio_stream_handle: rodio::Sink,
+        av: AudioVisual,
     ) -> RealTimeState {
         let start_time = std::time::Instant::now();
         let size = window.inner_size();
@@ -69,7 +71,7 @@ impl RealTimeState {
             wgpu::TextureFormat::Bgra8UnormSrgb,
         );
 
-        let op_streams = crate::render_op::OpStream::from_json(&config.filename);
+        let op_streams = crate::render_op::OpStream::from_vec_op4d(av.visual, av.length);
 
         let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
             label: Some("Shader"),
