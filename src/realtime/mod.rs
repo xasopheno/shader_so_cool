@@ -20,12 +20,15 @@ use self::setup::Gui;
 
 pub struct RealTimeState {
     pub composition: Composition,
+
     pub clock: RenderClock,
-    pub surface: wgpu::Surface,
+    pub count: u32,
+
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
     pub size: (u32, u32),
-    pub count: u32,
+    pub surface: wgpu::Surface,
+
     pub mouse_pressed: bool,
     pub gui: Gui,
     pub repaint_signal: std::sync::Arc<ExampleRepaintSignal>,
