@@ -4,7 +4,6 @@ mod uniforms;
 use self::uniforms::ToyUniforms;
 
 pub struct Toy {
-    pub start_time: std::time::Instant,
     pub shader: wgpu::ShaderModule,
     pub uniforms: ToyUniforms,
     pub uniform_bind_group: wgpu::BindGroup,
@@ -13,12 +12,7 @@ pub struct Toy {
     pub size: (u32, u32),
 }
 
-pub fn setup_toy(
-    device: &wgpu::Device,
-    start_time: std::time::Instant,
-    size: (u32, u32),
-    format: wgpu::TextureFormat,
-) -> Toy {
+pub fn setup_toy(device: &wgpu::Device, size: (u32, u32), format: wgpu::TextureFormat) -> Toy {
     let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
         label: Some("Toy Shader"),
         source: wgpu::ShaderSource::Wgsl(include_str!("../toy.wgsl").into()),
@@ -35,7 +29,6 @@ pub fn setup_toy(
     );
 
     Toy {
-        start_time,
         size,
         shader,
         render_pipeline,

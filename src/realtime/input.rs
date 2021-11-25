@@ -10,7 +10,10 @@ impl RealTimeState {
                     virtual_keycode: Some(key),
                     ..
                 } => {
-                    self.camera.controller.process_keyboard(*key, *state);
+                    self.composition
+                        .camera
+                        .controller
+                        .process_keyboard(*key, *state);
                 }
                 _ => {}
             },
@@ -24,9 +27,13 @@ impl RealTimeState {
                 virtual_keycode: Some(key),
                 state,
                 ..
-            }) => self.camera.controller.process_keyboard(*key, *state),
+            }) => self
+                .composition
+                .camera
+                .controller
+                .process_keyboard(*key, *state),
             DeviceEvent::MouseWheel { delta, .. } => {
-                self.camera.controller.process_scroll(&*delta);
+                self.composition.camera.controller.process_scroll(&*delta);
                 true
             }
             DeviceEvent::Button { button: _, state } => {
@@ -35,7 +42,10 @@ impl RealTimeState {
             }
             DeviceEvent::MouseMotion { delta } => {
                 if self.mouse_pressed {
-                    self.camera.controller.process_mouse(delta.0, delta.1);
+                    self.composition
+                        .camera
+                        .controller
+                        .process_mouse(delta.0, delta.1);
                 }
                 true
             }

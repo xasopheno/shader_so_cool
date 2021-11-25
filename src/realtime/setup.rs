@@ -24,7 +24,7 @@ pub struct Setup {
 
 impl Setup {
     pub async fn init(window: &Window, config: &Config) -> Self {
-        let size = window.inner_size();
+        let size = config.window_size;
         let instance = wgpu::Instance::new(wgpu::Backends::all());
         let surface = unsafe { instance.create_surface(window) };
         let adapter = instance
@@ -51,15 +51,15 @@ impl Setup {
         let surface_config = wgpu::SurfaceConfiguration {
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
             format: surface_format,
-            width: size.width,
-            height: size.height,
+            width: size.0,
+            height: size.1,
             present_mode: wgpu::PresentMode::Fifo,
         };
         surface.configure(&device, &surface_config);
 
         let platform = Platform::new(PlatformDescriptor {
-            physical_width: size.width,
-            physical_height: size.height,
+            physical_width: size.0,
+            physical_height: size.1,
             scale_factor: window.scale_factor(),
             font_definitions: FontDefinitions::default(),
             style: Default::default(),

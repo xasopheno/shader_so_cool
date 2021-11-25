@@ -4,7 +4,7 @@ use crate::{
     canvas::Canvas,
     clock::ClockResult,
     instance::{make_instance_buffer, Instance},
-    render_op::{OpStream, ToInstance},
+    op_stream::{OpStream, ToInstance},
     shared::RenderPassInput,
     vertex::make_vertex_buffer,
 };

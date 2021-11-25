@@ -3,15 +3,15 @@ mod camera;
 mod canvas;
 mod clock;
 mod color;
+mod composition;
 mod config;
 mod gen;
 mod instance;
+mod op_stream;
 mod print;
 mod realtime;
-mod render_op;
 mod save;
 mod shared;
-mod texture;
 mod toy;
 mod uniforms;
 mod vertex;
@@ -23,6 +23,7 @@ use weresocool::error::Error;
 use weresocool::generation::parsed_to_render::AudioVisual;
 use weresocool::generation::{RenderReturn, RenderType};
 use weresocool::interpretable::{InputType, Interpretable};
+use winit::dpi::PhysicalSize;
 #[allow(unused_imports)]
 use winit::window::Fullscreen;
 use winit::{event::*, event_loop::ControlFlow, window::WindowBuilder};
@@ -136,7 +137,10 @@ fn realtime(av: AudioVisual) {
                 match state.render(&window) {
                     Ok(_) => {}
                     // Recreate the swap_chain if lost
-                    Err(wgpu::SurfaceError::Lost) => state.resize(state.size),
+                    Err(wgpu::SurfaceError::Lost) => state.resize(PhysicalSize {
+                        width: state.size.0,
+                        height: state.size.1,
+                    }),
                     // The system is out of memory, we should probably quit
                     Err(wgpu::SurfaceError::OutOfMemory) => *control_flow = ControlFlow::Exit,
                     // All other errors (Outdated, Timeout) should be resolved by the next frame

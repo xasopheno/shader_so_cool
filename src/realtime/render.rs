@@ -28,7 +28,7 @@ impl RealTimeState {
     pub fn render(&mut self, window: &winit::window::Window) -> Result<(), wgpu::SurfaceError> {
         self.clock.update();
         let time = self.clock.current();
-        self.camera.update(time.last_period);
+        self.composition.camera.update(time.last_period);
         self.audio_stream_handle
             .set_volume(self.gui.state.lock().unwrap().volume);
 
@@ -37,7 +37,7 @@ impl RealTimeState {
             if state.save {
                 let filename = "../kintaro/saved.json";
                 let instance_mul = state.instance_mul.to_owned();
-                let camera = self.camera.current_state().clone();
+                let camera = self.composition.camera.current_state().clone();
                 thread::spawn(move || {
                     let mut file = File::create(filename).unwrap();
                     let config_state = ConfigState {
@@ -54,19 +54,20 @@ impl RealTimeState {
             }
         }
 
-        let view_position: [f32; 4] = self.camera.position.to_homogeneous().into();
-        let view_proj: [[f32; 4]; 4] =
-            (&self.camera.projection.calc_matrix() * self.camera.calc_matrix()).into();
+        let view_position: [f32; 4] = self.composition.camera.position.to_homogeneous().into();
+        let view_proj: [[f32; 4]; 4] = (&self.composition.camera.projection.calc_matrix()
+            * self.composition.camera.calc_matrix())
+        .into();
 
-        for renderpass in self.renderpasses.iter_mut() {
+        for renderpass in self.composition.renderpasses.iter_mut() {
             update(
                 self.clock.is_playing(),
                 time,
                 renderpass,
                 &self.device,
                 &self.queue,
-                self.size.into(),
-                &self.canvas,
+                self.size,
+                &self.composition.canvas,
                 self.gui.state.lock().unwrap().instance_mul,
             );
         }
@@ -76,7 +77,7 @@ impl RealTimeState {
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
 
-        if let Some(toy) = &mut self.toy {
+        if let Some(toy) = &mut self.composition.toy {
             toy_renderpass(
                 true,
                 toy,
@@ -93,7 +94,7 @@ impl RealTimeState {
         // .render_pass(&self.device, &self.queue, &view)
         // .unwrap();
 
-        for (n, renderpass) in self.renderpasses.iter_mut().enumerate() {
+        for (n, renderpass) in self.composition.renderpasses.iter_mut().enumerate() {
             renderpass
                 .uniforms
                 .update_view_proj(view_position, view_proj);
@@ -103,8 +104,14 @@ impl RealTimeState {
                     label: Some("Render Encoder"),
                 });
 
-            let accumulation = n > 0 || self.toy.is_some();
-            render_pass(&mut encoder, &renderpass, &view, &self.config, accumulation);
+            let accumulation = n > 0 || self.composition.toy.is_some();
+            render_pass(
+                &mut encoder,
+                &renderpass,
+                &view,
+                &self.composition.config,
+                accumulation,
+            );
 
             self.queue.submit(std::iter::once(encoder.finish()));
         }
@@ -142,8 +149,8 @@ impl RealTimeState {
 
         // Upload all resources for the GPU.
         let screen_descriptor = ScreenDescriptor {
-            physical_width: self.size.width,
-            physical_height: self.size.height,
+            physical_width: self.size.0,
+            physical_height: self.size.1,
             scale_factor: window.scale_factor() as f32,
         };
         self.gui.renderpass.update_texture(
@@ -174,11 +181,11 @@ impl RealTimeState {
         {
             let s = self.gui.state.lock().unwrap();
             self.audio_stream_handle.set_volume(s.volume);
-            if s.camera_index != self.camera.index {
-                self.camera = Camera::new(
-                    &self.config.cameras[s.camera_index],
-                    self.config.window_size,
-                    &self.config,
+            if s.camera_index != self.composition.camera.index {
+                self.composition.camera = Camera::new(
+                    &self.composition.config.cameras[s.camera_index],
+                    self.composition.config.window_size,
+                    &self.composition.config,
                     s.camera_index,
                 )
             }

@@ -1,3 +1,4 @@
+pub mod renderpasses;
 use crate::instance::Instance;
 use cgmath::{Rotation3, Vector3};
 use kintaro_egui_lib::InstanceMul;

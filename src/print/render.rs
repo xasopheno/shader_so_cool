@@ -1,5 +1,4 @@
 use crate::toy::toy_renderpass;
-use kintaro_egui_lib::InstanceMul;
 
 use crate::{
     clock::Clock,
@@ -15,13 +14,14 @@ impl PrintState {
     pub async fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
         self.clock.update();
         let time = self.clock.current();
-        self.camera.update(time.last_period);
+        self.composition.camera.update(time.last_period);
 
-        let view_position: [f32; 4] = self.camera.position.to_homogeneous().into();
-        let view_proj: [[f32; 4]; 4] =
-            (&self.camera.projection.calc_matrix() * self.camera.calc_matrix()).into();
+        let view_position: [f32; 4] = self.composition.camera.position.to_homogeneous().into();
+        let view_proj: [[f32; 4]; 4] = (&self.composition.camera.projection.calc_matrix()
+            * self.composition.camera.calc_matrix())
+        .into();
 
-        for renderpass in self.renderpasses.iter_mut() {
+        for renderpass in self.composition.renderpasses.iter_mut() {
             update(
                 true,
                 time,
@@ -29,12 +29,12 @@ impl PrintState {
                 &self.device,
                 &self.queue,
                 (self.size.0, self.size.1),
-                &self.canvas,
-                self.config.instance_mul,
+                &self.composition.canvas,
+                self.composition.config.instance_mul,
             );
         }
 
-        if let Some(toy) = &mut self.toy {
+        if let Some(toy) = &mut self.composition.toy {
             toy_renderpass(
                 self.clock.is_playing(),
                 toy,
@@ -46,7 +46,7 @@ impl PrintState {
             )?
         }
 
-        for (n, renderpass) in self.renderpasses.iter_mut().enumerate() {
+        for (n, renderpass) in self.composition.renderpasses.iter_mut().enumerate() {
             renderpass
                 .uniforms
                 .update_view_proj(view_position, view_proj);
@@ -56,13 +56,13 @@ impl PrintState {
                     label: Some("Render Encoder"),
                 });
 
-            let accumulation = n > 0 || self.toy.is_some();
+            let accumulation = n > 0 || self.composition.toy.is_some();
 
             render_pass(
                 &mut encoder,
                 &renderpass,
                 &self.texture_view,
-                &self.config,
+                &self.composition.config,
                 accumulation,
             );
 

@@ -1,6 +1,6 @@
 use crate::config::Config;
 use crate::instance::Instance;
-use crate::render_op::OpStream;
+use crate::op_stream::OpStream;
 use crate::vertex::shape::Shape;
 use crate::vertex::Vertex;
 
