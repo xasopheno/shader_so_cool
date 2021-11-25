@@ -81,7 +81,7 @@ impl Clock for RenderClock {
 impl Clock for PrintClock {
     fn init(_config: &Config) -> Self {
         Self {
-            rate: std::time::Duration::from_millis(20),
+            rate: std::time::Duration::from_millis(25),
             time_elapsed: std::time::Duration::ZERO,
             frame_count: 0,
             playing: false,

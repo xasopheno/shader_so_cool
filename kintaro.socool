@@ -44,7 +44,7 @@ main = {
             ]
             | Fm 9/16
             | Repeat 32
-            | Repeat 16
+            | Repeat 32
             | FitLength data 
         ]
         | Fm 4,

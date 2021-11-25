@@ -1,8 +1,5 @@
 mod create_toy_render_pipeline;
-mod shader;
 mod uniforms;
-
-pub use shader::*;
 
 use self::uniforms::ToyUniforms;
 
@@ -23,8 +20,8 @@ pub fn setup_toy(
     format: wgpu::TextureFormat,
 ) -> Toy {
     let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
-        label: Some("Shader"),
-        source: wgpu::ShaderSource::Wgsl(include_str!("./toy.wgsl").into()),
+        label: Some("Toy Shader"),
+        source: wgpu::ShaderSource::Wgsl(include_str!("../toy.wgsl").into()),
     });
 
     let (uniforms, uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
