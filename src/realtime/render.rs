@@ -54,6 +54,11 @@ impl RealTimeState {
             }
         }
 
+        let output = self.surface.get_current_frame()?.output;
+        let view = output
+            .texture
+            .create_view(&wgpu::TextureViewDescriptor::default());
+
         let view_position: [f32; 4] = self.composition.camera.position.to_homogeneous().into();
         let view_proj: [[f32; 4]; 4] = (&self.composition.camera.projection.calc_matrix()
             * self.composition.camera.calc_matrix())
@@ -72,11 +77,6 @@ impl RealTimeState {
             );
         }
 
-        let output = self.surface.get_current_frame()?.output;
-        let view = output
-            .texture
-            .create_view(&wgpu::TextureViewDescriptor::default());
-
         if let Some(toy) = &mut self.composition.toy {
             toy_renderpass(
                 true,
@@ -89,10 +89,6 @@ impl RealTimeState {
             )
             .expect("toy error");
         }
-
-        // self.image_render
-        // .render_pass(&self.device, &self.queue, &view)
-        // .unwrap();
 
         for (n, renderpass) in self.composition.renderpasses.iter_mut().enumerate() {
             renderpass
