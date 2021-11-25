@@ -1,3 +1,4 @@
+pub mod instancer;
 pub mod raw;
 use cgmath::Rotation3;
 use rand::Rng;

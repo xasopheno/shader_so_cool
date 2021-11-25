@@ -26,12 +26,6 @@ pub struct Config {
     pub instance_mul: InstanceMul,
 }
 
-pub struct Instancer {
-    instance_mul: InstanceMul,
-    update_instance: fn(&mut Instance),
-    op4d_to_instance: fn(Op4D) -> Instance,
-}
-
 impl Config {
     pub fn new() -> Self {
         let saved = ConfigState::load_saved();
