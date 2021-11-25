@@ -1,13 +1,6 @@
 use std::{fs::File, io::Write, thread};
 
-use crate::{
-    camera::Camera,
-    clock::Clock,
-    realtime::RealTimeState,
-    save::ConfigState,
-    shared::{render_pass, update},
-    toy::toy_renderpass,
-};
+use crate::{camera::Camera, clock::Clock, realtime::RealTimeState, save::ConfigState};
 use egui_wgpu_backend::ScreenDescriptor;
 use epi::*;
 
@@ -27,8 +20,6 @@ impl epi::RepaintSignal for ExampleRepaintSignal {
 impl RealTimeState {
     pub fn render(&mut self, window: &winit::window::Window) -> Result<(), wgpu::SurfaceError> {
         self.clock.update();
-        let time = self.clock.current();
-        self.composition.camera.update(time.last_period);
         self.audio_stream_handle
             .set_volume(self.gui.state.lock().unwrap().volume);
 
@@ -59,62 +50,18 @@ impl RealTimeState {
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
 
-        let view_position: [f32; 4] = self.composition.camera.position.to_homogeneous().into();
-        let view_proj: [[f32; 4]; 4] = (&self.composition.camera.projection.calc_matrix()
-            * self.composition.camera.calc_matrix())
-        .into();
-
-        for renderpass in self.composition.renderpasses.iter_mut() {
-            update(
-                self.clock.is_playing(),
-                time,
-                renderpass,
-                &self.device,
-                &self.queue,
-                self.size,
-                &self.composition.canvas,
-                self.gui.state.lock().unwrap().instance_mul,
-            );
-        }
-
-        if let Some(toy) = &mut self.composition.toy {
-            toy_renderpass(
-                true,
-                toy,
-                &self.device,
-                &self.queue,
-                &view,
-                self.size.into(),
-                time.total_elapsed,
-            )
-            .expect("toy error");
-        }
-
-        for (n, renderpass) in self.composition.renderpasses.iter_mut().enumerate() {
-            renderpass
-                .uniforms
-                .update_view_proj(view_position, view_proj);
-            let mut encoder = self
-                .device
-                .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                    label: Some("Render Encoder"),
-                });
-
-            let accumulation = n > 0 || self.composition.toy.is_some();
-            render_pass(
-                &mut encoder,
-                &renderpass,
-                &view,
-                &self.composition.config,
-                accumulation,
-            );
-
-            self.queue.submit(std::iter::once(encoder.finish()));
-        }
+        self.composition.render(
+            &self.device,
+            &self.queue,
+            self.size,
+            &self.clock,
+            self.gui.state.lock().unwrap().instance_mul,
+            &view,
+        );
 
         //TODO: Move to another file
         self.gui.platform.begin_frame();
-        let previous_frame_time = time.last_period;
+        let previous_frame_time = self.clock.current().last_period;
         let mut app_output = epi::backend::AppOutput::default();
 
         let mut frame = epi::backend::FrameBuilder {

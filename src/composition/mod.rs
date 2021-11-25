@@ -1,3 +1,4 @@
+pub mod render;
 use crate::{camera::Camera, canvas::Canvas, config::Config, shared::RenderPassInput, toy::Toy};
 
 pub struct Composition {
