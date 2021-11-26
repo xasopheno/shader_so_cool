@@ -116,7 +116,8 @@ fn update_instances(
 
     renderpass.instances.append(&mut new_instances);
     renderpass.instances.iter_mut().for_each(|i| {
-        i.update_state(time.last_period);
+        // i.
+        instancer.update_instance(i, time.last_period)
     });
 
     renderpass.instances.retain(|i| i.life > 0.0);
