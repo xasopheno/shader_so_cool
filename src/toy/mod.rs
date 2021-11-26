@@ -39,7 +39,7 @@ pub fn setup_toy(device: &wgpu::Device, size: (u32, u32), format: wgpu::TextureF
 }
 
 pub fn toy_renderpass(
-    is_playing: bool,
+    _is_playing: bool,
     toy: &mut Toy,
     device: &wgpu::Device,
     queue: &wgpu::Queue,

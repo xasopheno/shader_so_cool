@@ -2,6 +2,7 @@ use rodio::OutputStream;
 use std::fs::File;
 use std::io::{BufReader, Cursor};
 
+#[allow(unused)]
 pub fn play_audio_file(config: &crate::config::Config) -> (OutputStream, rodio::Sink) {
     let filename = format!("./{}.wav", config.filename);
     let (stream, stream_handle) = OutputStream::try_default().unwrap();

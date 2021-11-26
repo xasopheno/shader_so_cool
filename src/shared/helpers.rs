@@ -37,6 +37,7 @@ fn random_color() -> f64 {
     rng.gen::<f64>()
 }
 
+#[allow(unused)]
 pub fn new_clear_color() -> (f64, f64, f64) {
     (0.7, 0.3, 0.6)
 }

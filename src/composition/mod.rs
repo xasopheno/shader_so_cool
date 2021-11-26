@@ -8,3 +8,5 @@ pub struct Composition {
     pub toy: Option<Toy>,
     pub config: Config,
 }
+
+impl Composition {}

@@ -43,7 +43,7 @@ impl Vertex {
         }
     }
     pub fn new_random() -> Self {
-        let mut color_gen = RandColor;
+        let color_gen = RandColor;
         let mut rng = rand::thread_rng();
         let mut r = || rng.gen::<f32>() * 2.0 - 1.0;
         let color = color_gen.gen();

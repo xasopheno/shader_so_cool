@@ -60,7 +60,22 @@ impl Config {
             vec!["#38881a", "#333333"],
             vec!["#aa10e4", "#333333"],
         ]);
+
+        let instance_mul = if let Ok(s) = saved {
+            s.instance_mul
+        } else {
+            InstanceMul {
+                x: 9.0,
+                y: 19.0,
+                z: 1.0,
+                life: 2.0,
+                size: 23.0,
+                length: 1.0,
+            }
+        };
         Config {
+            instancer: Box::new(SimpleInstancer {}),
+            instance_mul,
             accumulation: false,
             filename: "kintaro".into(),
             volume: 0.20,
@@ -72,18 +87,6 @@ impl Config {
                 position: Box::new(RandPosition),
                 color: Box::new(colorsets),
                 indices: Box::new(RandIndex),
-            },
-            instance_mul: if let Ok(s) = saved {
-                s.instance_mul
-            } else {
-                InstanceMul {
-                    x: 9.0,
-                    y: 19.0,
-                    z: 1.0,
-                    life: 2.0,
-                    size: 23.0,
-                    length: 1.0,
-                }
             },
         }
     }
