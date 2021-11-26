@@ -42,6 +42,8 @@ impl Instancer for SimpleInstancer {
             // cgmath::Deg(0.0),
             cgmath::Deg(rng.gen_range(-0.3..0.3)),
         );
+        let n_row = canvas.n_row;
+        let n_column = canvas.n_column;
         let x = -op4d.x as f32 * instance_mul.x;
         let y = op4d.y as f32 * instance_mul.y;
         let z = op4d.z as f32 * instance_mul.z;
@@ -51,8 +53,8 @@ impl Instancer for SimpleInstancer {
         Instance {
             position: Vector3::new(
                 // n_row as f32 * 1.0 / 2.0 * f32::powi(x, 2),
-                canvas.n_row as f32 * x,
-                canvas.n_column as f32 * y,
+                n_row as f32 * x,
+                n_column as f32 * y,
                 // n_row as f32 * x / 3.0 * y,
                 // sin(x ^ 1.0 / 2.0 - y ^ -2.0),
                 // n_row as f32 * 1.0 * y / x,
