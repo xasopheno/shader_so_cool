@@ -12,15 +12,11 @@ pub struct SimpleInstancer {}
 
 pub trait Instancer: dyn_clone::DynClone + Debug {
     fn update_instance(&self, instance: &mut Instance, dt: f32);
-    fn op4d_to_instance(
-        &self,
-        input: Op4DToInstanceInput,
-        op4d: &Op4D,
-        displacement: cgmath::Vector3<f32>,
-    ) -> Instance;
+    fn op4d_to_instance_transformation(&self, input: Op4DToInstanceInput) -> InstancerOutput;
 }
 dyn_clone::clone_trait_object!(Instancer);
 
+#[derive(Copy, Debug, Clone)]
 pub struct Op4DToInstanceInput {
     pub x: f32,
     pub y: f32,
@@ -28,6 +24,27 @@ pub struct Op4DToInstanceInput {
     pub length: f32,
     pub life: f32,
     pub size: f32,
+}
+
+#[derive(Copy, Debug, Clone)]
+pub struct InstancerInput {
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+    pub length: f32,
+    pub life: f32,
+    pub size: f32,
+}
+
+#[derive(Copy, Debug, Clone)]
+pub struct InstancerOutput {
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+    pub length: f32,
+    pub life: f32,
+    pub size: f32,
+    pub rotation: cgmath::Quaternion<f32>,
 }
 
 impl Instancer for SimpleInstancer {
@@ -39,38 +56,46 @@ impl Instancer for SimpleInstancer {
         // f32::sin(dt * 0.1 * f32::sin(instance.position.x / instance.position.y) * f32::tan(instance.life));
     }
 
-    fn op4d_to_instance(
-        &self,
-        input: Op4DToInstanceInput,
-        op4d: &Op4D,
-        displacement: cgmath::Vector3<f32>,
-    ) -> Instance {
+    fn op4d_to_instance_transformation(&self, input: Op4DToInstanceInput) -> InstancerOutput {
         let mut rng = rand::thread_rng();
         let rotation = cgmath::Quaternion::from_axis_angle(
             cgmath::Vector3::unit_x(),
             cgmath::Deg(rng.gen_range(-0.3..0.3)),
         );
-        Instance {
-            position: Vector3::new(input.x, input.y, 1.0) - displacement,
-            rotation,
+
+        InstancerOutput {
+            x: input.x,
+            y: input.y,
+            z: input.z,
+            length: input.length,
             life: input.life,
             size: input.size,
-            length: input.length,
-            names: op4d.names.to_owned(),
+            rotation,
         }
+    }
+}
+
+pub fn op4d_to_instance(input: InstancerOutput, op4d: Op4D, canvas: &Canvas) -> Instance {
+    Instance {
+        position: Vector3::new(
+            canvas.n_row as f32 * input.x,
+            canvas.n_column as f32 * input.y,
+            1.0,
+        ) - canvas.instance_displacement,
+        rotation: input.rotation,
+        life: input.life,
+        size: input.size,
+        length: input.length,
+        names: op4d.names.to_owned(),
     }
 }
 
 pub fn prepare_op4d_to_instancer_input(
     instance_mul: &InstanceMul,
     op4d: &Op4D,
-    n_row: u32,
-    n_column: u32,
 ) -> Op4DToInstanceInput {
-    let n_row = n_row as f32;
-    let n_column = n_column as f32;
-    let x = n_row * -op4d.x as f32 * instance_mul.x;
-    let y = n_column * op4d.y as f32 * instance_mul.y;
+    let x = -op4d.x as f32 * instance_mul.x;
+    let y = op4d.y as f32 * instance_mul.y;
     let z = op4d.z as f32 * instance_mul.z;
     let length = op4d.l as f32 * instance_mul.length;
     let life = 1.0 * instance_mul.life;
