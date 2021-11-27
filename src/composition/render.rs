@@ -1,6 +1,6 @@
 use crate::clock::ClockResult;
 use crate::composition::Canvas;
-use crate::instance::instancer::Instancer;
+use crate::instance::instancer::{prepare_op4d_to_instancer_input, Instancer};
 use crate::instance::{make_instance_buffer, Instance};
 use crate::shared::RenderPassInput;
 use crate::toy::toy_renderpass;
@@ -111,7 +111,10 @@ fn update_instances(
         .op_stream
         .get_batch(time.total_elapsed)
         .into_iter()
-        .map(|op| instancer.op4d_to_instance(&mul, &op, canvas))
+        .map(|op| {
+            let input = prepare_op4d_to_instancer_input(instancer, &mul, &op, canvas);
+            instancer.op4d_to_instance(input, &op)
+        })
         .collect();
 
     renderpass.instances.append(&mut new_instances);
