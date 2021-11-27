@@ -112,8 +112,8 @@ fn update_instances(
         .get_batch(time.total_elapsed)
         .into_iter()
         .map(|op| {
-            let input = prepare_op4d_to_instancer_input(instancer, &mul, &op, canvas);
-            instancer.op4d_to_instance(input, &op)
+            let input = prepare_op4d_to_instancer_input(&mul, &op, canvas.n_row, canvas.n_column);
+            instancer.op4d_to_instance(input, &op, canvas.instance_displacement)
         })
         .collect();
 
