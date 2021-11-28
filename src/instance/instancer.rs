@@ -7,9 +7,6 @@ use kintaro_egui_lib::InstanceMul;
 use rand::Rng;
 use std::fmt::Debug;
 
-#[derive(Debug, Clone)]
-pub struct SimpleInstancer {}
-
 pub trait Instancer: dyn_clone::DynClone + Debug {
     fn update_instance(&self, instance: &mut Instance, dt: f32);
     fn op4d_to_instance_transformation(&self, input: Op4DToInstanceInput) -> InstancerOutput;
@@ -46,6 +43,9 @@ pub struct InstancerOutput {
     pub size: f32,
     pub rotation: cgmath::Quaternion<f32>,
 }
+
+#[derive(Debug, Clone)]
+pub struct SimpleInstancer {}
 
 impl Instancer for SimpleInstancer {
     fn update_instance(&self, instance: &mut Instance, dt: f32) {

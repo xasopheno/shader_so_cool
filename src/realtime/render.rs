@@ -2,7 +2,7 @@ use std::{fs::File, io::Write, thread};
 
 use crate::{camera::Camera, clock::Clock, realtime::RealTimeState, save::ConfigState};
 use egui_wgpu_backend::ScreenDescriptor;
-use epi::*;
+use epi::App;
 
 /// A custom event type for the winit app.
 pub enum Event {

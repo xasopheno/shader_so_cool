@@ -1,24 +1,7 @@
-mod audio;
-mod camera;
-mod canvas;
-mod clock;
-mod color;
-mod composition;
-mod config;
-mod gen;
-mod instance;
-mod op_stream;
-mod print;
-mod realtime;
-mod save;
-mod shared;
-mod toy;
-mod uniforms;
-mod vertex;
-use crate::config::Config;
-use crate::print::PrintState;
-use crate::realtime::render::ExampleRepaintSignal;
-use crate::realtime::RealTimeState;
+use kintaro::config::Config;
+use kintaro::print::PrintState;
+use kintaro::realtime::render::ExampleRepaintSignal;
+use kintaro::realtime::RealTimeState;
 use weresocool::error::Error;
 use weresocool::generation::parsed_to_render::AudioVisual;
 use weresocool::generation::{RenderReturn, RenderType};
@@ -88,7 +71,7 @@ fn realtime(av: AudioVisual) {
         event_loop.create_proxy(),
     )));
 
-    let (mut _stream, stream_handle) = crate::audio::play_audio(&config, &av.audio);
+    let (mut _stream, stream_handle) = kintaro::audio::play_audio(&config, &av.audio);
     let mut state = RealTimeState::init(
         &window,
         &mut config,

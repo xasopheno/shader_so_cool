@@ -1,5 +1,5 @@
 [package]
-name = "shader_so_cool"
+name = "kintaro"
 version = "0.1.0"
 edition = "2021"
 resolver = "2"
@@ -26,12 +26,12 @@ crossbeam-channel = "0.5.1"
 rodio = "0.14.0"
 shaderc = "0.7.2"
 async-trait = "0.1.51"
-egui = "0.14.2"
+egui = "0.15"
 egui_wgpu_backend = "0.12.0"
 egui_winit_platform = { git = "https://github.com/hasenbanck/egui_winit_platform"}
 chrono = "0.4.19"
-epi = "0.14.0"
-kintaro_egui_lib = { version = "0.14.0", path = "egui_lib" }
+epi = "0.15"
+kintaro_egui_lib = { path = "egui_lib" }
 dyn-clone = "1.0.4"
 hex = "0.4.3"
 
