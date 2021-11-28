@@ -1446,7 +1446,6 @@ dependencies = [
  "bytemuck",
  "cgmath",
  "chrono",
- "crossbeam-channel",
  "dyn-clone",
  "egui",
  "egui_wgpu_backend",
