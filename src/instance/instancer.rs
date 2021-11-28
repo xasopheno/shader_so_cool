@@ -9,19 +9,9 @@ use std::fmt::Debug;
 
 pub trait Instancer: dyn_clone::DynClone + Debug {
     fn update_instance(&self, instance: &mut Instance, dt: f32);
-    fn op4d_to_instance_transformation(&self, input: Op4DToInstanceInput) -> InstancerOutput;
+    fn op4d_to_instance_transformation(&self, input: InstancerInput) -> InstancerOutput;
 }
 dyn_clone::clone_trait_object!(Instancer);
-
-#[derive(Copy, Debug, Clone)]
-pub struct Op4DToInstanceInput {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
-    pub length: f32,
-    pub life: f32,
-    pub size: f32,
-}
 
 #[derive(Copy, Debug, Clone)]
 pub struct InstancerInput {
@@ -61,7 +51,7 @@ impl Instancer for SimpleInstancer {
         // );
     }
 
-    fn op4d_to_instance_transformation(&self, input: Op4DToInstanceInput) -> InstancerOutput {
+    fn op4d_to_instance_transformation(&self, input: InstancerInput) -> InstancerOutput {
         let mut rng = rand::thread_rng();
         let rotation = cgmath::Quaternion::from_axis_angle(
             cgmath::Vector3::unit_x(),
@@ -95,10 +85,7 @@ pub fn op4d_to_instance(input: InstancerOutput, op4d: Op4D, canvas: &Canvas) -> 
     }
 }
 
-pub fn prepare_op4d_to_instancer_input(
-    instance_mul: &InstanceMul,
-    op4d: &Op4D,
-) -> Op4DToInstanceInput {
+pub fn prepare_op4d_to_instancer_input(instance_mul: &InstanceMul, op4d: &Op4D) -> InstancerInput {
     let x = -op4d.x as f32 * instance_mul.x;
     let y = op4d.y as f32 * instance_mul.y;
     let z = op4d.z as f32 * instance_mul.z;
@@ -106,7 +93,7 @@ pub fn prepare_op4d_to_instancer_input(
     let life = 1.0 * instance_mul.life;
     let size = instance_mul.size * f32::max(z, 0.2);
 
-    Op4DToInstanceInput {
+    InstancerInput {
         x,
         y,
         z,

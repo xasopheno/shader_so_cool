@@ -16,9 +16,13 @@ pub mod toy;
 pub mod uniforms;
 pub mod vertex;
 
-// pub use crate::camera::default::default_cameras;
-// pub use crate::color::helpers::*;
-// pub use crate::instance::instancer::{Instancer, SimpleInstancer};
-// pub use crate::save::ConfigState;
-// pub use crate::vertex::shape::{RandIndex, RandPosition, Shape};
-// pub use kintaro_egui_lib::InstanceMul;
+pub use crate::camera::default::default_cameras;
+pub use crate::color::{helpers::*, Color, ColorSets};
+pub use crate::config::{CameraConfig, Config};
+pub use crate::instance::{
+    instancer::{Instancer, InstancerInput, InstancerOutput},
+    Instance,
+};
+pub use crate::save::ConfigState;
+pub use crate::vertex::shape::{RandIndex, RandPosition, Shape};
+pub use kintaro_egui_lib::InstanceMul;
