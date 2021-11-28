@@ -52,8 +52,13 @@ impl Instancer for SimpleInstancer {
         instance.life -= dt * 0.1;
         instance.position.x += 800.0 * (2.0 - instance.life) * f32::signum(instance.position.x);
         // instance.position.y += f32::sin(3.0 * (2.0 - instance.life));
+        // instance.position.y += f32::sin(3.0 * (2.0 - instance.life));
         // instance.position.y += 700.0 * (2.0 - instance.life) * f32::signum(instance.position.y);
-        // f32::sin(dt * 0.1 * f32::sin(instance.position.x / instance.position.y) * f32::tan(instance.life));
+        // instance.position.y += f32::sin(
+        // dt * 0.1
+        // * f32::sin(instance.position.x / instance.position.y)
+        // * f32::tan(instance.life),
+        // );
     }
 
     fn op4d_to_instance_transformation(&self, input: Op4DToInstanceInput) -> InstancerOutput {
