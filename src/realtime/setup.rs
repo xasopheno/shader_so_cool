@@ -1,7 +1,7 @@
 use std::sync::{Arc, Mutex};
 
 use crate::config::Config;
-use kintaro_egui_lib::{epi::*, Platform, PlatformDescriptor, RenderPass, UiState};
+use kintaro_egui_lib::{Platform, PlatformDescriptor, RenderPass, UiState};
 use winit::window::Window;
 
 pub struct Gui {

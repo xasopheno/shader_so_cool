@@ -1,6 +1,9 @@
+use weresocool::error::Error;
+
 use super::PrintState;
 use crate::composition::Composition;
 use crate::op_stream::renderpasses::make_renderpasses;
+use crate::shader::make_shader;
 use crate::{
     canvas::Canvas,
     clock::{Clock, PrintClock},
@@ -8,7 +11,7 @@ use crate::{
 };
 
 impl PrintState {
-    pub async fn init(config: &mut Config) -> PrintState {
+    pub async fn init(config: &mut Config) -> Result<PrintState, Error> {
         let size = config.window_size;
         println!("{}/{}", size.0, size.1);
         let instance = wgpu::Instance::new(wgpu::Backends::PRIMARY);
@@ -41,19 +44,22 @@ impl PrintState {
         let texture = device.create_texture(&texture_desc);
         let texture_view = texture.create_view(&Default::default());
 
-        let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
-            label: Some("Shader"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("../shader.wgsl").into()),
-        });
+        let instance_shader = make_shader(&device, &config.instance_shader)?;
+        let toy_shader = make_shader(&device, &config.toy_shader)?;
 
-        let toy = crate::toy::setup_toy(&device, size, texture_desc.format);
+        let toy = crate::toy::setup_toy(&device, toy_shader, size, texture_desc.format);
 
         let op_streams = crate::op_stream::OpStream::from_json(&config.filename);
 
-        let renderpasses =
-            make_renderpasses(&device, op_streams, &shader, config, texture_desc.format);
+        let renderpasses = make_renderpasses(
+            &device,
+            op_streams,
+            &instance_shader,
+            config,
+            texture_desc.format,
+        );
 
-        PrintState {
+        Ok(PrintState {
             device,
             queue,
             size,
@@ -71,6 +77,6 @@ impl PrintState {
             texture,
             texture_view,
             time_elapsed: std::time::Duration::from_millis(0),
-        }
+        })
     }
 }

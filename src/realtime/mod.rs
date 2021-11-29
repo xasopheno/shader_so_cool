@@ -4,8 +4,10 @@ mod resize;
 pub mod setup;
 
 use crate::canvas::Canvas;
+use crate::shader::make_shader;
 use crate::{composition::Composition, op_stream::renderpasses::make_renderpasses};
 use setup::Setup;
+use weresocool::error::Error;
 use weresocool::generation::parsed_to_render::AudioVisual;
 
 use crate::{
@@ -42,7 +44,7 @@ impl RealTimeState {
         repaint_signal: std::sync::Arc<ExampleRepaintSignal>,
         audio_stream_handle: rodio::Sink,
         av: AudioVisual,
-    ) -> RealTimeState {
+    ) -> Result<RealTimeState, Error> {
         let size = (config.window_size.0, config.window_size.1);
         println!("{}/{}", size.0, size.1);
         let Setup {
@@ -52,26 +54,27 @@ impl RealTimeState {
             gui,
         } = block_on(Setup::init(window, config));
 
-        let toy = crate::toy::setup_toy(&device, size, wgpu::TextureFormat::Bgra8UnormSrgb);
+        let instance_shader = make_shader(&device, &config.instance_shader)?;
+        let toy_shader = make_shader(&device, &config.toy_shader)?;
 
-        // let shader_name = config.instance_shader;
-        let shader = include_str!("../shader.wgsl");
-        let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
-            label: Some("Shader"),
-            source: wgpu::ShaderSource::Wgsl(shader.into()),
-        });
+        let toy = crate::toy::setup_toy(
+            &device,
+            toy_shader,
+            size,
+            wgpu::TextureFormat::Bgra8UnormSrgb,
+        );
 
         let op_streams = crate::op_stream::OpStream::from_vec_op4d(av.visual, av.length);
 
         let renderpasses = make_renderpasses(
             &device,
             op_streams,
-            &shader,
+            &instance_shader,
             config,
             wgpu::TextureFormat::Bgra8UnormSrgb,
         );
 
-        Self {
+        Ok(Self {
             device,
             queue,
             size,
@@ -89,7 +92,7 @@ impl RealTimeState {
             repaint_signal: repaint_signal.clone(),
             audio_stream_handle,
             mouse_pressed: false,
-        }
+        })
     }
 
     pub fn play(&mut self) {
