@@ -14,6 +14,10 @@ pub struct CameraConfig {
     pub pitch: f32,
 }
 
+// socool_filename
+// instance.wgsl
+// toy.wgsl
+
 #[derive(Clone)]
 pub struct Config {
     pub filename: String,
@@ -24,6 +28,7 @@ pub struct Config {
     pub shape: Shape,
     pub instance_mul: InstanceMul,
     pub instancer: Box<dyn Instancer>,
+    pub instance_shader: String,
 }
 
 impl Config {
@@ -74,6 +79,7 @@ impl Config {
             }
         };
         Config {
+            instance_shader: "../shader.wgsl".into(),
             instancer: Box::new(SimpleInstancer {}),
             instance_mul,
             accumulation: false,

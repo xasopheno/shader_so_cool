@@ -1,3 +1,4 @@
+pub mod application;
 pub mod audio;
 pub mod camera;
 pub mod canvas;
@@ -26,3 +27,4 @@ pub use crate::instance::{
 pub use crate::save::ConfigState;
 pub use crate::vertex::shape::{RandIndex, RandPosition, Shape};
 pub use kintaro_egui_lib::InstanceMul;
+pub use weresocool::error::Error;

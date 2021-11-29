@@ -25,27 +25,29 @@ main = {
     Seq [
         Overlay [
             data,
-            Overlay [
-                -- Fm 5/8 | Gm 1/8,
-                Fm 1 | Gm 1/4,
-                Fm 7/8 | Gm 1/16,
-                Fm 5/6 | Gm 1/16,
-                Fm 3/4 | Gm 1/4,
-                Fm 2/3 | Gm 1/16,
-                Fm 5/8 | Gm 1/4,
-                Fm 9/16 | Gm 1/16,
-                Fm 1/2 | Gm 1/4,
-                -- Fm 1/4 | Gm 1/8,
-                Fm 0
-            ] 
-            | O[
-                (1, 0, 1, -1/2),
-                (1, 0, 1, 1/2),
-            ]
-            | Fm 9/16
-            | Repeat 32
-            | Repeat 32
-            | FitLength data 
+            -- Overlay [
+                -- -- Fm 5/8 | Gm 1/8,
+                -- Fm 1 | Gm 1/4,
+                -- Fm 15/16 | Gm 1/16,
+                -- Fm 7/8 | Gm 1/16,
+                -- Fm 5/6 | Gm 1/16,
+                -- Fm 3/4 | Gm 1/4,
+                -- Fm 2/3 | Gm 1/16,
+                -- Fm 5/8 | Gm 1/4,
+                -- Fm 9/16 | Gm 1/16,
+                -- Fm 1/2 | Gm 1/4,
+                -- -- Fm 1/4 | Gm 1/8,
+                -- Fm 0
+            -- ] 
+            -- | Gm 1/4
+            -- | O[
+                -- (1, 0, 1, -1/2),
+                -- (1, 0, 1, 1/2),
+            -- ]
+            -- | Fm 9/16
+            -- | Repeat 32
+            -- | Repeat 32
+            -- | FitLength data 
         ]
         | Fm 4,
         Fm 0 | Lm 2

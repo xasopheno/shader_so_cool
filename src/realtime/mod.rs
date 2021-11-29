@@ -54,9 +54,11 @@ impl RealTimeState {
 
         let toy = crate::toy::setup_toy(&device, size, wgpu::TextureFormat::Bgra8UnormSrgb);
 
+        let shader_name = config.instance_shader;
+        let shader = include_str!(format!("{}", shader_name));
         let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
             label: Some("Shader"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("../shader.wgsl").into()),
+            source: wgpu::ShaderSource::Wgsl(shader.into()),
         });
 
         let op_streams = crate::op_stream::OpStream::from_vec_op4d(av.visual, av.length);
