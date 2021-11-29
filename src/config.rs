@@ -40,11 +40,15 @@ impl Default for Config {
 }
 
 impl Config {
-    fn handle_save(instance_mul: InstanceMul) -> (Vec<CameraConfig>, InstanceMul) {
+    pub fn handle_save(instance_mul: InstanceMul) -> (Vec<CameraConfig>, InstanceMul) {
         let saved = ConfigState::load_saved();
         let cameras = default_cameras(
             if let Ok(ref s) = saved {
-                vec![s.camera]
+                if s.is_some() {
+                    vec![s.as_ref().unwrap().camera]
+                } else {
+                    vec![]
+                }
             } else {
                 vec![]
             },
@@ -52,7 +56,11 @@ impl Config {
         );
 
         let instance_mul = if let Ok(s) = saved {
-            s.instance_mul
+            if s.is_some() {
+                s.unwrap().instance_mul
+            } else {
+                instance_mul
+            }
         } else {
             instance_mul
         };

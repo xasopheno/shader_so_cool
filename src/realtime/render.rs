@@ -25,7 +25,7 @@ impl RealTimeState {
         {
             let mut state = self.gui.state.lock().unwrap();
             if state.save {
-                let filename = "../kintaro/saved.json";
+                let filename = "./save/saved.json";
                 let instance_mul = state.instance_mul.to_owned();
                 let camera = self.composition.camera.current_state().clone();
                 thread::spawn(move || {

@@ -10,10 +10,14 @@ pub struct ConfigState {
 }
 
 impl ConfigState {
-    pub fn load_saved() -> Result<ConfigState, serde_json::Error> {
-        let path = "../kintaro/saved.json";
-        let saved_data = std::fs::read_to_string(path).expect("Unable to read file");
-        let saved: ConfigState = serde_json::from_str(&saved_data)?;
-        Ok(saved)
+    pub fn load_saved() -> Result<Option<ConfigState>, serde_json::Error> {
+        let path = "./saved.json";
+        if std::path::Path::new(path).is_file() {
+            let saved_data = std::fs::read_to_string(path).expect("Unable to read file");
+            let saved: ConfigState = serde_json::from_str(&saved_data)?;
+            Ok(Some(saved))
+        } else {
+            Ok(None)
+        }
     }
 }
