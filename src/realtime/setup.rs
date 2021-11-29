@@ -1,11 +1,7 @@
 use std::sync::{Arc, Mutex};
 
 use crate::config::Config;
-use egui::FontDefinitions;
-use egui_wgpu_backend::RenderPass;
-use egui_winit_platform::{Platform, PlatformDescriptor};
-use epi::*;
-use kintaro_egui_lib::UiState;
+use kintaro_egui_lib::{epi::*, Platform, PlatformDescriptor, RenderPass, UiState};
 use winit::window::Window;
 
 pub struct Gui {
@@ -31,6 +27,7 @@ impl Setup {
             .request_adapter(&wgpu::RequestAdapterOptions {
                 power_preference: wgpu::PowerPreference::default(),
                 compatible_surface: Some(&surface),
+                force_fallback_adapter: false,
             })
             .await
             .unwrap();
@@ -61,8 +58,8 @@ impl Setup {
             physical_width: size.0,
             physical_height: size.1,
             scale_factor: window.scale_factor(),
-            font_definitions: FontDefinitions::default(),
             style: Default::default(),
+            ..Default::default()
         });
         let renderpass = RenderPass::new(&device, surface_format, 1);
         let state = Arc::new(Mutex::new(kintaro_egui_lib::UiState {

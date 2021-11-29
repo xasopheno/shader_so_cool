@@ -1,8 +1,7 @@
 use std::{fs::File, io::Write, thread};
 
 use crate::{camera::Camera, clock::Clock, realtime::RealTimeState, save::ConfigState};
-use egui_wgpu_backend::ScreenDescriptor;
-use epi::App;
+use kintaro_egui_lib::{epi::App, ScreenDescriptor};
 
 /// A custom event type for the winit app.
 pub enum Event {
@@ -11,7 +10,7 @@ pub enum Event {
 
 pub struct ExampleRepaintSignal(pub std::sync::Mutex<winit::event_loop::EventLoopProxy<Event>>);
 
-impl epi::RepaintSignal for ExampleRepaintSignal {
+impl kintaro_egui_lib::epi::RepaintSignal for ExampleRepaintSignal {
     fn request_repaint(&self) {
         self.0.lock().unwrap().send_event(Event::RequestRedraw).ok();
     }
@@ -45,8 +44,15 @@ impl RealTimeState {
             }
         }
 
-        let output = self.surface.get_current_frame()?.output;
-        let view = output
+        // let output = self.surface.get_current_texture()?;
+        // let view = output
+        // .texture
+        // .create_view(&wgpu::TextureViewDescriptor::default());
+        let the_frame = self
+            .surface
+            .get_current_texture()
+            .expect("Failed to acquire next swap chain texture");
+        let view = the_frame
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
 
@@ -62,12 +68,12 @@ impl RealTimeState {
         //TODO: Move to another file
         self.gui.platform.begin_frame();
         let previous_frame_time = self.clock.current().last_period;
-        let mut app_output = epi::backend::AppOutput::default();
+        let mut app_output = kintaro_egui_lib::epi::backend::AppOutput::default();
 
-        let mut frame = epi::backend::FrameBuilder {
-            info: epi::IntegrationInfo {
+        let mut frame = kintaro_egui_lib::epi::backend::FrameBuilder {
+            info: kintaro_egui_lib::epi::IntegrationInfo {
+                name: "egui integration info",
                 web_info: None,
-                seconds_since_midnight: None,
                 cpu_usage: Some(previous_frame_time),
                 native_pixels_per_point: Some(window.scale_factor() as _),
                 prefer_dark_mode: None,
@@ -119,7 +125,8 @@ impl RealTimeState {
             .unwrap();
 
         // // Submit the commands.
-        self.queue.submit(std::iter::once(encoder.finish()));
+        self.queue.submit(Some(encoder.finish()));
+        the_frame.present();
 
         {
             let s = self.gui.state.lock().unwrap();

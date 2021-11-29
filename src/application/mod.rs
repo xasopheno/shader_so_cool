@@ -58,7 +58,7 @@ fn realtime(mut config: Config, av: AudioVisual) {
             width: config.window_size.0,
             height: config.window_size.1,
         })
-        .with_transparent(true)
+        .with_transparent(false)
         .with_title(title)
         // .with_fullscreen(Some(Fullscreen::Borderless(None)))
         .with_decorations(true)
