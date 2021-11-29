@@ -12,6 +12,7 @@ pub mod op_stream;
 pub mod print;
 pub mod realtime;
 pub mod save;
+pub mod shader;
 pub mod shared;
 pub mod toy;
 pub mod uniforms;

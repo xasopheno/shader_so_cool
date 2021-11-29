@@ -15,7 +15,7 @@ use futures::executor::block_on;
 
 pub fn run(filename: &str) -> Result<(), Error> {
     println!("preparing for audiovisualization: {}", &filename);
-    let config = Config::new();
+    let config = Config::default();
     let av = get_audiovisual_data(filename)?;
     let print_it = std::env::args()
         .into_iter()
@@ -24,10 +24,10 @@ pub fn run(filename: &str) -> Result<(), Error> {
     if print_it {
         println!("****PRINTING****");
         let n_frames = (av.length * 40.0).floor() as usize + 100;
-        print(config, n_frames);
+        print(config, n_frames)?;
     } else {
         println!("****REALTIME****");
-        realtime(config, av);
+        realtime(config, av)?;
     }
     Ok(())
 }
@@ -42,14 +42,15 @@ fn get_audiovisual_data(filename: &str) -> Result<AudioVisual, Error> {
     }
 }
 
-fn print(mut config: Config, n_frames: usize) {
-    let mut state = block_on(PrintState::init(&mut config));
+fn print(mut config: Config, n_frames: usize) -> Result<(), Error> {
+    let mut state = block_on(PrintState::init(&mut config))?;
     for i in 0..n_frames {
         block_on(state.render()).expect(format!("Unable to render frame: {}", i).as_str());
     }
+    Ok(())
 }
 
-fn realtime(mut config: Config, av: AudioVisual) {
+fn realtime(mut config: Config, av: AudioVisual) -> Result<(), Error> {
     env_logger::init();
     let title = env!("CARGO_PKG_NAME");
     let event_loop = winit::event_loop::EventLoop::with_user_event();
@@ -76,7 +77,7 @@ fn realtime(mut config: Config, av: AudioVisual) {
         repaint_signal.clone(),
         stream_handle,
         av,
-    );
+    )?;
     state.play();
 
     event_loop.run(move |event, _, control_flow| {
@@ -133,4 +134,6 @@ fn realtime(mut config: Config, av: AudioVisual) {
             _ => {}
         }
     });
+    #[allow(unreachable_code)]
+    Ok(())
 }

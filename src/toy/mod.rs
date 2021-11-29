@@ -12,12 +12,12 @@ pub struct Toy {
     pub size: (u32, u32),
 }
 
-pub fn setup_toy(device: &wgpu::Device, size: (u32, u32), format: wgpu::TextureFormat) -> Toy {
-    let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
-        label: Some("Toy Shader"),
-        source: wgpu::ShaderSource::Wgsl(include_str!("../toy.wgsl").into()),
-    });
-
+pub fn setup_toy(
+    device: &wgpu::Device,
+    shader: wgpu::ShaderModule,
+    size: (u32, u32),
+    format: wgpu::TextureFormat,
+) -> Toy {
     let (uniforms, uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
         uniforms::ToyUniforms::new(device);
 
