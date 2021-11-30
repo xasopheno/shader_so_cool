@@ -16,7 +16,7 @@ pub fn make_renderpasses(
     op_streams
         .iter()
         .map(|op_stream| {
-            let ShapeGenResult { vertices, indices } = config.shape.gen();
+            let ShapeGenResult { vertices, indices } = config.shape.gen(&op_stream);
             config.shape.update();
             let (instances, instance_buffer) =
                 make_instances_and_instance_buffer(0, config.window_size, &device);

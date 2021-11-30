@@ -42,18 +42,19 @@ impl Vertex {
             velocity: r(),
         }
     }
-    pub fn new_random() -> Self {
-        let color_gen = RandColor;
-        let mut rng = rand::thread_rng();
-        let mut r = || rng.gen::<f32>() * 2.0 - 1.0;
-        let color = color_gen.gen();
-        Self {
-            position: [r() * 1.0, r() * 1.0, r() * 3.0],
-            color: [color.r, color.g, color.b],
-            direction: [r(), r(), r()],
-            velocity: r() * 0.4,
-        }
-    }
+
+    // pub fn new_random() -> Self {
+    // let color_gen = RandColor;
+    // let mut rng = rand::thread_rng();
+    // let mut r = || rng.gen::<f32>() * 2.0 - 1.0;
+    // let color = color_gen.gen();
+    // Self {
+    // position: [r() * 1.0, r() * 1.0, r() * 3.0],
+    // color: [color.r, color.g, color.b],
+    // direction: [r(), r(), r()],
+    // velocity: r() * 0.4,
+    // }
+    // }
 
     pub fn new_random_from_colorset(colorset: ColorSet) -> Self {
         let color = colorset.colors.choose(&mut rand::thread_rng()).unwrap();

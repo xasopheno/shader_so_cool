@@ -11,6 +11,7 @@ pub use weresocool::generation::json::{EventType, Op4D};
 pub struct OpStream {
     pub ops: Vec<Op4D>,
     pub length: f32,
+    pub names: Vec<String>,
 }
 
 impl OpStream {
@@ -19,43 +20,44 @@ impl OpStream {
             .expect("Unable to read file");
 
         let deserialized: OpStream = serde_json::from_str(&data).unwrap();
-        let mut op_streams = BTreeMap::<String, Vec<Op4D>>::new();
+        let mut op_streams = BTreeMap::<Vec<String>, Vec<Op4D>>::new();
         deserialized.ops.iter().for_each(|op| {
             if op.names.is_empty() {
-                let stream = op_streams.entry("nameless".to_string()).or_insert(vec![]);
+                let stream = op_streams.entry(vec!["nameless".into()]).or_insert(vec![]);
                 stream.push(op.clone());
             } else {
-                let names = op.names.join("_");
-                let stream = op_streams.entry(names).or_insert(vec![]);
+                let names = &op.names;
+                let stream = op_streams.entry(names.to_owned()).or_insert(vec![]);
                 stream.push(op.clone());
             }
         });
 
         op_streams
             .into_iter()
-            .map(|(_name, ops)| OpStream {
+            .map(|(names, ops)| OpStream {
                 ops,
                 length: deserialized.length,
+                names,
             })
             .collect()
     }
 
     pub fn from_vec_op4d(ops: Vec<Op4D>, length: f32) -> Vec<OpStream> {
-        let mut op_streams = BTreeMap::<String, Vec<Op4D>>::new();
+        let mut op_streams = BTreeMap::<Vec<String>, Vec<Op4D>>::new();
         ops.iter().for_each(|op| {
             if op.names.is_empty() {
-                let stream = op_streams.entry("nameless".to_string()).or_insert(vec![]);
+                let stream = op_streams.entry(vec!["nameless".into()]).or_insert(vec![]);
                 stream.push(op.clone());
             } else {
-                let names = op.names.join("_");
-                let stream = op_streams.entry(names).or_insert(vec![]);
+                let names = &op.names;
+                let stream = op_streams.entry(names.to_owned()).or_insert(vec![]);
                 stream.push(op.clone());
             }
         });
 
         op_streams
             .into_iter()
-            .map(|(_name, ops)| OpStream { ops, length })
+            .map(|(names, ops)| OpStream { ops, length, names })
             .collect()
     }
     pub fn get_batch(&mut self, t: f32) -> Vec<Op4D> {

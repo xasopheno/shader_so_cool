@@ -47,10 +47,10 @@ pub fn new_random_clear_color() -> (f64, f64, f64) {
     (random_color(), random_color(), random_color())
 }
 
-#[allow(dead_code)]
-pub fn new_random_vertices() -> Vec<Vertex> {
-    (0..30).into_iter().map(|_| Vertex::new_random()).collect()
-}
+// #[allow(dead_code)]
+// pub fn new_random_vertices() -> Vec<Vertex> {
+// (0..30).into_iter().map(|_| Vertex::new_random()).collect()
+// }
 
 // #[allow(dead_code)]
 // pub fn new_random_vertices_with_colorset(colorset: ColorSet) -> Vec<Vertex> {
