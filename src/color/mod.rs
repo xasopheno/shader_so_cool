@@ -25,16 +25,20 @@ pub struct ColorSets {
 
 #[derive(Clone, Debug)]
 pub struct ColorMap {
-    colors: BTreeMap<String, ColorSet>,
+    pub colors: BTreeMap<String, Box<dyn GenColor>>,
+    pub default: Box<dyn GenColor>,
 }
 
 impl GenColor for ColorMap {
     fn gen(&self, op_stream: &OpStream) -> Color {
-        todo!()
+        for (name, color) in self.colors.iter() {
+            if op_stream.names.contains(name) {
+                return color.gen(op_stream);
+            }
+        }
+        self.default.gen(op_stream)
     }
-    fn update(&mut self) {
-        todo!()
-    }
+    fn update(&mut self) {}
 }
 
 #[derive(Clone, Debug, PartialEq)]

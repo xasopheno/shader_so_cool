@@ -1,8 +1,8 @@
-use kintaro::application::run;
+use kintaro::{application::run, Config};
 use weresocool::error::Error;
 
 fn main() -> Result<(), Error> {
     let filename = "kintaro.socool";
-    run(filename)?;
-    Ok(())
+    let config = Config::default();
+    run(filename, config)
 }

@@ -13,9 +13,8 @@ use winit::{event::*, event_loop::ControlFlow, window::WindowBuilder};
 
 use futures::executor::block_on;
 
-pub fn run(filename: &str) -> Result<(), Error> {
+pub fn run(filename: &str, config: Config) -> Result<(), Error> {
     println!("preparing for audiovisualization: {}", &filename);
-    let config = Config::default();
     let av = get_audiovisual_data(filename)?;
     let print_it = std::env::args()
         .into_iter()
