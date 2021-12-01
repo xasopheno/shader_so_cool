@@ -86,7 +86,7 @@ pub fn op4d_to_instance(input: InstancerOutput, op4d: Op4D, canvas: &Canvas) -> 
 }
 
 pub fn prepare_op4d_to_instancer_input(instance_mul: &InstanceMul, op4d: &Op4D) -> InstancerInput {
-    let x = -op4d.x as f32 * instance_mul.x;
+    let x = op4d.x as f32 * instance_mul.x;
     let y = op4d.y as f32 * instance_mul.y;
     let z = op4d.z as f32 * instance_mul.z;
     let length = op4d.l as f32 * instance_mul.length;

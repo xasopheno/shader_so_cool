@@ -23,7 +23,7 @@ pub fn run(filename: &str, config: Config) -> Result<(), Error> {
     if print_it {
         println!("****PRINTING****");
         let n_frames = (av.length * 40.0).floor() as usize + 100;
-        print(config, n_frames)?;
+        print(config, av, n_frames)?;
     } else {
         println!("****REALTIME****");
         realtime(config, av)?;
@@ -41,8 +41,8 @@ fn get_audiovisual_data(filename: &str) -> Result<AudioVisual, Error> {
     }
 }
 
-fn print(mut config: Config, n_frames: usize) -> Result<(), Error> {
-    let mut state = block_on(PrintState::init(&mut config))?;
+fn print(mut config: Config, av: AudioVisual, n_frames: usize) -> Result<(), Error> {
+    let mut state = block_on(PrintState::init(&mut config, av))?;
     for i in 0..n_frames {
         block_on(state.render()).expect(format!("Unable to render frame: {}", i).as_str());
     }
