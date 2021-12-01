@@ -14,6 +14,7 @@ use crate::{
 impl PrintState {
     pub async fn init(config: &mut Config, av: AudioVisual) -> Result<PrintState, Error> {
         let size = config.window_size;
+        dbg!(&config.window_size);
         println!("{}/{}", size.0, size.1);
         let instance = wgpu::Instance::new(wgpu::Backends::PRIMARY);
         let adapter = instance

@@ -1,6 +1,5 @@
 mod init;
 mod render;
-mod update;
 mod write;
 use crate::clock::PrintClock;
 use crate::composition::Composition;

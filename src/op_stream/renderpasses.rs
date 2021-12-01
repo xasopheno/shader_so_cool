@@ -23,7 +23,7 @@ pub fn make_renderpasses(
             let (uniforms, uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
                 crate::uniforms::RealtimeUniforms::new(&device);
             let render_pipeline =
-                create_render_pipeline(&device, shader, Some(&uniform_bind_group_layout), format);
+                create_render_pipeline(&device, shader, &uniform_bind_group_layout, format);
 
             RenderPassInput {
                 vertex_buffer: create_vertex_buffer(&device, &vertices.as_slice()),

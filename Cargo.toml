@@ -20,6 +20,7 @@ image = "0.23"
 kintaro_egui_lib = { path = "egui_lib" }
 log = "0.4"
 rand = "0.8.4"
+raw-window-handle = "0.3"
 rayon = "1.5.1"
 rodio = "0.14.0"
 serde = { version = "1.0.119", features = ["derive"] }

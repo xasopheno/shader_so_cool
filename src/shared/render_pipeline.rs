@@ -3,22 +3,15 @@ use crate::{instance::raw::InstanceRaw, vertex::Vertex};
 pub fn create_render_pipeline(
     device: &wgpu::Device,
     shader: &wgpu::ShaderModule,
-    uniform_bind_group_layout: Option<&wgpu::BindGroupLayout>,
+    uniform_bind_group_layout: &wgpu::BindGroupLayout,
     format: wgpu::TextureFormat,
 ) -> wgpu::RenderPipeline {
-    let render_pipeline_layout = if let Some(ubgl) = uniform_bind_group_layout {
-        device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-            label: Some("Render Pipeline Layout"),
-            bind_group_layouts: &[&ubgl],
-            push_constant_ranges: &[],
-        })
-    } else {
-        device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-            label: Some("Render Pipeline Layout"),
-            bind_group_layouts: &[],
-            push_constant_ranges: &[],
-        })
-    };
+    let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+        label: Some("Render Pipeline Layout"),
+        bind_group_layouts: &[&uniform_bind_group_layout],
+        push_constant_ranges: &[],
+    });
+
     let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
         label: Some("Render Pipeline"),
         layout: Some(&render_pipeline_layout),
@@ -33,6 +26,10 @@ pub fn create_render_pipeline(
             targets: &[wgpu::ColorTargetState {
                 format,
                 blend: Some(wgpu::BlendState::PREMULTIPLIED_ALPHA_BLENDING),
+                // blend: Some(wgpu::BlendState {
+                // alpha: wgpu::BlendComponent::REPLACE,
+                // color: wgpu::BlendComponent::REPLACE,
+                // }),
                 write_mask: wgpu::ColorWrites::ALL,
             }],
         }),

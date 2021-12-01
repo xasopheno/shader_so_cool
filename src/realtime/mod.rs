@@ -85,7 +85,7 @@ impl RealTimeState {
                 camera: crate::camera::Camera::new(&config.cameras[0], size, &config, 0),
                 renderpasses,
                 toy: Some(toy),
-                canvas: Canvas::init((size.0, size.1)),
+                canvas: Canvas::init(size),
             },
             surface,
             gui,

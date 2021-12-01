@@ -17,6 +17,7 @@ impl Composition {
         &mut self,
         device: &wgpu::Device,
         queue: &wgpu::Queue,
+        encoder: &mut wgpu::CommandEncoder,
         size: (u32, u32),
         clock: &impl Clock,
         instance_mul: InstanceMul,
@@ -50,14 +51,9 @@ impl Composition {
             renderpass
                 .uniforms
                 .update_view_proj(view_position, view_proj);
-            let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                label: Some("Render Encoder"),
-            });
 
             let accumulation = n > 0 || self.toy.is_some();
-            renderpass.render(&mut encoder, &view, &self.config, accumulation);
-
-            queue.submit(std::iter::once(encoder.finish()));
+            renderpass.render(encoder, &view, &self.config, accumulation);
         }
     }
 
