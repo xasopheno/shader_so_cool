@@ -84,7 +84,7 @@ impl Clock for PrintClock {
             rate: std::time::Duration::from_millis(25),
             time_elapsed: std::time::Duration::ZERO,
             frame_count: 0,
-            playing: false,
+            playing: true,
         }
     }
     fn update(&mut self) {

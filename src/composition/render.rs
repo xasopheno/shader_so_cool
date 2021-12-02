@@ -115,10 +115,10 @@ fn update_instances(
         .collect();
 
     renderpass.instances.append(&mut new_instances);
-    renderpass.instances.iter_mut().for_each(|i| {
-        // i.
-        instancer.update_instance(i, time.last_period)
-    });
+    renderpass
+        .instances
+        .iter_mut()
+        .for_each(|i| instancer.update_instance(i, time.last_period));
 
     renderpass.instances.retain(|i| i.life > 0.0);
     renderpass.instance_buffer =
