@@ -2,6 +2,9 @@ use crate::config::Config;
 use crate::print::PrintState;
 use crate::realtime::render::ExampleRepaintSignal;
 use crate::realtime::RealTimeState;
+use cradle::prelude::*;
+use std::io::Write;
+use std::str::FromStr;
 use weresocool::error::Error;
 use weresocool::generation::parsed_to_render::AudioVisual;
 use weresocool::generation::{RenderReturn, RenderType};
@@ -23,12 +26,30 @@ pub fn run(filename: &str, config: Config) -> Result<(), Error> {
     if print_it {
         println!("****PRINTING****");
         let n_frames = (av.length * 40.0).floor() as usize + 100;
-        print(config, av, n_frames)?;
+        // write_audio_to_file(
+        // &av.audio.as_slice(),
+        // std::path::PathBuf::from_str("kintaro.wav")
+        // .expect("unable to create pathbuf for kintaro.wav"),
+        // );
+
+        let command = "yes | ffmpeg -framerate 40 -pattern_type glob -i out/*.png -i kintaro.wav -c:a copy -shortest -c:v libx264 -r 40 -pix_fmt yuv420p out.mov";
+
+        // (yes, %command).run();
+        // println!("{} ", &command);
+        // let command = "pwd";
+        run!(%command);
+        // print(config, av, n_frames)?;
     } else {
         println!("****REALTIME****");
         realtime(config, av)?;
     }
     Ok(())
+}
+
+pub fn write_audio_to_file(audio: &[u8], filename: std::path::PathBuf) {
+    let mut file = std::fs::File::create(filename.clone()).unwrap();
+    file.write_all(audio).unwrap();
+    // printed(filename.display().to_string());
 }
 
 fn get_audiovisual_data(filename: &str) -> Result<AudioVisual, Error> {

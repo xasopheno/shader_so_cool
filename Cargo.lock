@@ -629,6 +629,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "cradle"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9473b661a00f1ceccdba920e10a2c35b7c0a73c11c0b14c4d11d25195141d00d"
+dependencies = [
+ "rustversion",
+]
+
+[[package]]
 name = "crc32fast"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1436,6 +1445,7 @@ dependencies = [
  "bytemuck",
  "cgmath",
  "chrono",
+ "cradle",
  "dyn-clone",
  "env_logger",
  "futures",
