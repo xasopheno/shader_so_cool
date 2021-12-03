@@ -6,6 +6,7 @@ use rand::Rng;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 pub use weresocool::generation::json::{EventType, Op4D};
+use weresocool::generation::parsed_to_render::AudioVisual;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct OpStream {
@@ -42,9 +43,9 @@ impl OpStream {
             .collect()
     }
 
-    pub fn from_vec_op4d(ops: Vec<Op4D>, length: f32) -> Vec<OpStream> {
+    pub fn from_vec_op4d(av: &AudioVisual) -> Vec<OpStream> {
         let mut op_streams = BTreeMap::<Vec<String>, Vec<Op4D>>::new();
-        ops.iter().for_each(|op| {
+        av.visual.iter().for_each(|op| {
             if op.names.is_empty() {
                 let stream = op_streams.entry(vec!["nameless".into()]).or_insert(vec![]);
                 stream.push(op.clone());
@@ -57,7 +58,11 @@ impl OpStream {
 
         op_streams
             .into_iter()
-            .map(|(names, ops)| OpStream { ops, length, names })
+            .map(|(names, ops)| OpStream {
+                ops,
+                length: av.length,
+                names,
+            })
             .collect()
     }
     pub fn get_batch(&mut self, t: f32) -> Vec<Op4D> {

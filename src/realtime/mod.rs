@@ -43,7 +43,7 @@ impl RealTimeState {
         config: &mut Config,
         repaint_signal: std::sync::Arc<ExampleRepaintSignal>,
         audio_stream_handle: rodio::Sink,
-        av: AudioVisual,
+        av: &AudioVisual,
     ) -> Result<RealTimeState, Error> {
         let size = (config.window_size.0, config.window_size.1);
         println!("{}/{}", size.0, size.1);
@@ -64,7 +64,7 @@ impl RealTimeState {
             wgpu::TextureFormat::Bgra8UnormSrgb,
         );
 
-        let op_streams = crate::op_stream::OpStream::from_vec_op4d(av.visual, av.length);
+        let op_streams = crate::op_stream::OpStream::from_vec_op4d(av);
 
         let renderpasses = make_renderpasses(
             &device,

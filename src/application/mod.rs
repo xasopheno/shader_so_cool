@@ -26,22 +26,19 @@ pub fn run(filename: &str, config: Config) -> Result<(), Error> {
     if print_it {
         println!("****PRINTING****");
         let n_frames = (av.length * 40.0).floor() as usize + 100;
-        // write_audio_to_file(
-        // &av.audio.as_slice(),
-        // std::path::PathBuf::from_str("kintaro.wav")
-        // .expect("unable to create pathbuf for kintaro.wav"),
-        // );
+        print(config, &av, n_frames)?;
+        write_audio_to_file(
+            &av.audio.as_slice(),
+            std::path::PathBuf::from_str("kintaro.wav")
+                .expect("unable to create pathbuf for kintaro.wav"),
+        );
 
-        let command = "yes | ffmpeg -framerate 40 -pattern_type glob -i out/*.png -i kintaro.wav -c:a copy -shortest -c:v libx264 -r 40 -pix_fmt yuv420p out.mov";
+        let command_join_audio_and_video = "ffmpeg -framerate 40 -pattern_type glob -i out/*.png -i kintaro.wav -c:a copy -shortest -c:v libx264 -r 40 -pix_fmt yuv420p out.mov";
 
-        // (yes, %command).run();
-        // println!("{} ", &command);
-        // let command = "pwd";
-        run!(%command);
-        // print(config, av, n_frames)?;
+        run!(Stdin("yes"), %command_join_audio_and_video);
     } else {
         println!("****REALTIME****");
-        realtime(config, av)?;
+        realtime(config, &av)?;
     }
     Ok(())
 }
@@ -49,7 +46,7 @@ pub fn run(filename: &str, config: Config) -> Result<(), Error> {
 pub fn write_audio_to_file(audio: &[u8], filename: std::path::PathBuf) {
     let mut file = std::fs::File::create(filename.clone()).unwrap();
     file.write_all(audio).unwrap();
-    // printed(filename.display().to_string());
+    println!("Audio file written: {}", filename.display().to_string());
 }
 
 fn get_audiovisual_data(filename: &str) -> Result<AudioVisual, Error> {
@@ -62,7 +59,7 @@ fn get_audiovisual_data(filename: &str) -> Result<AudioVisual, Error> {
     }
 }
 
-fn print(mut config: Config, av: AudioVisual, n_frames: usize) -> Result<(), Error> {
+fn print(mut config: Config, av: &AudioVisual, n_frames: usize) -> Result<(), Error> {
     let mut state = block_on(PrintState::init(&mut config, av))?;
     for i in 0..n_frames {
         block_on(state.render()).expect(format!("Unable to render frame: {}", i).as_str());
@@ -70,7 +67,7 @@ fn print(mut config: Config, av: AudioVisual, n_frames: usize) -> Result<(), Err
     Ok(())
 }
 
-fn realtime(mut config: Config, av: AudioVisual) -> Result<(), Error> {
+fn realtime(mut config: Config, av: &AudioVisual) -> Result<(), Error> {
     env_logger::init();
     let title = env!("CARGO_PKG_NAME");
     let event_loop = winit::event_loop::EventLoop::with_user_event();
@@ -96,7 +93,7 @@ fn realtime(mut config: Config, av: AudioVisual) -> Result<(), Error> {
         &mut config,
         repaint_signal.clone(),
         stream_handle,
-        av,
+        &av,
     )?;
     state.play();
 

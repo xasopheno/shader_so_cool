@@ -12,7 +12,7 @@ use crate::{
 };
 
 impl PrintState {
-    pub async fn init(config: &mut Config, av: AudioVisual) -> Result<PrintState, Error> {
+    pub async fn init(config: &mut Config, av: &AudioVisual) -> Result<PrintState, Error> {
         let size = config.window_size;
         dbg!(&config.window_size);
         println!("{}/{}", size.0, size.1);
@@ -51,7 +51,7 @@ impl PrintState {
 
         let toy = crate::toy::setup_toy(&device, toy_shader, size, texture_desc.format);
 
-        let op_streams = crate::op_stream::OpStream::from_vec_op4d(av.visual, av.length);
+        let op_streams = crate::op_stream::OpStream::from_vec_op4d(&av);
 
         let renderpasses = make_renderpasses(
             &device,
