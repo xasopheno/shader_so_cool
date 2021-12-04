@@ -19,8 +19,12 @@ pub mod uniforms;
 pub mod vertex;
 
 pub use crate::camera::default::default_cameras;
-pub use crate::color::{helpers::*, Color, ColorMap, ColorSet, ColorSets};
+pub use crate::color::{
+    color_map_from_named_colorsets, helpers::*, Color, ColorMap, ColorSet, ColorSets,
+    NamedColorSet, RandColor, RandColorSet,
+};
 pub use crate::config::{CameraConfig, Config};
+pub use crate::gen::*;
 pub use crate::instance::{
     instancer::{Instancer, InstancerInput, InstancerOutput},
     Instance,

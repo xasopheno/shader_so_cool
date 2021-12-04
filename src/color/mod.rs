@@ -1,17 +1,42 @@
 pub mod helpers;
-// use std::collections::BTreeMap;
 use indexmap::IndexMap;
 use std::fmt::Debug;
 
 use rand::prelude::*;
 use rand::seq::SliceRandom;
 
-use crate::colorsets_from_vec_hex_strings;
 use crate::gen::GenColor;
 use crate::op_stream::OpStream;
+use crate::{colorset_from_hex_strings, colorsets_from_vec_hex_strings};
+
+pub type NamedColorSet<'a> = (&'a str, Vec<&'a str>);
 
 #[derive(Clone, Debug)]
 pub struct RandColor;
+
+#[derive(Clone, Debug)]
+pub struct RandColorSet {
+    colors: Vec<Color>,
+}
+
+impl RandColorSet {
+    pub fn init(n: usize) -> Self {
+        let mut rng = rand::thread_rng();
+        let mut r = || rng.gen::<f32>() * 2.0 - 1.0;
+
+        RandColorSet {
+            colors: (0..n)
+                .into_iter()
+                .map(|_idx| Color {
+                    r: r(),
+                    g: r(),
+                    b: r(),
+                    shade: r(),
+                })
+                .collect(),
+        }
+    }
+}
 
 #[derive(Clone, Debug)]
 pub struct ColorSet {
@@ -24,6 +49,21 @@ pub struct ColorSets {
     colorsets: Vec<ColorSet>,
 }
 
+pub fn color_map_from_named_colorsets<'a>(colors: Vec<NamedColorSet<'a>>) -> ColorMap {
+    let mut map: IndexMap<String, Box<dyn GenColor>> = IndexMap::new();
+    colors.iter().for_each(|color| {
+        map.insert(
+            color.0.to_string(),
+            Box::new(colorset_from_hex_strings(color.1.to_owned())),
+        );
+    });
+
+    ColorMap {
+        colors: map,
+        default: Box::new(colorset_from_hex_strings(vec!["#ff0088"])),
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct ColorMap {
     pub colors: IndexMap<String, Box<dyn GenColor>>,
@@ -33,7 +73,6 @@ pub struct ColorMap {
 impl GenColor for ColorMap {
     fn gen(&self, op_stream: &OpStream) -> Color {
         for (name, color) in self.colors.iter() {
-            dbg!(&name, color);
             if op_stream.names.contains(name) {
                 return color.gen(op_stream);
             }
@@ -81,6 +120,16 @@ impl GenColor for RandColor {
             b: r(),
             shade: r(),
         }
+    }
+    fn update(&mut self) {}
+}
+
+impl GenColor for RandColorSet {
+    fn gen(&self, _op_stream: &OpStream) -> Color {
+        self.colors
+            .choose(&mut rand::thread_rng())
+            .expect("color choice failed")
+            .to_owned()
     }
     fn update(&mut self) {}
 }
