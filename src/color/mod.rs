@@ -1,5 +1,6 @@
 pub mod helpers;
-use std::collections::BTreeMap;
+// use std::collections::BTreeMap;
+use indexmap::IndexMap;
 use std::fmt::Debug;
 
 use rand::prelude::*;
@@ -25,13 +26,14 @@ pub struct ColorSets {
 
 #[derive(Clone, Debug)]
 pub struct ColorMap {
-    pub colors: BTreeMap<String, Box<dyn GenColor>>,
+    pub colors: IndexMap<String, Box<dyn GenColor>>,
     pub default: Box<dyn GenColor>,
 }
 
 impl GenColor for ColorMap {
     fn gen(&self, op_stream: &OpStream) -> Color {
         for (name, color) in self.colors.iter() {
+            dbg!(&name, color);
             if op_stream.names.contains(name) {
                 return color.gen(op_stream);
             }

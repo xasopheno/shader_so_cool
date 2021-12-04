@@ -1451,6 +1451,7 @@ dependencies = [
  "futures",
  "hex",
  "image",
+ "indexmap",
  "kintaro_egui_lib",
  "log",
  "rand 0.8.4",
