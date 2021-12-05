@@ -7,7 +7,7 @@ use rand::seq::SliceRandom;
 
 use crate::gen::GenColor;
 use crate::op_stream::OpStream;
-use crate::{colorset_from_hex_strings, colorsets_from_vec_hex_strings};
+use crate::{colorset_from_hex_strings, colorsets_from_vec_hex_strings, vec_hex_to_vec_color};
 
 pub type NamedColorSet<'a> = (&'a str, Vec<&'a str>);
 
@@ -43,6 +43,47 @@ pub struct ColorSet {
     pub colors: Vec<Color>,
 }
 
+impl<'a> ColorSet {
+    pub fn init<T>(hex_strings: T) -> ColorSet
+    where
+        T: Into<Vec<&'a str>> + ?Sized,
+    {
+        ColorSet {
+            colors: vec_hex_to_vec_color(hex_strings.into()),
+        }
+    }
+}
+
+impl<'a> ColorSets
+// where
+// Vec<&str>: From<&T>,
+{
+    pub fn init<T>(vec_hex_strings: Vec<T>) -> Self
+    where
+        T: Into<Vec<&'a str>> + ?Sized,
+    {
+        let colorsets = vec_hex_strings
+            .iter()
+            .map(|strings| ColorSet::init(strings))
+            .collect();
+
+        Self { n: 0, colorsets }
+    }
+}
+
+// pub fn colorsets_from_vec_hex_strings(vec_hex_strings: Vec<Vec<&str>>) -> ColorSets {
+// ColorSets {
+// n: 0,
+// colorsets: vec_hex_strings
+// .iter()
+// .map(|hex_strings| ColorSet {
+// colors: vec_hex_to_vec_color(hex_strings.to_owned()),
+// })
+// .collect(),
+// }
+// }
+//
+
 #[derive(Clone, Debug)]
 pub struct ColorSets {
     n: usize,
@@ -51,11 +92,24 @@ pub struct ColorSets {
 
 pub fn color_map_from_named_colorsets<'a>(colors: Vec<NamedColorSet<'a>>) -> ColorMap {
     let mut map: IndexMap<String, Box<dyn GenColor>> = IndexMap::new();
-    colors.iter().for_each(|color| {
+    colors.iter().rev().for_each(|color| {
         map.insert(
             color.0.to_string(),
-            Box::new(colorset_from_hex_strings(color.1.to_owned())),
+            Box::new(ColorSet::init(color.1.to_owned())),
         );
+    });
+
+    ColorMap {
+        colors: map,
+        default: Box::new(colorset_from_hex_strings(vec!["#ff0088"])),
+    }
+}
+
+pub fn color_map_from_named_gen_color<'a>(colors: Vec<(&'a str, Box<dyn GenColor>)>) -> ColorMap {
+    let mut map: IndexMap<String, Box<dyn GenColor>> = IndexMap::new();
+
+    colors.iter().for_each(|color| {
+        map.insert(color.0.to_string(), color.1.to_owned());
     });
 
     ColorMap {

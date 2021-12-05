@@ -20,8 +20,17 @@ pub mod vertex;
 
 pub use crate::camera::default::default_cameras;
 pub use crate::color::{
-    color_map_from_named_colorsets, helpers::*, Color, ColorMap, ColorSet, ColorSets,
-    NamedColorSet, RandColor, RandColorSet,
+    color_map_from_named_colorsets,
+    color_map_from_named_gen_color,
+    // helpers::{colorset_from_hex_strings, colorsets_from_vec_hex_strings},
+    helpers::*,
+    Color,
+    ColorMap,
+    ColorSet,
+    ColorSets,
+    NamedColorSet,
+    RandColor,
+    RandColorSet,
 };
 pub use crate::config::{CameraConfig, Config};
 pub use crate::gen::*;

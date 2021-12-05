@@ -14,7 +14,7 @@ pub fn colorsets_from_vec_hex_strings(vec_hex_strings: Vec<Vec<&str>>) -> ColorS
     }
 }
 
-pub fn colorset_from_hex_strings(hex_strings: Vec<&str>) -> impl GenColor {
+pub fn colorset_from_hex_strings(hex_strings: Vec<&str>) -> ColorSet {
     ColorSet {
         colors: vec_hex_to_vec_color(hex_strings),
     }
