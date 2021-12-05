@@ -28,7 +28,7 @@ pub use crate::color::{
     ColorMap,
     ColorSet,
     ColorSets,
-    NamedColorSet,
+    NamedValue,
     RandColor,
     RandColorSet,
 };

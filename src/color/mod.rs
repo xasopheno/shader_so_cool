@@ -9,7 +9,7 @@ use crate::gen::GenColor;
 use crate::op_stream::OpStream;
 use crate::{colorset_from_hex_strings, colorsets_from_vec_hex_strings, vec_hex_to_vec_color};
 
-pub type NamedColorSet<'a> = (&'a str, Vec<&'a str>);
+pub type NamedValue<'a, T> = (&'a str, T);
 
 #[derive(Clone, Debug)]
 pub struct RandColor;
@@ -54,35 +54,19 @@ impl<'a> ColorSet {
     }
 }
 
-impl<'a> ColorSets
-// where
-// Vec<&str>: From<&T>,
-{
-    pub fn init<T>(vec_hex_strings: Vec<T>) -> Self
+impl<'a> ColorSets {
+    pub fn init<T: 'a>(vec_hex_strings: Vec<T>) -> Self
     where
-        T: Into<Vec<&'a str>> + ?Sized,
+        Vec<&'a str>: From<T>,
     {
         let colorsets = vec_hex_strings
-            .iter()
-            .map(|strings| ColorSet::init(strings))
+            .into_iter()
+            .map(|hex_strings| ColorSet::init(hex_strings))
             .collect();
 
         Self { n: 0, colorsets }
     }
 }
-
-// pub fn colorsets_from_vec_hex_strings(vec_hex_strings: Vec<Vec<&str>>) -> ColorSets {
-// ColorSets {
-// n: 0,
-// colorsets: vec_hex_strings
-// .iter()
-// .map(|hex_strings| ColorSet {
-// colors: vec_hex_to_vec_color(hex_strings.to_owned()),
-// })
-// .collect(),
-// }
-// }
-//
 
 #[derive(Clone, Debug)]
 pub struct ColorSets {
@@ -90,7 +74,24 @@ pub struct ColorSets {
     colorsets: Vec<ColorSet>,
 }
 
-pub fn color_map_from_named_colorsets<'a>(colors: Vec<NamedColorSet<'a>>) -> ColorMap {
+// impl<'a> ColorMap {
+// pub fn init<T: 'a>(colors: Vec<NamedColorSet>) -> Self
+// where
+// Vec<&'a str>: From<T>,
+// {
+// let colorsets = vec_hex_strings
+// .into_iter()
+// .map(|hex_strings| ColorSet::init(hex_strings))
+// .collect();
+
+// Self { n: 0, colorsets }
+// }
+// }
+
+pub fn color_map_from_named_colorsets<'a, T: Clone>(colors: Vec<NamedValue<'a, T>>) -> ColorMap
+where
+    Vec<&'a str>: From<T>,
+{
     let mut map: IndexMap<String, Box<dyn GenColor>> = IndexMap::new();
     colors.iter().rev().for_each(|color| {
         map.insert(
