@@ -21,7 +21,7 @@ pub async fn write_img(
         let buffer = ImageBuffer::<Rgba<u8>, _>::from_raw(size.0, size.1, data).unwrap();
         let filename = format!("out/{:07}.png", frame);
         if frame % 100 == 0 {
-            dbg!(&filename);
+            println!("{}", &filename);
         }
         buffer.save(filename).unwrap();
     }
