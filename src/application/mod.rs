@@ -2,7 +2,6 @@ use crate::config::Config;
 use crate::print::PrintState;
 use crate::realtime::render::ExampleRepaintSignal;
 use crate::realtime::RealTimeState;
-use colored::*;
 use cradle::prelude::*;
 use std::io::Write;
 use std::str::FromStr;
