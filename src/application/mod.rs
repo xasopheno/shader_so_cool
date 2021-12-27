@@ -61,6 +61,7 @@ fn get_audiovisual_data(filename: &str) -> Result<AudioVisual, Error> {
 
 fn print(mut config: Config, av: &AudioVisual, n_frames: usize) -> Result<(), Error> {
     let mut state = block_on(PrintState::init(&mut config, av))?;
+    println!("Printing {} frames.", n_frames);
     for i in 0..n_frames {
         block_on(state.render()).expect(format!("Unable to render frame: {}", i).as_str());
     }

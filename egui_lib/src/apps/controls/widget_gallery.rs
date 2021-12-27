@@ -117,7 +117,7 @@ impl ControlsInner {
                 };
                 ui.end_row();
                 ui.label("size:");
-                if ui.add(egui::Slider::new(&mut size, 0.0..=500.0)).changed() {
+                if ui.add(egui::Slider::new(&mut size, 0.0..=1000.0)).changed() {
                     s.instance_mul.size = size
                 };
                 ui.label("life:");
