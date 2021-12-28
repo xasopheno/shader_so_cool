@@ -1,13 +1,9 @@
 mod create_toy_render_pipeline;
-mod shader;
 mod uniforms;
-
-pub use shader::*;
 
 use self::uniforms::ToyUniforms;
 
 pub struct Toy {
-    pub start_time: std::time::Instant,
     pub shader: wgpu::ShaderModule,
     pub uniforms: ToyUniforms,
     pub uniform_bind_group: wgpu::BindGroup,
@@ -18,15 +14,10 @@ pub struct Toy {
 
 pub fn setup_toy(
     device: &wgpu::Device,
-    start_time: std::time::Instant,
+    shader: wgpu::ShaderModule,
     size: (u32, u32),
     format: wgpu::TextureFormat,
 ) -> Toy {
-    let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
-        label: Some("Shader"),
-        source: wgpu::ShaderSource::Wgsl(include_str!("./toy.wgsl").into()),
-    });
-
     let (uniforms, uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
         uniforms::ToyUniforms::new(device);
 
@@ -38,7 +29,6 @@ pub fn setup_toy(
     );
 
     Toy {
-        start_time,
         size,
         shader,
         render_pipeline,
@@ -49,12 +39,13 @@ pub fn setup_toy(
 }
 
 pub fn toy_renderpass(
-    is_playing: bool,
+    _is_playing: bool,
     toy: &mut Toy,
     device: &wgpu::Device,
     queue: &wgpu::Queue,
     view: &wgpu::TextureView,
     size: (u32, u32),
+    total_elapsed: f32,
 ) -> Result<(), wgpu::SurfaceError> {
     let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
         label: Some("Render Encoder"),
@@ -62,13 +53,13 @@ pub fn toy_renderpass(
 
     // if is_playing {
     toy.uniforms
-        .update_uniforms((size.0, size.1), toy.start_time);
+        .update_uniforms((size.0, size.1), total_elapsed);
     queue.write_buffer(
         &toy.uniform_buffer,
         0,
         bytemuck::cast_slice(&[toy.uniforms]),
     );
-
+    // }
     {
         let clear_color = wgpu::Color {
             r: 0.2,

@@ -1,3 +1,4 @@
+use image::{ImageBuffer, Rgba};
 const U32_SIZE: u32 = std::mem::size_of::<u32>() as u32;
 
 pub async fn write_img(
@@ -6,25 +7,27 @@ pub async fn write_img(
     size: (u32, u32),
     device: &wgpu::Device,
 ) {
-    let buffer_slice = output_buffer.slice(..);
+    {
+        let buffer_slice = output_buffer.slice(..);
 
-    // NOTE: We have to create the mapping THEN device.poll() before await
-    // the future. Otherwise the application will freeze.
-    let mapping = buffer_slice.map_async(wgpu::MapMode::Read);
-    device.poll(wgpu::Maintain::Wait);
-    mapping.await.unwrap();
+        // NOTE: We have to create the mapping THEN device.poll() before await
+        // the future. Otherwise the application will freeze.
+        let mapping = buffer_slice.map_async(wgpu::MapMode::Read);
+        device.poll(wgpu::Maintain::Wait);
+        mapping.await.unwrap();
 
-    let data = buffer_slice.get_mapped_range();
+        let data = buffer_slice.get_mapped_range();
 
-    use image::{ImageBuffer, Rgba};
-    let buffer = ImageBuffer::<Rgba<u8>, _>::from_raw(size.0, size.1, data).unwrap();
-    let filename = format!("out/{:07}.png", frame);
-    if frame % 100 == 0 {
-        dbg!(&filename);
+        let buffer = ImageBuffer::<Rgba<u8>, _>::from_raw(size.0, size.1, data).unwrap();
+        let filename = format!("out/{:07}.png", frame);
+        if frame % 100 == 0 {
+            dbg!(&filename);
+        }
+        buffer.save(filename).unwrap();
     }
-    buffer.save(filename).unwrap();
-    // self.output_buffer.unmap();
+    output_buffer.unmap();
 }
+
 pub fn copy_texture_to_buffer(
     encoder: &mut wgpu::CommandEncoder,
     size: (u32, u32),

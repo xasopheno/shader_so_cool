@@ -28,14 +28,19 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn new(camera_config: &CameraConfig, size: (u32, u32), _config: &Config) -> Self {
+    pub fn new(
+        camera_config: &CameraConfig,
+        size: (u32, u32),
+        _config: &Config,
+        index: usize,
+    ) -> Self {
         Self {
             position: camera_config.position.into(),
             yaw: cgmath::Deg(camera_config.yaw).into(),
             pitch: cgmath::Deg(camera_config.pitch).into(),
-            projection: Projection::new(size.0, size.1, cgmath::Deg(50.0), 0.1, 10_000.0),
+            projection: Projection::new(size.0, size.1, cgmath::Deg(70.0), 0.1, 30_000.0),
             controller: CameraController::new(10.0, 1.0),
-            index: camera_config.index,
+            index,
         }
     }
 
@@ -90,11 +95,17 @@ impl Camera {
         }
     }
 
+    pub fn current_state(&self) -> CameraConfig {
+        let yaw: Deg<f32> = self.yaw.into();
+        let pitch: Deg<f32> = self.pitch.into();
+        CameraConfig {
+            position: self.position.into(),
+            yaw: yaw.0,
+            pitch: pitch.0,
+        }
+    }
+
     pub fn calc_matrix(&self) -> Matrix4<f32> {
-        // TODO: print current camera
-        // let yaw: cgmath::Deg<f32> = self.yaw.into();
-        // let pitch: cgmath::Deg<f32> = self.pitch.into();
-        // dbg!(&self.position, yaw, pitch);
         let (sin_pitch, cos_pitch) = self.pitch.0.sin_cos();
         let (sin_yaw, cos_yaw) = self.yaw.0.sin_cos();
 

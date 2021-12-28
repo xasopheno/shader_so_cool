@@ -1,20 +1,27 @@
+use weresocool::error::Error;
+use weresocool::generation::parsed_to_render::AudioVisual;
+
 use super::PrintState;
+use crate::composition::Composition;
+use crate::op_stream::renderpasses::make_renderpasses;
+use crate::shader::make_shader;
 use crate::{
     canvas::Canvas,
     clock::{Clock, PrintClock},
     config::Config,
-    instance::make_instances_and_instance_buffer,
-    shared::{create_render_pipeline, new_random_clear_color, RenderPassInput},
-    vertex::{create_index_buffer, create_vertex_buffer, shape::ShapeGenResult},
 };
 
 impl PrintState {
-    pub async fn init(config: Config) -> PrintState {
+    pub async fn init(config: &mut Config, av: &AudioVisual) -> Result<PrintState, Error> {
+        let size = config.window_size;
+        dbg!(&config.window_size);
+        println!("{}/{}", size.0, size.1);
         let instance = wgpu::Instance::new(wgpu::Backends::PRIMARY);
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
                 power_preference: wgpu::PowerPreference::default(),
                 compatible_surface: None,
+                force_fallback_adapter: false,
             })
             .await
             .unwrap();
@@ -25,8 +32,8 @@ impl PrintState {
 
         let texture_desc = wgpu::TextureDescriptor {
             size: wgpu::Extent3d {
-                width: config.window_size.0,
-                height: config.window_size.1,
+                width: size.0,
+                height: size.1,
                 depth_or_array_layers: 1,
             },
             mip_level_count: 1,
@@ -39,68 +46,40 @@ impl PrintState {
         let texture = device.create_texture(&texture_desc);
         let texture_view = texture.create_view(&Default::default());
 
-        let shader = device.create_shader_module(&wgpu::ShaderModuleDescriptor {
-            label: Some("Shader"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("../shader.wgsl").into()),
-        });
+        let instance_shader = make_shader(&device, &config.instance_shader)?;
+        let toy_shader = make_shader(&device, &config.toy_shader)?;
 
-        println!("{}/{}", config.window_size.0, config.window_size.1);
+        let toy = crate::toy::setup_toy(&device, toy_shader, size, texture_desc.format);
 
-        let op_streams = crate::render_op::OpStream::from_json(&config.filename);
+        let op_streams = crate::op_stream::OpStream::from_vec_op4d(&av);
 
-        let toy = crate::toy::setup_toy(
+        let renderpasses = make_renderpasses(
             &device,
-            std::time::Instant::now(),
-            config.window_size,
+            op_streams,
+            &instance_shader,
+            config,
             texture_desc.format,
         );
+        todo!();
 
-        let renderpasses = op_streams
-            .iter()
-            .map(|op_stream| {
-                let ShapeGenResult { vertices, indices } = config.shape.clone().gen();
-                let (instances, instance_buffer) =
-                    make_instances_and_instance_buffer(0, config.window_size, &device);
-                let (uniforms, uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
-                    crate::uniforms::RealtimeUniforms::new(&device);
-                let render_pipeline = create_render_pipeline(
-                    &device,
-                    &shader,
-                    &uniform_bind_group_layout,
-                    texture_desc.format,
-                );
+        // Ok(PrintState {
+        // device,
+        // queue,
+        // size,
+        // clock: PrintClock::init(&config),
+        // count: 0,
 
-                RenderPassInput {
-                    vertex_buffer: create_vertex_buffer(&device, &vertices.as_slice()),
-                    index_buffer: create_index_buffer(&device, &indices.as_slice()),
-                    vertices: vertices.into(),
-                    op_stream: op_stream.to_owned(),
-                    uniform_bind_group,
-                    instances,
-                    instance_buffer,
-                    uniform_buffer,
-                    uniforms,
-                    shape: config.shape.clone(),
-                    render_pipeline,
-                }
-            })
-            .collect();
-        PrintState {
-            renderpasses,
-            toy: Some(toy),
-            clock: PrintClock::init(&config),
+        // composition: Composition {
+        // config: config.clone(),
+        // camera: crate::camera::Camera::new(&config.cameras[0], size, &config, 0),
+        // renderpasses,
+        // toy: Some(toy),
+        // canvas: Canvas::init(size),
+        // },
 
-            canvas: Canvas::init(config.window_size),
-            camera: crate::camera::Camera::new(&config.cameras[4], config.window_size, &config),
-            size: config.window_size,
-            config,
-            device,
-            queue,
-            texture,
-            texture_view,
-            count: 0,
-            time_elapsed: std::time::Duration::from_millis(0),
-            clear_color: new_random_clear_color(),
-        }
+        // texture,
+        // texture_view,
+        // time_elapsed: std::time::Duration::from_millis(0),
+        // })
     }
 }

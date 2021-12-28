@@ -28,7 +28,7 @@ struct InstanceInput {
 };
 
 [[stage(vertex)]]
-fn main(
+fn vs_main(
   model: VertexInput,
   instance: InstanceInput,
 ) -> VertexOutput {
@@ -45,15 +45,15 @@ fn main(
       pow(model.color[2] * instance.life, 3.0),
   );
 
-//  if (instance.life < 1.99) {
-    out.color = vec4<f32>(color_matrix, instance.life);
-// } else {
-//   out.color = vec4<f32>(color_matrix * vec3<f32>(
-//         40.0 * instance.life, 
-//         40.0 * instance.life, 
-//         40.0 * instance.life, 
-//       ), instance.life);
-// };
+  if (instance.life < 1.99) {
+  out.color = vec4<f32>(color_matrix, instance.life);
+ } else {
+   out.color = vec4<f32>(color_matrix * vec3<f32>(
+         1.0 * instance.life, 
+         1.0 * instance.life, 
+         1.0 * instance.life, 
+       ), instance.life);
+ };
 
   let scale = mat4x4<f32>(
       vec4<f32>(instance.size, 0.0, 0.0, 0.0),
@@ -67,8 +67,12 @@ fn main(
     * model_matrix 
     * scale 
     * vec4<f32>(
-        model.position.x * 2.0 * sin(2.0 * instance.life), 
-        model.position.y * 2.0 * sin(45.0 * instance.life),
+        model.position.x * 2.0,
+        //* sin(2.0 * instance.life),
+        // *  1000.0 / (instance.life * 500.0), 
+        model.position.y * 2.0, 
+        // * sin(45.0 * instance.life), 
+        // * 1000.0 / (instance.life * 500.0),
         model.position.z + (instance.life * 80.0 * 2.0) - 160.0 * 2.0, 
         1.0
     );
@@ -76,7 +80,7 @@ fn main(
 }
 
 [[stage(fragment)]]
-fn main(in: VertexOutput) -> [[location(0)]] vec4<f32> {
+fn fs_main(in: VertexOutput) -> [[location(0)]] vec4<f32> {
   return vec4<f32>(in.color);
 }
 

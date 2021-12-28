@@ -25,6 +25,7 @@ pub struct UiState {
     pub camera_index: usize,
     pub instance_mul: InstanceMul,
     pub reset: bool,
+    pub save: bool,
 }
 
 #[derive(Copy, Debug, Clone, PartialEq, Serialize, Deserialize)]

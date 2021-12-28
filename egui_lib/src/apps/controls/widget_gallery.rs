@@ -74,6 +74,9 @@ impl ControlsInner {
                 if ui.button(if s.play { "Pause" } else { "Play" }).clicked() {
                     s.play = !s.play
                 }
+                if ui.button("Save").clicked() {
+                    s.save = true
+                }
                 ui.end_row();
                 // if ui.button("Reset").clicked() {
                 // s.reset = true
@@ -100,12 +103,12 @@ impl ControlsInner {
             });
             ui.vertical(|ui| {
                 ui.label("x:");
-                if ui.add(egui::Slider::new(&mut x, 0.0..=25.0)).changed() {
+                if ui.add(egui::Slider::new(&mut x, 0.0..=100.0)).changed() {
                     s.instance_mul.x = x
                 };
                 ui.end_row();
                 ui.label("y:");
-                if ui.add(egui::Slider::new(&mut y, 0.0..=30.0)).changed() {
+                if ui.add(egui::Slider::new(&mut y, 0.0..=2000.0)).changed() {
                     s.instance_mul.y = y
                 };
                 ui.label("z:");
@@ -114,7 +117,7 @@ impl ControlsInner {
                 };
                 ui.end_row();
                 ui.label("size:");
-                if ui.add(egui::Slider::new(&mut size, 0.0..=50.0)).changed() {
+                if ui.add(egui::Slider::new(&mut size, 0.0..=500.0)).changed() {
                     s.instance_mul.size = size
                 };
                 ui.label("life:");

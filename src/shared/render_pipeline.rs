@@ -11,20 +11,25 @@ pub fn create_render_pipeline(
         bind_group_layouts: &[&uniform_bind_group_layout],
         push_constant_ranges: &[],
     });
+
     let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
         label: Some("Render Pipeline"),
         layout: Some(&render_pipeline_layout),
         vertex: wgpu::VertexState {
             module: &shader,
-            entry_point: "main",
+            entry_point: "vs_main",
             buffers: &[Vertex::desc(), InstanceRaw::desc()],
         },
         fragment: Some(wgpu::FragmentState {
             module: &shader,
-            entry_point: "main",
+            entry_point: "fs_main",
             targets: &[wgpu::ColorTargetState {
                 format,
                 blend: Some(wgpu::BlendState::PREMULTIPLIED_ALPHA_BLENDING),
+                // blend: Some(wgpu::BlendState {
+                // alpha: wgpu::BlendComponent::REPLACE,
+                // color: wgpu::BlendComponent::REPLACE,
+                // }),
                 write_mask: wgpu::ColorWrites::ALL,
             }],
         }),

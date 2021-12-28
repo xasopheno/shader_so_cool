@@ -1,3 +1,4 @@
+pub mod instancer;
 pub mod raw;
 use cgmath::Rotation3;
 use rand::Rng;
@@ -92,7 +93,9 @@ impl Instance {
 
     pub fn update_state(&mut self, dt: f32) {
         self.life -= dt * 0.1;
-        self.position.y += f32::sin(3.0 * (2.0 - self.life));
+        // self.position.y += f32::sin(3.0 * (2.0 - self.life));
+        self.position.x += 800.0 * (2.0 - self.life) * f32::signum(self.position.x);
+        // self.position.y += 700.0 * (2.0 - self.life) * f32::signum(self.position.y);
         // f32::sin(dt * 0.1 * f32::sin(self.position.x / self.position.y) * f32::tan(self.life));
     }
 }

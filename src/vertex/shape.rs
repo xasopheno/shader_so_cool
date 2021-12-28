@@ -1,4 +1,7 @@
-use crate::gen::{GenColor, GenIndex, GenPosition, Index};
+use crate::{
+    gen::{GenColor, GenIndex, GenPosition, Index},
+    op_stream::OpStream,
+};
 use rand::prelude::*;
 
 use super::Vertex;
@@ -39,7 +42,15 @@ impl GenIndex for RandIndex {
 impl GenPosition for RandPosition {
     fn gen(&self) -> Position {
         let mut rng = rand::thread_rng();
+        // let mut xrng = rand::thread_rng();
+        // let mut yrng = rand::thread_rng();
+        // let mut zrng = rand::thread_rng();
         let mut r = || rng.gen::<f32>() * 2.0 - 1.0;
+        // let mut yr = || yrng.gen::<f32>() * 2.0 - 1.0;
+        // let mut zr = || zrng.gen::<f32>() * 2.0 - 1.0;
+        // let mut zr = || zrng.gen::<f32>();
+        // let mut z = zr();
+        // let z = if z < 0.5 { z * -10.0 } else { z };
         Position {
             x: r(),
             y: r(),
@@ -49,11 +60,11 @@ impl GenPosition for RandPosition {
 }
 
 impl Shape {
-    pub fn gen(&mut self) -> ShapeGenResult {
+    pub fn gen(&mut self, op_stream: &OpStream) -> ShapeGenResult {
         ShapeGenResult {
             vertices: (0..self.n_vertices)
                 .into_iter()
-                .map(|_| Vertex::from_shape(self))
+                .map(|_| Vertex::from_shape(self, op_stream))
                 .collect(),
             indices: (0..self.n_indices)
                 .into_iter()
@@ -74,9 +85,9 @@ impl Shape {
 }
 
 impl Vertex {
-    pub fn from_shape(shape: &mut Shape) -> Self {
+    pub fn from_shape(shape: &mut Shape, op_stream: &OpStream) -> Self {
         let position = shape.position.gen();
-        let color = shape.color.gen();
+        let color = shape.color.gen(op_stream);
         let mut rng = rand::thread_rng();
         let mut r = || rng.gen::<f32>() * 2.0 - 1.0;
         Self {

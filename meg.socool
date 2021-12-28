@@ -1,0 +1,56 @@
+{ f: 311.127, l: 1, g: 1, p: 0 }
+
+-- groups abc def ghi jkl
+-- most interesting is ghi
+
+data = { 
+  Fm 1/2 |
+  Overlay [
+      #a | csv ./data/meg_0111.csv | Pa -1/8,
+      #b | csv ./data/meg_0121.csv | Pa 1/8,
+      #c | csv ./data/meg_0131.csv | Pa -1/5,
+      #d | csv ./data/meg_0211.csv | Pa 1/5,
+      #e | csv ./data/meg_0221.csv | Pa -1/3,
+      #f | csv ./data/meg_0231.csv | Pa 1/3,
+      #g | csv ./data/meg_0311.csv | Pa -1,
+      #h | csv ./data/meg_0321.csv | Pa 1,
+      #i | csv ./data/meg_0331.csv | Pa -1/2,
+      #j | csv ./data/meg_1511.csv | Pa 1,
+      #k | csv ./data/meg_1521.csv | Pa -2/3,
+      #l | csv ./data/meg_1531.csv | Pa 2/3,
+  ]
+  | Lm 1/8
+  | Gm 1/2
+  | Fm 1/4
+}
+
+main = {
+    Seq [
+        Overlay [
+            data,
+            Overlay [
+                -- Fm 5/8 | Gm 1/8,
+                -- Fm 1 | Gm 1/2,
+                -- Fm 15/16 | Gm 1/8,
+                -- Fm 5/6 | Gm 1/16,
+                -- Fm 3/4 | Gm 1/8,
+                -- Fm 2/3 | Gm 1/16,
+                -- Fm 5/8 | Gm 1/4,
+                -- Fm 9/16 | Gm 1/4,
+                -- Fm 1/2 | Gm 1/2,
+                -- Fm 1/4 | Gm 1/8
+                Fm 0
+            ] 
+            | O[
+                (1, 0, 1, -1/2),
+                (1, 0, 1, 1/2),
+            ]
+            | Fm 9/16
+            | Repeat 32
+            | Repeat 16
+            | FitLength data 
+        ]
+        | Fm 4,
+        Fm 0 | Lm 2
+    ]
+}

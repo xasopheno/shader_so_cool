@@ -1,3 +1,4 @@
+pub mod renderpasses;
 use crate::instance::Instance;
 use cgmath::{Rotation3, Vector3};
 use kintaro_egui_lib::InstanceMul;
@@ -5,11 +6,13 @@ use rand::Rng;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 pub use weresocool::generation::json::{EventType, Op4D};
+use weresocool::generation::parsed_to_render::AudioVisual;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct OpStream {
     pub ops: Vec<Op4D>,
     pub length: f32,
+    pub names: Vec<String>,
 }
 
 impl OpStream {
@@ -18,23 +21,47 @@ impl OpStream {
             .expect("Unable to read file");
 
         let deserialized: OpStream = serde_json::from_str(&data).unwrap();
-        let mut op_streams = BTreeMap::<String, Vec<Op4D>>::new();
+        let mut op_streams = BTreeMap::<Vec<String>, Vec<Op4D>>::new();
         deserialized.ops.iter().for_each(|op| {
             if op.names.is_empty() {
-                let stream = op_streams.entry("nameless".to_string()).or_insert(vec![]);
+                let stream = op_streams.entry(vec!["nameless".into()]).or_insert(vec![]);
                 stream.push(op.clone());
             } else {
-                let names = op.names.join("_");
-                let stream = op_streams.entry(names).or_insert(vec![]);
+                let names = &op.names;
+                let stream = op_streams.entry(names.to_owned()).or_insert(vec![]);
                 stream.push(op.clone());
             }
         });
 
         op_streams
             .into_iter()
-            .map(|(_name, ops)| OpStream {
+            .map(|(names, ops)| OpStream {
                 ops,
                 length: deserialized.length,
+                names,
+            })
+            .collect()
+    }
+
+    pub fn from_vec_op4d(av: &AudioVisual) -> Vec<OpStream> {
+        let mut op_streams = BTreeMap::<Vec<String>, Vec<Op4D>>::new();
+        av.visual.iter().for_each(|op| {
+            if op.names.is_empty() {
+                let stream = op_streams.entry(vec!["nameless".into()]).or_insert(vec![]);
+                stream.push(op.clone());
+            } else {
+                let names = &op.names;
+                let stream = op_streams.entry(names.to_owned()).or_insert(vec![]);
+                stream.push(op.clone());
+            }
+        });
+
+        op_streams
+            .into_iter()
+            .map(|(names, ops)| OpStream {
+                ops,
+                length: av.length,
+                names,
             })
             .collect()
     }

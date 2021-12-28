@@ -6,6 +6,9 @@ mod apps;
 mod wrap_app;
 
 pub use apps::Windows; // used for tests
+pub use egui_wgpu_backend::{RenderPass, ScreenDescriptor};
+pub use egui_winit_platform::{Platform, PlatformDescriptor};
+pub use epi;
 pub use wrap_app::{InstanceMul, UiState, WrapApp};
 
 #[test]
