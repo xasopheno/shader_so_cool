@@ -43,7 +43,9 @@ impl Composition {
         }
 
         if let Some(image_renderer) = &mut self.image_renderer {
-            image_renderer.render().expect("ImageRenderer error");
+            image_renderer
+                .render(device, queue, view)
+                .expect("ImageRenderer error");
         }
 
         // if let Some(toy) = &mut self.toy {

@@ -75,7 +75,11 @@ impl RealTimeState {
             wgpu::TextureFormat::Bgra8UnormSrgb,
         );
 
-        let image_renderer = pollster::block_on(ImageRenderer::new(&window));
+        let image_renderer = pollster::block_on(ImageRenderer::new(
+            &device,
+            &queue,
+            wgpu::TextureFormat::Bgra8UnormSrgb,
+        ));
 
         Ok(Self {
             device,
