@@ -1,6 +1,6 @@
 use crate::{
     gen::{GenColor, GenIndex, GenPosition, Index},
-    op_stream::{self, OpStream},
+    op_stream::OpStream,
 };
 use rand::prelude::*;
 

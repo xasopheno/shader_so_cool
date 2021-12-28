@@ -4,6 +4,7 @@ mod resize;
 pub mod setup;
 
 use crate::canvas::Canvas;
+use crate::image_renderer::ImageRenderer;
 use crate::shader::make_shader;
 use crate::{composition::Composition, op_stream::renderpasses::make_renderpasses};
 use setup::Setup;
@@ -74,6 +75,8 @@ impl RealTimeState {
             wgpu::TextureFormat::Bgra8UnormSrgb,
         );
 
+        let image_renderer = pollster::block_on(ImageRenderer::new(&window));
+
         Ok(Self {
             device,
             queue,
@@ -86,6 +89,7 @@ impl RealTimeState {
                 renderpasses,
                 toy: Some(toy),
                 canvas: Canvas::init(size),
+                image_renderer: Some(image_renderer),
             },
             surface,
             gui,

@@ -1,4 +1,5 @@
 pub mod application;
+pub mod image_renderer;
 pub mod audio;
 pub mod camera;
 pub mod canvas;

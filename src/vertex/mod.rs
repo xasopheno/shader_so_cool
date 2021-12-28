@@ -3,8 +3,7 @@ use rand::prelude::*;
 use rand::seq::SliceRandom;
 use wgpu::util::DeviceExt;
 
-use crate::color::{ColorSet, RandColor};
-use crate::gen::GenColor;
+use crate::color::ColorSet;
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]

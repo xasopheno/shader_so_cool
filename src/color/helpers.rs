@@ -1,5 +1,3 @@
-use crate::GenColor;
-
 use super::{Color, ColorSet, ColorSets};
 
 pub fn colorsets_from_vec_hex_strings(vec_hex_strings: Vec<Vec<&str>>) -> ColorSets {

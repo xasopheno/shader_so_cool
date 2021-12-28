@@ -60,25 +60,26 @@ impl PrintState {
             config,
             texture_desc.format,
         );
+        todo!();
 
-        Ok(PrintState {
-            device,
-            queue,
-            size,
-            clock: PrintClock::init(&config),
-            count: 0,
+        // Ok(PrintState {
+        // device,
+        // queue,
+        // size,
+        // clock: PrintClock::init(&config),
+        // count: 0,
 
-            composition: Composition {
-                config: config.clone(),
-                camera: crate::camera::Camera::new(&config.cameras[0], size, &config, 0),
-                renderpasses,
-                toy: Some(toy),
-                canvas: Canvas::init(size),
-            },
+        // composition: Composition {
+        // config: config.clone(),
+        // camera: crate::camera::Camera::new(&config.cameras[0], size, &config, 0),
+        // renderpasses,
+        // toy: Some(toy),
+        // canvas: Canvas::init(size),
+        // },
 
-            texture,
-            texture_view,
-            time_elapsed: std::time::Duration::from_millis(0),
-        })
+        // texture,
+        // texture_view,
+        // time_elapsed: std::time::Duration::from_millis(0),
+        // })
     }
 }

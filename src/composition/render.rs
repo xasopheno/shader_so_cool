@@ -42,10 +42,14 @@ impl Composition {
             );
         }
 
-        if let Some(toy) = &mut self.toy {
-            toy_renderpass(true, toy, device, queue, &view, size, time.total_elapsed)
-                .expect("toy error");
+        if let Some(image_renderer) = &mut self.image_renderer {
+            image_renderer.render().expect("ImageRenderer error");
         }
+
+        // if let Some(toy) = &mut self.toy {
+        // toy_renderpass(true, toy, device, queue, &view, size, time.total_elapsed)
+        // .expect("toy error");
+        // }
 
         for (n, renderpass) in self.renderpasses.iter_mut().enumerate() {
             renderpass
