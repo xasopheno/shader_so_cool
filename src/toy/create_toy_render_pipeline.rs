@@ -20,7 +20,29 @@ pub fn create_toy_render_pipeline(
         fragment: Some(wgpu::FragmentState {
             module: &shader,
             entry_point: "fs_main",
-            targets: &[format.into()],
+            // targets: &[format.into()],
+            targets: &[wgpu::ColorTargetState {
+                format,
+                blend: Some(
+                    wgpu::BlendState::PREMULTIPLIED_ALPHA_BLENDING, // {
+                                                                    // color: wgpu::BlendComponent::OVER,
+                                                                    // alpha: wgpu::BlendComponent::OVER,
+                                                                    // }
+                ),
+                // blend: Some(wgpu::BlendState {
+                // color: BlendComponent {
+                // src_factor: wgpu::BlendFactor::SrcAlpha,
+                // dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
+                // operation: wgpu::BlendOperation::Add,
+                // },
+                // alpha: BlendComponent {
+                // src_factor: wgpu::BlendFactor::One,
+                // dst_factor: wgpu::BlendFactor::One,
+                // operation: wgpu::BlendOperation::Add,
+                // },
+                // }),
+                write_mask: wgpu::ColorWrites::ALL,
+            }],
         }),
 
         primitive: wgpu::PrimitiveState::default(),

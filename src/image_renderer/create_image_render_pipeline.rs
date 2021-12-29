@@ -1,3 +1,4 @@
+use wgpu::BlendComponent;
 use wgpu::{BindGroup, BindGroupLayout, RenderPipeline};
 
 use super::{image_texture::ImageTexture, image_vertex::ImageVertex};
@@ -102,10 +103,24 @@ fn make_render_pipeline(
             entry_point: "fs_main",
             targets: &[wgpu::ColorTargetState {
                 format,
-                blend: Some(wgpu::BlendState {
-                    color: wgpu::BlendComponent::REPLACE,
-                    alpha: wgpu::BlendComponent::REPLACE,
-                }),
+
+                blend: Some(wgpu::BlendState::ALPHA_BLENDING),
+                // blend: Some(wgpu::BlendState {
+                // color: wgpu::BlendComponent::OVER,
+                // alpha: wgpu::BlendComponent::OVER,
+                // }),
+                // blend: Some(wgpu::BlendState {
+                // color: BlendComponent {
+                // src_factor: wgpu::BlendFactor::SrcAlpha,
+                // dst_factor: wgpu::BlendFactor::OneMinusSrcAlpha,
+                // operation: wgpu::BlendOperation::Add,
+                // },
+                // alpha: BlendComponent {
+                // src_factor: wgpu::BlendFactor::One,
+                // dst_factor: wgpu::BlendFactor::One,
+                // operation: wgpu::BlendOperation::Add,
+                // },
+                // }),
                 write_mask: wgpu::ColorWrites::ALL,
             }],
         }),

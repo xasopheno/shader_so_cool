@@ -46,6 +46,7 @@ pub fn toy_renderpass(
     view: &wgpu::TextureView,
     size: (u32, u32),
     total_elapsed: f32,
+    clear: bool,
 ) -> Result<(), wgpu::SurfaceError> {
     let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
         label: Some("Render Encoder"),
@@ -62,9 +63,9 @@ pub fn toy_renderpass(
     // }
     {
         let clear_color = wgpu::Color {
-            r: 0.2,
-            g: 0.2,
-            b: 0.25,
+            r: 0.0,
+            g: 0.0,
+            b: 0.0,
             a: 1.0,
         };
 
@@ -74,7 +75,11 @@ pub fn toy_renderpass(
                 view: &view,
                 resolve_target: None,
                 ops: wgpu::Operations {
-                    load: wgpu::LoadOp::Clear(clear_color),
+                    load: if clear {
+                        wgpu::LoadOp::Clear(clear_color)
+                    } else {
+                        wgpu::LoadOp::Load
+                    },
                     store: true,
                 },
             }],

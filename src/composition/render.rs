@@ -48,10 +48,19 @@ impl Composition {
                 .expect("ImageRenderer error");
         }
 
-        // if let Some(toy) = &mut self.toy {
-        // toy_renderpass(true, toy, device, queue, &view, size, time.total_elapsed)
-        // .expect("toy error");
-        // }
+        if let Some(toy) = &mut self.toy {
+            toy_renderpass(
+                true,
+                toy,
+                device,
+                queue,
+                &view,
+                size,
+                time.total_elapsed,
+                false,
+            )
+            .expect("toy error");
+        }
 
         for (n, renderpass) in self.renderpasses.iter_mut().enumerate() {
             renderpass
