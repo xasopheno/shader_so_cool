@@ -1,5 +1,4 @@
 pub mod application;
-pub mod image_renderer;
 pub mod audio;
 pub mod camera;
 pub mod canvas;
@@ -8,6 +7,8 @@ pub mod color;
 pub mod composition;
 pub mod config;
 pub mod gen;
+pub mod glyphy;
+pub mod image_renderer;
 pub mod instance;
 pub mod op_stream;
 pub mod print;

@@ -12,6 +12,7 @@ pub fn create_toy_render_pipeline(
     let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
         label: Some("Render Pipeline"),
         layout: Some(&render_pipeline_layout),
+        multiview: None,
         vertex: wgpu::VertexState {
             module: &shader,
             entry_point: "vs_main",

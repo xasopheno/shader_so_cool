@@ -10,7 +10,7 @@ pub enum Event {
 
 pub struct ExampleRepaintSignal(pub std::sync::Mutex<winit::event_loop::EventLoopProxy<Event>>);
 
-impl kintaro_egui_lib::epi::RepaintSignal for ExampleRepaintSignal {
+impl kintaro_egui_lib::epi::backend::RepaintSignal for ExampleRepaintSignal {
     fn request_repaint(&self) {
         self.0.lock().unwrap().send_event(Event::RequestRedraw).ok();
     }
@@ -73,19 +73,20 @@ impl RealTimeState {
         let previous_frame_time = self.clock.current().last_period;
         let mut app_output = kintaro_egui_lib::epi::backend::AppOutput::default();
 
-        let mut frame = kintaro_egui_lib::epi::backend::FrameBuilder {
-            info: kintaro_egui_lib::epi::IntegrationInfo {
-                name: "egui integration info",
-                web_info: None,
-                cpu_usage: Some(previous_frame_time),
-                native_pixels_per_point: Some(window.scale_factor() as _),
-                prefer_dark_mode: None,
-            },
-            tex_allocator: &mut self.gui.renderpass,
-            output: &mut app_output,
-            repaint_signal: self.repaint_signal.clone(),
-        }
-        .build();
+        let mut frame =
+            kintaro_egui_lib::epi::Frame::new(kintaro_egui_lib::epi::backend::FrameData {
+                info: kintaro_egui_lib::epi::IntegrationInfo {
+                    name: "egui integration info",
+                    web_info: None,
+                    cpu_usage: Some(previous_frame_time),
+                    native_pixels_per_point: Some(window.scale_factor() as _),
+                    prefer_dark_mode: None,
+                },
+                // tex_allocator: &mut self.gui.renderpass,
+                output: app_output,
+                repaint_signal: self.repaint_signal.clone(),
+            });
+
         self.gui
             .app
             .update(&self.gui.platform.context(), &mut frame);

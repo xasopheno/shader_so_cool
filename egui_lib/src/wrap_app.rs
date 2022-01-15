@@ -74,7 +74,7 @@ impl epi::App for WrapApp {
         egui::Rgba::TRANSPARENT // we set a `CentralPanel` fill color in `demo_windows.rs`
     }
 
-    fn update(&mut self, ctx: &egui::CtxRef, frame: &mut epi::Frame<'_>) {
+    fn update(&mut self, ctx: &egui::CtxRef, frame: &epi::Frame) {
         if let Some(web_info) = frame.info().web_info.as_ref() {
             if let Some(anchor) = web_info.web_location_hash.strip_prefix('#') {
                 self.selected_anchor = anchor.to_owned();

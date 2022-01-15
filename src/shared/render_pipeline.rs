@@ -14,6 +14,7 @@ pub fn create_render_pipeline(
 
     let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
         label: Some("Render Pipeline"),
+        multiview: None,
         layout: Some(&render_pipeline_layout),
         vertex: wgpu::VertexState {
             module: &shader,
@@ -39,7 +40,7 @@ pub fn create_render_pipeline(
             front_face: wgpu::FrontFace::Ccw,
             cull_mode: Some(wgpu::Face::Back),
             polygon_mode: wgpu::PolygonMode::Fill,
-            clamp_depth: false,
+            unclipped_depth: false,
             conservative: false,
         },
         depth_stencil: None,

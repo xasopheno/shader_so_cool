@@ -34,10 +34,7 @@ fn make_image_bind_group_layout(device: &wgpu::Device) -> BindGroupLayout {
             wgpu::BindGroupLayoutEntry {
                 binding: 1,
                 visibility: wgpu::ShaderStages::FRAGMENT,
-                ty: wgpu::BindingType::Sampler {
-                    comparison: false,
-                    filtering: true,
-                },
+                ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
                 count: None,
             },
         ],
@@ -93,6 +90,7 @@ fn make_render_pipeline(
     device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
         label: Some("Image Render Pipeline"),
         layout: Some(&render_pipeline_layout),
+        multiview: None,
         vertex: wgpu::VertexState {
             module: &shader,
             entry_point: "vs_main",
@@ -130,7 +128,7 @@ fn make_render_pipeline(
             front_face: wgpu::FrontFace::Ccw,
             cull_mode: Some(wgpu::Face::Back),
             polygon_mode: wgpu::PolygonMode::Fill,
-            clamp_depth: false,
+            unclipped_depth: false,
             conservative: false,
         },
         depth_stencil: None,
