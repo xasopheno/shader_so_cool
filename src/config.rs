@@ -5,10 +5,19 @@ use crate::camera::default::default_cameras;
 use crate::instance::instancer::{Instancer, SimpleInstancer};
 use crate::save::ConfigState;
 use crate::vertex::shape::{RandIndex, RandPosition, Shape};
-use crate::ColorSets;
+#[allow(unused_imports)]
+use crate::{color_map_from_named_colorsets, ColorMap, ColorSets};
 
-impl Default for Config {
+impl<'a> Default for Config<'a> {
     fn default() -> Self {
+        pub fn named_colorsets<'a>() -> Vec<(&'a str, Vec<&'a str>)> {
+            vec![
+                ("meg_0311", vec!["#dd1133", "#122333"]),
+                ("meg_0321", vec!["#11aa88", "#11a111"]),
+                ("meg_0331", vec!["#885533", "#ffaaaa"]),
+            ]
+        }
+
         let instance_mul = InstanceMul {
             x: 9.0,
             y: 19.0,
@@ -28,18 +37,20 @@ impl Default for Config {
             volume: 0.20,
             window_size: (2560, 1440),
             cameras,
+            text: Some(named_colorsets()),
             shape: Shape {
                 n_vertices: 70,
                 n_indices: 70,
                 position: Box::new(RandPosition),
-                color: Box::new(ColorSets::default()),
+                color: Box::new(color_map_from_named_colorsets(named_colorsets())),
+
                 indices: Box::new(RandIndex),
             },
         }
     }
 }
 
-impl Config {
+impl<'a> Config<'a> {
     pub fn handle_save(instance_mul: InstanceMul) -> (Vec<CameraConfig>, InstanceMul) {
         let saved = ConfigState::load_saved();
         let cameras = default_cameras(
@@ -76,7 +87,8 @@ pub struct CameraConfig {
 }
 
 #[derive(Clone)]
-pub struct Config {
+pub struct Config<'a> {
+    pub text: Option<Vec<(&'a str, Vec<&'a str>)>>,
     pub filename: String,
     pub volume: f32,
     pub window_size: (u32, u32),

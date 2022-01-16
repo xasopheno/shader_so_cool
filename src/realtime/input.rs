@@ -1,7 +1,7 @@
 use crate::realtime::RealTimeState;
 use winit::event::*;
 
-impl RealTimeState {
+impl<'a> RealTimeState<'a> {
     pub fn keyboard_input(&mut self, event: &WindowEvent) {
         match event {
             WindowEvent::KeyboardInput { input, .. } => match input {

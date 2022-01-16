@@ -16,7 +16,7 @@ use winit::{event::*, event_loop::ControlFlow, window::WindowBuilder};
 
 use futures::executor::block_on;
 
-pub fn run(filename: &str, config: Config) -> Result<(), Error> {
+pub fn run(filename: &str, config: Config<'static>) -> Result<(), Error> {
     println!("preparing for audiovisualization: {}", &filename);
     let av = get_audiovisual_data(filename)?;
     let print_it = std::env::args()
@@ -59,7 +59,7 @@ fn get_audiovisual_data(filename: &str) -> Result<AudioVisual, Error> {
     }
 }
 
-fn print(mut config: Config, av: &AudioVisual, n_frames: usize) -> Result<(), Error> {
+fn print(mut config: Config<'static>, av: &AudioVisual, n_frames: usize) -> Result<(), Error> {
     let mut state = block_on(PrintState::init(&mut config, av))?;
     for i in 0..n_frames {
         block_on(state.render()).expect(format!("Unable to render frame: {}", i).as_str());
@@ -67,7 +67,7 @@ fn print(mut config: Config, av: &AudioVisual, n_frames: usize) -> Result<(), Er
     Ok(())
 }
 
-fn realtime(mut config: Config, av: &AudioVisual) -> Result<(), Error> {
+fn realtime<'a>(mut config: Config<'static>, av: &AudioVisual) -> Result<(), Error> {
     env_logger::init();
     let title = env!("CARGO_PKG_NAME");
     let event_loop = winit::event_loop::EventLoop::with_user_event();

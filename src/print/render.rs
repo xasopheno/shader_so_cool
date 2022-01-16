@@ -5,7 +5,7 @@ use super::{
     PrintState,
 };
 
-impl PrintState {
+impl<'a> PrintState<'a> {
     pub async fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
         self.clock.update();
 

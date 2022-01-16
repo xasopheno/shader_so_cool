@@ -12,6 +12,7 @@ pub struct Glyphy {
     local_pool: futures::executor::LocalPool,
     local_spawner: LocalSpawner,
     brush: GlyphBrush<()>,
+    text: Vec<(&'static str, Vec<&'static str>)>,
 }
 
 type TextRenderable<'a> = NamedValue<'a, Vec<&'a str>>;
@@ -81,7 +82,11 @@ fn test_hex_str_to_normalized_rgba() {
 }
 
 impl Glyphy {
-    pub fn init(device: &wgpu::Device, format: wgpu::TextureFormat) -> Result<Self, InvalidFont> {
+    pub fn init(
+        device: &wgpu::Device,
+        format: wgpu::TextureFormat,
+        text: Vec<(&'static str, Vec<&'static str>)>,
+    ) -> Result<Self, InvalidFont> {
         // Create staging belt and a local pool
         let staging_belt = wgpu::util::StagingBelt::new(1024);
         let local_pool = futures::executor::LocalPool::new();
@@ -92,6 +97,7 @@ impl Glyphy {
         let brush = GlyphBrushBuilder::using_font(inconsolata).build(&device, format);
 
         Ok(Self {
+            text,
             brush,
             staging_belt,
             local_pool,
@@ -139,18 +145,13 @@ impl Glyphy {
 
         let mut offset_y = 0.0;
         let mut offset_x = 0.0;
-        let scale = 40.0;
+        let scale = 50.0;
 
-        let texts = vec![
-            ("a", vec!["#dd1133", "#122333"]),
-            ("b", vec!["#5a38ff", "#4a3112"]),
-        ];
-
-        for text in texts.iter().rev() {
+        for text in self.text.iter().rev() {
             self.brush.queue(Section {
                 screen_position: (
                     scale + offset_x,
-                    size.1 as f32 - (scale * texts.len() as f32 + offset_y),
+                    size.1 as f32 - (scale * self.text.len() as f32 + offset_y),
                 ),
                 bounds: (size.0 as f32, size.1 as f32),
                 text: vec![Text::new(&format!("{}:", text.0))
@@ -162,16 +163,16 @@ impl Glyphy {
             offset_y += scale;
         }
 
-        let color_offset_x = max_len_text_in_vec_text_renderable(&texts) as f32 * scale * 0.55;
+        let color_offset_x = max_len_text_in_vec_text_renderable(&self.text) as f32 * scale * 0.7;
         offset_x = color_offset_x;
         offset_y = 0.0;
 
-        for text in texts.iter().rev() {
+        for text in self.text.iter().rev() {
             for color in text.1.iter() {
                 self.brush.queue(Section {
                     screen_position: (
                         scale + offset_x,
-                        size.1 as f32 - (scale * texts.len() as f32 + offset_y),
+                        size.1 as f32 - (scale * self.text.len() as f32 + offset_y),
                     ),
                     bounds: (size.0 as f32, size.1 as f32),
                     text: vec![Text::new(color)
@@ -186,7 +187,7 @@ impl Glyphy {
             offset_y += scale;
         }
 
-        // Draw the text!
+        // Draw the text
         self.brush
             .draw_queued(
                 &device,

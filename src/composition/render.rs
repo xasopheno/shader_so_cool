@@ -12,7 +12,7 @@ use crate::clock::Clock;
 
 use super::Composition;
 
-impl Composition {
+impl<'a> Composition<'a> {
     pub fn render(
         &mut self,
         device: &wgpu::Device,

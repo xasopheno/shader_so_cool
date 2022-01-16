@@ -4,14 +4,14 @@ use crate::{
     shared::RenderPassInput, toy::Toy,
 };
 
-pub struct Composition {
+pub struct Composition<'a> {
     pub renderpasses: Vec<RenderPassInput>,
     pub canvas: Canvas,
     pub camera: Camera,
     pub toy: Option<Toy>,
     pub image_renderer: Option<ImageRenderer>,
     pub glyphy: Option<Glyphy>,
-    pub config: Config,
+    pub config: Config<'a>,
 }
 
-impl Composition {}
+// impl Composition {}

@@ -3,6 +3,7 @@ use weresocool::generation::parsed_to_render::AudioVisual;
 
 use super::PrintState;
 use crate::composition::Composition;
+use crate::glyphy::Glyphy;
 use crate::image_renderer::ImageRenderer;
 use crate::op_stream::renderpasses::make_renderpasses;
 use crate::shader::make_shader;
@@ -12,8 +13,11 @@ use crate::{
     config::Config,
 };
 
-impl PrintState {
-    pub async fn init(config: &mut Config, av: &AudioVisual) -> Result<PrintState, Error> {
+impl<'a> PrintState<'a> {
+    pub async fn init(
+        config: &mut Config<'static>,
+        av: &AudioVisual,
+    ) -> Result<PrintState<'a>, Error> {
         let size = config.window_size;
         dbg!(&config.window_size);
         println!("{}/{}", size.0, size.1);
@@ -68,27 +72,35 @@ impl PrintState {
             wgpu::TextureFormat::Bgra8UnormSrgb,
         ));
 
-        todo!();
+        let glyphy = if let Some(t) = &config.text {
+            Some(
+                Glyphy::init(&device, wgpu::TextureFormat::Bgra8UnormSrgb, t.to_owned())
+                    .expect("Unable to setup Glyphy"),
+            )
+        } else {
+            None
+        };
 
-        // Ok(PrintState {
-        // device,
-        // queue,
-        // size,
-        // clock: PrintClock::init(&config),
-        // count: 0,
+        Ok(PrintState {
+            device,
+            queue,
+            size,
+            clock: PrintClock::init(&config),
+            count: 0,
 
-        // composition: Composition {
-        // image_renderer: Some(image_renderer),
-        // config: config.clone(),
-        // camera: crate::camera::Camera::new(&config.cameras[0], size, &config, 0),
-        // renderpasses,
-        // toy: Some(toy),
-        // canvas: Canvas::init(size),
-        // },
+            composition: Composition {
+                glyphy,
+                image_renderer: Some(image_renderer),
+                config: config.clone(),
+                camera: crate::camera::Camera::new(&config.cameras[0], size, &config, 0),
+                renderpasses,
+                toy: Some(toy),
+                canvas: Canvas::init(size),
+            },
 
-        // texture,
-        // texture_view,
-        // time_elapsed: std::time::Duration::from_millis(0),
-        // })
+            texture,
+            texture_view,
+            time_elapsed: std::time::Duration::from_millis(0),
+        })
     }
 }

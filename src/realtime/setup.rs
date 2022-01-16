@@ -19,7 +19,7 @@ pub struct Setup {
 }
 
 impl Setup {
-    pub async fn init(window: &Window, config: &Config) -> Self {
+    pub async fn init<'a>(window: &Window, config: &'a Config<'a>) -> Self {
         let size = config.window_size;
         let instance = wgpu::Instance::new(wgpu::Backends::all());
         let surface = unsafe { instance.create_surface(window) };

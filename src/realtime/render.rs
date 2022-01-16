@@ -1,6 +1,6 @@
 use crate::{clock::Clock, realtime::RealTimeState};
 
-impl RealTimeState {
+impl RealTimeState<'_> {
     pub fn render(&mut self, window: &winit::window::Window) -> Result<(), wgpu::SurfaceError> {
         self.clock.update();
         self.audio_stream_handle

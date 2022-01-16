@@ -23,8 +23,8 @@ use winit::window::Window;
 
 use self::setup::Gui;
 
-pub struct RealTimeState {
-    pub composition: Composition,
+pub struct RealTimeState<'a> {
+    pub composition: Composition<'a>,
 
     pub clock: RenderClock,
     pub count: u32,
@@ -40,14 +40,14 @@ pub struct RealTimeState {
     pub audio_stream_handle: rodio::Sink,
 }
 
-impl RealTimeState {
+impl<'a> RealTimeState<'a> {
     pub fn init(
         window: &Window,
-        config: &mut Config,
+        config: &mut Config<'static>,
         repaint_signal: std::sync::Arc<GuiRepaintSignal>,
         audio_stream_handle: rodio::Sink,
         av: &AudioVisual,
-    ) -> Result<RealTimeState, Error> {
+    ) -> Result<RealTimeState<'a>, Error> {
         let size = (config.window_size.0, config.window_size.1);
         println!("{}/{}", size.0, size.1);
         let Setup {
@@ -83,8 +83,14 @@ impl RealTimeState {
             wgpu::TextureFormat::Bgra8UnormSrgb,
         ));
 
-        let glyphy = Glyphy::init(&device, wgpu::TextureFormat::Bgra8UnormSrgb)
-            .expect("Unable to setup Glyphy");
+        let glyphy = if let Some(t) = &config.text {
+            Some(
+                Glyphy::init(&device, wgpu::TextureFormat::Bgra8UnormSrgb, t.to_owned())
+                    .expect("Unable to setup Glyphy"),
+            )
+        } else {
+            None
+        };
 
         Ok(Self {
             device,
@@ -93,7 +99,7 @@ impl RealTimeState {
             clock: RenderClock::init(&config),
             count: 0,
             composition: Composition {
-                glyphy: Some(glyphy),
+                glyphy,
                 config: config.clone(),
                 camera: crate::camera::Camera::new(&config.cameras[0], size, &config, 0),
                 renderpasses,
