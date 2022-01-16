@@ -1,6 +1,6 @@
 use crate::config::Config;
 use crate::print::PrintState;
-use crate::realtime::render::ExampleRepaintSignal;
+use crate::realtime::gui::GuiRepaintSignal;
 use crate::realtime::RealTimeState;
 use cradle::prelude::*;
 use std::io::Write;
@@ -83,7 +83,7 @@ fn realtime(mut config: Config, av: &AudioVisual) -> Result<(), Error> {
         .build(&event_loop)
         .expect("Unable to create window");
 
-    let repaint_signal = std::sync::Arc::new(ExampleRepaintSignal(std::sync::Mutex::new(
+    let repaint_signal = std::sync::Arc::new(GuiRepaintSignal(std::sync::Mutex::new(
         event_loop.create_proxy(),
     )));
 

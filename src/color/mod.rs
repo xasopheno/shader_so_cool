@@ -31,6 +31,7 @@ impl RandColorSet {
                     r: r(),
                     g: r(),
                     b: r(),
+                    a: 1.0,
                     shade: r(),
                 })
                 .collect(),
@@ -142,6 +143,7 @@ pub struct Color {
     pub r: f32,
     pub g: f32,
     pub b: f32,
+    pub a: f32,
     pub shade: f32,
 }
 
@@ -173,6 +175,7 @@ impl GenColor for RandColor {
             r: r(),
             g: r(),
             b: r(),
+            a: 1.0,
             shade: r(),
         }
     }

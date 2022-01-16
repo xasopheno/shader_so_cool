@@ -16,14 +16,6 @@ pub struct Glyphy {
 
 type TextRenderable<'a> = NamedValue<'a, Vec<&'a str>>;
 
-fn assert_vec_equal<T>(va: &[T], vb: &[T])
-where
-    T: PartialEq + std::fmt::Debug,
-{
-    assert_eq!(va.len(), vb.len());
-    va.iter().zip(vb).for_each(|(a, b)| assert_eq!(*a, *b));
-}
-
 pub fn max_len_text_in_vec_text_renderable(v: &Vec<TextRenderable>) -> usize {
     v.iter().map(|r| r.0.len()).max().unwrap()
 }

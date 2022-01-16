@@ -1,20 +1,4 @@
-use std::{fs::File, io::Write, thread};
-
-use crate::{camera::Camera, clock::Clock, realtime::RealTimeState, save::ConfigState};
-use kintaro_egui_lib::{epi::App, ScreenDescriptor};
-
-/// A custom event type for the winit app.
-pub enum Event {
-    RequestRedraw,
-}
-
-pub struct ExampleRepaintSignal(pub std::sync::Mutex<winit::event_loop::EventLoopProxy<Event>>);
-
-impl kintaro_egui_lib::epi::backend::RepaintSignal for ExampleRepaintSignal {
-    fn request_repaint(&self) {
-        self.0.lock().unwrap().send_event(Event::RequestRedraw).ok();
-    }
-}
+use crate::{clock::Clock, realtime::RealTimeState};
 
 impl RealTimeState {
     pub fn render(&mut self, window: &winit::window::Window) -> Result<(), wgpu::SurfaceError> {
@@ -22,27 +6,7 @@ impl RealTimeState {
         self.audio_stream_handle
             .set_volume(self.gui.state.lock().unwrap().volume);
 
-        {
-            let mut state = self.gui.state.lock().unwrap();
-            if state.save {
-                let filename = "./save/saved.json";
-                let instance_mul = state.instance_mul.to_owned();
-                let camera = self.composition.camera.current_state().clone();
-                thread::spawn(move || {
-                    let mut file = File::create(filename).unwrap();
-                    let config_state = ConfigState {
-                        camera,
-                        instance_mul,
-                    };
-                    let serialized = serde_json::to_string(&config_state)
-                        .expect(&format!("unable to serialize, {}", filename));
-                    file.write(serialized.as_bytes())
-                        .expect("unable to write to file on save");
-                });
-                state.save = false;
-                println!("Saved {}", filename);
-            }
-        }
+        self.handle_save();
 
         let the_frame = self
             .surface
@@ -74,26 +38,7 @@ impl RealTimeState {
         self.queue.submit(Some(encoder.finish()));
         the_frame.present();
 
-        {
-            let s = self.gui.state.lock().unwrap();
-            self.audio_stream_handle.set_volume(s.volume);
-            if s.camera_index != self.composition.camera.index {
-                self.composition.camera = Camera::new(
-                    &self.composition.config.cameras[s.camera_index],
-                    self.composition.config.window_size,
-                    &self.composition.config,
-                    s.camera_index,
-                )
-            }
-            if !s.play && !self.audio_stream_handle.is_paused() {
-                self.audio_stream_handle.pause();
-            };
-            if s.play && self.audio_stream_handle.is_paused() {
-                self.audio_stream_handle.play();
-            };
-            self.clock.set_playing(s.play);
-            self.audio_stream_handle.set_volume(s.volume);
-        }
+        self.update_gui();
 
         Ok(())
     }

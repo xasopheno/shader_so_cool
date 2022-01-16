@@ -3,6 +3,7 @@ use weresocool::generation::parsed_to_render::AudioVisual;
 
 use super::PrintState;
 use crate::composition::Composition;
+use crate::image_renderer::ImageRenderer;
 use crate::op_stream::renderpasses::make_renderpasses;
 use crate::shader::make_shader;
 use crate::{
@@ -60,26 +61,32 @@ impl PrintState {
             config,
             texture_desc.format,
         );
-        todo!();
 
-        // Ok(PrintState {
-        // device,
-        // queue,
-        // size,
-        // clock: PrintClock::init(&config),
-        // count: 0,
+        let image_renderer = pollster::block_on(ImageRenderer::new(
+            &device,
+            &queue,
+            wgpu::TextureFormat::Bgra8UnormSrgb,
+        ));
 
-        // composition: Composition {
-        // config: config.clone(),
-        // camera: crate::camera::Camera::new(&config.cameras[0], size, &config, 0),
-        // renderpasses,
-        // toy: Some(toy),
-        // canvas: Canvas::init(size),
-        // },
+        Ok(PrintState {
+            device,
+            queue,
+            size,
+            clock: PrintClock::init(&config),
+            count: 0,
 
-        // texture,
-        // texture_view,
-        // time_elapsed: std::time::Duration::from_millis(0),
-        // })
+            composition: Composition {
+                image_renderer: Some(image_renderer),
+                config: config.clone(),
+                camera: crate::camera::Camera::new(&config.cameras[0], size, &config, 0),
+                renderpasses,
+                toy: Some(toy),
+                canvas: Canvas::init(size),
+            },
+
+            texture,
+            texture_view,
+            time_elapsed: std::time::Duration::from_millis(0),
+        })
     }
 }

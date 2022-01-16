@@ -1,4 +1,3 @@
-use wgpu::BlendComponent;
 use wgpu::{BindGroup, BindGroupLayout, RenderPipeline};
 
 use super::{image_texture::ImageTexture, image_vertex::ImageVertex};

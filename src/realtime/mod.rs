@@ -1,6 +1,6 @@
+pub mod gui;
 mod input;
 pub mod render;
-pub mod render_gui;
 mod resize;
 pub mod setup;
 
@@ -15,7 +15,7 @@ use weresocool::generation::parsed_to_render::AudioVisual;
 use crate::{
     clock::{Clock, RenderClock},
     config::Config,
-    realtime::render::ExampleRepaintSignal,
+    realtime::gui::GuiRepaintSignal,
 };
 use futures::executor::block_on;
 use winit::window::Window;
@@ -35,7 +35,7 @@ pub struct RealTimeState {
 
     pub mouse_pressed: bool,
     pub gui: Gui,
-    pub repaint_signal: std::sync::Arc<ExampleRepaintSignal>,
+    pub repaint_signal: std::sync::Arc<GuiRepaintSignal>,
     pub audio_stream_handle: rodio::Sink,
 }
 
@@ -43,7 +43,7 @@ impl RealTimeState {
     pub fn init(
         window: &Window,
         config: &mut Config,
-        repaint_signal: std::sync::Arc<ExampleRepaintSignal>,
+        repaint_signal: std::sync::Arc<GuiRepaintSignal>,
         audio_stream_handle: rodio::Sink,
         av: &AudioVisual,
     ) -> Result<RealTimeState, Error> {

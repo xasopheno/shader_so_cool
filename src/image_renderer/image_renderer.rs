@@ -1,15 +1,9 @@
-use crate::Config;
-
 use super::image_render::ImageRender;
 use super::image_texture::ImageTexture;
 
 pub struct ImageRenderer {
+    // TODO: What else should this do?
     pub image_render: ImageRender,
-    // pub surface: wgpu::Surface,
-    // pub device: wgpu::Device,
-    // pub queue: wgpu::Queue,
-    // pub config: wgpu::SurfaceConfiguration,
-    // pub size: winit::dpi::PhysicalSize<u32>,
 }
 
 impl ImageRenderer {
