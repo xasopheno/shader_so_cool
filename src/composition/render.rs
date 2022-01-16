@@ -70,6 +70,10 @@ impl Composition {
             let accumulation = n > 0 || self.toy.is_some();
             renderpass.render(encoder, &view, &self.config, accumulation);
         }
+
+        if let Some(glyphy) = &mut self.glyphy {
+            glyphy.render(device, queue, size, view, false)
+        }
     }
 
     pub fn update(

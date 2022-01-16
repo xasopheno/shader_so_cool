@@ -1,6 +1,6 @@
 pub mod render;
 use crate::{
-    camera::Camera, canvas::Canvas, config::Config, image_renderer::ImageRenderer,
+    camera::Camera, canvas::Canvas, config::Config, glyphy::Glyphy, image_renderer::ImageRenderer,
     shared::RenderPassInput, toy::Toy,
 };
 
@@ -10,6 +10,7 @@ pub struct Composition {
     pub camera: Camera,
     pub toy: Option<Toy>,
     pub image_renderer: Option<ImageRenderer>,
+    pub glyphy: Option<Glyphy>,
     pub config: Config,
 }
 

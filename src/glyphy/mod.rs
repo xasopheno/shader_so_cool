@@ -139,7 +139,7 @@ impl Glyphy {
 
         let mut offset_y = 0.0;
         let mut offset_x = 0.0;
-        let scale = 35.0;
+        let scale = 40.0;
 
         let texts = vec![
             ("a", vec!["#dd1133", "#122333"]),

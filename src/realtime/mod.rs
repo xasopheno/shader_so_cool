@@ -5,6 +5,7 @@ mod resize;
 pub mod setup;
 
 use crate::canvas::Canvas;
+use crate::glyphy::Glyphy;
 use crate::image_renderer::ImageRenderer;
 use crate::shader::make_shader;
 use crate::{composition::Composition, op_stream::renderpasses::make_renderpasses};
@@ -82,6 +83,9 @@ impl RealTimeState {
             wgpu::TextureFormat::Bgra8UnormSrgb,
         ));
 
+        let glyphy = Glyphy::init(&device, wgpu::TextureFormat::Bgra8UnormSrgb)
+            .expect("Unable to setup Glyphy");
+
         Ok(Self {
             device,
             queue,
@@ -89,6 +93,7 @@ impl RealTimeState {
             clock: RenderClock::init(&config),
             count: 0,
             composition: Composition {
+                glyphy: Some(glyphy),
                 config: config.clone(),
                 camera: crate::camera::Camera::new(&config.cameras[0], size, &config, 0),
                 renderpasses,
