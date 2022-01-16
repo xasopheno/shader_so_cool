@@ -5,6 +5,8 @@ use wgpu_glyph::{
     GlyphBrush, GlyphBrushBuilder, Section, Text,
 };
 
+use crate::NamedValue;
+
 pub struct Glyphy {
     staging_belt: wgpu::util::StagingBelt,
     local_pool: futures::executor::LocalPool,
@@ -12,17 +14,18 @@ pub struct Glyphy {
     brush: GlyphBrush<()>,
 }
 
-pub struct TextRenderable<'a> {
-    pub text: &'a str,
-    pub color: Vec<&'a str>,
+type TextRenderable<'a> = NamedValue<'a, Vec<&'a str>>;
+
+fn assert_vec_equal<T>(va: &[T], vb: &[T])
+where
+    T: PartialEq + std::fmt::Debug,
+{
+    assert_eq!(va.len(), vb.len());
+    va.iter().zip(vb).for_each(|(a, b)| assert_eq!(*a, *b));
 }
 
 pub fn max_len_text_in_vec_text_renderable(v: &Vec<TextRenderable>) -> usize {
-    v.iter().map(|r| r.text.len()).max().unwrap()
-}
-
-impl<'a> TextRenderable<'a> {
-    pub fn to_string(&self) {}
+    v.iter().map(|r| r.0.len()).max().unwrap()
 }
 
 pub fn hex_str_to_rgba<'a>(s: &'a str) -> [f32; 4] {
@@ -106,7 +109,7 @@ impl Glyphy {
 
     pub fn render<'a>(
         &mut self,
-        texts: Vec<TextRenderable>,
+        // texts: Vec<TextRenderable>,
         device: &wgpu::Device,
         queue: &wgpu::Queue,
         size: (u32, u32),
@@ -146,6 +149,11 @@ impl Glyphy {
         let mut offset_x = 0.0;
         let scale = 35.0;
 
+        let texts = vec![
+            ("a", vec!["#dd1133", "#122333"]),
+            ("b", vec!["#5a38ff", "#4a3112"]),
+        ];
+
         for text in texts.iter().rev() {
             self.brush.queue(Section {
                 screen_position: (
@@ -153,7 +161,7 @@ impl Glyphy {
                     size.1 as f32 - (scale * texts.len() as f32 + offset_y),
                 ),
                 bounds: (size.0 as f32, size.1 as f32),
-                text: vec![Text::new(&format!("{}:", text.text))
+                text: vec![Text::new(&format!("{}:", text.0))
                     .with_color(hex_str_to_normalized_rgba("#dedede"))
                     .with_scale(scale)],
                 ..Section::default()
@@ -167,7 +175,7 @@ impl Glyphy {
         offset_y = 0.0;
 
         for text in texts.iter().rev() {
-            for color in text.color.iter() {
+            for color in text.1.iter() {
                 self.brush.queue(Section {
                     screen_position: (
                         scale + offset_x,

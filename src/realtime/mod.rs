@@ -1,5 +1,6 @@
 mod input;
 pub mod render;
+pub mod render_gui;
 mod resize;
 pub mod setup;
 

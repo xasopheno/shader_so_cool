@@ -68,62 +68,9 @@ impl RealTimeState {
             &view,
         );
 
-        // // //TODO: Move to another file
-        self.gui.platform.begin_frame();
-        let previous_frame_time = self.clock.current().last_period;
-        let mut app_output = kintaro_egui_lib::epi::backend::AppOutput::default();
+        self.render_gui(window, &mut encoder, &view);
 
-        let mut frame =
-            kintaro_egui_lib::epi::Frame::new(kintaro_egui_lib::epi::backend::FrameData {
-                info: kintaro_egui_lib::epi::IntegrationInfo {
-                    name: "egui integration info",
-                    web_info: None,
-                    cpu_usage: Some(previous_frame_time),
-                    native_pixels_per_point: Some(window.scale_factor() as _),
-                    prefer_dark_mode: None,
-                },
-                // tex_allocator: &mut self.gui.renderpass,
-                output: app_output,
-                repaint_signal: self.repaint_signal.clone(),
-            });
-
-        self.gui
-            .app
-            .update(&self.gui.platform.context(), &mut frame);
-
-        // End the UI frame. We could now handle the output and draw the UI with the backend.
-        let (_output, paint_commands) = self.gui.platform.end_frame(Some(window));
-        let paint_jobs = self.gui.platform.context().tessellate(paint_commands);
-
-        // Upload all resources for the GPU.
-        let screen_descriptor = ScreenDescriptor {
-            physical_width: self.size.0,
-            physical_height: self.size.1,
-            scale_factor: window.scale_factor() as f32,
-        };
-        self.gui.renderpass.update_texture(
-            &self.device,
-            &self.queue,
-            &self.gui.platform.context().texture(),
-        );
-        self.gui
-            .renderpass
-            .update_user_textures(&self.device, &self.queue);
-
-        self.gui.renderpass.update_buffers(
-            &mut self.device,
-            &mut self.queue,
-            &paint_jobs,
-            &screen_descriptor,
-        );
-
-        // Record all render passes.
-        self.gui
-            .renderpass
-            .execute(&mut encoder, &view, &paint_jobs, &screen_descriptor, None)
-            .unwrap();
-
-        // // Submit the commands.
+        // Submit the commands.
         self.queue.submit(Some(encoder.finish()));
         the_frame.present();
 
