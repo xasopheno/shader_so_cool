@@ -14,8 +14,6 @@ use winit::dpi::PhysicalSize;
 use winit::window::Fullscreen;
 use winit::{event::*, event_loop::ControlFlow, window::WindowBuilder};
 
-use futures::executor::block_on;
-
 pub fn run(filename: &str, config: Config<'static>) -> Result<(), Error> {
     println!("preparing for audiovisualization: {}", &filename);
     let av = get_audiovisual_data(filename)?;
@@ -61,9 +59,10 @@ fn get_audiovisual_data(filename: &str) -> Result<AudioVisual, Error> {
 }
 
 fn print(mut config: Config<'static>, av: &AudioVisual, n_frames: usize) -> Result<(), Error> {
-    let mut state = block_on(PrintState::init(&mut config, av))?;
+    let mut state = async_std::task::block_on(PrintState::init(&mut config, av))?;
     for i in 0..n_frames {
-        block_on(state.render()).expect(format!("Unable to render frame: {}", i).as_str());
+        async_std::task::block_on(state.render())
+            .expect(format!("Unable to render frame: {}", i).as_str());
     }
     Ok(())
 }
