@@ -77,11 +77,11 @@ impl<'a> RealTimeState<'a> {
             wgpu::TextureFormat::Bgra8UnormSrgb,
         );
 
-        let image_renderer = pollster::block_on(ImageRenderer::new(
-            &device,
-            &queue,
-            wgpu::TextureFormat::Bgra8UnormSrgb,
-        ));
+        // let image_renderer = pollster::block_on(ImageRenderer::new(
+        // &device,
+        // &queue,
+        // wgpu::TextureFormat::Bgra8UnormSrgb,
+        // ));
 
         let glyphy = if let Some(t) = &config.text {
             Some(
@@ -105,7 +105,8 @@ impl<'a> RealTimeState<'a> {
                 renderpasses,
                 toy: Some(toy),
                 canvas: Canvas::init(size),
-                image_renderer: Some(image_renderer),
+                // image_renderer: Some(image_renderer),
+                image_renderer: None,
             },
             surface,
             gui,

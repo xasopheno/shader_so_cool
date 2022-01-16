@@ -66,15 +66,15 @@ impl<'a> PrintState<'a> {
             texture_desc.format,
         );
 
-        let image_renderer = pollster::block_on(ImageRenderer::new(
-            &device,
-            &queue,
-            wgpu::TextureFormat::Bgra8UnormSrgb,
-        ));
+        // let image_renderer = pollster::block_on(ImageRenderer::new(
+        // &device,
+        // &queue,
+        // wgpu::TextureFormat::Bgra8UnormSrgb,
+        // ));
 
         let glyphy = if let Some(t) = &config.text {
             Some(
-                Glyphy::init(&device, wgpu::TextureFormat::Bgra8UnormSrgb, t.to_owned())
+                Glyphy::init(&device, wgpu::TextureFormat::Rgba8UnormSrgb, t.to_owned())
                     .expect("Unable to setup Glyphy"),
             )
         } else {
@@ -90,7 +90,8 @@ impl<'a> PrintState<'a> {
 
             composition: Composition {
                 glyphy,
-                image_renderer: Some(image_renderer),
+                // image_renderer: Some(image_renderer),
+                image_renderer: None,
                 config: config.clone(),
                 camera: crate::camera::Camera::new(&config.cameras[0], size, &config, 0),
                 renderpasses,
