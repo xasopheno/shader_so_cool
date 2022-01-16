@@ -103,7 +103,7 @@ impl ControlsInner {
             });
             ui.vertical(|ui| {
                 ui.label("x:");
-                if ui.add(egui::Slider::new(&mut x, 0.0..=100.0)).changed() {
+                if ui.add(egui::Slider::new(&mut x, 0.0..=200.0)).changed() {
                     s.instance_mul.x = x
                 };
                 ui.end_row();

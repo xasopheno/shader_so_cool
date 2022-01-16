@@ -26,6 +26,7 @@ pub fn run(filename: &str, config: Config<'static>) -> Result<(), Error> {
     if print_it {
         println!("****PRINTING****");
         let n_frames = (av.length * 40.0).floor() as usize + 100;
+        println!("n_frames: {n_frames}");
         print(config, &av, n_frames)?;
         write_audio_to_file(
             &av.audio.as_slice(),
