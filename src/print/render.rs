@@ -18,7 +18,7 @@ impl PrintState {
         self.composition.render(
             &self.device,
             &self.queue,
-            &mut encoder,
+            // &mut encoder,
             self.size,
             &self.clock,
             self.composition.config.instance_mul,

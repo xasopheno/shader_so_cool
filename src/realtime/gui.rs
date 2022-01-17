@@ -44,9 +44,15 @@ impl RealTimeState {
     pub fn render_gui(
         &mut self,
         window: &winit::window::Window,
-        encoder: &mut wgpu::CommandEncoder,
+        // encoder: &mut wgpu::CommandEncoder,
         view: &TextureView,
     ) {
+        let mut encoder = self
+            .device
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                label: Some("RenderPassInput Command Encoder"),
+            });
+
         self.gui.platform.begin_frame();
         let previous_frame_time = self.clock.current().last_period;
         let app_output = kintaro_egui_lib::epi::backend::AppOutput::default();
@@ -98,8 +104,10 @@ impl RealTimeState {
         // Record all render passes.
         self.gui
             .renderpass
-            .execute(encoder, &view, &paint_jobs, &screen_descriptor, None)
+            .execute(&mut encoder, &view, &paint_jobs, &screen_descriptor, None)
             .unwrap();
+
+        self.queue.submit(Some(encoder.finish()));
     }
 
     pub fn update_gui(&mut self) {

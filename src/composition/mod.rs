@@ -8,9 +8,9 @@ pub struct Composition {
     pub renderpasses: Vec<RenderPassInput>,
     pub canvas: Canvas,
     pub camera: Camera,
-    pub toy: Option<Toy>,
-    pub image_renderer: Option<ImageRenderer>,
-    pub glyphy: Option<Glyphy>,
+    pub toy: Toy,
+    pub image_renderer: ImageRenderer,
+    pub glyphy: Glyphy,
     pub config: Config<'static>,
 }
 

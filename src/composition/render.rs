@@ -4,7 +4,6 @@ use crate::instance::instancer::{op4d_to_instance, prepare_op4d_to_instancer_inp
 use crate::instance::{make_instance_buffer, Instance};
 use crate::renderable::{Renderable, RenderableInput};
 use crate::shared::RenderPassInput;
-// use crate::toy::toy_renderpass;
 use crate::vertex::make_vertex_buffer;
 use kintaro_egui_lib::InstanceMul;
 use wgpu::TextureView;
@@ -18,7 +17,6 @@ impl Composition {
         &mut self,
         device: &wgpu::Device,
         queue: &wgpu::Queue,
-        encoder: &mut wgpu::CommandEncoder,
         size: (u32, u32),
         clock: &impl Clock,
         instance_mul: InstanceMul,
@@ -47,7 +45,7 @@ impl Composition {
             is_playing: false,
             device,
             queue,
-            encoder,
+            // encoder,
             view,
             config: &self.config,
             size,
@@ -57,35 +55,17 @@ impl Composition {
             clear: false,
         };
 
-        let renderables: Vec<Box<dyn Renderable>> = vec![
-            Box::new(self.image_renderer),
-            Box::new(self.toy),
-            Box::new(self.renderpasses),
+        let mut renderables: Vec<Box<&mut dyn Renderable>> = vec![
+            Box::new(&mut self.image_renderer),
+            Box::new(&mut self.toy),
+            Box::new(&mut self.renderpasses),
         ];
 
-        if let Some(image_renderer) = &mut self.image_renderer {
-            image_renderer
-                .render(device, queue, view)
-                .expect("ImageRenderer error");
+        for renderable in renderables.iter_mut() {
+            renderable.render_pass(&render_input).unwrap();
         }
 
-        if let Some(toy) = &mut self.toy {
-            toy.toy_renderpass(true, device, queue, &view, size, time.total_elapsed, false)
-                .expect("toy error");
-        }
-
-        for (n, renderpass) in self.renderpasses.iter_mut().enumerate() {
-            renderpass
-                .uniforms
-                .update_view_proj(view_position, view_proj);
-
-            let accumulation = n > 0 || self.toy.is_some();
-            renderpass.render(encoder, &view, &self.config, accumulation);
-        }
-
-        if let Some(glyphy) = &mut self.glyphy {
-            glyphy.render(device, queue, size, view, false)
-        }
+        self.glyphy.render(device, queue, size, view, false)
     }
 
     pub fn update(

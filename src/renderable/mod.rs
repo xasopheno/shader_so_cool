@@ -4,7 +4,7 @@ pub struct RenderableInput<'a> {
     pub is_playing: bool,
     pub device: &'a wgpu::Device,
     pub queue: &'a wgpu::Queue,
-    pub encoder: &'a mut wgpu::CommandEncoder,
+    // pub encoder: &'a mut wgpu::CommandEncoder,
     pub view: &'a wgpu::TextureView,
     pub config: &'a Config<'a>,
     pub size: (u32, u32),
@@ -13,12 +13,13 @@ pub struct RenderableInput<'a> {
     pub view_proj: [[f32; 4]; 4],
     pub clear: bool,
 }
-pub trait Renderable {
-    fn render_pass<'a>(&mut self, input: RenderableInput<'a>) -> Result<(), wgpu::SurfaceError>;
+
+pub trait Renderable<'a> {
+    fn render_pass(&mut self, input: &'a RenderableInput) -> Result<(), wgpu::SurfaceError>;
 }
 
-impl Renderable for Toy {
-    fn render_pass<'a>(&mut self, input: RenderableInput<'a>) -> Result<(), wgpu::SurfaceError> {
+impl<'a> Renderable<'a> for Toy {
+    fn render_pass(&mut self, input: &'a RenderableInput) -> Result<(), wgpu::SurfaceError> {
         self.toy_renderpass(
             input.is_playing,
             input.device,
@@ -31,21 +32,28 @@ impl Renderable for Toy {
     }
 }
 
-impl Renderable for ImageRenderer {
-    fn render_pass<'a>(&mut self, input: RenderableInput<'a>) -> Result<(), wgpu::SurfaceError> {
+impl<'a> Renderable<'a> for ImageRenderer {
+    fn render_pass(&mut self, input: &'a RenderableInput) -> Result<(), wgpu::SurfaceError> {
         self.render(input.device, input.queue, input.view)
     }
 }
 
-impl<'a> Renderable for Vec<RenderPassInput> {
-    fn render_pass(&mut self, input: RenderableInput) -> Result<(), wgpu::SurfaceError> {
+impl<'a> Renderable<'a> for Vec<RenderPassInput> {
+    fn render_pass(&mut self, input: &'a RenderableInput) -> Result<(), wgpu::SurfaceError> {
+        let mut encoder = input
+            .device
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                label: Some("RenderPassInput Command Encoder"),
+            });
         for renderpass in self.iter_mut() {
             renderpass
                 .uniforms
                 .update_view_proj(input.view_position, input.view_proj);
 
-            renderpass.render(input.encoder, input.view, input.config, !input.clear);
+            renderpass.render(&mut encoder, input.view, input.config, !input.clear);
         }
+
+        input.queue.submit(Some(encoder.finish()));
 
         Ok(())
     }

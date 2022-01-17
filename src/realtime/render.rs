@@ -16,26 +16,22 @@ impl RealTimeState {
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
 
-        let mut encoder = self
-            .device
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                label: Some("Command Encoder"),
-            });
-
         self.composition.render(
             &self.device,
             &self.queue,
-            &mut encoder,
+            // &mut encoder,
             self.size,
             &self.clock,
             self.gui.state.lock().unwrap().instance_mul,
             &view,
         );
 
-        self.render_gui(window, &mut encoder, &view);
+        self.render_gui(
+            window, // &mut encoder,
+            &view,
+        );
 
         // Submit the commands.
-        self.queue.submit(Some(encoder.finish()));
         the_frame.present();
 
         self.update_gui();

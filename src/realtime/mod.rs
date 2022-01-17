@@ -77,20 +77,18 @@ impl<'a> RealTimeState {
             wgpu::TextureFormat::Bgra8UnormSrgb,
         );
 
-        // let image_renderer = pollster::block_on(ImageRenderer::new(
-        // &device,
-        // &queue,
-        // wgpu::TextureFormat::Bgra8UnormSrgb,
-        // ));
+        let image_renderer = pollster::block_on(ImageRenderer::new(
+            &device,
+            &queue,
+            wgpu::TextureFormat::Bgra8UnormSrgb,
+        ));
 
-        let glyphy = if let Some(t) = &config.text {
-            Some(
-                Glyphy::init(&device, wgpu::TextureFormat::Bgra8UnormSrgb, t.to_owned())
-                    .expect("Unable to setup Glyphy"),
-            )
-        } else {
-            None
-        };
+        let glyphy = Glyphy::init(
+            &device,
+            wgpu::TextureFormat::Bgra8UnormSrgb,
+            config.text.as_ref().unwrap().to_vec(),
+        )
+        .expect("Unable to setup Glyphy");
 
         Ok(Self {
             device,
@@ -103,10 +101,9 @@ impl<'a> RealTimeState {
                 config: config.clone(),
                 camera: crate::camera::Camera::new(&config.cameras[0], size, &config, 0),
                 renderpasses,
-                toy: Some(toy),
+                toy,
                 canvas: Canvas::init(size),
-                // image_renderer: Some(image_renderer),
-                image_renderer: None,
+                image_renderer,
             },
             surface,
             gui,

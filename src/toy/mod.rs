@@ -50,7 +50,7 @@ impl Toy {
         clear: bool,
     ) -> Result<(), wgpu::SurfaceError> {
         let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-            label: Some("Render Encoder"),
+            label: Some("Toy Command Encoder"),
         });
 
         // if is_playing {
