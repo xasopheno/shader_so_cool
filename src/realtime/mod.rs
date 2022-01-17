@@ -23,8 +23,8 @@ use winit::window::Window;
 
 use self::setup::Gui;
 
-pub struct RealTimeState<'a> {
-    pub composition: Composition<'a>,
+pub struct RealTimeState {
+    pub composition: Composition,
 
     pub clock: RenderClock,
     pub count: u32,
@@ -40,14 +40,14 @@ pub struct RealTimeState<'a> {
     pub audio_stream_handle: rodio::Sink,
 }
 
-impl<'a> RealTimeState<'a> {
+impl<'a> RealTimeState {
     pub fn init(
         window: &Window,
         config: &mut Config<'static>,
         repaint_signal: std::sync::Arc<GuiRepaintSignal>,
         audio_stream_handle: rodio::Sink,
         av: &AudioVisual,
-    ) -> Result<RealTimeState<'a>, Error> {
+    ) -> Result<RealTimeState, Error> {
         let size = (config.window_size.0, config.window_size.1);
         println!("{}/{}", size.0, size.1);
         let Setup {

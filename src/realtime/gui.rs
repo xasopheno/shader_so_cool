@@ -16,7 +16,7 @@ impl kintaro_egui_lib::epi::backend::RepaintSignal for GuiRepaintSignal {
     }
 }
 
-impl RealTimeState<'_> {
+impl RealTimeState {
     pub fn handle_save(&mut self) {
         {
             let mut state = self.gui.state.lock().unwrap();

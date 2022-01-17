@@ -4,8 +4,8 @@ mod write;
 use crate::clock::PrintClock;
 use crate::composition::Composition;
 
-pub struct PrintState<'a> {
-    pub composition: Composition<'a>,
+pub struct PrintState {
+    pub composition: Composition,
 
     pub clock: PrintClock,
     pub count: u32,

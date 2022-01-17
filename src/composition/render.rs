@@ -2,6 +2,7 @@ use crate::clock::ClockResult;
 use crate::composition::Canvas;
 use crate::instance::instancer::{op4d_to_instance, prepare_op4d_to_instancer_input, Instancer};
 use crate::instance::{make_instance_buffer, Instance};
+use crate::renderable::{Renderable, RenderableInput};
 use crate::shared::RenderPassInput;
 // use crate::toy::toy_renderpass;
 use crate::vertex::make_vertex_buffer;
@@ -12,7 +13,7 @@ use crate::clock::Clock;
 
 use super::Composition;
 
-impl<'a> Composition<'a> {
+impl Composition {
     pub fn render(
         &mut self,
         device: &wgpu::Device,
@@ -41,6 +42,26 @@ impl<'a> Composition<'a> {
                 instance_mul,
             );
         }
+
+        let render_input = RenderableInput {
+            is_playing: false,
+            device,
+            queue,
+            encoder,
+            view,
+            config: &self.config,
+            size,
+            total_elapsed: time.total_elapsed,
+            view_position,
+            view_proj,
+            clear: false,
+        };
+
+        let renderables: Vec<Box<dyn Renderable>> = vec![
+            Box::new(self.image_renderer),
+            Box::new(self.toy),
+            Box::new(self.renderpasses),
+        ];
 
         if let Some(image_renderer) = &mut self.image_renderer {
             image_renderer
