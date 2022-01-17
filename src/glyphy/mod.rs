@@ -145,7 +145,7 @@ impl Glyphy {
 
         let mut offset_y = 0.0;
         let mut offset_x = 0.0;
-        let scale = 20.0;
+        let scale = 35.0;
 
         for text in self.text.iter().rev() {
             self.brush.queue(Section {

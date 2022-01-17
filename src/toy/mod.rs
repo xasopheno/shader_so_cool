@@ -42,7 +42,6 @@ impl Toy {
     pub fn toy_renderpass(
         &mut self,
         _is_playing: bool,
-        // toy: &mut Toy,
         device: &wgpu::Device,
         queue: &wgpu::Queue,
         view: &wgpu::TextureView,
