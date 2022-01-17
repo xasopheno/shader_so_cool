@@ -13,6 +13,7 @@ pub mod instance;
 pub mod op_stream;
 pub mod print;
 pub mod realtime;
+pub mod renderable;
 pub mod save;
 pub mod shader;
 pub mod shared;
