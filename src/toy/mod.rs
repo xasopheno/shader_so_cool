@@ -38,59 +38,62 @@ pub fn setup_toy(
     }
 }
 
-pub fn toy_renderpass(
-    _is_playing: bool,
-    toy: &mut Toy,
-    device: &wgpu::Device,
-    queue: &wgpu::Queue,
-    view: &wgpu::TextureView,
-    size: (u32, u32),
-    total_elapsed: f32,
-    clear: bool,
-) -> Result<(), wgpu::SurfaceError> {
-    let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-        label: Some("Render Encoder"),
-    });
-
-    // if is_playing {
-    toy.uniforms
-        .update_uniforms((size.0, size.1), total_elapsed);
-    queue.write_buffer(
-        &toy.uniform_buffer,
-        0,
-        bytemuck::cast_slice(&[toy.uniforms]),
-    );
-    // }
-    {
-        let clear_color = wgpu::Color {
-            r: 0.0,
-            g: 0.0,
-            b: 0.0,
-            a: 1.0,
-        };
-
-        let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-            label: None,
-            color_attachments: &[wgpu::RenderPassColorAttachment {
-                view: &view,
-                resolve_target: None,
-                ops: wgpu::Operations {
-                    load: if clear {
-                        wgpu::LoadOp::Clear(clear_color)
-                    } else {
-                        wgpu::LoadOp::Load
-                    },
-                    store: true,
-                },
-            }],
-            depth_stencil_attachment: None,
+impl Toy {
+    pub fn toy_renderpass(
+        &mut self,
+        _is_playing: bool,
+        // toy: &mut Toy,
+        device: &wgpu::Device,
+        queue: &wgpu::Queue,
+        view: &wgpu::TextureView,
+        size: (u32, u32),
+        total_elapsed: f32,
+        clear: bool,
+    ) -> Result<(), wgpu::SurfaceError> {
+        let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some("Render Encoder"),
         });
 
-        rpass.set_pipeline(&toy.render_pipeline);
-        rpass.set_bind_group(0, &toy.uniform_bind_group, &[]);
-        rpass.draw(0..3, 0..1);
-    }
+        // if is_playing {
+        self.uniforms
+            .update_uniforms((size.0, size.1), total_elapsed);
+        queue.write_buffer(
+            &self.uniform_buffer,
+            0,
+            bytemuck::cast_slice(&[self.uniforms]),
+        );
+        // }
+        {
+            let clear_color = wgpu::Color {
+                r: 0.0,
+                g: 0.0,
+                b: 0.0,
+                a: 1.0,
+            };
 
-    queue.submit(Some(encoder.finish()));
-    Ok(())
+            let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+                label: None,
+                color_attachments: &[wgpu::RenderPassColorAttachment {
+                    view: &view,
+                    resolve_target: None,
+                    ops: wgpu::Operations {
+                        load: if clear {
+                            wgpu::LoadOp::Clear(clear_color)
+                        } else {
+                            wgpu::LoadOp::Load
+                        },
+                        store: true,
+                    },
+                }],
+                depth_stencil_attachment: None,
+            });
+
+            rpass.set_pipeline(&self.render_pipeline);
+            rpass.set_bind_group(0, &self.uniform_bind_group, &[]);
+            rpass.draw(0..3, 0..1);
+        }
+
+        queue.submit(Some(encoder.finish()));
+        Ok(())
+    }
 }

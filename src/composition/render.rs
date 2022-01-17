@@ -3,7 +3,7 @@ use crate::composition::Canvas;
 use crate::instance::instancer::{op4d_to_instance, prepare_op4d_to_instancer_input, Instancer};
 use crate::instance::{make_instance_buffer, Instance};
 use crate::shared::RenderPassInput;
-use crate::toy::toy_renderpass;
+// use crate::toy::toy_renderpass;
 use crate::vertex::make_vertex_buffer;
 use kintaro_egui_lib::InstanceMul;
 use wgpu::TextureView;
@@ -49,17 +49,8 @@ impl<'a> Composition<'a> {
         }
 
         if let Some(toy) = &mut self.toy {
-            toy_renderpass(
-                true,
-                toy,
-                device,
-                queue,
-                &view,
-                size,
-                time.total_elapsed,
-                false,
-            )
-            .expect("toy error");
+            toy.toy_renderpass(true, device, queue, &view, size, time.total_elapsed, false)
+                .expect("toy error");
         }
 
         for (n, renderpass) in self.renderpasses.iter_mut().enumerate() {

@@ -14,4 +14,18 @@ pub struct Composition<'a> {
     pub config: Config<'a>,
 }
 
+pub trait Renderable {
+    fn render_pass(
+        _is_playing: bool,
+        toy: &mut Toy,
+        device: &wgpu::Device,
+        queue: &wgpu::Queue,
+        view: &wgpu::TextureView,
+        size: (u32, u32),
+        total_elapsed: f32,
+        clear: bool,
+    ) {
+    }
+}
+
 // impl Composition {}
