@@ -1,10 +1,4 @@
-use crate::clock::ClockResult;
-use crate::composition::Canvas;
-use crate::instance::instancer::{op4d_to_instance, prepare_op4d_to_instancer_input, Instancer};
-use crate::instance::{make_instance_buffer, Instance};
 use crate::renderable::{Renderable, RenderableInput};
-use crate::shared::RenderPassInput;
-use crate::vertex::make_vertex_buffer;
 use kintaro_egui_lib::InstanceMul;
 use wgpu::TextureView;
 
@@ -47,13 +41,12 @@ impl Composition {
             Box::new(&mut self.image_renderer),
             Box::new(&mut self.toy),
             Box::new(&mut self.renderpasses),
+            Box::new(&mut self.glyphy),
         ];
 
         for renderable in renderables.iter_mut() {
             renderable.update(&render_input).unwrap();
             renderable.render_pass(&render_input).unwrap();
         }
-
-        self.glyphy.render(device, queue, size, view, false)
     }
 }
