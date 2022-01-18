@@ -1,6 +1,7 @@
 use kintaro_egui_lib::InstanceMul;
 
 use crate::{
+    canvas::Canvas,
     clock::{Clock, ClockResult},
     image_renderer::ImageRenderer,
     shared::RenderPassInput,
@@ -14,6 +15,7 @@ pub struct RenderableInput<'a> {
     pub clock_result: ClockResult,
     pub view: &'a wgpu::TextureView,
     pub config: &'a Config<'a>,
+    pub canvas: &'a Canvas,
     pub size: (u32, u32),
     pub view_position: [f32; 4],
     pub view_proj: [[f32; 4]; 4],
@@ -55,6 +57,19 @@ impl<'a> Renderable<'a> for ImageRenderer {
 
 impl<'a> Renderable<'a> for Vec<RenderPassInput> {
     fn update(&mut self, input: &'a RenderableInput) -> Result<(), wgpu::SurfaceError> {
+        for (idx, renderpass) in self.iter_mut().enumerate() {
+            renderpass.update(
+                idx,
+                input.clock_result,
+                input.canvas,
+                input.device,
+                input.queue,
+                input.config,
+                input.size,
+                input.instance_mul,
+            );
+        }
+
         Ok(())
     }
 
