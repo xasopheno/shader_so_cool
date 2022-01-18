@@ -5,6 +5,7 @@ pub struct ClockResult {
     pub total_elapsed: f32,
     pub last_period: f32,
     pub frame_count: u32,
+    pub is_playing: bool,
 }
 
 pub trait Clock {
@@ -25,9 +26,9 @@ pub struct PrintClock {
 }
 
 pub struct RenderClock {
-    pub total_elapsed: std::time::Duration,
     last_render_time: std::time::Instant,
     last_period: std::time::Duration,
+    pub total_elapsed: std::time::Duration,
     pub frame_count: u32,
     pub playing: bool,
 }
@@ -58,6 +59,7 @@ impl Clock for RenderClock {
             last_period: self.last_period.as_secs_f32(),
             total_elapsed: self.total_elapsed.as_secs_f32(),
             frame_count: self.frame_count,
+            is_playing: self.playing,
         }
     }
 
@@ -100,6 +102,7 @@ impl Clock for PrintClock {
             last_period: self.rate.as_secs_f32(),
             total_elapsed: self.time_elapsed.as_secs_f32(),
             frame_count: self.frame_count,
+            is_playing: self.playing,
         }
     }
 

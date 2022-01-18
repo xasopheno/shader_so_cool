@@ -22,36 +22,27 @@ impl Composition {
         instance_mul: InstanceMul,
         view: &TextureView,
     ) {
-        let time = clock.current();
-        self.camera.update(time.last_period);
+        let clock_result = clock.current();
+        self.camera.update(clock_result.last_period);
 
         let view_position: [f32; 4] = self.camera.position.to_homogeneous().into();
         let view_proj: [[f32; 4]; 4] =
             (self.camera.projection.calc_matrix() * self.camera.calc_matrix()).into();
 
         for idx in 0..self.renderpasses.len() {
-            self.update(
-                clock.is_playing(),
-                time,
-                idx,
-                device,
-                queue,
-                size,
-                instance_mul,
-            );
+            self.update(idx, clock_result, device, queue, size, instance_mul);
         }
 
         let render_input = RenderableInput {
-            is_playing: false,
             device,
             queue,
-            // encoder,
             view,
+            clock_result,
             config: &self.config,
             size,
-            total_elapsed: time.total_elapsed,
             view_position,
             view_proj,
+            instance_mul,
             clear: false,
         };
 
@@ -62,6 +53,7 @@ impl Composition {
         ];
 
         for renderable in renderables.iter_mut() {
+            renderable.update(&render_input);
             renderable.render_pass(&render_input).unwrap();
         }
 
@@ -70,24 +62,23 @@ impl Composition {
 
     pub fn update(
         &mut self,
-        is_playing: bool,
-        time: ClockResult,
         idx: usize,
+        clock_result: ClockResult,
         device: &wgpu::Device,
         queue: &wgpu::Queue,
         size: (u32, u32),
         instance_mul: InstanceMul,
     ) {
-        if time.frame_count % 1000 == 0 {
+        if clock_result.frame_count % 1000 == 0 {
             // renderpass.vertices = renderpass.shape.gen().vertices;
             // self.clear_color = crate::helpers::new_random_clear_color();
         }
         self.renderpasses[idx].vertex_buffer =
             make_vertex_buffer(device, self.renderpasses[idx].vertices.as_slice());
 
-        if is_playing {
+        if clock_result.is_playing {
             update_instances(
-                &time,
+                &clock_result,
                 &mut self.renderpasses[idx],
                 &self.canvas,
                 device,
@@ -106,7 +97,7 @@ impl Composition {
 }
 
 fn update_instances(
-    time: &ClockResult,
+    clock_result: &ClockResult,
     renderpass: &mut RenderPassInput,
     canvas: &Canvas,
     device: &wgpu::Device,
@@ -116,7 +107,7 @@ fn update_instances(
 ) {
     let mut new_instances: Vec<Instance> = renderpass
         .op_stream
-        .get_batch(time.total_elapsed)
+        .get_batch(clock_result.total_elapsed)
         .into_iter()
         .map(|op| {
             let input = prepare_op4d_to_instancer_input(&mul, &op);
@@ -129,7 +120,7 @@ fn update_instances(
     renderpass
         .instances
         .iter_mut()
-        .for_each(|i| instancer.update_instance(i, time.last_period));
+        .for_each(|i| instancer.update_instance(i, clock_result.last_period));
 
     renderpass.instances.retain(|i| i.life > 0.0);
     renderpass.instance_buffer =
