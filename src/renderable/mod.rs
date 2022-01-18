@@ -1,12 +1,8 @@
 use kintaro_egui_lib::InstanceMul;
 
 use crate::{
-    canvas::Canvas,
-    clock::{Clock, ClockResult},
-    image_renderer::ImageRenderer,
-    shared::RenderPassInput,
-    toy::Toy,
-    Config,
+    canvas::Canvas, clock::ClockResult, image_renderer::ImageRenderer, shared::RenderPassInput,
+    toy::Toy, Config,
 };
 
 pub struct RenderableInput<'a> {
@@ -24,8 +20,8 @@ pub struct RenderableInput<'a> {
 }
 
 pub trait Renderable<'a> {
-    fn render_pass(&mut self, input: &'a RenderableInput) -> Result<(), wgpu::SurfaceError>;
     fn update(&mut self, input: &'a RenderableInput) -> Result<(), wgpu::SurfaceError>;
+    fn render_pass(&mut self, input: &'a RenderableInput) -> Result<(), wgpu::SurfaceError>;
 }
 
 impl<'a> Renderable<'a> for Toy {
@@ -40,7 +36,7 @@ impl<'a> Renderable<'a> for Toy {
             input.clear,
         )
     }
-    fn update(&mut self, input: &'a RenderableInput) -> Result<(), wgpu::SurfaceError> {
+    fn update(&mut self, _input: &'a RenderableInput) -> Result<(), wgpu::SurfaceError> {
         Ok(())
     }
 }
@@ -50,7 +46,7 @@ impl<'a> Renderable<'a> for ImageRenderer {
         self.render(input.device, input.queue, input.view)
     }
 
-    fn update(&mut self, input: &'a RenderableInput) -> Result<(), wgpu::SurfaceError> {
+    fn update(&mut self, _input: &'a RenderableInput) -> Result<(), wgpu::SurfaceError> {
         Ok(())
     }
 }

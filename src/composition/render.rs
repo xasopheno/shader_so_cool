@@ -29,10 +29,6 @@ impl Composition {
         let view_proj: [[f32; 4]; 4] =
             (self.camera.projection.calc_matrix() * self.camera.calc_matrix()).into();
 
-        // for idx in 0..self.renderpasses.len() {
-        // self.update(idx, clock_result, device, queue, size, instance_mul);
-        // }
-
         let render_input = RenderableInput {
             device,
             queue,
@@ -60,39 +56,4 @@ impl Composition {
 
         self.glyphy.render(device, queue, size, view, false)
     }
-
-    // pub fn update(
-    // &mut self,
-    // idx: usize,
-    // clock_result: ClockResult,
-    // device: &wgpu::Device,
-    // queue: &wgpu::Queue,
-    // size: (u32, u32),
-    // instance_mul: InstanceMul,
-    // ) {
-    // if clock_result.frame_count % 1000 == 0 {
-    // // renderpass.vertices = renderpass.shape.gen().vertices;
-    // // self.clear_color = crate::helpers::new_random_clear_color();
-    // }
-    // self.renderpasses[idx].vertex_buffer =
-    // make_vertex_buffer(device, self.renderpasses[idx].vertices.as_slice());
-
-    // if clock_result.is_playing {
-    // update_instances(
-    // &clock_result,
-    // &mut self.renderpasses[idx],
-    // &self.canvas,
-    // device,
-    // &*self.config.instancer,
-    // size,
-    // instance_mul,
-    // );
-    // }
-    // // renderpass.vertices.iter_mut().for_each(|v| v.update());
-    // queue.write_buffer(
-    // &self.renderpasses[idx].uniform_buffer,
-    // 0,
-    // bytemuck::cast_slice(&[self.renderpasses[idx].uniforms]),
-    // );
-    // }
 }

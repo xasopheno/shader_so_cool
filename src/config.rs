@@ -8,6 +8,63 @@ use crate::vertex::shape::{RandIndex, RandPosition, Shape};
 #[allow(unused_imports)]
 use crate::{color_map_from_named_colorsets, ColorMap, ColorSets};
 
+pub struct ToyConfig {
+    shader: wgpu::ShaderModule
+    size: (u32, u32), 
+    texture_format: wgpu::TextureFormat
+}
+
+pub struct ImageRendererConfig {
+    image_path: String,
+    texture_format: wgpu::TextureFormat
+}
+
+pub struct GlyphyConfig {
+    text: String,
+    texture_format: wgpu::TextureFormat
+}
+
+pub struct EventStreamConfig {
+    socool_filename: String,
+    shader: wgpu::ShaderModule,
+    texture_format: wgpu::TextureFormat
+}
+
+fn layers() -> Result<(), weresocool::error::Error> {
+    // let instance_shader = make_shader(&device, &config.instance_shader)?;
+    // let toy_shader = make_shader(&device, &config.toy_shader)?;
+
+    // let toy = crate::toy::setup_toy(
+        // &device,
+        // toy_shader,
+        // size,
+        // wgpu::TextureFormat::Bgra8UnormSrgb,
+    // );
+
+    // let op_streams = crate::op_stream::OpStream::from_vec_op4d(av);
+
+    // let renderpasses = make_renderpasses(
+        // &device,
+        // op_streams,
+        // &instance_shader,
+        // config,
+        // wgpu::TextureFormat::Bgra8UnormSrgb,
+    // );
+
+    // let image_renderer = pollster::block_on(ImageRenderer::new(
+        // &device,
+        // &queue,
+        // wgpu::TextureFormat::Bgra8UnormSrgb,
+    // ));
+
+    // let glyphy = Glyphy::init(
+        // &device,
+        // wgpu::TextureFormat::Bgra8UnormSrgb,
+        // config.text.as_ref().unwrap().to_vec(),
+    // )
+    // .expect("Unable to setup Glyphy");
+}
+
 impl<'a> Default for Config<'a> {
     fn default() -> Self {
         pub fn named_colorsets<'a>() -> Vec<(&'a str, Vec<&'a str>)> {
