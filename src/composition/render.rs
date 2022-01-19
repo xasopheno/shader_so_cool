@@ -1,4 +1,4 @@
-use crate::renderable::{Renderable, RenderableInput};
+use crate::renderable::{Renderable, RenderableEnum, RenderableInput};
 use kintaro_egui_lib::InstanceMul;
 use wgpu::TextureView;
 
@@ -37,11 +37,11 @@ impl Composition {
             clear: false,
         };
 
-        let mut renderables: Vec<Box<&mut dyn Renderable>> = vec![
-            Box::new(&mut self.image_renderer),
-            Box::new(&mut self.toy),
-            Box::new(&mut self.renderpasses),
-            Box::new(&mut self.glyphy),
+        let mut renderables: Vec<RenderableEnum> = vec![
+            // RenderableEnum::ImageRenderer(self.image_renderer),
+            // Box::new(&mut self.toy),
+            // Box::new(&mut self.renderpasses),
+            // Box::new(&mut self.glyphy),
         ];
 
         for renderable in renderables.iter_mut() {
