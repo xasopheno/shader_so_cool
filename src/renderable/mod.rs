@@ -1,8 +1,9 @@
 use kintaro_egui_lib::InstanceMul;
 
 use crate::{
-    canvas::Canvas, clock::ClockResult, glyphy::Glyphy, image_renderer::ImageRenderer,
-    shared::RenderPassInput, toy::Toy, Config,
+    canvas::Canvas, clock::ClockResult, config::Config, glyphy::Glyphy,
+    image_renderer::ImageRenderer, op_stream::renderpasses::make_renderpasses, shader::make_shader,
+    shared::RenderPassInput, toy::Toy,
 };
 
 pub struct RenderableInput<'a> {
@@ -26,7 +27,68 @@ pub trait Renderable<'a> {
 }
 
 pub trait ToRenderable {
-    fn to_renderable(&self) -> Result<RenderableEnum, wgpu::SurfaceError>;
+    fn to_renderable(
+        &self,
+        device: &wgpu::Device,
+        queue: &wgpu::Queue,
+        config: &Config,
+    ) -> Result<RenderableEnum, wgpu::SurfaceError>;
+}
+
+impl<'a> ToRenderable for RenderableConfig<'a> {
+    fn to_renderable(
+        &self,
+        device: &wgpu::Device,
+        queue: &wgpu::Queue,
+        config: &Config,
+    ) -> Result<RenderableEnum, wgpu::SurfaceError> {
+        match self {
+            RenderableConfig::Toy(renderable_config) => {
+                let shader = make_shader(&device, &renderable_config.shader_path).unwrap();
+                let toy = crate::toy::setup_toy(
+                    device,
+                    shader,
+                    renderable_config.size,
+                    renderable_config.texture_format,
+                );
+                Ok(RenderableEnum::Toy(toy))
+            }
+            RenderableConfig::Glyphy(renderable_config) => {
+                let glyphy = Glyphy::init(
+                    &device,
+                    wgpu::TextureFormat::Bgra8UnormSrgb,
+                    renderable_config.text.to_vec(),
+                )
+                .expect("Unable to setup Glyphy");
+
+                Ok(RenderableEnum::Glyphy(glyphy))
+            }
+            RenderableConfig::ImageRenderer(renderable_config) => {
+                // TODO need to pass in image
+                let image_renderer = pollster::block_on(ImageRenderer::new(
+                    device,
+                    &queue,
+                    renderable_config.texture_format,
+                ));
+
+                Ok(RenderableEnum::ImageRenderer(image_renderer))
+            }
+            RenderableConfig::EventStreams(renderable_config) => {
+                let shader = make_shader(&device, &renderable_config.shader_path).unwrap();
+                // let op_streams = crate::op_stream::OpStream::from_vec_op4d(av);
+
+                // let renderpasses = make_renderpasses(
+                // &device,
+                // op_streams,
+                // &instance_shader,
+                // config,
+                // wgpu::TextureFormat::Bgra8UnormSrgb,
+                // );
+
+                todo!()
+            }
+        }
+    }
 }
 
 pub enum RenderableEnum {
@@ -36,51 +98,55 @@ pub enum RenderableEnum {
     EventStreams(Vec<RenderPassInput>),
 }
 
-pub enum RenderableConfig {
-    Toy(ToyConfig),
-    ImageRenderer(ImageRendererConfig),
-    GlyphyConfig(GlyphyConfig),
-    EventStreamConfig(EventStreamConfig),
+pub enum RenderableConfig<'a> {
+    Toy(ToyConfig<'a>),
+    ImageRenderer(ImageRendererConfig<'a>),
+    Glyphy(GlyphyConfig),
+    EventStreams(EventStreamConfig<'a>),
 }
 
-pub struct ToyConfig {
-    shader: wgpu::ShaderModule,
+pub struct ToyConfig<'a> {
+    shader_path: &'a str,
+
     size: (u32, u32),
     texture_format: wgpu::TextureFormat,
 }
 
-pub struct ImageRendererConfig {
-    image_path: String,
+pub struct ImageRendererConfig<'a> {
+    image_path: &'a str,
     texture_format: wgpu::TextureFormat,
 }
 
 pub struct GlyphyConfig {
-    text: String,
+    text: Vec<(&'static str, Vec<&'static str>)>,
     texture_format: wgpu::TextureFormat,
 }
 
-pub struct EventStreamConfig {
-    socool_filename: String,
-    shader: wgpu::ShaderModule,
+pub struct EventStreamConfig<'a> {
+    socool_path: String,
+    shader_path: &'a str,
     texture_format: wgpu::TextureFormat,
 }
 
-pub struct RenderableConfigs(Vec<RenderableConfig>);
+pub struct RenderableConfigs<'a>(Vec<RenderableConfig<'a>>);
 pub struct Renderables(Vec<RenderableEnum>);
 
-impl ToRenderable for RenderableConfig {
-    fn to_renderable(&self) -> Result<RenderableEnum, wgpu::SurfaceError> {
-        todo!()
-    }
-}
-
-impl RenderableConfigs {
-    fn to_renderables(configs: RenderableConfigs) -> Result<Renderables, wgpu::SurfaceError> {
+impl<'a> RenderableConfigs<'a> {
+    fn to_renderables(
+        device: &wgpu::Device,
+        queue: &wgpu::Queue,
+        config: &Config,
+        renderable_configs: RenderableConfigs,
+    ) -> Result<Renderables, wgpu::SurfaceError> {
         Ok(Renderables(
-            configs
+            renderable_configs
                 .0
                 .iter()
-                .map(|config| config.to_renderable().unwrap())
+                .map(|renderable_config| {
+                    renderable_config
+                        .to_renderable(device, queue, config)
+                        .unwrap()
+                })
                 .collect(),
         ))
     }
