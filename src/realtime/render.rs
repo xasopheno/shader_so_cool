@@ -19,17 +19,13 @@ impl RealTimeState {
         self.composition.render(
             &self.device,
             &self.queue,
-            // &mut encoder,
             self.size,
             &self.clock,
             self.gui.state.lock().unwrap().instance_mul,
             &view,
         );
 
-        self.render_gui(
-            window, // &mut encoder,
-            &view,
-        );
+        self.render_gui(window, &view);
 
         // Submit the commands.
         the_frame.present();

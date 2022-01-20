@@ -67,16 +67,6 @@ impl<'a> RealTimeState {
             wgpu::TextureFormat::Bgra8UnormSrgb,
         );
 
-        let op_streams = crate::op_stream::OpStream::from_vec_op4d(av);
-
-        let renderpasses = make_renderpasses(
-            &device,
-            op_streams,
-            &instance_shader,
-            config,
-            wgpu::TextureFormat::Bgra8UnormSrgb,
-        );
-
         let image_renderer = pollster::block_on(ImageRenderer::new(
             &device,
             &queue,
@@ -89,6 +79,15 @@ impl<'a> RealTimeState {
             config.text.as_ref().unwrap().to_vec(),
         )
         .expect("Unable to setup Glyphy");
+
+        let op_streams = crate::op_stream::OpStream::from_vec_op4d(av);
+        let renderpasses = make_renderpasses(
+            &device,
+            op_streams,
+            &instance_shader,
+            config,
+            wgpu::TextureFormat::Bgra8UnormSrgb,
+        );
 
         Ok(Self {
             device,

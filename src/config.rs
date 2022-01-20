@@ -3,21 +3,44 @@ use serde::{Deserialize, Serialize};
 
 use crate::camera::default::default_cameras;
 use crate::instance::instancer::{Instancer, SimpleInstancer};
+use crate::renderable::{
+    GlyphyConfig, ImageRendererConfig, RenderableConfig, RenderableConfigs, ToyConfig,
+};
 use crate::save::ConfigState;
 use crate::vertex::shape::{RandIndex, RandPosition, Shape};
 #[allow(unused_imports)]
 use crate::{color_map_from_named_colorsets, ColorMap, ColorSets};
 
+fn renderables() {
+    let _ = vec![
+        RenderableConfig::Toy(ToyConfig {
+            shader_path: "src/toy.wgsl",
+            texture_format: wgpu::TextureFormat::Bgra8UnormSrgb,
+        }),
+        RenderableConfig::ImageRenderer(ImageRendererConfig {
+            image_path: "src/image_renderer/milo.png",
+            texture_format: wgpu::TextureFormat::Bgra8UnormSrgb,
+        }),
+        RenderableConfig::Glyphy(GlyphyConfig {
+            text: named_colorsets(),
+            texture_format: wgpu::TextureFormat::Bgra8UnormSrgb,
+        }),
+        // pub struct GlyphyConfig {
+        // pub text: Vec<(&'static str, Vec<&'static str>)>,
+        // pub texture_format: wgpu::TextureFormat,
+        // }
+    ];
+}
+pub fn named_colorsets<'a>() -> Vec<(&'a str, Vec<&'a str>)> {
+    vec![
+        ("meg_0311", vec!["#dd1133", "#122333"]),
+        ("meg_0321", vec!["#11aa88", "#11a111"]),
+        ("meg_0331", vec!["#885533", "#ffaaaa"]),
+    ]
+}
+
 impl<'a> Default for Config<'a> {
     fn default() -> Self {
-        pub fn named_colorsets<'a>() -> Vec<(&'a str, Vec<&'a str>)> {
-            vec![
-                ("meg_0311", vec!["#dd1133", "#122333"]),
-                ("meg_0321", vec!["#11aa88", "#11a111"]),
-                ("meg_0331", vec!["#885533", "#ffaaaa"]),
-            ]
-        }
-
         let instance_mul = InstanceMul {
             x: 9.0,
             y: 19.0,

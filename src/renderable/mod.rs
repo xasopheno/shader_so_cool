@@ -1,4 +1,7 @@
+use std::collections::HashMap;
+
 use kintaro_egui_lib::InstanceMul;
+use weresocool::generation::parsed_to_render::AudioVisual;
 
 use crate::{
     canvas::Canvas, clock::ClockResult, config::Config, glyphy::Glyphy,
@@ -20,6 +23,8 @@ pub struct RenderableInput<'a> {
     pub clear: bool,
 }
 
+pub type AvMap<'a> = &'a HashMap<String, &'a AudioVisual>;
+
 pub trait Renderable<'a> {
     // TODO: Fix error types
     fn update(&mut self, input: &'a RenderableInput) -> Result<(), wgpu::SurfaceError>;
@@ -31,7 +36,8 @@ pub trait ToRenderable {
         &self,
         device: &wgpu::Device,
         queue: &wgpu::Queue,
-        config: &Config,
+        config: &mut Config,
+        av_map: AvMap,
     ) -> Result<RenderableEnum, wgpu::SurfaceError>;
 }
 
@@ -40,7 +46,8 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
         &self,
         device: &wgpu::Device,
         queue: &wgpu::Queue,
-        config: &Config,
+        config: &mut Config,
+        av_map: AvMap,
     ) -> Result<RenderableEnum, wgpu::SurfaceError> {
         match self {
             RenderableConfig::Toy(renderable_config) => {
@@ -48,7 +55,7 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
                 let toy = crate::toy::setup_toy(
                     device,
                     shader,
-                    renderable_config.size,
+                    config.window_size,
                     renderable_config.texture_format,
                 );
                 Ok(RenderableEnum::Toy(toy))
@@ -74,18 +81,21 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
                 Ok(RenderableEnum::ImageRenderer(image_renderer))
             }
             RenderableConfig::EventStreams(renderable_config) => {
+                let associated_av = av_map
+                    .get(&renderable_config.filename)
+                    .expect("No associated av in AvMap");
                 let shader = make_shader(&device, &renderable_config.shader_path).unwrap();
-                // let op_streams = crate::op_stream::OpStream::from_vec_op4d(av);
+                let op_streams = crate::op_stream::OpStream::from_vec_op4d(associated_av);
 
-                // let renderpasses = make_renderpasses(
-                // &device,
-                // op_streams,
-                // &instance_shader,
-                // config,
-                // wgpu::TextureFormat::Bgra8UnormSrgb,
-                // );
+                let renderpasses = make_renderpasses(
+                    &device,
+                    op_streams,
+                    &shader,
+                    config,
+                    wgpu::TextureFormat::Bgra8UnormSrgb,
+                );
 
-                todo!()
+                Ok(RenderableEnum::EventStreams(renderpasses))
             }
         }
     }
@@ -106,26 +116,25 @@ pub enum RenderableConfig<'a> {
 }
 
 pub struct ToyConfig<'a> {
-    shader_path: &'a str,
-
-    size: (u32, u32),
-    texture_format: wgpu::TextureFormat,
+    pub shader_path: &'a str,
+    pub texture_format: wgpu::TextureFormat,
 }
 
 pub struct ImageRendererConfig<'a> {
-    image_path: &'a str,
-    texture_format: wgpu::TextureFormat,
+    pub image_path: &'a str,
+    pub texture_format: wgpu::TextureFormat,
 }
 
 pub struct GlyphyConfig {
-    text: Vec<(&'static str, Vec<&'static str>)>,
-    texture_format: wgpu::TextureFormat,
+    pub text: Vec<(&'static str, Vec<&'static str>)>,
+    pub texture_format: wgpu::TextureFormat,
 }
 
 pub struct EventStreamConfig<'a> {
-    socool_path: String,
-    shader_path: &'a str,
-    texture_format: wgpu::TextureFormat,
+    pub filename: String,
+    pub socool_path: String,
+    pub shader_path: &'a str,
+    pub texture_format: wgpu::TextureFormat,
 }
 
 pub struct RenderableConfigs<'a>(Vec<RenderableConfig<'a>>);
@@ -135,7 +144,8 @@ impl<'a> RenderableConfigs<'a> {
     fn to_renderables(
         device: &wgpu::Device,
         queue: &wgpu::Queue,
-        config: &Config,
+        config: &mut Config,
+        av_map: AvMap,
         renderable_configs: RenderableConfigs,
     ) -> Result<Renderables, wgpu::SurfaceError> {
         Ok(Renderables(
@@ -144,7 +154,7 @@ impl<'a> RenderableConfigs<'a> {
                 .iter()
                 .map(|renderable_config| {
                     renderable_config
-                        .to_renderable(device, queue, config)
+                        .to_renderable(device, queue, config, av_map)
                         .unwrap()
                 })
                 .collect(),
