@@ -14,6 +14,9 @@ use winit::dpi::PhysicalSize;
 use winit::window::Fullscreen;
 use winit::{event::*, event_loop::ControlFlow, window::WindowBuilder};
 
+// realtime(config: Config)
+// print(config: Config) -> (Vec<Audio>, length)
+
 pub fn run(filename: &str, config: Config<'static>) -> Result<(), Error> {
     println!("preparing for audiovisualization: {}", &filename);
     let av = get_audiovisual_data(filename)?;
