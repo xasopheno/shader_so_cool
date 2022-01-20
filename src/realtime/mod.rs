@@ -73,13 +73,6 @@ impl<'a> RealTimeState {
             wgpu::TextureFormat::Bgra8UnormSrgb,
         ));
 
-        let glyphy = Glyphy::init(
-            &device,
-            wgpu::TextureFormat::Bgra8UnormSrgb,
-            config.text.as_ref().unwrap().to_vec(),
-        )
-        .expect("Unable to setup Glyphy");
-
         let op_streams = crate::op_stream::OpStream::from_vec_op4d(av);
         let renderpasses = make_renderpasses(
             &device,
@@ -88,6 +81,13 @@ impl<'a> RealTimeState {
             config,
             wgpu::TextureFormat::Bgra8UnormSrgb,
         );
+
+        let glyphy = Glyphy::init(
+            &device,
+            wgpu::TextureFormat::Bgra8UnormSrgb,
+            config.text.as_ref().unwrap().to_vec(),
+        )
+        .expect("Unable to setup Glyphy");
 
         Ok(Self {
             device,

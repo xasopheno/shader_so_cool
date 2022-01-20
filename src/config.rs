@@ -4,7 +4,8 @@ use serde::{Deserialize, Serialize};
 use crate::camera::default::default_cameras;
 use crate::instance::instancer::{Instancer, SimpleInstancer};
 use crate::renderable::{
-    GlyphyConfig, ImageRendererConfig, RenderableConfig, RenderableConfigs, ToyConfig,
+    EventStreamConfig, GlyphyConfig, ImageRendererConfig, RenderableConfig, RenderableConfigs,
+    ToyConfig,
 };
 use crate::save::ConfigState;
 use crate::vertex::shape::{RandIndex, RandPosition, Shape};
@@ -25,10 +26,12 @@ fn renderables() {
             text: named_colorsets(),
             texture_format: wgpu::TextureFormat::Bgra8UnormSrgb,
         }),
-        // pub struct GlyphyConfig {
-        // pub text: Vec<(&'static str, Vec<&'static str>)>,
-        // pub texture_format: wgpu::TextureFormat,
-        // }
+        RenderableConfig::EventStreams(EventStreamConfig {
+            filename: "kintaro.socool".to_string(),
+            socool_path: "kintaro.socool".to_string(),
+            shader_path: "./src/shader.wgsl",
+            texture_format: wgpu::TextureFormat::Bgra8UnormSrgb,
+        }),
     ];
 }
 pub fn named_colorsets<'a>() -> Vec<(&'a str, Vec<&'a str>)> {
