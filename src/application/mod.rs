@@ -2,7 +2,9 @@ use crate::config::Config;
 use crate::print::PrintState;
 use crate::realtime::gui::GuiRepaintSignal;
 use crate::realtime::RealTimeState;
+use colored::*;
 use cradle::prelude::*;
+use std::collections::HashMap;
 use std::io::Write;
 use std::str::FromStr;
 use weresocool::error::Error;
@@ -14,19 +16,21 @@ use winit::dpi::PhysicalSize;
 use winit::window::Fullscreen;
 use winit::{event::*, event_loop::ControlFlow, window::WindowBuilder};
 
-// realtime(config: Config)
-// print(config: Config) -> (Vec<Audio>, length)
+pub type AvMap = HashMap<String, AudioVisual>;
 
-pub fn run(filename: &str, config: Config<'static>) -> Result<(), Error> {
+pub fn run<'a>(filename: &str, config: Config<'static>) -> Result<(), Error> {
     println!("preparing for audiovisualization: {}", &filename);
-    let av = get_audiovisual_data(filename)?;
+    let mut av_map: AvMap = HashMap::new();
+    let avis = get_audiovisual_data(filename)?;
+    av_map.insert(filename.to_string(), avis);
 
+    let av = av_map.get(filename).unwrap();
     if std::env::args().find(|x| x == "--print").is_some() {
-        println!("\n\n\n:::::<<<<<*****PRINTING*****>>>>>:::::");
+        println!("{}", "\n\n\n:::::<<<<<*****PRINTING*****>>>>>:::::".blue());
 
         let n_frames = (av.length * 40.0).floor() as usize + 100;
 
-        println!("________n_frames: {n_frames}_______");
+        println!("{}", format!("Number Frames: {}", n_frames).green());
 
         print(config, &av, n_frames)?;
         write_audio_to_file(
@@ -94,9 +98,9 @@ fn realtime<'a>(mut config: Config<'static>, av: &AudioVisual) -> Result<(), Err
     let mut state = RealTimeState::init(
         &window,
         &mut config,
-        repaint_signal.clone(),
+        repaint_signal,
         stream_handle,
-        &av,
+        // &av
     )?;
     state.play();
 

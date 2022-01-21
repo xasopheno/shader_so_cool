@@ -6,17 +6,19 @@ use crate::composition::Composition;
 use crate::glyphy::Glyphy;
 use crate::image_renderer::ImageRenderer;
 use crate::op_stream::renderpasses::make_renderpasses;
+use crate::renderable::{RenderableEnum, ToRenderable};
 use crate::shader::make_shader;
 use crate::{
     canvas::Canvas,
     clock::{Clock, PrintClock},
     config::Config,
 };
+use colored::*;
 
 impl PrintState {
     pub async fn init(config: &mut Config<'static>, av: &AudioVisual) -> Result<PrintState, Error> {
         let size = config.window_size;
-        println!("Frame Size: {}/{}\n", size.0, size.1);
+        println!("{}", format!("Frame Size: {}/{}\n", size.0, size.1).green());
         let instance = wgpu::Instance::new(wgpu::Backends::PRIMARY);
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
@@ -46,56 +48,34 @@ impl PrintState {
         };
         let texture = device.create_texture(&texture_desc);
         let texture_view = texture.create_view(&Default::default());
-        todo!();
 
-        // let instance_shader = make_shader(&device, &config.instance_shader)?;
-        // let toy_shader = make_shader(&device, &config.toy_shader)?;
+        let renderable_configs = config.renderable_configs.to_owned();
+        let renderables: Vec<RenderableEnum> = renderable_configs
+            .iter()
+            .map(|renderable_config| {
+                renderable_config
+                    .to_renderable(&device, &queue, config)
+                    .unwrap()
+            })
+            .collect();
 
-        // let toy = crate::toy::setup_toy(&device, toy_shader, size, texture_desc.format);
+        Ok(PrintState {
+            device,
+            queue,
+            size,
+            clock: PrintClock::init(&config),
+            count: 0,
 
-        // let op_streams = crate::op_stream::OpStream::from_vec_op4d(&av);
+            composition: Composition {
+                renderables,
+                config: config.clone(),
+                camera: crate::camera::Camera::new(&config.cameras[0], size, &config, 0),
+                canvas: Canvas::init(size),
+            },
 
-        // let renderpasses = make_renderpasses(
-        // &device,
-        // op_streams,
-        // &instance_shader,
-        // config,
-        // texture_desc.format,
-        // );
-
-        // let image_renderer = pollster::block_on(ImageRenderer::new(
-        // &device,
-        // &queue,
-        // wgpu::TextureFormat::Bgra8UnormSrgb,
-        // ));
-
-        // let glyphy = Glyphy::init(
-        // &device,
-        // wgpu::TextureFormat::Rgba8UnormSrgb,
-        // config.text.as_ref().unwrap().to_vec(),
-        // )
-        // .expect("Unable to setup Glyphy");
-
-        // Ok(PrintState {
-        // device,
-        // queue,
-        // size,
-        // clock: PrintClock::init(&config),
-        // count: 0,
-
-        // composition: Composition {
-        // glyphy,
-        // image_renderer,
-        // config: config.clone(),
-        // camera: crate::camera::Camera::new(&config.cameras[0], size, &config, 0),
-        // renderpasses,
-        // toy,
-        // canvas: Canvas::init(size),
-        // },
-
-        // texture,
-        // texture_view,
-        // time_elapsed: std::time::Duration::from_millis(0),
-        // })
+            texture,
+            texture_view,
+            time_elapsed: std::time::Duration::from_millis(0),
+        })
     }
 }

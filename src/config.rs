@@ -4,15 +4,14 @@ use serde::{Deserialize, Serialize};
 use crate::camera::default::default_cameras;
 use crate::instance::instancer::{Instancer, SimpleInstancer};
 use crate::renderable::{
-    EventStreamConfig, GlyphyConfig, ImageRendererConfig, RenderableConfig, RenderableConfigs,
-    ToyConfig,
+    EventStreamConfig, GlyphyConfig, ImageRendererConfig, RenderableConfig, ToyConfig,
 };
 use crate::save::ConfigState;
 use crate::vertex::shape::{RandIndex, RandPosition, Shape};
 #[allow(unused_imports)]
 use crate::{color_map_from_named_colorsets, ColorMap, ColorSets};
 
-fn renderables() -> Vec<RenderableConfig<'static>> {
+fn renderable_configs() -> Vec<RenderableConfig<'static>> {
     vec![
         RenderableConfig::Toy(ToyConfig {
             shader_path: "src/toy.wgsl",
@@ -54,7 +53,7 @@ impl<'a> Default for Config<'a> {
         };
         let (cameras, instance_mul) = Config::handle_save(instance_mul);
         Config {
-            renderable_configs: renderables(),
+            renderable_configs: renderable_configs(),
             // instance_shader: "./src/shader.wgsl".into(),
             // toy_shader: "./src/toy.wgsl".into(),
             instancer: Box::new(SimpleInstancer {}),

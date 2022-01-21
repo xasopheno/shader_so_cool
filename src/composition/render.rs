@@ -37,16 +37,9 @@ impl Composition {
             clear: false,
         };
 
-        let mut renderables: Vec<RenderableEnum> = vec![
-            // RenderableEnum::ImageRenderer(self.image_renderer),
-            // Box::new(&mut self.toy),
-            // Box::new(&mut self.renderpasses),
-            // Box::new(&mut self.glyphy),
-        ];
-
-        for renderable in renderables.iter_mut() {
+        self.renderables.iter_mut().for_each(|renderable| {
             renderable.update(&render_input).unwrap();
             renderable.render_pass(&render_input).unwrap();
-        }
+        })
     }
 }

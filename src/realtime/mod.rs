@@ -7,6 +7,8 @@ pub mod setup;
 use crate::canvas::Canvas;
 use crate::glyphy::Glyphy;
 use crate::image_renderer::ImageRenderer;
+use crate::renderable::RenderableEnum;
+use crate::renderable::ToRenderable;
 use crate::shader::make_shader;
 use crate::{composition::Composition, op_stream::renderpasses::make_renderpasses};
 use setup::Setup;
@@ -43,10 +45,10 @@ pub struct RealTimeState {
 impl<'a> RealTimeState {
     pub fn init(
         window: &Window,
+        //TODO: remove mut
         config: &mut Config<'static>,
         repaint_signal: std::sync::Arc<GuiRepaintSignal>,
         audio_stream_handle: rodio::Sink,
-        av: &AudioVisual,
     ) -> Result<RealTimeState, Error> {
         let size = (config.window_size.0, config.window_size.1);
         println!("{}/{}", size.0, size.1);
@@ -57,60 +59,34 @@ impl<'a> RealTimeState {
             gui,
         } = block_on(Setup::init(window, config));
 
-        // let instance_shader = make_shader(&device, &config.instance_shader)?;
-        // let toy_shader = make_shader(&device, &config.toy_shader)?;
+        let renderable_configs = config.renderable_configs.to_owned();
+        let renderables: Vec<RenderableEnum> = renderable_configs
+            .iter()
+            .map(|renderable_config| {
+                renderable_config
+                    .to_renderable(&device, &queue, config)
+                    .unwrap()
+            })
+            .collect();
 
-        // let toy = crate::toy::setup_toy(
-        // &device,
-        // toy_shader,
-        // size,
-        // wgpu::TextureFormat::Bgra8UnormSrgb,
-        // );
-
-        // let image_renderer = pollster::block_on(ImageRenderer::new(
-        // &device,
-        // &queue,
-        // wgpu::TextureFormat::Bgra8UnormSrgb,
-        // ));
-
-        // let op_streams = crate::op_stream::OpStream::from_vec_op4d(av);
-        // let renderpasses = make_renderpasses(
-        // &device,
-        // op_streams,
-        // &instance_shader,
-        // config,
-        // wgpu::TextureFormat::Bgra8UnormSrgb,
-        // );
-
-        // let glyphy = Glyphy::init(
-        // &device,
-        // wgpu::TextureFormat::Bgra8UnormSrgb,
-        // config.text.as_ref().unwrap().to_vec(),
-        // )
-        // .expect("Unable to setup Glyphy");
-
-        todo!();
-        // Ok(Self {
-        // device,
-        // queue,
-        // size,
-        // clock: RenderClock::init(&config),
-        // count: 0,
-        // composition: Composition {
-        // // glyphy,
-        // config: config.clone(),
-        // camera: crate::camera::Camera::new(&config.cameras[0], size, &config, 0),
-        // // renderpasses,
-        // // toy,
-        // canvas: Canvas::init(size),
-        // // image_renderer,
-        // },
-        // surface,
-        // gui,
-        // repaint_signal: repaint_signal.clone(),
-        // audio_stream_handle,
-        // mouse_pressed: false,
-        // })
+        Ok(Self {
+            device,
+            queue,
+            size,
+            clock: RenderClock::init(&config),
+            count: 0,
+            composition: Composition {
+                renderables,
+                config: config.clone(),
+                camera: crate::camera::Camera::new(&config.cameras[0], size, &config, 0),
+                canvas: Canvas::init(size),
+            },
+            surface,
+            gui,
+            repaint_signal: repaint_signal.clone(),
+            audio_stream_handle,
+            mouse_pressed: false,
+        })
     }
 
     pub fn play(&mut self) {
