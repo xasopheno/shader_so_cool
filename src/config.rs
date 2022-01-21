@@ -12,8 +12,8 @@ use crate::vertex::shape::{RandIndex, RandPosition, Shape};
 #[allow(unused_imports)]
 use crate::{color_map_from_named_colorsets, ColorMap, ColorSets};
 
-fn renderables() {
-    let _ = vec![
+fn renderables() -> Vec<RenderableConfig<'static>> {
+    vec![
         RenderableConfig::Toy(ToyConfig {
             shader_path: "src/toy.wgsl",
             texture_format: wgpu::TextureFormat::Bgra8UnormSrgb,
@@ -32,7 +32,7 @@ fn renderables() {
             shader_path: "./src/shader.wgsl",
             texture_format: wgpu::TextureFormat::Bgra8UnormSrgb,
         }),
-    ];
+    ]
 }
 pub fn named_colorsets<'a>() -> Vec<(&'a str, Vec<&'a str>)> {
     vec![
@@ -54,16 +54,17 @@ impl<'a> Default for Config<'a> {
         };
         let (cameras, instance_mul) = Config::handle_save(instance_mul);
         Config {
-            instance_shader: "./src/shader.wgsl".into(),
-            toy_shader: "./src/toy.wgsl".into(),
+            renderable_configs: renderables(),
+            // instance_shader: "./src/shader.wgsl".into(),
+            // toy_shader: "./src/toy.wgsl".into(),
             instancer: Box::new(SimpleInstancer {}),
             instance_mul,
             accumulation: false,
-            filename: "kintaro".into(),
+            filename: "kintaro",
             volume: 0.20,
             window_size: (2560, 1440),
             cameras,
-            text: Some(named_colorsets()),
+            // text: Some(named_colorsets()),
             shape: Shape {
                 n_vertices: 70,
                 n_indices: 70,
@@ -114,8 +115,8 @@ pub struct CameraConfig {
 
 #[derive(Clone)]
 pub struct Config<'a> {
-    pub text: Option<Vec<(&'a str, Vec<&'a str>)>>,
-    pub filename: String,
+    // pub text: Option<Vec<(&'a str, Vec<&'a str>)>>,
+    pub filename: &'a str,
     pub volume: f32,
     pub window_size: (u32, u32),
     pub cameras: Vec<CameraConfig>,
@@ -123,6 +124,5 @@ pub struct Config<'a> {
     pub shape: Shape,
     pub instance_mul: InstanceMul,
     pub instancer: Box<dyn Instancer>,
-    pub instance_shader: String,
-    pub toy_shader: String,
+    pub renderable_configs: Vec<RenderableConfig<'a>>,
 }

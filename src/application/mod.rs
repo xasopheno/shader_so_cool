@@ -20,14 +20,14 @@ use winit::{event::*, event_loop::ControlFlow, window::WindowBuilder};
 pub fn run(filename: &str, config: Config<'static>) -> Result<(), Error> {
     println!("preparing for audiovisualization: {}", &filename);
     let av = get_audiovisual_data(filename)?;
-    let print_it = std::env::args()
-        .into_iter()
-        .any(|arg| if arg == "--print" { true } else { false });
 
-    if print_it {
-        println!("****PRINTING****");
+    if std::env::args().find(|x| x == "--print").is_some() {
+        println!("\n\n\n:::::<<<<<*****PRINTING*****>>>>>:::::");
+
         let n_frames = (av.length * 40.0).floor() as usize + 100;
-        println!("n_frames: {n_frames}");
+
+        println!("________n_frames: {n_frames}_______");
+
         print(config, &av, n_frames)?;
         write_audio_to_file(
             &av.audio.as_slice(),

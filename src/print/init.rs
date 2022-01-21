@@ -16,8 +16,7 @@ use crate::{
 impl PrintState {
     pub async fn init(config: &mut Config<'static>, av: &AudioVisual) -> Result<PrintState, Error> {
         let size = config.window_size;
-        dbg!(&config.window_size);
-        println!("{}/{}", size.0, size.1);
+        println!("Frame Size: {}/{}\n", size.0, size.1);
         let instance = wgpu::Instance::new(wgpu::Backends::PRIMARY);
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
@@ -47,55 +46,56 @@ impl PrintState {
         };
         let texture = device.create_texture(&texture_desc);
         let texture_view = texture.create_view(&Default::default());
+        todo!();
 
-        let instance_shader = make_shader(&device, &config.instance_shader)?;
-        let toy_shader = make_shader(&device, &config.toy_shader)?;
+        // let instance_shader = make_shader(&device, &config.instance_shader)?;
+        // let toy_shader = make_shader(&device, &config.toy_shader)?;
 
-        let toy = crate::toy::setup_toy(&device, toy_shader, size, texture_desc.format);
+        // let toy = crate::toy::setup_toy(&device, toy_shader, size, texture_desc.format);
 
-        let op_streams = crate::op_stream::OpStream::from_vec_op4d(&av);
+        // let op_streams = crate::op_stream::OpStream::from_vec_op4d(&av);
 
-        let renderpasses = make_renderpasses(
-            &device,
-            op_streams,
-            &instance_shader,
-            config,
-            texture_desc.format,
-        );
+        // let renderpasses = make_renderpasses(
+        // &device,
+        // op_streams,
+        // &instance_shader,
+        // config,
+        // texture_desc.format,
+        // );
 
-        let image_renderer = pollster::block_on(ImageRenderer::new(
-            &device,
-            &queue,
-            wgpu::TextureFormat::Bgra8UnormSrgb,
-        ));
+        // let image_renderer = pollster::block_on(ImageRenderer::new(
+        // &device,
+        // &queue,
+        // wgpu::TextureFormat::Bgra8UnormSrgb,
+        // ));
 
-        let glyphy = Glyphy::init(
-            &device,
-            wgpu::TextureFormat::Rgba8UnormSrgb,
-            config.text.as_ref().unwrap().to_vec(),
-        )
-        .expect("Unable to setup Glyphy");
+        // let glyphy = Glyphy::init(
+        // &device,
+        // wgpu::TextureFormat::Rgba8UnormSrgb,
+        // config.text.as_ref().unwrap().to_vec(),
+        // )
+        // .expect("Unable to setup Glyphy");
 
-        Ok(PrintState {
-            device,
-            queue,
-            size,
-            clock: PrintClock::init(&config),
-            count: 0,
+        // Ok(PrintState {
+        // device,
+        // queue,
+        // size,
+        // clock: PrintClock::init(&config),
+        // count: 0,
 
-            composition: Composition {
-                glyphy,
-                image_renderer,
-                config: config.clone(),
-                camera: crate::camera::Camera::new(&config.cameras[0], size, &config, 0),
-                renderpasses,
-                toy,
-                canvas: Canvas::init(size),
-            },
+        // composition: Composition {
+        // glyphy,
+        // image_renderer,
+        // config: config.clone(),
+        // camera: crate::camera::Camera::new(&config.cameras[0], size, &config, 0),
+        // renderpasses,
+        // toy,
+        // canvas: Canvas::init(size),
+        // },
 
-            texture,
-            texture_view,
-            time_elapsed: std::time::Duration::from_millis(0),
-        })
+        // texture,
+        // texture_view,
+        // time_elapsed: std::time::Duration::from_millis(0),
+        // })
     }
 }

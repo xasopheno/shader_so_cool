@@ -108,6 +108,7 @@ pub enum RenderableEnum {
     EventStreams(Vec<RenderPassInput>),
 }
 
+#[derive(Clone)]
 pub enum RenderableConfig<'a> {
     Toy(ToyConfig<'a>),
     ImageRenderer(ImageRendererConfig<'a>),
@@ -115,21 +116,25 @@ pub enum RenderableConfig<'a> {
     EventStreams(EventStreamConfig<'a>),
 }
 
+#[derive(Clone)]
 pub struct ToyConfig<'a> {
     pub shader_path: &'a str,
     pub texture_format: wgpu::TextureFormat,
 }
 
+#[derive(Clone)]
 pub struct ImageRendererConfig<'a> {
     pub image_path: &'a str,
     pub texture_format: wgpu::TextureFormat,
 }
 
+#[derive(Clone)]
 pub struct GlyphyConfig {
     pub text: Vec<(&'static str, Vec<&'static str>)>,
     pub texture_format: wgpu::TextureFormat,
 }
 
+#[derive(Clone)]
 pub struct EventStreamConfig<'a> {
     pub filename: String,
     pub socool_path: String,
@@ -137,7 +142,9 @@ pub struct EventStreamConfig<'a> {
     pub texture_format: wgpu::TextureFormat,
 }
 
+#[derive(Clone)]
 pub struct RenderableConfigs<'a>(Vec<RenderableConfig<'a>>);
+
 pub struct Renderables(Vec<RenderableEnum>);
 
 impl<'a> RenderableConfigs<'a> {
