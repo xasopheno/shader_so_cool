@@ -2,6 +2,7 @@ use weresocool::error::Error;
 use weresocool::generation::parsed_to_render::AudioVisual;
 
 use super::PrintState;
+use crate::application::AvMap;
 use crate::composition::Composition;
 use crate::glyphy::Glyphy;
 use crate::image_renderer::ImageRenderer;
@@ -16,7 +17,7 @@ use crate::{
 use colored::*;
 
 impl PrintState {
-    pub async fn init(config: &mut Config<'static>, av: &AudioVisual) -> Result<PrintState, Error> {
+    pub async fn init(config: &mut Config<'static>, av_map: &AvMap) -> Result<PrintState, Error> {
         let size = config.window_size;
         println!("{}", format!("Frame Size: {}/{}\n", size.0, size.1).green());
         let instance = wgpu::Instance::new(wgpu::Backends::PRIMARY);
@@ -54,7 +55,7 @@ impl PrintState {
             .iter()
             .map(|renderable_config| {
                 renderable_config
-                    .to_renderable(&device, &queue, config)
+                    .to_renderable(&device, &queue, config, av_map)
                     .unwrap()
             })
             .collect();

@@ -2,8 +2,10 @@ use crate::config::Config;
 use crate::print::PrintState;
 use crate::realtime::gui::GuiRepaintSignal;
 use crate::realtime::RealTimeState;
+use crate::renderable::RenderableConfig;
 use colored::*;
 use cradle::prelude::*;
+use rodio::{OutputStream, OutputStreamHandle};
 use std::collections::HashMap;
 use std::io::Write;
 use std::str::FromStr;
@@ -17,30 +19,36 @@ use winit::window::Fullscreen;
 use winit::{event::*, event_loop::ControlFlow, window::WindowBuilder};
 
 pub type AvMap = HashMap<String, AudioVisual>;
+pub type AudioStreams = Vec<rodio::OutputStream>;
+pub type AudioStreamHandles = Vec<rodio::Sink>;
 
 pub fn run<'a>(filename: &str, config: Config<'static>) -> Result<(), Error> {
     println!("preparing for audiovisualization: {}", &filename);
     let mut av_map: AvMap = HashMap::new();
-    let avis = get_audiovisual_data(filename)?;
+    let mut audio_streams: AudioStreams = vec![];
+    let mut audio_stream_handles: AudioStreamHandles = vec![];
 
-    config.renderable_configs.iter().for_each(|c| {
+    for c in config.renderable_configs.iter() {
         match c {
             RenderableConfig::EventStreams(e) => {
-                let result = get_audiovisual_data(e.socool_path);
-                match result {
+                let result = get_audiovisual_data(&e.socool_path);
 
+                match result {
                     Ok(r) => {
-                        av_map.insert(e.socool_path, r);
+                        let (stream, stream_handle) = crate::audio::setup_audio(&config, &r.audio);
+                        audio_streams.push(stream);
+                        audio_stream_handles.push(stream_handle);
+
+                        av_map.insert(e.socool_path.to_string(), r);
                     }
-                    Err(e) => {return e}
+                    Err(e) => return Err(e),
                 }
             }
             _ => {}
-
         }
-    })
+    }
 
-    let av = av_map.get(filename).unwrap();
+    // let av = av_map.get(filename).unwrap();
     if std::env::args().find(|x| x == "--print").is_some() {
         // println!("{}", "\n\n\n:::::<<<<<*****PRINTING*****>>>>>:::::".blue());
 
@@ -60,7 +68,7 @@ pub fn run<'a>(filename: &str, config: Config<'static>) -> Result<(), Error> {
         // run!(Stdin("yes"), %command_join_audio_and_video);
     } else {
         println!("****REALTIME****");
-        realtime(config, &av)?;
+        realtime(config, av_map, audio_stream_handles)?;
     }
     Ok(())
 }
@@ -81,7 +89,7 @@ fn get_audiovisual_data(filename: &str) -> Result<AudioVisual, Error> {
     }
 }
 
-fn print(mut config: Config<'static>, av: &AudioVisual, n_frames: usize) -> Result<(), Error> {
+fn print(mut config: Config<'static>, av: &AvMap, n_frames: usize) -> Result<(), Error> {
     let mut state = async_std::task::block_on(PrintState::init(&mut config, av))?;
     for i in 0..n_frames {
         async_std::task::block_on(state.render())
@@ -90,7 +98,11 @@ fn print(mut config: Config<'static>, av: &AudioVisual, n_frames: usize) -> Resu
     Ok(())
 }
 
-fn realtime<'a>(mut config: Config<'static>, av: &AudioVisual) -> Result<(), Error> {
+fn realtime<'a>(
+    mut config: Config<'static>,
+    av_map: AvMap,
+    stream_handles: AudioStreamHandles,
+) -> Result<(), Error> {
     env_logger::init();
     let title = env!("CARGO_PKG_NAME");
     let event_loop = winit::event_loop::EventLoop::with_user_event();
@@ -110,12 +122,12 @@ fn realtime<'a>(mut config: Config<'static>, av: &AudioVisual) -> Result<(), Err
         event_loop.create_proxy(),
     )));
 
-    let (mut _stream, stream_handle) = crate::audio::play_audio(&config, &av.audio);
     let mut state = RealTimeState::init(
         &window,
         &mut config,
         repaint_signal,
-        stream_handle,
+        av_map,
+        stream_handles,
         // &av
     )?;
     state.play();

@@ -3,8 +3,8 @@ use crate::{clock::Clock, realtime::RealTimeState};
 impl RealTimeState {
     pub fn render(&mut self, window: &winit::window::Window) -> Result<(), wgpu::SurfaceError> {
         self.clock.update();
-        self.audio_stream_handle
-            .set_volume(self.gui.state.lock().unwrap().volume);
+        // self.audio_stream_handle
+        // .set_volume(self.gui.state.lock().unwrap().volume);
 
         self.handle_save();
 

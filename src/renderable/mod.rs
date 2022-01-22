@@ -4,7 +4,7 @@ use kintaro_egui_lib::InstanceMul;
 use weresocool::generation::parsed_to_render::AudioVisual;
 
 use crate::{
-    canvas::Canvas, clock::ClockResult, config::Config, glyphy::Glyphy,
+    application::AvMap, canvas::Canvas, clock::ClockResult, config::Config, glyphy::Glyphy,
     image_renderer::ImageRenderer, op_stream::renderpasses::make_renderpasses, shader::make_shader,
     shared::RenderPassInput, toy::Toy,
 };
@@ -35,6 +35,7 @@ pub trait ToRenderable {
         device: &wgpu::Device,
         queue: &wgpu::Queue,
         config: &mut Config,
+        av_map: &AvMap,
     ) -> Result<RenderableEnum, wgpu::SurfaceError>;
 }
 
@@ -44,6 +45,7 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
         device: &wgpu::Device,
         queue: &wgpu::Queue,
         config: &mut Config,
+        av_map: &AvMap,
     ) -> Result<RenderableEnum, wgpu::SurfaceError> {
         match self {
             RenderableConfig::Toy(renderable_config) => {
@@ -77,22 +79,21 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
                 Ok(RenderableEnum::ImageRenderer(image_renderer))
             }
             RenderableConfig::EventStreams(renderable_config) => {
-                // let associated_av = av_map
-                // .get(&renderable_config.filename)
-                // .expect("No associated av in AvMap");
+                let associated_av = av_map
+                    .get(&renderable_config.socool_path)
+                    .expect("No associated av in AvMap");
                 let shader = make_shader(&device, &renderable_config.shader_path).unwrap();
-                // let op_streams = crate::op_stream::OpStream::from_vec_op4d(associated_av);
+                let op_streams = crate::op_stream::OpStream::from_vec_op4d(&associated_av);
 
-                // let renderpasses = make_renderpasses(
-                // &device,
-                // op_streams,
-                // &shader,
-                // config,
-                // wgpu::TextureFormat::Bgra8UnormSrgb,
-                // );
+                let renderpasses = make_renderpasses(
+                    &device,
+                    op_streams,
+                    &shader,
+                    config,
+                    wgpu::TextureFormat::Bgra8UnormSrgb,
+                );
 
-                todo!();
-                // Ok(RenderableEnum::EventStreams(renderpasses))
+                Ok(RenderableEnum::EventStreams(renderpasses))
             }
         }
     }
@@ -137,22 +138,6 @@ pub struct EventStreamConfig<'a> {
     pub shader_path: &'a str,
     pub texture_format: wgpu::TextureFormat,
 }
-
-// #[derive(Clone)]
-
-// pub struct Renderables(Vec<RenderableEnum>);
-
-// impl<'a> RenderableConfigs<'a> {
-// fn to_renderables(
-// device: &wgpu::Device,
-// queue: &wgpu::Queue,
-// config: &mut Config,
-// av_map: AvMap,
-// renderable_configs: RenderableConfigs,
-// ) -> Result<Renderables, wgpu::SurfaceError> {
-// Ok()
-// }
-// }
 
 impl<'a> Renderable<'a> for RenderableEnum {
     fn update(&mut self, input: &'a RenderableInput) -> Result<(), wgpu::SurfaceError> {

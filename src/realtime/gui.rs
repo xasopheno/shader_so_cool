@@ -112,7 +112,7 @@ impl RealTimeState {
 
     pub fn update_gui(&mut self) {
         let s = self.gui.state.lock().unwrap();
-        self.audio_stream_handle.set_volume(s.volume);
+
         if s.camera_index != self.composition.camera.index {
             self.composition.camera = Camera::new(
                 &self.composition.config.cameras[s.camera_index],
@@ -121,13 +121,14 @@ impl RealTimeState {
                 s.camera_index,
             )
         }
-        if !s.play && !self.audio_stream_handle.is_paused() {
-            self.audio_stream_handle.pause();
-        };
-        if s.play && self.audio_stream_handle.is_paused() {
-            self.audio_stream_handle.play();
-        };
+
+        // if !s.play && !self.audio_stream_handles.is_paused() {
+        // self.audio_stream_handles.pause();
+        // };
+        // if s.play && self.audio_stream_handle.is_paused() {
+        // self.audio_stream_handles.play();
+        // };
         self.clock.set_playing(s.play);
-        self.audio_stream_handle.set_volume(s.volume);
+        // self.audio_stream_handle.set_volume(s.volume);
     }
 }
