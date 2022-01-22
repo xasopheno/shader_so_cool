@@ -133,7 +133,6 @@ pub struct GlyphyConfig {
 
 #[derive(Clone)]
 pub struct EventStreamConfig<'a> {
-    pub filename: String,
     pub socool_path: String,
     pub shader_path: &'a str,
     pub texture_format: wgpu::TextureFormat,

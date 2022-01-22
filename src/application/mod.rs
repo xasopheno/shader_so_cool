@@ -22,26 +22,42 @@ pub fn run<'a>(filename: &str, config: Config<'static>) -> Result<(), Error> {
     println!("preparing for audiovisualization: {}", &filename);
     let mut av_map: AvMap = HashMap::new();
     let avis = get_audiovisual_data(filename)?;
-    av_map.insert(filename.to_string(), avis);
+
+    config.renderable_configs.iter().for_each(|c| {
+        match c {
+            RenderableConfig::EventStreams(e) => {
+                let result = get_audiovisual_data(e.socool_path);
+                match result {
+
+                    Ok(r) => {
+                        av_map.insert(e.socool_path, r);
+                    }
+                    Err(e) => {return e}
+                }
+            }
+            _ => {}
+
+        }
+    })
 
     let av = av_map.get(filename).unwrap();
     if std::env::args().find(|x| x == "--print").is_some() {
-        println!("{}", "\n\n\n:::::<<<<<*****PRINTING*****>>>>>:::::".blue());
+        // println!("{}", "\n\n\n:::::<<<<<*****PRINTING*****>>>>>:::::".blue());
 
-        let n_frames = (av.length * 40.0).floor() as usize + 100;
+        // let n_frames = (av.length * 40.0).floor() as usize + 100;
 
-        println!("{}", format!("Number Frames: {}", n_frames).green());
+        // println!("{}", format!("Number Frames: {}", n_frames).green());
 
-        print(config, &av, n_frames)?;
-        write_audio_to_file(
-            &av.audio.as_slice(),
-            std::path::PathBuf::from_str("kintaro.wav")
-                .expect("unable to create pathbuf for kintaro.wav"),
-        );
+        // print(config, &av, n_frames)?;
+        // write_audio_to_file(
+        // &av.audio.as_slice(),
+        // std::path::PathBuf::from_str("kintaro.wav")
+        // .expect("unable to create pathbuf for kintaro.wav"),
+        // );
 
-        let command_join_audio_and_video = "ffmpeg -framerate 40 -pattern_type glob -i out/*.png -i kintaro.wav -c:a copy -shortest -c:v libx264 -r 40 -pix_fmt yuv420p out.mov";
+        // let command_join_audio_and_video = "ffmpeg -framerate 40 -pattern_type glob -i out/*.png -i kintaro.wav -c:a copy -shortest -c:v libx264 -r 40 -pix_fmt yuv420p out.mov";
 
-        run!(Stdin("yes"), %command_join_audio_and_video);
+        // run!(Stdin("yes"), %command_join_audio_and_video);
     } else {
         println!("****REALTIME****");
         realtime(config, &av)?;

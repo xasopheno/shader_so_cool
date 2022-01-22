@@ -26,7 +26,6 @@ fn renderable_configs() -> Vec<RenderableConfig<'static>> {
             texture_format: wgpu::TextureFormat::Bgra8UnormSrgb,
         }),
         RenderableConfig::EventStreams(EventStreamConfig {
-            filename: "kintaro.socool".to_string(),
             socool_path: "kintaro.socool".to_string(),
             shader_path: "./src/shader.wgsl",
             texture_format: wgpu::TextureFormat::Bgra8UnormSrgb,
@@ -53,20 +52,17 @@ impl<'a> Default for Config<'a> {
         };
         let (cameras, instance_mul) = Config::handle_save(instance_mul);
         Config {
+            composition_name: "kintaro",
             renderable_configs: renderable_configs(),
-            // instance_shader: "./src/shader.wgsl".into(),
-            // toy_shader: "./src/toy.wgsl".into(),
             instancer: Box::new(SimpleInstancer {}),
             instance_mul,
             accumulation: false,
-            filename: "kintaro",
             volume: 0.20,
             window_size: (2560, 1440),
             cameras,
-            // text: Some(named_colorsets()),
             shape: Shape {
-                n_vertices: 70,
-                n_indices: 70,
+                n_vertices: 50,
+                n_indices: 50,
                 position: Box::new(RandPosition),
                 color: Box::new(color_map_from_named_colorsets(named_colorsets())),
 
@@ -114,8 +110,7 @@ pub struct CameraConfig {
 
 #[derive(Clone)]
 pub struct Config<'a> {
-    // pub text: Option<Vec<(&'a str, Vec<&'a str>)>>,
-    pub filename: &'a str,
+    pub composition_name: &'a str,
     pub volume: f32,
     pub window_size: (u32, u32),
     pub cameras: Vec<CameraConfig>,
