@@ -12,7 +12,6 @@ use crate::vertex::shape::{RandIndex, RandPosition, Shape};
 use crate::{color_map_from_named_colorsets, ColorMap, ColorSets};
 
 fn renderable_configs() -> Vec<RenderableConfig<'static>> {
-    // let texture_format = wgpu::TextureFormat::Bgra8UnormSrgb;
     vec![
         RenderableConfig::ImageRenderer(ImageRendererConfig {
             image_path: "src/image_renderer/milo.png",
@@ -26,6 +25,7 @@ fn renderable_configs() -> Vec<RenderableConfig<'static>> {
         }),
         RenderableConfig::Glyphy(GlyphyConfig {
             text: named_colorsets(),
+            location: (0.0, 0.8),
         }),
     ]
 }

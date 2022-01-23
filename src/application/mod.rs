@@ -102,7 +102,10 @@ pub fn run(filename: &str, config: Config<'static>) -> Result<(), KintaroError> 
     let (_stream, stream_handle) = crate::audio::setup_audio(&config, &audio);
 
     if std::env::args().any(|x| x == "--print") {
-        println!("{}", "\n\n\n:::::<<<<<*****PRINTING*****>>>>>:::::".blue());
+        println!(
+            "{}",
+            "\n\n\n:::::<<<<<*****PRINTING*****>>>>>:::::".magenta()
+        );
 
         let max_frames = match av_map.values().max_by_key(|v| v.length as usize) {
             Some(mf) => mf.length as usize,

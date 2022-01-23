@@ -53,8 +53,13 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
                 Ok(RenderableEnum::Toy(toy))
             }
             RenderableConfig::Glyphy(renderable_config) => {
-                let glyphy = Glyphy::init(device, format, renderable_config.text.to_vec())
-                    .expect("Unable to setup Glyphy");
+                let glyphy = Glyphy::init(
+                    device,
+                    format,
+                    renderable_config.text.to_vec(),
+                    renderable_config.location,
+                )
+                .expect("Unable to setup Glyphy");
 
                 Ok(RenderableEnum::Glyphy(Box::new(glyphy)))
             }
@@ -111,6 +116,7 @@ pub struct ImageRendererConfig<'a> {
 #[derive(Clone)]
 pub struct GlyphyConfig {
     pub text: Vec<(&'static str, Vec<&'static str>)>,
+    pub location: (f32, f32),
 }
 
 #[derive(Clone)]
@@ -121,7 +127,6 @@ pub struct EventStreamConfig<'a> {
 
 impl<'a> Renderable<'a> for RenderableEnum {
     fn update(&mut self, input: &'a RenderableInput) -> Result<(), KintaroError> {
-        // match self {
         if let RenderableEnum::EventStreams(event_streams) = self {
             for renderpass in event_streams.iter_mut() {
                 renderpass.update(
@@ -134,7 +139,6 @@ impl<'a> Renderable<'a> for RenderableEnum {
                     input.instance_mul,
                 );
             }
-            // _ => {}
         }
 
         Ok(())
