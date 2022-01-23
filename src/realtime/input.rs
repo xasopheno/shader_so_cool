@@ -3,22 +3,21 @@ use winit::event::*;
 
 impl RealTimeState {
     pub fn keyboard_input(&mut self, event: &WindowEvent) {
-        // match event {
-        if let WindowEvent::KeyboardInput { input, .. } = event {
-            match input {
-                KeyboardInput {
+        if let WindowEvent::KeyboardInput {
+            input:
+                winit::event::KeyboardInput {
                     state,
                     virtual_keycode: Some(key),
                     ..
-                } => {
-                    self.composition
-                        .camera
-                        .controller
-                        .process_keyboard(*key, *state);
-                }
-                _ => {}
-            }
-        }
+                },
+            ..
+        } = event
+        {
+            self.composition
+                .camera
+                .controller
+                .process_keyboard(*key, *state);
+        };
     }
 
     pub fn input(&mut self, event: &DeviceEvent) -> bool {

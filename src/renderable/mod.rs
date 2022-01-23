@@ -48,21 +48,20 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
     ) -> Result<RenderableEnum, KintaroError> {
         match self {
             RenderableConfig::Toy(renderable_config) => {
-                let shader = make_shader(&device, &renderable_config.shader_path)?;
+                let shader = make_shader(device, renderable_config.shader_path)?;
                 let toy = crate::toy::setup_toy(device, shader, config.window_size, format);
                 Ok(RenderableEnum::Toy(toy))
             }
             RenderableConfig::Glyphy(renderable_config) => {
-                let glyphy = Glyphy::init(&device, format, renderable_config.text.to_vec())
+                let glyphy = Glyphy::init(device, format, renderable_config.text.to_vec())
                     .expect("Unable to setup Glyphy");
 
-                Ok(RenderableEnum::Glyphy(glyphy))
+                Ok(RenderableEnum::Glyphy(Box::new(glyphy)))
             }
             RenderableConfig::ImageRenderer(renderable_config) => {
-                // TODO need to pass in image
                 let image_renderer = pollster::block_on(ImageRenderer::new(
                     device,
-                    &queue,
+                    queue,
                     format,
                     renderable_config.image_path,
                 ))?;
@@ -73,10 +72,10 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
                 let associated_av = av_map
                     .get(&renderable_config.socool_path)
                     .expect("No associated av in AvMap");
-                let shader = make_shader(&device, &renderable_config.shader_path)?;
-                let op_streams = crate::op_stream::OpStream::from_vec_op4d(&associated_av);
+                let shader = make_shader(device, renderable_config.shader_path)?;
+                let op_streams = crate::op_stream::OpStream::from_vec_op4d(associated_av);
 
-                let renderpasses = make_renderpasses(&device, op_streams, &shader, config, format);
+                let renderpasses = make_renderpasses(device, op_streams, &shader, config, format);
 
                 Ok(RenderableEnum::EventStreams(renderpasses))
             }
@@ -87,7 +86,7 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
 pub enum RenderableEnum {
     Toy(Toy),
     ImageRenderer(ImageRenderer),
-    Glyphy(Glyphy),
+    Glyphy(Box<Glyphy>),
     EventStreams(Vec<RenderPassInput>),
 }
 
@@ -122,21 +121,20 @@ pub struct EventStreamConfig<'a> {
 
 impl<'a> Renderable<'a> for RenderableEnum {
     fn update(&mut self, input: &'a RenderableInput) -> Result<(), KintaroError> {
-        match self {
-            RenderableEnum::EventStreams(event_streams) => {
-                for renderpass in event_streams.iter_mut() {
-                    renderpass.update(
-                        input.clock_result,
-                        input.canvas,
-                        input.device,
-                        input.queue,
-                        input.config,
-                        input.size,
-                        input.instance_mul,
-                    );
-                }
+        // match self {
+        if let RenderableEnum::EventStreams(event_streams) = self {
+            for renderpass in event_streams.iter_mut() {
+                renderpass.update(
+                    input.clock_result,
+                    input.canvas,
+                    input.device,
+                    input.queue,
+                    input.config,
+                    input.size,
+                    input.instance_mul,
+                );
             }
-            _ => {}
+            // _ => {}
         }
 
         Ok(())

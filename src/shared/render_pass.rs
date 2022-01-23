@@ -53,6 +53,7 @@ impl RenderPassInput {
         );
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn update(
         &mut self,
         clock_result: ClockResult,
@@ -73,7 +74,7 @@ impl RenderPassInput {
             update_instances(
                 &clock_result,
                 self,
-                &canvas,
+                canvas,
                 device,
                 &*config.instancer,
                 size,
@@ -117,5 +118,5 @@ fn update_instances(
 
     renderpass.instances.retain(|i| i.life > 0.0);
     renderpass.instance_buffer =
-        make_instance_buffer(&renderpass.instances, (size.0, size.1), &device);
+        make_instance_buffer(&renderpass.instances, (size.0, size.1), device);
 }

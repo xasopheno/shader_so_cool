@@ -8,7 +8,7 @@ pub fn create_render_pipeline(
 ) -> wgpu::RenderPipeline {
     let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
         label: Some("Render Pipeline Layout"),
-        bind_group_layouts: &[&uniform_bind_group_layout],
+        bind_group_layouts: &[uniform_bind_group_layout],
         push_constant_ranges: &[],
     });
 
@@ -17,12 +17,12 @@ pub fn create_render_pipeline(
         multiview: None,
         layout: Some(&render_pipeline_layout),
         vertex: wgpu::VertexState {
-            module: &shader,
+            module: shader,
             entry_point: "vs_main",
             buffers: &[Vertex::desc(), InstanceRaw::desc()],
         },
         fragment: Some(wgpu::FragmentState {
-            module: &shader,
+            module: shader,
             entry_point: "fs_main",
             targets: &[wgpu::ColorTargetState {
                 format,

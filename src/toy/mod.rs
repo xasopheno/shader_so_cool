@@ -39,6 +39,7 @@ pub fn setup_toy(
 }
 
 impl Toy {
+    #[allow(clippy::too_many_arguments)]
     pub fn toy_renderpass(
         &mut self,
         _is_playing: bool,
@@ -73,7 +74,7 @@ impl Toy {
             let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 label: None,
                 color_attachments: &[wgpu::RenderPassColorAttachment {
-                    view: &view,
+                    view,
                     resolve_target: None,
                     ops: wgpu::Operations {
                         load: if clear {

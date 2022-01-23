@@ -6,20 +6,21 @@ pub fn create_toy_render_pipeline(
 ) -> wgpu::RenderPipeline {
     let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
         label: "Toy Pipeline Layout".into(),
-        bind_group_layouts: &[&uniform_bind_group_layout],
+        bind_group_layouts: &[uniform_bind_group_layout],
         push_constant_ranges: &[],
     });
-    let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+
+    device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
         label: Some("Render Pipeline"),
         layout: Some(&render_pipeline_layout),
         multiview: None,
         vertex: wgpu::VertexState {
-            module: &shader,
+            module: shader,
             entry_point: "vs_main",
             buffers: &[],
         },
         fragment: Some(wgpu::FragmentState {
-            module: &shader,
+            module: shader,
             entry_point: "fs_main",
             // targets: &[format.into()],
             targets: &[wgpu::ColorTargetState {
@@ -49,7 +50,5 @@ pub fn create_toy_render_pipeline(
         primitive: wgpu::PrimitiveState::default(),
         depth_stencil: None,
         multisample: wgpu::MultisampleState::default(),
-    });
-
-    render_pipeline
+    })
 }
