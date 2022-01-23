@@ -20,6 +20,7 @@ impl PrintState {
     pub async fn init(config: &mut Config<'static>, av_map: &AvMap) -> Result<PrintState, Error> {
         let size = config.window_size;
         println!("{}", format!("Frame Size: {}/{}\n", size.0, size.1).green());
+        let format = wgpu::TextureFormat::Rgba8UnormSrgb;
         let instance = wgpu::Instance::new(wgpu::Backends::PRIMARY);
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
@@ -43,8 +44,8 @@ impl PrintState {
             mip_level_count: 1,
             sample_count: 1,
             dimension: wgpu::TextureDimension::D2,
+            format,
             // format: wgpu::TextureFormat::Bgra8UnormSrgb,
-            format: wgpu::TextureFormat::Rgba8UnormSrgb,
             usage: wgpu::TextureUsages::COPY_SRC | wgpu::TextureUsages::RENDER_ATTACHMENT,
             label: None,
         };
@@ -56,7 +57,7 @@ impl PrintState {
             .iter()
             .map(|renderable_config| {
                 renderable_config
-                    .to_renderable(&device, &queue, config, av_map)
+                    .to_renderable(&device, &queue, config, av_map, format)
                     .unwrap()
             })
             .collect();

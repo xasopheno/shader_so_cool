@@ -51,6 +51,7 @@ impl<'a> RealTimeState {
     ) -> Result<RealTimeState, Error> {
         let size = (config.window_size.0, config.window_size.1);
         println!("{}/{}", size.0, size.1);
+        let format = wgpu::TextureFormat::Bgra8UnormSrgb;
         let Setup {
             device,
             surface,
@@ -63,7 +64,7 @@ impl<'a> RealTimeState {
             .iter()
             .map(|renderable_config| {
                 renderable_config
-                    .to_renderable(&device, &queue, config, &av_map)
+                    .to_renderable(&device, &queue, config, &av_map, format)
                     .unwrap()
             })
             .collect();

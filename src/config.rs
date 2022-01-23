@@ -13,24 +13,19 @@ use crate::{color_map_from_named_colorsets, ColorMap, ColorSets};
 
 fn renderable_configs() -> Vec<RenderableConfig<'static>> {
     // let texture_format = wgpu::TextureFormat::Bgra8UnormSrgb;
-    let texture_format = wgpu::TextureFormat::Rgba8UnormSrgb;
     vec![
         RenderableConfig::ImageRenderer(ImageRendererConfig {
             image_path: "src/image_renderer/milo.png",
-            texture_format,
         }),
         RenderableConfig::Toy(ToyConfig {
             shader_path: "src/toy.wgsl",
-            texture_format,
         }),
         RenderableConfig::EventStreams(EventStreamConfig {
             socool_path: "kintaro.socool".to_string(),
             shader_path: "./src/shader.wgsl",
-            texture_format,
         }),
         RenderableConfig::Glyphy(GlyphyConfig {
             text: named_colorsets(),
-            texture_format,
         }),
     ]
 }

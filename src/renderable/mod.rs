@@ -36,6 +36,7 @@ pub trait ToRenderable {
         queue: &wgpu::Queue,
         config: &mut Config,
         av_map: &AvMap,
+        format: wgpu::TextureFormat,
     ) -> Result<RenderableEnum, wgpu::SurfaceError>;
 }
 
@@ -46,35 +47,23 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
         queue: &wgpu::Queue,
         config: &mut Config,
         av_map: &AvMap,
+        format: wgpu::TextureFormat,
     ) -> Result<RenderableEnum, wgpu::SurfaceError> {
         match self {
             RenderableConfig::Toy(renderable_config) => {
                 let shader = make_shader(&device, &renderable_config.shader_path).unwrap();
-                let toy = crate::toy::setup_toy(
-                    device,
-                    shader,
-                    config.window_size,
-                    renderable_config.texture_format,
-                );
+                let toy = crate::toy::setup_toy(device, shader, config.window_size, format);
                 Ok(RenderableEnum::Toy(toy))
             }
             RenderableConfig::Glyphy(renderable_config) => {
-                let glyphy = Glyphy::init(
-                    &device,
-                    renderable_config.texture_format,
-                    renderable_config.text.to_vec(),
-                )
-                .expect("Unable to setup Glyphy");
+                let glyphy = Glyphy::init(&device, format, renderable_config.text.to_vec())
+                    .expect("Unable to setup Glyphy");
 
                 Ok(RenderableEnum::Glyphy(glyphy))
             }
             RenderableConfig::ImageRenderer(renderable_config) => {
                 // TODO need to pass in image
-                let image_renderer = pollster::block_on(ImageRenderer::new(
-                    device,
-                    &queue,
-                    renderable_config.texture_format,
-                ));
+                let image_renderer = pollster::block_on(ImageRenderer::new(device, &queue, format));
 
                 Ok(RenderableEnum::ImageRenderer(image_renderer))
             }
@@ -85,13 +74,7 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
                 let shader = make_shader(&device, &renderable_config.shader_path).unwrap();
                 let op_streams = crate::op_stream::OpStream::from_vec_op4d(&associated_av);
 
-                let renderpasses = make_renderpasses(
-                    &device,
-                    op_streams,
-                    &shader,
-                    config,
-                    renderable_config.texture_format, // wgpu::TextureFormat::Bgra8UnormSrgb,
-                );
+                let renderpasses = make_renderpasses(&device, op_streams, &shader, config, format);
 
                 Ok(RenderableEnum::EventStreams(renderpasses))
             }
@@ -117,26 +100,22 @@ pub enum RenderableConfig<'a> {
 #[derive(Clone)]
 pub struct ToyConfig<'a> {
     pub shader_path: &'a str,
-    pub texture_format: wgpu::TextureFormat,
 }
 
 #[derive(Clone)]
 pub struct ImageRendererConfig<'a> {
     pub image_path: &'a str,
-    pub texture_format: wgpu::TextureFormat,
 }
 
 #[derive(Clone)]
 pub struct GlyphyConfig {
     pub text: Vec<(&'static str, Vec<&'static str>)>,
-    pub texture_format: wgpu::TextureFormat,
 }
 
 #[derive(Clone)]
 pub struct EventStreamConfig<'a> {
     pub socool_path: String,
     pub shader_path: &'a str,
-    pub texture_format: wgpu::TextureFormat,
 }
 
 impl<'a> Renderable<'a> for RenderableEnum {
