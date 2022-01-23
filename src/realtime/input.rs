@@ -3,8 +3,9 @@ use winit::event::*;
 
 impl RealTimeState {
     pub fn keyboard_input(&mut self, event: &WindowEvent) {
-        match event {
-            WindowEvent::KeyboardInput { input, .. } => match input {
+        // match event {
+        if let WindowEvent::KeyboardInput { input, .. } = event {
+            match input {
                 KeyboardInput {
                     state,
                     virtual_keycode: Some(key),
@@ -16,8 +17,7 @@ impl RealTimeState {
                         .process_keyboard(*key, *state);
                 }
                 _ => {}
-            },
-            _ => {}
+            }
         }
     }
 
