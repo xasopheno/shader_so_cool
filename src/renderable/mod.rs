@@ -4,9 +4,9 @@ use kintaro_egui_lib::InstanceMul;
 use weresocool::generation::parsed_to_render::AudioVisual;
 
 use crate::{
-    application::AvMap, canvas::Canvas, clock::ClockResult, config::Config, glyphy::Glyphy,
-    image_renderer::ImageRenderer, op_stream::renderpasses::make_renderpasses, shader::make_shader,
-    shared::RenderPassInput, toy::Toy,
+    application::AvMap, canvas::Canvas, clock::ClockResult, config::Config, error::KintaroError,
+    glyphy::Glyphy, image_renderer::ImageRenderer, op_stream::renderpasses::make_renderpasses,
+    shader::make_shader, shared::RenderPassInput, toy::Toy,
 };
 
 pub struct RenderableInput<'a> {
@@ -37,7 +37,7 @@ pub trait ToRenderable {
         config: &mut Config,
         av_map: &AvMap,
         format: wgpu::TextureFormat,
-    ) -> Result<RenderableEnum, wgpu::SurfaceError>;
+    ) -> Result<RenderableEnum, KintaroError>;
 }
 
 impl<'a> ToRenderable for RenderableConfig<'a> {
@@ -48,10 +48,10 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
         config: &mut Config,
         av_map: &AvMap,
         format: wgpu::TextureFormat,
-    ) -> Result<RenderableEnum, wgpu::SurfaceError> {
+    ) -> Result<RenderableEnum, KintaroError> {
         match self {
             RenderableConfig::Toy(renderable_config) => {
-                let shader = make_shader(&device, &renderable_config.shader_path).unwrap();
+                let shader = make_shader(&device, &renderable_config.shader_path)?;
                 let toy = crate::toy::setup_toy(device, shader, config.window_size, format);
                 Ok(RenderableEnum::Toy(toy))
             }
@@ -71,7 +71,7 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
                 let associated_av = av_map
                     .get(&renderable_config.socool_path)
                     .expect("No associated av in AvMap");
-                let shader = make_shader(&device, &renderable_config.shader_path).unwrap();
+                let shader = make_shader(&device, &renderable_config.shader_path)?;
                 let op_streams = crate::op_stream::OpStream::from_vec_op4d(&associated_av);
 
                 let renderpasses = make_renderpasses(&device, op_streams, &shader, config, format);

@@ -6,6 +6,7 @@ pub mod clock;
 pub mod color;
 pub mod composition;
 pub mod config;
+pub mod error;
 pub mod gen;
 pub mod glyphy;
 pub mod image_renderer;

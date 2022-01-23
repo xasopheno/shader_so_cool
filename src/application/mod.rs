@@ -1,4 +1,5 @@
 use crate::config::Config;
+use crate::error::KintaroError;
 use crate::print::PrintState;
 use crate::realtime::gui::GuiRepaintSignal;
 use crate::realtime::RealTimeState;
@@ -83,7 +84,7 @@ pub fn sum_vec(a: &mut Vec<u8>, b: &[u8]) {
     }
 }
 
-pub fn run<'a>(filename: &str, config: Config<'static>) -> Result<(), Error> {
+pub fn run<'a>(filename: &str, config: Config<'static>) -> Result<(), KintaroError> {
     println!("preparing for audiovisualization: {}", &filename);
     let mut av_map: AvMap = HashMap::new();
     let mut audios: Vec<Audio> = vec![];
@@ -91,16 +92,11 @@ pub fn run<'a>(filename: &str, config: Config<'static>) -> Result<(), Error> {
     for c in config.renderable_configs.iter() {
         match c {
             RenderableConfig::EventStreams(e) => {
-                let result = get_audiovisual_data(&e.socool_path);
+                let result = get_audiovisual_data(&e.socool_path)?;
 
-                match result {
-                    Ok(r) => {
-                        let (a, v) = split_audio_visual(r);
-                        audios.push(a);
-                        av_map.insert(e.socool_path.to_string(), v);
-                    }
-                    Err(e) => return Err(e),
-                }
+                let (a, v) = split_audio_visual(result);
+                audios.push(a);
+                av_map.insert(e.socool_path.to_string(), v);
             }
             _ => {}
         }
@@ -127,7 +123,7 @@ pub fn run<'a>(filename: &str, config: Config<'static>) -> Result<(), Error> {
             &audio.as_slice(),
             std::path::PathBuf::from_str("kintaro.wav")
                 .expect("unable to create pathbuf for kintaro.wav"),
-        );
+        )?;
 
         let command_join_audio_and_video = "ffmpeg -framerate 40 -pattern_type glob -i out/*.png -i kintaro.wav -c:a copy -shortest -c:v libx264 -r 40 -pix_fmt yuv420p out.mov";
 
@@ -139,10 +135,11 @@ pub fn run<'a>(filename: &str, config: Config<'static>) -> Result<(), Error> {
     Ok(())
 }
 
-pub fn write_audio_to_file(audio: &[u8], filename: std::path::PathBuf) {
-    let mut file = std::fs::File::create(filename.clone()).unwrap();
-    file.write_all(audio).unwrap();
+pub fn write_audio_to_file(audio: &[u8], filename: std::path::PathBuf) -> Result<(), KintaroError> {
+    let mut file = std::fs::File::create(filename.clone())?;
+    file.write_all(audio)?;
     println!("Audio file written: {}", filename.display().to_string());
+    Ok(())
 }
 
 fn get_audiovisual_data(filename: &str) -> Result<AudioVisual, Error> {
@@ -168,7 +165,7 @@ fn realtime<'a>(
     mut config: Config<'static>,
     av_map: AvMap,
     stream_handles: rodio::Sink,
-) -> Result<(), Error> {
+) -> Result<(), KintaroError> {
     env_logger::init();
     let title = env!("CARGO_PKG_NAME");
     let event_loop = winit::event_loop::EventLoop::with_user_event();

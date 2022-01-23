@@ -1,4 +1,7 @@
-use crate::renderable::{Renderable, RenderableEnum, RenderableInput};
+use crate::{
+    error::KintaroError,
+    renderable::{Renderable, RenderableEnum, RenderableInput},
+};
 use kintaro_egui_lib::InstanceMul;
 use wgpu::TextureView;
 
@@ -15,7 +18,7 @@ impl Composition {
         clock: &impl Clock,
         instance_mul: InstanceMul,
         view: &TextureView,
-    ) {
+    ) -> Result<(), KintaroError> {
         let clock_result = clock.current();
         self.camera.update(clock_result.last_period);
 
@@ -40,6 +43,7 @@ impl Composition {
         self.renderables.iter_mut().for_each(|renderable| {
             renderable.update(&render_input).unwrap();
             renderable.render_pass(&render_input).unwrap();
-        })
+        });
+        Ok(())
     }
 }

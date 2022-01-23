@@ -7,6 +7,7 @@ pub mod setup;
 use crate::application::AvMap;
 use crate::canvas::Canvas;
 use crate::composition::Composition;
+use crate::error::KintaroError;
 use crate::renderable::RenderableEnum;
 use crate::renderable::ToRenderable;
 use setup::Setup;
@@ -48,7 +49,7 @@ impl<'a> RealTimeState {
         repaint_signal: std::sync::Arc<GuiRepaintSignal>,
         av_map: AvMap,
         audio_stream_handle: rodio::Sink,
-    ) -> Result<RealTimeState, Error> {
+    ) -> Result<RealTimeState, KintaroError> {
         let size = (config.window_size.0, config.window_size.1);
         println!("{}/{}", size.0, size.1);
         let format = wgpu::TextureFormat::Bgra8UnormSrgb;
@@ -60,14 +61,12 @@ impl<'a> RealTimeState {
         } = block_on(Setup::init(window, config));
 
         let renderable_configs = config.renderable_configs.to_owned();
-        let renderables: Vec<RenderableEnum> = renderable_configs
+        let renderables = renderable_configs
             .iter()
             .map(|renderable_config| {
-                renderable_config
-                    .to_renderable(&device, &queue, config, &av_map, format)
-                    .unwrap()
+                renderable_config.to_renderable(&device, &queue, config, &av_map, format)
             })
-            .collect();
+            .collect::<Result<Vec<RenderableEnum>, _>>()?;
 
         Ok(Self {
             device,
