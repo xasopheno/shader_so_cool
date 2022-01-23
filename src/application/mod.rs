@@ -6,7 +6,6 @@ use crate::realtime::RealTimeState;
 use crate::renderable::RenderableConfig;
 use colored::*;
 use cradle::prelude::*;
-use rodio::{OutputStream, OutputStreamHandle};
 use std::collections::HashMap;
 use std::io::Write;
 use std::str::FromStr;
@@ -234,12 +233,16 @@ fn realtime<'a>(
                 match state.render(&window) {
                     Ok(_) => {}
                     // Recreate the swap_chain if lost
-                    Err(wgpu::SurfaceError::Lost) => state.resize(PhysicalSize {
-                        width: state.size.0,
-                        height: state.size.1,
-                    }),
+                    Err(KintaroError::WgpuSurfaceError(wgpu::SurfaceError::Lost)) => {
+                        state.resize(PhysicalSize {
+                            width: state.size.0,
+                            height: state.size.1,
+                        })
+                    }
                     // The system is out of memory, we should probably quit
-                    Err(wgpu::SurfaceError::OutOfMemory) => *control_flow = ControlFlow::Exit,
+                    Err(KintaroError::WgpuSurfaceError(wgpu::SurfaceError::OutOfMemory)) => {
+                        *control_flow = ControlFlow::Exit
+                    }
                     // All other errors (Outdated, Timeout) should be resolved by the next frame
                     Err(e) => eprintln!("{:?}", e),
                 };

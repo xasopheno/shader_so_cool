@@ -1,4 +1,4 @@
-use crate::clock::Clock;
+use crate::{clock::Clock, error::KintaroError};
 
 use super::{
     write::{copy_texture_to_buffer, write_img},
@@ -6,7 +6,7 @@ use super::{
 };
 
 impl PrintState {
-    pub async fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
+    pub async fn render(&mut self) -> Result<(), KintaroError> {
         self.clock.update();
 
         let mut encoder = self
@@ -23,7 +23,7 @@ impl PrintState {
             &self.clock,
             self.composition.config.instance_mul,
             &self.texture_view,
-        );
+        )?;
 
         let output_buffer =
             copy_texture_to_buffer(&mut encoder, self.size, &self.device, &self.texture);

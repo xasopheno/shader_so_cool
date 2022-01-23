@@ -11,8 +11,12 @@ pub struct ImageTexture {
 }
 
 impl ImageTexture {
-    pub fn from_image(device: &wgpu::Device, queue: &wgpu::Queue) -> Result<Self> {
-        let img = image::io::Reader::open("./src/image_renderer/milo.png")?.decode()?;
+    pub fn from_image<'a>(
+        device: &wgpu::Device,
+        queue: &wgpu::Queue,
+        image_path: &'a str,
+    ) -> Result<Self, anyhow::Error> {
+        let img = image::io::Reader::open(image_path)?.decode()?;
         let rgba = img
             .as_rgba8()
             .ok_or_else(|| anyhow::format_err!("Image can't be interpreted as rgba8"))?;

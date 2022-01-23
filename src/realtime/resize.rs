@@ -22,7 +22,7 @@ impl RealTimeState {
 
             let config = wgpu::SurfaceConfiguration {
                 usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
-                format: wgpu::TextureFormat::Rgba8UnormSrgb,
+                format: wgpu::TextureFormat::Bgra8UnormSrgb,
                 width: new_size.width,
                 height: new_size.height,
                 present_mode: wgpu::PresentMode::Fifo,

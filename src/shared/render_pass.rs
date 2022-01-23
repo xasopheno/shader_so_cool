@@ -55,7 +55,6 @@ impl RenderPassInput {
 
     pub fn update(
         &mut self,
-        idx: usize,
         clock_result: ClockResult,
         canvas: &Canvas,
         device: &wgpu::Device,

@@ -2,6 +2,10 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum KintaroError {
+    #[error("Anyhow Error")]
+    AnyhowError(#[from] anyhow::Error),
+    #[error("Image Error")]
+    ImageError(#[from] image::ImageError),
     #[error("Wgpu Error")]
     WgpuSurfaceError(#[from] wgpu::SurfaceError),
     #[error("WereSoCool Error")]

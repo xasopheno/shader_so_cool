@@ -1,20 +1,14 @@
-use weresocool::error::Error;
-use weresocool::generation::parsed_to_render::AudioVisual;
-
 use super::PrintState;
 use crate::application::AvMap;
 use crate::composition::Composition;
-use crate::glyphy::Glyphy;
-use crate::image_renderer::ImageRenderer;
-use crate::op_stream::renderpasses::make_renderpasses;
 use crate::renderable::{RenderableEnum, ToRenderable};
-use crate::shader::make_shader;
 use crate::{
     canvas::Canvas,
     clock::{Clock, PrintClock},
     config::Config,
 };
 use colored::*;
+use weresocool::error::Error;
 
 impl PrintState {
     pub async fn init(config: &mut Config<'static>, av_map: &AvMap) -> Result<PrintState, Error> {

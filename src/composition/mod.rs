@@ -1,8 +1,5 @@
 pub mod render;
-use crate::{
-    camera::Camera, canvas::Canvas, config::Config, glyphy::Glyphy, image_renderer::ImageRenderer,
-    renderable::RenderableEnum, shared::RenderPassInput, toy::Toy,
-};
+use crate::{camera::Camera, canvas::Canvas, config::Config, renderable::RenderableEnum};
 
 pub struct Composition {
     pub renderables: Vec<RenderableEnum>,

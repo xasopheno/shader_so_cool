@@ -6,7 +6,6 @@ use rand::Rng;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 pub use weresocool::generation::json::{EventType, Op4D};
-use weresocool::generation::parsed_to_render::AudioVisual;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct OpStream {

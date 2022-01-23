@@ -1,6 +1,6 @@
 use crate::{
     error::KintaroError,
-    renderable::{Renderable, RenderableEnum, RenderableInput},
+    renderable::{Renderable, RenderableInput},
 };
 use kintaro_egui_lib::InstanceMul;
 use wgpu::TextureView;
@@ -40,10 +40,11 @@ impl Composition {
             clear: false,
         };
 
-        self.renderables.iter_mut().for_each(|renderable| {
-            renderable.update(&render_input).unwrap();
-            renderable.render_pass(&render_input).unwrap();
-        });
+        for renderable in self.renderables.iter_mut() {
+            renderable.update(&render_input)?;
+            renderable.render_pass(&render_input)?;
+        }
+
         Ok(())
     }
 }

@@ -1,3 +1,5 @@
+use crate::error::KintaroError;
+
 use super::image_render::ImageRender;
 use super::image_texture::ImageTexture;
 
@@ -7,15 +9,16 @@ pub struct ImageRenderer {
 }
 
 impl ImageRenderer {
-    pub async fn new(
+    pub async fn new<'a>(
         device: &wgpu::Device,
         queue: &wgpu::Queue,
         format: wgpu::TextureFormat,
-    ) -> Self {
-        let image_texture = ImageTexture::from_image(&device, &queue).unwrap();
+        image_path: &'a str,
+    ) -> Result<Self, KintaroError> {
+        let image_texture = ImageTexture::from_image(&device, &queue, image_path)?;
         let image_render = ImageRender::new(&device, format, &image_texture);
 
-        Self { image_render }
+        Ok(Self { image_render })
     }
 
     pub fn render(

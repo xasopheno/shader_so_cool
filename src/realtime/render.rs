@@ -1,10 +1,10 @@
-use crate::{clock::Clock, realtime::RealTimeState};
+use crate::{clock::Clock, error::KintaroError, realtime::RealTimeState};
 
 impl RealTimeState {
-    pub fn render(&mut self, window: &winit::window::Window) -> Result<(), wgpu::SurfaceError> {
+    pub fn render(&mut self, window: &winit::window::Window) -> Result<(), KintaroError> {
         self.clock.update();
-        // self.audio_stream_handle
-        // .set_volume(self.gui.state.lock().unwrap().volume);
+        self.audio_stream_handle
+            .set_volume(self.gui.state.lock().unwrap().volume);
 
         self.handle_save();
 
@@ -23,7 +23,7 @@ impl RealTimeState {
             &self.clock,
             self.gui.state.lock().unwrap().instance_mul,
             &view,
-        );
+        )?;
 
         self.render_gui(window, &view);
 

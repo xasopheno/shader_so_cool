@@ -1,7 +1,4 @@
-use std::collections::HashMap;
-
 use kintaro_egui_lib::InstanceMul;
-use weresocool::generation::parsed_to_render::AudioVisual;
 
 use crate::{
     application::AvMap, canvas::Canvas, clock::ClockResult, config::Config, error::KintaroError,
@@ -25,8 +22,8 @@ pub struct RenderableInput<'a> {
 
 pub trait Renderable<'a> {
     // TODO: Fix error types
-    fn update(&mut self, input: &'a RenderableInput) -> Result<(), wgpu::SurfaceError>;
-    fn render_pass(&mut self, input: &'a RenderableInput) -> Result<(), wgpu::SurfaceError>;
+    fn update(&mut self, input: &'a RenderableInput) -> Result<(), KintaroError>;
+    fn render_pass(&mut self, input: &'a RenderableInput) -> Result<(), KintaroError>;
 }
 
 pub trait ToRenderable {
@@ -63,7 +60,12 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
             }
             RenderableConfig::ImageRenderer(renderable_config) => {
                 // TODO need to pass in image
-                let image_renderer = pollster::block_on(ImageRenderer::new(device, &queue, format));
+                let image_renderer = pollster::block_on(ImageRenderer::new(
+                    device,
+                    &queue,
+                    format,
+                    renderable_config.image_path,
+                ))?;
 
                 Ok(RenderableEnum::ImageRenderer(image_renderer))
             }
@@ -119,12 +121,11 @@ pub struct EventStreamConfig<'a> {
 }
 
 impl<'a> Renderable<'a> for RenderableEnum {
-    fn update(&mut self, input: &'a RenderableInput) -> Result<(), wgpu::SurfaceError> {
+    fn update(&mut self, input: &'a RenderableInput) -> Result<(), KintaroError> {
         match self {
             RenderableEnum::EventStreams(event_streams) => {
-                for (idx, renderpass) in event_streams.iter_mut().enumerate() {
+                for renderpass in event_streams.iter_mut() {
                     renderpass.update(
-                        idx,
                         input.clock_result,
                         input.canvas,
                         input.device,
@@ -140,7 +141,7 @@ impl<'a> Renderable<'a> for RenderableEnum {
 
         Ok(())
     }
-    fn render_pass(&mut self, input: &'a RenderableInput) -> Result<(), wgpu::SurfaceError> {
+    fn render_pass(&mut self, input: &'a RenderableInput) -> Result<(), KintaroError> {
         match self {
             RenderableEnum::EventStreams(event_streams) => {
                 let mut encoder =

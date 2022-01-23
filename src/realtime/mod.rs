@@ -11,7 +11,6 @@ use crate::error::KintaroError;
 use crate::renderable::RenderableEnum;
 use crate::renderable::ToRenderable;
 use setup::Setup;
-use weresocool::error::Error;
 
 use crate::{
     clock::{Clock, RenderClock},
