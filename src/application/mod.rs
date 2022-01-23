@@ -11,22 +11,82 @@ use std::io::Write;
 use std::str::FromStr;
 use weresocool::error::Error;
 use weresocool::generation::parsed_to_render::AudioVisual;
-use weresocool::generation::{RenderReturn, RenderType};
+use weresocool::generation::{Op4D, RenderReturn, RenderType};
 use weresocool::interpretable::{InputType, Interpretable};
 use winit::dpi::PhysicalSize;
 #[allow(unused_imports)]
 use winit::window::Fullscreen;
 use winit::{event::*, event_loop::ControlFlow, window::WindowBuilder};
 
-pub type AvMap = HashMap<String, AudioVisual>;
-pub type AudioStreams = Vec<rodio::OutputStream>;
-pub type AudioStreamHandles = Vec<rodio::Sink>;
+pub type AvMap = HashMap<String, Visual>;
+
+#[derive(Clone, Debug)]
+/// AudioVisual is the datatype for audiovisualization
+pub struct Visual {
+    /// Composition name
+    pub name: String,
+    /// length of seconds of composition
+    pub length: f32,
+    /// audio data
+    pub visual: Vec<Op4D>,
+}
+
+pub type Audio = Vec<u8>;
+// pub struct Audio {
+// /// Composition name
+// pub name: String,
+// /// length of seconds of composition
+// pub length: f32,
+// /// audio data
+// pub audio: Vec<u8>,
+// }
+
+/// Sum a Vec<Vec<u8> to a single Vec<u8>.
+///
+fn split_audio_visual(av: AudioVisual) -> (Audio, Visual) {
+    (
+        av.audio,
+        Visual {
+            name: av.name.clone(),
+            length: av.length,
+            visual: av.visual,
+        },
+    )
+}
+
+pub fn sum_all_waveforms(mut vec_wav: Vec<Vec<u8>>) -> Vec<u8> {
+    // Sort the vectors by length
+    sort_vecs(&mut vec_wav);
+
+    // Get the length of the longest vector
+    let max_len = vec_wav[0].len();
+
+    let mut result = vec![0; max_len];
+
+    for wav in vec_wav {
+        sum_vec(&mut result, &wav[..]);
+    }
+
+    result
+}
+
+/// Sort a Vec of Vec<u8> by length.
+fn sort_vecs(vec_wav: &mut Vec<Vec<u8>>) {
+    vec_wav.sort_unstable_by(|a, b| b.len().cmp(&a.len()));
+}
+
+/// Sum two vectors. Assumes vector a is longer than or of the same length
+/// as vector b.
+pub fn sum_vec(a: &mut Vec<u8>, b: &[u8]) {
+    for (ai, bi) in a.iter_mut().zip(b) {
+        *ai += *bi;
+    }
+}
 
 pub fn run<'a>(filename: &str, config: Config<'static>) -> Result<(), Error> {
     println!("preparing for audiovisualization: {}", &filename);
     let mut av_map: AvMap = HashMap::new();
-    let mut audio_streams: AudioStreams = vec![];
-    let mut audio_stream_handles: AudioStreamHandles = vec![];
+    let mut audios: Vec<Audio> = vec![];
 
     for c in config.renderable_configs.iter() {
         match c {
@@ -35,11 +95,9 @@ pub fn run<'a>(filename: &str, config: Config<'static>) -> Result<(), Error> {
 
                 match result {
                     Ok(r) => {
-                        let (stream, stream_handle) = crate::audio::setup_audio(&config, &r.audio);
-                        audio_streams.push(stream);
-                        audio_stream_handles.push(stream_handle);
-
-                        av_map.insert(e.socool_path.to_string(), r);
+                        let (a, v) = split_audio_visual(r);
+                        audios.push(a);
+                        av_map.insert(e.socool_path.to_string(), v);
                     }
                     Err(e) => return Err(e),
                 }
@@ -48,27 +106,35 @@ pub fn run<'a>(filename: &str, config: Config<'static>) -> Result<(), Error> {
         }
     }
 
-    // let av = av_map.get(filename).unwrap();
+    let audio = sum_all_waveforms(audios);
+    let (_stream, stream_handle) = crate::audio::setup_audio(&config, &audio);
+
     if std::env::args().find(|x| x == "--print").is_some() {
-        // println!("{}", "\n\n\n:::::<<<<<*****PRINTING*****>>>>>:::::".blue());
+        println!("{}", "\n\n\n:::::<<<<<*****PRINTING*****>>>>>:::::".blue());
 
-        // let n_frames = (av.length * 40.0).floor() as usize + 100;
+        let max_frames = match av_map.values().max_by_key(|v| v.length as usize) {
+            Some(mf) => mf.length as usize,
+            None => 1000,
+        };
 
-        // println!("{}", format!("Number Frames: {}", n_frames).green());
+        let n_frames = (max_frames * 40) + 100;
 
-        // print(config, &av, n_frames)?;
-        // write_audio_to_file(
-        // &av.audio.as_slice(),
-        // std::path::PathBuf::from_str("kintaro.wav")
-        // .expect("unable to create pathbuf for kintaro.wav"),
-        // );
+        println!("{}", format!("Number Frames: {}", n_frames).green());
 
-        // let command_join_audio_and_video = "ffmpeg -framerate 40 -pattern_type glob -i out/*.png -i kintaro.wav -c:a copy -shortest -c:v libx264 -r 40 -pix_fmt yuv420p out.mov";
+        print(config, &av_map, n_frames)?;
 
-        // run!(Stdin("yes"), %command_join_audio_and_video);
+        write_audio_to_file(
+            &audio.as_slice(),
+            std::path::PathBuf::from_str("kintaro.wav")
+                .expect("unable to create pathbuf for kintaro.wav"),
+        );
+
+        let command_join_audio_and_video = "ffmpeg -framerate 40 -pattern_type glob -i out/*.png -i kintaro.wav -c:a copy -shortest -c:v libx264 -r 40 -pix_fmt yuv420p out.mov";
+
+        run!(Stdin("yes"), %command_join_audio_and_video);
     } else {
         println!("****REALTIME****");
-        realtime(config, av_map, audio_stream_handles)?;
+        realtime(config, av_map, stream_handle)?;
     }
     Ok(())
 }
@@ -101,7 +167,7 @@ fn print(mut config: Config<'static>, av: &AvMap, n_frames: usize) -> Result<(),
 fn realtime<'a>(
     mut config: Config<'static>,
     av_map: AvMap,
-    stream_handles: AudioStreamHandles,
+    stream_handles: rodio::Sink,
 ) -> Result<(), Error> {
     env_logger::init();
     let title = env!("CARGO_PKG_NAME");

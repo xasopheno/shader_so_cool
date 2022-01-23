@@ -61,7 +61,7 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
             RenderableConfig::Glyphy(renderable_config) => {
                 let glyphy = Glyphy::init(
                     &device,
-                    wgpu::TextureFormat::Bgra8UnormSrgb,
+                    renderable_config.texture_format,
                     renderable_config.text.to_vec(),
                 )
                 .expect("Unable to setup Glyphy");
@@ -90,7 +90,7 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
                     op_streams,
                     &shader,
                     config,
-                    wgpu::TextureFormat::Bgra8UnormSrgb,
+                    renderable_config.texture_format, // wgpu::TextureFormat::Bgra8UnormSrgb,
                 );
 
                 Ok(RenderableEnum::EventStreams(renderpasses))

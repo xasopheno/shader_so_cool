@@ -100,7 +100,6 @@ fn make_render_pipeline(
             entry_point: "fs_main",
             targets: &[wgpu::ColorTargetState {
                 format,
-
                 blend: Some(wgpu::BlendState::ALPHA_BLENDING),
                 // blend: Some(wgpu::BlendState {
                 // color: wgpu::BlendComponent::OVER,

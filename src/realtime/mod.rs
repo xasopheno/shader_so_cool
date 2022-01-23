@@ -4,18 +4,13 @@ pub mod render;
 mod resize;
 pub mod setup;
 
-use crate::application::AudioStreamHandles;
 use crate::application::AvMap;
 use crate::canvas::Canvas;
-use crate::glyphy::Glyphy;
-use crate::image_renderer::ImageRenderer;
+use crate::composition::Composition;
 use crate::renderable::RenderableEnum;
 use crate::renderable::ToRenderable;
-use crate::shader::make_shader;
-use crate::{composition::Composition, op_stream::renderpasses::make_renderpasses};
 use setup::Setup;
 use weresocool::error::Error;
-use weresocool::generation::parsed_to_render::AudioVisual;
 
 use crate::{
     clock::{Clock, RenderClock},
@@ -30,7 +25,7 @@ use self::setup::Gui;
 pub struct RealTimeState {
     pub composition: Composition,
     pub av_map: AvMap,
-    pub audio_stream_handles: AudioStreamHandles,
+    pub audio_stream_handle: rodio::Sink,
 
     pub clock: RenderClock,
     pub count: u32,
@@ -52,7 +47,7 @@ impl<'a> RealTimeState {
         config: &mut Config<'static>,
         repaint_signal: std::sync::Arc<GuiRepaintSignal>,
         av_map: AvMap,
-        audio_stream_handles: AudioStreamHandles,
+        audio_stream_handle: rodio::Sink,
     ) -> Result<RealTimeState, Error> {
         let size = (config.window_size.0, config.window_size.1);
         println!("{}/{}", size.0, size.1);
@@ -89,23 +84,19 @@ impl<'a> RealTimeState {
             gui,
             repaint_signal: repaint_signal.clone(),
             av_map,
-            audio_stream_handles,
+            audio_stream_handle,
             mouse_pressed: false,
         })
     }
 
     pub fn play(&mut self) {
         self.clock.play();
-        self.audio_stream_handles
-            .iter_mut()
-            .for_each(|stream_handle| stream_handle.play())
+        self.audio_stream_handle.play()
     }
 
     #[allow(dead_code)]
     pub fn pause(&mut self) {
         self.clock.pause();
-        self.audio_stream_handles
-            .iter_mut()
-            .for_each(|stream_handle| stream_handle.pause())
+        self.audio_stream_handle.pause()
     }
 }

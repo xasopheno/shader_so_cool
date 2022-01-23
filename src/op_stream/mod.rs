@@ -1,5 +1,5 @@
 pub mod renderpasses;
-use crate::instance::Instance;
+use crate::{application::Visual, instance::Instance};
 use cgmath::{Rotation3, Vector3};
 use kintaro_egui_lib::InstanceMul;
 use rand::Rng;
@@ -43,9 +43,9 @@ impl OpStream {
             .collect()
     }
 
-    pub fn from_vec_op4d(av: &AudioVisual) -> Vec<OpStream> {
+    pub fn from_vec_op4d(v: &Visual) -> Vec<OpStream> {
         let mut op_streams = BTreeMap::<Vec<String>, Vec<Op4D>>::new();
-        av.visual.iter().for_each(|op| {
+        v.visual.iter().for_each(|op| {
             if op.names.is_empty() {
                 let stream = op_streams.entry(vec!["nameless".into()]).or_insert(vec![]);
                 stream.push(op.clone());
@@ -60,7 +60,7 @@ impl OpStream {
             .into_iter()
             .map(|(names, ops)| OpStream {
                 ops,
-                length: av.length,
+                length: v.length,
                 names,
             })
             .collect()
