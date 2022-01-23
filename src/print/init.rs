@@ -60,13 +60,13 @@ impl PrintState {
             device,
             queue,
             size,
-            clock: PrintClock::init(&config),
+            clock: PrintClock::init(config),
             count: 0,
 
             composition: Composition {
                 renderables,
                 config: config.clone(),
-                camera: crate::camera::Camera::new(&config.cameras[0], size, &config, 0),
+                camera: crate::camera::Camera::new(&config.cameras[0], size, config, 0),
                 canvas: Canvas::init(size),
             },
 

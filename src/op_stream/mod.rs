@@ -23,11 +23,13 @@ impl OpStream {
         let mut op_streams = BTreeMap::<Vec<String>, Vec<Op4D>>::new();
         deserialized.ops.iter().for_each(|op| {
             if op.names.is_empty() {
-                let stream = op_streams.entry(vec!["nameless".into()]).or_insert(vec![]);
+                let stream = op_streams
+                    .entry(vec!["nameless".into()])
+                    .or_insert_with(Vec::new);
                 stream.push(op.clone());
             } else {
                 let names = &op.names;
-                let stream = op_streams.entry(names.to_owned()).or_insert(vec![]);
+                let stream = op_streams.entry(names.to_owned()).or_insert_with(Vec::new);
                 stream.push(op.clone());
             }
         });
@@ -46,11 +48,13 @@ impl OpStream {
         let mut op_streams = BTreeMap::<Vec<String>, Vec<Op4D>>::new();
         v.visual.iter().for_each(|op| {
             if op.names.is_empty() {
-                let stream = op_streams.entry(vec!["nameless".into()]).or_insert(vec![]);
+                let stream = op_streams
+                    .entry(vec!["nameless".into()])
+                    .or_insert_with(Vec::new);
                 stream.push(op.clone());
             } else {
                 let names = &op.names;
-                let stream = op_streams.entry(names.to_owned()).or_insert(vec![]);
+                let stream = op_streams.entry(names.to_owned()).or_insert_with(Vec::new);
                 stream.push(op.clone());
             }
         });
@@ -88,7 +92,7 @@ pub trait ToInstance {
     where
         Self: Sized;
     fn into_instance(
-        &self,
+        self,
         displacement: &cgmath::Vector3<f32>,
         n_column: u32,
         n_row: u32,
@@ -132,7 +136,7 @@ impl ToInstance for Op4D {
     }
 
     fn into_instance(
-        &self,
+        self,
         displacement: &cgmath::Vector3<f32>,
         n_column: u32,
         n_row: u32,
@@ -169,7 +173,7 @@ impl ToInstance for Op4D {
             life,
             size,
             length,
-            names: self.names.to_owned(),
+            names: self.names,
         }
     }
 }

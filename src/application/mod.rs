@@ -83,28 +83,25 @@ pub fn sum_vec(a: &mut Vec<u8>, b: &[u8]) {
     }
 }
 
-pub fn run<'a>(filename: &str, config: Config<'static>) -> Result<(), KintaroError> {
+pub fn run(filename: &str, config: Config<'static>) -> Result<(), KintaroError> {
     println!("preparing for audiovisualization: {}", &filename);
     let mut av_map: AvMap = HashMap::new();
     let mut audios: Vec<Audio> = vec![];
 
     for c in config.renderable_configs.iter() {
-        match c {
-            RenderableConfig::EventStreams(e) => {
-                let result = get_audiovisual_data(&e.socool_path)?;
+        if let RenderableConfig::EventStreams(e) = c {
+            let result = get_audiovisual_data(&e.socool_path)?;
 
-                let (a, v) = split_audio_visual(result);
-                audios.push(a);
-                av_map.insert(e.socool_path.to_string(), v);
-            }
-            _ => {}
+            let (a, v) = split_audio_visual(result);
+            audios.push(a);
+            av_map.insert(e.socool_path.to_string(), v);
         }
     }
 
     let audio = sum_all_waveforms(audios);
     let (_stream, stream_handle) = crate::audio::setup_audio(&config, &audio);
 
-    if std::env::args().find(|x| x == "--print").is_some() {
+    if std::env::args().any(|x| x == "--print") {
         println!("{}", "\n\n\n:::::<<<<<*****PRINTING*****>>>>>:::::".blue());
 
         let max_frames = match av_map.values().max_by_key(|v| v.length as usize) {
@@ -119,7 +116,7 @@ pub fn run<'a>(filename: &str, config: Config<'static>) -> Result<(), KintaroErr
         print(config, &av_map, n_frames)?;
 
         write_audio_to_file(
-            &audio.as_slice(),
+            audio.as_slice(),
             std::path::PathBuf::from_str("kintaro.wav")
                 .expect("unable to create pathbuf for kintaro.wav"),
         )?;
@@ -137,13 +134,13 @@ pub fn run<'a>(filename: &str, config: Config<'static>) -> Result<(), KintaroErr
 pub fn write_audio_to_file(audio: &[u8], filename: std::path::PathBuf) -> Result<(), KintaroError> {
     let mut file = std::fs::File::create(filename.clone())?;
     file.write_all(audio)?;
-    println!("Audio file written: {}", filename.display().to_string());
+    println!("Audio file written: {}", filename.display());
     Ok(())
 }
 
 fn get_audiovisual_data(filename: &str) -> Result<AudioVisual, Error> {
     if let RenderReturn::AudioVisual(av) =
-        InputType::Filename(&filename).make(RenderType::AudioVisual, None)?
+        InputType::Filename(filename).make(RenderType::AudioVisual, None)?
     {
         Ok(av)
     } else {
@@ -155,12 +152,12 @@ fn print(mut config: Config<'static>, av: &AvMap, n_frames: usize) -> Result<(),
     let mut state = async_std::task::block_on(PrintState::init(&mut config, av))?;
     for i in 0..n_frames {
         async_std::task::block_on(state.render())
-            .expect(format!("Unable to render frame: {}", i).as_str());
+            .unwrap_or_else(|_| panic!("Unable to render frame: {}", i));
     }
     Ok(())
 }
 
-fn realtime<'a>(
+fn realtime(
     mut config: Config<'static>,
     av_map: AvMap,
     stream_handles: rodio::Sink,

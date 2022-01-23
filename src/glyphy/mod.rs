@@ -17,11 +17,11 @@ pub struct Glyphy {
 
 type TextRenderable<'a> = NamedValue<'a, Vec<&'a str>>;
 
-pub fn max_len_text_in_vec_text_renderable(v: &Vec<TextRenderable>) -> usize {
+pub fn max_len_text_in_vec_text_renderable(v: &[TextRenderable]) -> usize {
     v.iter().map(|r| r.0.len()).max().unwrap()
 }
 
-pub fn hex_str_to_rgba<'a>(s: &'a str) -> [f32; 4] {
+pub fn hex_str_to_rgba(s: &str) -> [f32; 4] {
     let re = regex::Regex::new(r"#([a-fA-F0-9]{6})").unwrap();
     if !re.is_match(s) {
         panic!("{} is not in hex format", s);
@@ -35,16 +35,16 @@ pub fn hex_str_to_rgba<'a>(s: &'a str) -> [f32; 4] {
         .collect::<Vec<String>>()
         .iter()
         .map(|chunk| {
-            hex::decode(chunk)
-                .expect(format!("unable to decode chuck {} in hex {}", chunk.as_str(), s).as_str())
-                [0] as f32
+            hex::decode(chunk).unwrap_or_else(|_| {
+                panic!("unable to decode chuck {} in hex {}", chunk.as_str(), s)
+            })[0] as f32
         })
         .collect();
 
     [rgb[0], rgb[1], rgb[2], 255.0]
 }
 
-pub fn hex_str_to_normalized_rgba<'a>(s: &'a str) -> [f32; 4] {
+pub fn hex_str_to_normalized_rgba(s: &str) -> [f32; 4] {
     let rgba = hex_str_to_rgba(s)
         .iter()
         .map(|v| v / 255.0)
@@ -94,7 +94,7 @@ impl Glyphy {
         // Prepare glyph_brush
         let inconsolata =
             ab_glyph::FontArc::try_from_slice(include_bytes!("Inconsolata-Regular.ttf"))?;
-        let brush = GlyphBrushBuilder::using_font(inconsolata).build(&device, format);
+        let brush = GlyphBrushBuilder::using_font(inconsolata).build(device, format);
 
         Ok(Self {
             text,
@@ -105,7 +105,7 @@ impl Glyphy {
         })
     }
 
-    pub fn render<'a>(
+    pub fn render(
         &mut self,
         // texts: Vec<TextRenderable>,
         device: &wgpu::Device,
@@ -181,7 +181,7 @@ impl Glyphy {
                     ..Section::default()
                 });
 
-                offset_x += scale * 4.0 as f32;
+                offset_x += scale * 4.0_f32;
             }
             offset_x = color_offset_x;
             offset_y += scale;
@@ -190,7 +190,7 @@ impl Glyphy {
         // Draw the text
         self.brush
             .draw_queued(
-                &device,
+                device,
                 &mut self.staging_belt,
                 &mut encoder,
                 view,

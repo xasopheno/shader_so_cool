@@ -34,7 +34,7 @@ pub fn copy_texture_to_buffer(
     device: &wgpu::Device,
     texture: &wgpu::Texture,
 ) -> wgpu::Buffer {
-    let output_buffer = make_output_buffer(&device, size);
+    let output_buffer = make_output_buffer(device, size);
 
     encoder.copy_texture_to_buffer(
         wgpu::ImageCopyTexture {

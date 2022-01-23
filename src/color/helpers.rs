@@ -1,6 +1,6 @@
 use super::{Color, ColorSet, ColorSets};
 
-pub fn hex_str_to_rgba<'a>(s: &'a str) -> [f32; 4] {
+pub fn hex_str_to_rgba(s: &str) -> [f32; 4] {
     let re = regex::Regex::new(r"#([a-fA-F0-9]{6})").unwrap();
     if !re.is_match(s) {
         panic!("{} is not in hex format", s);
@@ -14,16 +14,16 @@ pub fn hex_str_to_rgba<'a>(s: &'a str) -> [f32; 4] {
         .collect::<Vec<String>>()
         .iter()
         .map(|chunk| {
-            hex::decode(chunk)
-                .expect(format!("unable to decode chuck {} in hex {}", chunk.as_str(), s).as_str())
-                [0] as f32
+            hex::decode(chunk).unwrap_or_else(|_| {
+                panic!("unable to decode chuck {} in hex {}", chunk.as_str(), s)
+            })[0] as f32
         })
         .collect();
 
     [rgb[0], rgb[1], rgb[2], 255.0]
 }
 
-pub fn hex_str_to_normalized_rgba<'a>(s: &'a str) -> [f32; 4] {
+pub fn hex_str_to_normalized_rgba(s: &str) -> [f32; 4] {
     let rgba = hex_str_to_rgba(s)
         .iter()
         .map(|v| v / 255.0)
@@ -140,6 +140,7 @@ fn test_hex_to_color() {
             r: 150.0 / 255.0,
             g: 183.0 / 255.0,
             b: 128.0 / 255.0,
+            a: 1.0,
             shade: 1.0
         }
     );

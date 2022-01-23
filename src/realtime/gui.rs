@@ -23,7 +23,7 @@ impl RealTimeState {
             if state.save {
                 let filename = "./save/saved.json";
                 let instance_mul = state.instance_mul.to_owned();
-                let camera = self.composition.camera.current_state().clone();
+                let camera = self.composition.camera.current_state();
                 thread::spawn(move || {
                     let mut file = File::create(filename).unwrap();
                     let config_state = ConfigState {
@@ -31,8 +31,8 @@ impl RealTimeState {
                         instance_mul,
                     };
                     let serialized = serde_json::to_string(&config_state)
-                        .expect(&format!("unable to serialize, {}", filename));
-                    file.write(serialized.as_bytes())
+                        .unwrap_or_else(|_| panic!("unable to serialize, {}", filename));
+                    file.write_all(serialized.as_bytes())
                         .expect("unable to write to file on save");
                 });
                 state.save = false;
@@ -57,23 +57,20 @@ impl RealTimeState {
         let previous_frame_time = self.clock.current().last_period;
         let app_output = kintaro_egui_lib::epi::backend::AppOutput::default();
 
-        let mut frame =
-            kintaro_egui_lib::epi::Frame::new(kintaro_egui_lib::epi::backend::FrameData {
-                info: kintaro_egui_lib::epi::IntegrationInfo {
-                    name: "egui integration info",
-                    web_info: None,
-                    cpu_usage: Some(previous_frame_time),
-                    native_pixels_per_point: Some(window.scale_factor() as _),
-                    prefer_dark_mode: None,
-                },
-                // tex_allocator: &mut self.gui.renderpass,
-                output: app_output,
-                repaint_signal: self.repaint_signal.clone(),
-            });
+        let frame = kintaro_egui_lib::epi::Frame::new(kintaro_egui_lib::epi::backend::FrameData {
+            info: kintaro_egui_lib::epi::IntegrationInfo {
+                name: "egui integration info",
+                web_info: None,
+                cpu_usage: Some(previous_frame_time),
+                native_pixels_per_point: Some(window.scale_factor() as _),
+                prefer_dark_mode: None,
+            },
+            // tex_allocator: &mut self.gui.renderpass,
+            output: app_output,
+            repaint_signal: self.repaint_signal.clone(),
+        });
 
-        self.gui
-            .app
-            .update(&self.gui.platform.context(), &mut frame);
+        self.gui.app.update(&self.gui.platform.context(), &frame);
 
         // End the UI frame. We could now handle the output and draw the UI with the backend.
         let (_output, paint_commands) = self.gui.platform.end_frame(Some(window));
@@ -95,8 +92,8 @@ impl RealTimeState {
             .update_user_textures(&self.device, &self.queue);
 
         self.gui.renderpass.update_buffers(
-            &mut self.device,
-            &mut self.queue,
+            &self.device,
+            &self.queue,
             &paint_jobs,
             &screen_descriptor,
         );
@@ -104,7 +101,7 @@ impl RealTimeState {
         // Record all render passes.
         self.gui
             .renderpass
-            .execute(&mut encoder, &view, &paint_jobs, &screen_descriptor, None)
+            .execute(&mut encoder, view, &paint_jobs, &screen_descriptor, None)
             .unwrap();
 
         self.queue.submit(Some(encoder.finish()));

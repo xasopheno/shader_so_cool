@@ -52,12 +52,12 @@ pub fn make_image_vertices_and_indices(device: &wgpu::Device) -> (wgpu::Buffer, 
     let image_indices: &[u16] = &[0, 1, 3, 1, 2, 3, /* padding */ 0];
     let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
         label: Some("Image Vertex Buffer"),
-        contents: bytemuck::cast_slice(&image_vertices),
+        contents: bytemuck::cast_slice(image_vertices),
         usage: wgpu::BufferUsages::VERTEX,
     });
     let index_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
         label: Some("Image Index Buffer"),
-        contents: bytemuck::cast_slice(&image_indices),
+        contents: bytemuck::cast_slice(image_indices),
         usage: wgpu::BufferUsages::INDEX,
     });
     let num_indices = image_indices.len() as u32;

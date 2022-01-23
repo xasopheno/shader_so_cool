@@ -35,7 +35,7 @@ pub fn make_instances(n: usize, size: (u32, u32)) -> Vec<Instance> {
             let position = cgmath::Vector3 {
                 x: rr(),
                 y: rc(),
-                z: 0.0 as f32,
+                z: 0.0_f32,
             } - instance_displacement;
 
             let rotation =
@@ -55,7 +55,7 @@ pub fn make_instances(n: usize, size: (u32, u32)) -> Vec<Instance> {
 }
 
 pub fn make_instance_buffer(
-    instances: &Vec<Instance>,
+    instances: &[Instance],
     _size: (u32, u32),
     device: &wgpu::Device,
 ) -> wgpu::Buffer {

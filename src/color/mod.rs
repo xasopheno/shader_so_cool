@@ -107,7 +107,7 @@ where
     }
 }
 
-pub fn color_map_from_named_gen_color<'a>(colors: Vec<(&'a str, Box<dyn GenColor>)>) -> ColorMap {
+pub fn color_map_from_named_gen_color(colors: Vec<(&str, Box<dyn GenColor>)>) -> ColorMap {
     let mut map: IndexMap<String, Box<dyn GenColor>> = IndexMap::new();
 
     colors.iter().for_each(|color| {

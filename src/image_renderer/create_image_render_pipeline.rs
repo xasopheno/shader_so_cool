@@ -7,12 +7,12 @@ pub fn create_image_render_pipeline(
     format: wgpu::TextureFormat,
     image_texture: &ImageTexture,
 ) -> (wgpu::BindGroup, wgpu::RenderPipeline) {
-    let shader = make_shader(&device);
-    let image_bind_group_layout = make_image_bind_group_layout(&device);
-    let image_bind_group = make_image_bind_group(&device, &image_bind_group_layout, image_texture);
+    let shader = make_shader(device);
+    let image_bind_group_layout = make_image_bind_group_layout(device);
+    let image_bind_group = make_image_bind_group(device, &image_bind_group_layout, image_texture);
 
-    let render_pipeline_layout = make_render_pipeline_layout(&device, &image_bind_group_layout);
-    let render_pipeline = make_render_pipeline(&device, &render_pipeline_layout, &shader, format);
+    let render_pipeline_layout = make_render_pipeline_layout(device, &image_bind_group_layout);
+    let render_pipeline = make_render_pipeline(device, &render_pipeline_layout, &shader, format);
 
     (image_bind_group, render_pipeline)
 }
@@ -47,7 +47,7 @@ fn make_image_bind_group(
     image_texture: &ImageTexture,
 ) -> BindGroup {
     device.create_bind_group(&wgpu::BindGroupDescriptor {
-        layout: &image_bind_group_layout,
+        layout: image_bind_group_layout,
         entries: &[
             wgpu::BindGroupEntry {
                 binding: 0,
@@ -88,10 +88,10 @@ fn make_render_pipeline(
 ) -> RenderPipeline {
     device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
         label: Some("Image Render Pipeline"),
-        layout: Some(&render_pipeline_layout),
+        layout: Some(render_pipeline_layout),
         multiview: None,
         vertex: wgpu::VertexState {
-            module: &shader,
+            module: shader,
             entry_point: "vs_main",
             buffers: &[ImageVertex::desc()],
         },

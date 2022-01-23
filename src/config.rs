@@ -86,12 +86,8 @@ impl<'a> Config<'a> {
             Some((0.0, 20.0, 0.0)),
         );
 
-        let instance_mul = if let Ok(s) = saved {
-            if s.is_some() {
-                s.unwrap().instance_mul
-            } else {
-                instance_mul
-            }
+        let instance_mul = if let Ok(Some(found)) = saved {
+            found.instance_mul
         } else {
             instance_mul
         };

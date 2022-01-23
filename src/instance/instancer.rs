@@ -81,7 +81,7 @@ pub fn op4d_to_instance(input: InstancerOutput, op4d: Op4D, canvas: &Canvas) -> 
         life: input.life,
         size: input.size,
         length: input.length,
-        names: op4d.names.to_owned(),
+        names: op4d.names,
     }
 }
 
