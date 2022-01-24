@@ -5,25 +5,73 @@ use wgpu_glyph::{
     GlyphBrush, GlyphBrushBuilder, Section, Text,
 };
 
-use crate::NamedValue;
+use crate::{renderable::GlyphyConfig, NamedValue};
 
 pub struct Glyphy {
+    config: GlyphyConfig,
     staging_belt: wgpu::util::StagingBelt,
     local_pool: futures::executor::LocalPool,
     local_spawner: LocalSpawner,
     brush: GlyphBrush<()>,
-    location: (f32, f32),
-    text: Vec<(&'static str, Vec<&'static str>)>,
 }
 
 type TextRenderable<'a> = NamedValue<'a, Vec<&'a str>>;
+
+impl GlyphyConfig {
+    pub fn render(&mut self, brush: &mut GlyphBrush<()>, size: (u32, u32)) {
+        match self {
+            GlyphyConfig::GlyphyNamedColorSetConfig { text: t, location } => {
+                let mut offset_x = location.0 * size.0 as f32;
+                let mut offset_y = location.1 * size.1 as f32;
+                let scale = 35.0;
+
+                for text in t.iter().rev() {
+                    brush.queue(Section {
+                        screen_position: (scale + offset_x, scale * t.len() as f32 + offset_y),
+                        bounds: (size.0 as f32, size.1 as f32),
+                        text: vec![Text::new(&format!("{}:", text.0))
+                            .with_color(hex_str_to_normalized_rgba("#dedede"))
+                            .with_scale(scale)],
+                        ..Section::default()
+                    });
+
+                    offset_y += scale;
+                }
+
+                let color_offset_x =
+                    max_len_text_in_vec_text_renderable(&t) as f32 * scale * 0.7 + offset_x;
+                offset_x = color_offset_x;
+                offset_y = location.1 * size.1 as f32;
+
+                for text in t.iter().rev() {
+                    for color in text.1.iter() {
+                        brush.queue(Section {
+                            screen_position: (scale + offset_x, scale * t.len() as f32 + offset_y),
+                            bounds: (size.0 as f32, size.1 as f32),
+                            text: vec![Text::new(color)
+                                .with_color(hex_str_to_normalized_rgba(color))
+                                .with_scale(scale)],
+                            ..Section::default()
+                        });
+
+                        offset_x += scale * 4.0_f32;
+                    }
+                    offset_x = color_offset_x;
+                    offset_y += scale;
+                }
+            }
+            _ => {
+                todo!()
+            }
+        }
+    }
+}
 
 impl Glyphy {
     pub fn init(
         device: &wgpu::Device,
         format: wgpu::TextureFormat,
-        text: Vec<(&'static str, Vec<&'static str>)>,
-        location: (f32, f32),
+        config: GlyphyConfig,
     ) -> Result<Self, InvalidFont> {
         // Create staging belt and a local pool
         let staging_belt = wgpu::util::StagingBelt::new(1024);
@@ -35,8 +83,7 @@ impl Glyphy {
         let brush = GlyphBrushBuilder::using_font(inconsolata).build(device, format);
 
         Ok(Self {
-            location,
-            text,
+            config,
             brush,
             staging_belt,
             local_pool,
@@ -54,44 +101,7 @@ impl Glyphy {
     ) {
         let encoder = self.prepare_render(device, view, clear);
 
-        let mut offset_x = self.location.0 * size.0 as f32;
-        let mut offset_y = self.location.1 * size.1 as f32;
-        let scale = 35.0;
-
-        for text in self.text.iter().rev() {
-            self.brush.queue(Section {
-                screen_position: (scale + offset_x, scale * self.text.len() as f32 + offset_y),
-                bounds: (size.0 as f32, size.1 as f32),
-                text: vec![Text::new(&format!("{}:", text.0))
-                    .with_color(hex_str_to_normalized_rgba("#dedede"))
-                    .with_scale(scale)],
-                ..Section::default()
-            });
-
-            offset_y += scale;
-        }
-
-        let color_offset_x =
-            max_len_text_in_vec_text_renderable(&self.text) as f32 * scale * 0.7 + offset_x;
-        offset_x = color_offset_x;
-        offset_y = self.location.1 * size.1 as f32;
-
-        for text in self.text.iter().rev() {
-            for color in text.1.iter() {
-                self.brush.queue(Section {
-                    screen_position: (scale + offset_x, scale * self.text.len() as f32 + offset_y),
-                    bounds: (size.0 as f32, size.1 as f32),
-                    text: vec![Text::new(color)
-                        .with_color(hex_str_to_normalized_rgba(color))
-                        .with_scale(scale)],
-                    ..Section::default()
-                });
-
-                offset_x += scale * 4.0_f32;
-            }
-            offset_x = color_offset_x;
-            offset_y += scale;
-        }
+        self.config.render(&mut self.brush, size);
 
         self.finalize_render(device, queue, size, view, encoder);
     }

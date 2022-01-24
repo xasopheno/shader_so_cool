@@ -21,7 +21,6 @@ pub struct RenderableInput<'a> {
 }
 
 pub trait Renderable<'a> {
-    // TODO: Fix error types
     fn update(&mut self, input: &'a RenderableInput) -> Result<(), KintaroError>;
     fn render_pass(&mut self, input: &'a RenderableInput) -> Result<(), KintaroError>;
 }
@@ -53,13 +52,8 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
                 Ok(RenderableEnum::Toy(toy))
             }
             RenderableConfig::Glyphy(renderable_config) => {
-                let glyphy = Glyphy::init(
-                    device,
-                    format,
-                    renderable_config.text.to_vec(),
-                    renderable_config.location,
-                )
-                .expect("Unable to setup Glyphy");
+                let glyphy = Glyphy::init(device, format, renderable_config.to_owned())
+                    .expect("Unable to setup Glyphy");
 
                 Ok(RenderableEnum::Glyphy(Box::new(glyphy)))
             }
@@ -96,24 +90,6 @@ pub enum RenderableEnum {
 }
 
 #[derive(Clone)]
-pub enum GlyphyRenderable {
-    GlyphyNamedColorSetConfig(GlyphyNamedColorSetConfig),
-    GlypyTextConfig(GlyphyTextConfig),
-}
-
-#[derive(Clone)]
-pub struct GlyphyNamedColorSetConfig {
-    pub text: Vec<(&'static str, Vec<&'static str>)>,
-    pub location: (f32, f32),
-}
-
-#[derive(Clone)]
-pub struct GlyphyTextConfig {
-    pub text: Vec<String>,
-    pub location: (f32, f32),
-}
-
-#[derive(Clone)]
 pub enum RenderableConfig<'a> {
     Toy(ToyConfig<'a>),
     ImageRenderer(ImageRendererConfig<'a>),
@@ -131,16 +107,28 @@ pub struct ImageRendererConfig<'a> {
     pub image_path: &'a str,
 }
 
-#[derive(Clone)]
-pub struct GlyphyConfig {
-    pub text: Vec<(&'static str, Vec<&'static str>)>,
-    pub location: (f32, f32),
-}
+// #[derive(Clone)]
+// pub struct GlyphyConfig {
+// pub text: Vec<(&'static str, Vec<&'static str>)>,
+// pub location: (f32, f32),
+// }
 
 #[derive(Clone)]
 pub struct EventStreamConfig<'a> {
     pub socool_path: String,
     pub shader_path: &'a str,
+}
+
+#[derive(Clone)]
+pub enum GlyphyConfig {
+    GlyphyNamedColorSetConfig {
+        text: Vec<(&'static str, Vec<&'static str>)>,
+        location: (f32, f32),
+    },
+    GlypyTextConfig {
+        text: Vec<(&'static str, &'static str)>,
+        location: (f32, f32),
+    },
 }
 
 impl<'a> Renderable<'a> for RenderableEnum {
