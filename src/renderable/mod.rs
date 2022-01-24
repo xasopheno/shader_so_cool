@@ -96,6 +96,24 @@ pub enum RenderableEnum {
 }
 
 #[derive(Clone)]
+pub enum GlyphyRenderable {
+    GlyphyNamedColorSetConfig(GlyphyNamedColorSetConfig),
+    GlypyTextConfig(GlyphyTextConfig),
+}
+
+#[derive(Clone)]
+pub struct GlyphyNamedColorSetConfig {
+    pub text: Vec<(&'static str, Vec<&'static str>)>,
+    pub location: (f32, f32),
+}
+
+#[derive(Clone)]
+pub struct GlyphyTextConfig {
+    pub text: Vec<String>,
+    pub location: (f32, f32),
+}
+
+#[derive(Clone)]
 pub enum RenderableConfig<'a> {
     Toy(ToyConfig<'a>),
     ImageRenderer(ImageRendererConfig<'a>),

@@ -52,34 +52,7 @@ impl Glyphy {
         view: &wgpu::TextureView,
         clear: bool,
     ) {
-        let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-            label: Some("Redraw"),
-        });
-
-        // Clear frame
-        {
-            let _ = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-                label: Some("Render pass"),
-                color_attachments: &[wgpu::RenderPassColorAttachment {
-                    view,
-                    resolve_target: None,
-                    ops: wgpu::Operations {
-                        load: if clear {
-                            wgpu::LoadOp::Clear(wgpu::Color {
-                                r: 0.0,
-                                g: 0.0,
-                                b: 0.0,
-                                a: 1.0,
-                            })
-                        } else {
-                            wgpu::LoadOp::Load
-                        },
-                        store: true,
-                    },
-                }],
-                depth_stencil_attachment: None,
-            });
-        }
+        let encoder = self.prepare_render(device, view, clear);
 
         let mut offset_x = self.location.0 * size.0 as f32;
         let mut offset_y = self.location.1 * size.1 as f32;
@@ -120,7 +93,52 @@ impl Glyphy {
             offset_y += scale;
         }
 
-        // Draw the text
+        self.finalize_render(device, queue, size, view, encoder);
+    }
+
+    fn prepare_render(
+        &self,
+        device: &wgpu::Device,
+        view: &wgpu::TextureView,
+        clear: bool,
+    ) -> wgpu::CommandEncoder {
+        let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some("Redraw"),
+        });
+
+        let _ = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+            label: Some("Render pass"),
+            color_attachments: &[wgpu::RenderPassColorAttachment {
+                view,
+                resolve_target: None,
+                ops: wgpu::Operations {
+                    load: if clear {
+                        wgpu::LoadOp::Clear(wgpu::Color {
+                            r: 0.0,
+                            g: 0.0,
+                            b: 0.0,
+                            a: 1.0,
+                        })
+                    } else {
+                        wgpu::LoadOp::Load
+                    },
+                    store: true,
+                },
+            }],
+            depth_stencil_attachment: None,
+        });
+
+        encoder
+    }
+
+    fn finalize_render(
+        &mut self,
+        device: &wgpu::Device,
+        queue: &wgpu::Queue,
+        size: (u32, u32),
+        view: &wgpu::TextureView,
+        mut encoder: wgpu::CommandEncoder,
+    ) {
         self.brush
             .draw_queued(
                 device,
