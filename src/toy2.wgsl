@@ -25,9 +25,9 @@ fn fs_main(
 ) -> [[location(0)]] vec4<f32> {
     var resolution = vec2<f32>(u.width, u.height);
     var uv = frag_coord.xy / resolution;
-    var thing = uv.x < 0.4 && uv.y > 0.8;
+    var thing = uv.x < 0.35 && uv.y > 0.85;
     if (thing) {
-        return vec4<f32>(0.0, 0.0, 0.0, 0.95);
+        return vec4<f32>(0.0, 0.0, 0.0, 0.97);
     } else {
         return vec4<f32>(0.0, 0.0, 0.0, 0.0);
     }

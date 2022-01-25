@@ -28,7 +28,7 @@ fn renderable_configs() -> Vec<RenderableConfig<'static>> {
         }),
         RenderableConfig::Glyphy(GlyphyConfig::GlyphyNamedColorSetConfig {
             text: named_colorsets(),
-            location: (0.05, 0.85),
+            location: (0.05, 0.9),
             scale: 50.0,
         }),
         RenderableConfig::Glyphy(GlyphyConfig::GlypyTextConfig {
