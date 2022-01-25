@@ -124,10 +124,12 @@ pub enum GlyphyConfig {
     GlyphyNamedColorSetConfig {
         text: Vec<(&'static str, Vec<&'static str>)>,
         location: (f32, f32),
+        scale: f32,
     },
     GlypyTextConfig {
         text: Vec<(&'static str, &'static str)>,
         location: (f32, f32),
+        scale: f32,
     },
 }
 

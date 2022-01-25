@@ -20,14 +20,18 @@ type TextRenderable<'a> = NamedValue<'a, Vec<&'a str>>;
 impl GlyphyConfig {
     pub fn render(&mut self, brush: &mut GlyphBrush<()>, size: (u32, u32)) {
         match self {
-            GlyphyConfig::GlyphyNamedColorSetConfig { text: t, location } => {
+            GlyphyConfig::GlyphyNamedColorSetConfig {
+                text: t,
+                location,
+                scale,
+            } => {
                 let mut offset_x = location.0 * size.0 as f32;
                 let mut offset_y = location.1 * size.1 as f32;
-                let scale = 35.0;
+                let scale = *scale;
 
                 for text in t.iter().rev() {
                     brush.queue(Section {
-                        screen_position: (scale + offset_x, scale * t.len() as f32 + offset_y),
+                        screen_position: (offset_x, offset_y),
                         bounds: (size.0 as f32, size.1 as f32),
                         text: vec![Text::new(&format!("{}:", text.0))
                             .with_color(hex_str_to_normalized_rgba("#dedede"))
@@ -46,7 +50,7 @@ impl GlyphyConfig {
                 for text in t.iter().rev() {
                     for color in text.1.iter() {
                         brush.queue(Section {
-                            screen_position: (scale + offset_x, scale * t.len() as f32 + offset_y),
+                            screen_position: (offset_x, offset_y),
                             bounds: (size.0 as f32, size.1 as f32),
                             text: vec![Text::new(color)
                                 .with_color(hex_str_to_normalized_rgba(color))
@@ -60,8 +64,28 @@ impl GlyphyConfig {
                     offset_y += scale;
                 }
             }
-            _ => {
-                todo!()
+
+            GlyphyConfig::GlypyTextConfig {
+                text: t,
+                location,
+                scale,
+            } => {
+                let offset_x = location.0 * size.0 as f32;
+                let mut offset_y = location.1 * size.1 as f32;
+                let scale = *scale;
+
+                for text in t.iter().rev() {
+                    brush.queue(Section {
+                        screen_position: (offset_x, offset_y),
+                        bounds: (size.0 as f32, size.1 as f32),
+                        text: vec![Text::new(&format!("{}", text.0))
+                            .with_color(hex_str_to_normalized_rgba(text.1))
+                            .with_scale(scale)],
+                        ..Section::default()
+                    });
+
+                    offset_y += scale;
+                }
             }
         }
     }

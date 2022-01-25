@@ -13,9 +13,9 @@ use crate::{color_map_from_named_colorsets, ColorMap, ColorSets};
 
 fn renderable_configs() -> Vec<RenderableConfig<'static>> {
     vec![
-        // RenderableConfig::ImageRenderer(ImageRendererConfig {
-        // image_path: "src/image_renderer/milo.png",
-        // }),
+        RenderableConfig::ImageRenderer(ImageRendererConfig {
+            image_path: "src/image_renderer/milo.png",
+        }),
         RenderableConfig::Toy(ToyConfig {
             shader_path: "src/toy.wgsl",
         }),
@@ -23,9 +23,18 @@ fn renderable_configs() -> Vec<RenderableConfig<'static>> {
             socool_path: "kintaro.socool".to_string(),
             shader_path: "./src/shader.wgsl",
         }),
+        RenderableConfig::Toy(ToyConfig {
+            shader_path: "src/toy2.wgsl",
+        }),
         RenderableConfig::Glyphy(GlyphyConfig::GlyphyNamedColorSetConfig {
             text: named_colorsets(),
-            location: (0.0, 0.8),
+            location: (0.05, 0.85),
+            scale: 50.0,
+        }),
+        RenderableConfig::Glyphy(GlyphyConfig::GlypyTextConfig {
+            text: vec![("Mimpy", "#ff2323")],
+            location: (0.3, 0.2),
+            scale: 200.0,
         }),
     ]
 }
