@@ -12,6 +12,7 @@ pub mod glyphy;
 pub mod image_renderer;
 pub mod instance;
 pub mod op_stream;
+pub mod origami;
 pub mod print;
 pub mod realtime;
 pub mod renderable;

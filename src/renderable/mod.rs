@@ -107,11 +107,12 @@ pub struct ImageRendererConfig<'a> {
     pub image_path: &'a str,
 }
 
-// #[derive(Clone)]
-// pub struct GlyphyConfig {
-// pub text: Vec<(&'static str, Vec<&'static str>)>,
-// pub location: (f32, f32),
-// }
+#[derive(Clone)]
+pub struct OrigamiConfig<'a> {
+    pub shader_path: &'a str,
+    pub n_vertices: usize,
+    pub n_indices: usize,
+}
 
 #[derive(Clone)]
 pub struct EventStreamConfig<'a> {
