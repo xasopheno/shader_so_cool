@@ -40,9 +40,9 @@ impl Composition {
             clear: false,
         };
 
-        for renderable in self.renderables.iter_mut() {
+        for (idx, renderable) in self.renderables.iter_mut().enumerate() {
             renderable.update(&render_input)?;
-            renderable.render_pass(&render_input)?;
+            renderable.render_pass(&render_input, idx == 0)?;
         }
 
         Ok(())

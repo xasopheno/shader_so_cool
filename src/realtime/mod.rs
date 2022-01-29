@@ -25,7 +25,7 @@ use self::setup::Gui;
 pub struct RealTimeState {
     pub composition: Composition,
     pub av_map: AvMap,
-    pub audio_stream_handle: rodio::Sink,
+    pub audio_stream_handle: Option<rodio::Sink>,
 
     pub clock: RenderClock,
     pub count: u32,
@@ -47,7 +47,7 @@ impl<'a> RealTimeState {
         config: &mut Config<'static>,
         repaint_signal: std::sync::Arc<GuiRepaintSignal>,
         av_map: AvMap,
-        audio_stream_handle: rodio::Sink,
+        audio_stream_handle: Option<rodio::Sink>,
     ) -> Result<RealTimeState, KintaroError> {
         let size = (config.window_size.0, config.window_size.1);
         println!("{}/{}", size.0, size.1);
@@ -90,12 +90,16 @@ impl<'a> RealTimeState {
 
     pub fn play(&mut self) {
         self.clock.play();
-        self.audio_stream_handle.play()
+        if let Some(a) = &self.audio_stream_handle {
+            a.play()
+        }
     }
 
     #[allow(dead_code)]
     pub fn pause(&mut self) {
         self.clock.pause();
-        self.audio_stream_handle.pause()
+        if let Some(a) = &self.audio_stream_handle {
+            a.pause()
+        }
     }
 }

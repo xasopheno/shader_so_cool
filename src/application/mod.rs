@@ -6,6 +6,7 @@ use crate::realtime::RealTimeState;
 use crate::renderable::RenderableConfig;
 use colored::*;
 use cradle::prelude::*;
+use rodio::OutputStream;
 use std::collections::HashMap;
 use std::io::Write;
 use std::str::FromStr;
@@ -32,17 +33,8 @@ pub struct Visual {
 }
 
 pub type Audio = Vec<u8>;
-// pub struct Audio {
-// /// Composition name
-// pub name: String,
-// /// length of seconds of composition
-// pub length: f32,
-// /// audio data
-// pub audio: Vec<u8>,
-// }
 
 /// Sum a Vec<Vec<u8> to a single Vec<u8>.
-///
 fn split_audio_visual(av: AudioVisual) -> (Audio, Visual) {
     (
         av.audio,
@@ -98,8 +90,16 @@ pub fn run(filename: &str, config: Config<'static>) -> Result<(), KintaroError> 
         }
     }
 
-    let audio = sum_all_waveforms(audios);
-    let (_stream, stream_handle) = crate::audio::setup_audio(&config, &audio);
+    let mut audio: Option<Vec<u8>> = None;
+    let _stream: OutputStream;
+    let mut stream_handle: Option<rodio::Sink> = None;
+    if audios.len() > 0 {
+        let a = sum_all_waveforms(audios);
+        let (_s, s_h) = crate::audio::setup_audio(&config, &a);
+        audio = Some(a);
+        _stream = _s;
+        stream_handle = Some(s_h);
+    }
 
     if std::env::args().any(|x| x == "--print") {
         println!(
@@ -118,15 +118,17 @@ pub fn run(filename: &str, config: Config<'static>) -> Result<(), KintaroError> 
 
         print(config, &av_map, n_frames)?;
 
-        write_audio_to_file(
-            audio.as_slice(),
-            std::path::PathBuf::from_str("kintaro.wav")
-                .expect("unable to create pathbuf for kintaro.wav"),
-        )?;
+        if let Some(a) = audio {
+            write_audio_to_file(
+                a.as_slice(),
+                std::path::PathBuf::from_str("kintaro.wav")
+                    .expect("unable to create pathbuf for kintaro.wav"),
+            )?;
 
-        let command_join_audio_and_video = "ffmpeg -framerate 40 -pattern_type glob -i out/*.png -i kintaro.wav -c:a copy -shortest -c:v libx264 -r 40 -pix_fmt yuv420p out.mov";
+            let command_join_audio_and_video = "ffmpeg -framerate 40 -pattern_type glob -i out/*.png -i kintaro.wav -c:a copy -shortest -c:v libx264 -r 40 -pix_fmt yuv420p out.mov";
 
-        run!(Stdin("yes"), %command_join_audio_and_video);
+            run!(Stdin("yes"), %command_join_audio_and_video);
+        }
     } else {
         println!("****REALTIME****");
         realtime(config, av_map, stream_handle)?;
@@ -163,7 +165,7 @@ fn print(mut config: Config<'static>, av: &AvMap, n_frames: usize) -> Result<(),
 fn realtime(
     mut config: Config<'static>,
     av_map: AvMap,
-    stream_handles: rodio::Sink,
+    stream_handles: Option<rodio::Sink>,
 ) -> Result<(), KintaroError> {
     env_logger::init();
     let title = env!("CARGO_PKG_NAME");

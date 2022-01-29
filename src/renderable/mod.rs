@@ -3,7 +3,7 @@ use kintaro_egui_lib::InstanceMul;
 use crate::{
     application::AvMap, canvas::Canvas, clock::ClockResult, config::Config, error::KintaroError,
     glyphy::Glyphy, image_renderer::ImageRenderer, op_stream::renderpasses::make_renderpasses,
-    shader::make_shader, shared::RenderPassInput, toy::Toy,
+    origami::Origami, shader::make_shader, shared::RenderPassInput, toy::Toy,
 };
 
 pub struct RenderableInput<'a> {
@@ -22,7 +22,7 @@ pub struct RenderableInput<'a> {
 
 pub trait Renderable<'a> {
     fn update(&mut self, input: &'a RenderableInput) -> Result<(), KintaroError>;
-    fn render_pass(&mut self, input: &'a RenderableInput) -> Result<(), KintaroError>;
+    fn render_pass(&mut self, input: &'a RenderableInput, clear: bool) -> Result<(), KintaroError>;
 }
 
 pub trait ToRenderable {
@@ -46,6 +46,12 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
         format: wgpu::TextureFormat,
     ) -> Result<RenderableEnum, KintaroError> {
         match self {
+            RenderableConfig::Origami(origami_config) => {
+                let shader = make_shader(device, origami_config.shader_path)?;
+                let origami =
+                    Origami::init(device, format, config.window_size, shader, origami_config)?;
+                Ok(RenderableEnum::Origami(origami))
+            }
             RenderableConfig::Toy(renderable_config) => {
                 let shader = make_shader(device, renderable_config.shader_path)?;
                 let toy = crate::toy::setup_toy(device, shader, config.window_size, format);
@@ -87,6 +93,7 @@ pub enum RenderableEnum {
     ImageRenderer(ImageRenderer),
     Glyphy(Box<Glyphy>),
     EventStreams(Vec<RenderPassInput>),
+    Origami(Origami),
 }
 
 #[derive(Clone)]
@@ -95,6 +102,7 @@ pub enum RenderableConfig<'a> {
     ImageRenderer(ImageRendererConfig<'a>),
     Glyphy(GlyphyConfig),
     EventStreams(EventStreamConfig<'a>),
+    Origami(OrigamiConfig<'a>),
 }
 
 #[derive(Clone)]
@@ -152,8 +160,11 @@ impl<'a> Renderable<'a> for RenderableEnum {
 
         Ok(())
     }
-    fn render_pass(&mut self, input: &'a RenderableInput) -> Result<(), KintaroError> {
+    fn render_pass(&mut self, input: &'a RenderableInput, clear: bool) -> Result<(), KintaroError> {
         match self {
+            RenderableEnum::Origami(origami) => {
+                origami.render(input.device, input.queue, input.size, input.view, false);
+            }
             RenderableEnum::EventStreams(event_streams) => {
                 let mut encoder =
                     input

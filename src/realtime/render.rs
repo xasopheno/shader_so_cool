@@ -3,8 +3,10 @@ use crate::{clock::Clock, error::KintaroError, realtime::RealTimeState};
 impl RealTimeState {
     pub fn render(&mut self, window: &winit::window::Window) -> Result<(), KintaroError> {
         self.clock.update();
-        self.audio_stream_handle
-            .set_volume(self.gui.state.lock().unwrap().volume);
+
+        if let Some(a) = &self.audio_stream_handle {
+            a.set_volume(self.gui.state.lock().unwrap().volume);
+        };
 
         self.handle_save();
 

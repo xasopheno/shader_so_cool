@@ -4,7 +4,8 @@ use serde::{Deserialize, Serialize};
 use crate::camera::default::default_cameras;
 use crate::instance::instancer::{Instancer, SimpleInstancer};
 use crate::renderable::{
-    EventStreamConfig, GlyphyConfig, ImageRendererConfig, RenderableConfig, ToyConfig,
+    EventStreamConfig, GlyphyConfig, ImageRendererConfig, OrigamiConfig, RenderableConfig,
+    ToyConfig,
 };
 use crate::save::ConfigState;
 use crate::vertex::shape::{RandIndex, RandPosition, Shape};
@@ -13,29 +14,41 @@ use crate::{color_map_from_named_colorsets, ColorMap, ColorSets};
 
 fn renderable_configs() -> Vec<RenderableConfig<'static>> {
     vec![
-        RenderableConfig::ImageRenderer(ImageRendererConfig {
-            image_path: "src/image_renderer/milo.png",
-        }),
+        // RenderableConfig::ImageRenderer(ImageRendererConfig {
+        // image_path: "src/image_renderer/milo.png",
+        // }),
+        // RenderableConfig::Toy(ToyConfig {
+        // shader_path: "src/toy.wgsl",
+        // }),
+        // RenderableConfig::EventStreams(EventStreamConfig {
+        // socool_path: "kintaro.socool".to_string(),
+        // shader_path: "./src/shader.wgsl",
+        // }),
+        // RenderableConfig::Toy(ToyConfig {
+        // shader_path: "src/toy2.wgsl",
+        // }),
+        // RenderableConfig::Glyphy(GlyphyConfig::GlyphyNamedColorSetConfig {
+        // text: named_colorsets(),
+        // location: (0.05, 0.9),
+        // scale: 50.0,
+        // }),
+        // RenderableConfig::Glyphy(GlyphyConfig::GlypyTextConfig {
+        // text: vec![("Mimpy", "#ff2323")],
+        // location: (0.3, 0.2),
+        // scale: 200.0,
+        // }),
         RenderableConfig::Toy(ToyConfig {
-            shader_path: "src/toy.wgsl",
+            shader_path: "src/toy3.wgsl",
         }),
-        RenderableConfig::EventStreams(EventStreamConfig {
-            socool_path: "kintaro.socool".to_string(),
-            shader_path: "./src/shader.wgsl",
+        RenderableConfig::Origami(OrigamiConfig {
+            shader_path: "./src/origami_shader.wgsl",
+            n_indices: 30,
+            n_vertices: 20,
         }),
-        RenderableConfig::Toy(ToyConfig {
-            shader_path: "src/toy2.wgsl",
-        }),
-        RenderableConfig::Glyphy(GlyphyConfig::GlyphyNamedColorSetConfig {
-            text: named_colorsets(),
-            location: (0.05, 0.9),
-            scale: 50.0,
-        }),
-        RenderableConfig::Glyphy(GlyphyConfig::GlypyTextConfig {
-            text: vec![("Mimpy", "#ff2323")],
-            location: (0.3, 0.2),
-            scale: 200.0,
-        }),
+        // RenderableConfig::EventStreams(EventStreamConfig {
+        // socool_path: "kintaro.socool".to_string(),
+        // shader_path: "./src/shader.wgsl",
+        // }),
     ]
 }
 
