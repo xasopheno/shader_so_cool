@@ -38,7 +38,7 @@ fn renderable_configs() -> Vec<RenderableConfig<'static>> {
         // scale: 200.0,
         // }),
         RenderableConfig::Toy(ToyConfig {
-            shader_path: "src/toy3.wgsl",
+            shader_path: "src/origami/shaders/toy3.wgsl",
         }),
         RenderableConfig::Origami(OrigamiConfig {
             shader_path: "./src/origami_shader.wgsl",
@@ -49,6 +49,16 @@ fn renderable_configs() -> Vec<RenderableConfig<'static>> {
         // socool_path: "kintaro.socool".to_string(),
         // shader_path: "./src/shader.wgsl",
         // }),
+        RenderableConfig::Glyphy(GlyphyConfig::GlypyTextConfig {
+            text: vec![("Polygami", "#ff2323")],
+            location: (0.0, 0.0),
+            scale: 50.0,
+        }),
+        RenderableConfig::Glyphy(GlyphyConfig::GlypyTextConfig {
+            text: vec![("Danny Meyer", "#ff2365")],
+            location: (0.8, 0.9),
+            scale: 100.0,
+        }),
     ]
 }
 

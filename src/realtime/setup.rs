@@ -36,7 +36,7 @@ impl Setup {
             .request_device(
                 &wgpu::DeviceDescriptor {
                     label: None,
-                    features: wgpu::Features::empty(),
+                    features: wgpu::Features::POLYGON_MODE_LINE,
                     limits: wgpu::Limits::default(),
                 },
                 None,

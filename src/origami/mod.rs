@@ -3,10 +3,12 @@ mod uniforms;
 mod vertex;
 use rand::Rng;
 use wgpu::util::DeviceExt;
+use winit::event::{ElementState, VirtualKeyCode};
 
 use crate::error::KintaroError;
 use crate::renderable::OrigamiConfig;
 use crate::shared::helpers::new_clear_color;
+use crate::shared::new_random_clear_color;
 
 use self::render_pipeline::create_origami_render_pipeline;
 use self::vertex::OrigamiVertex;
@@ -38,16 +40,24 @@ impl Origami {
             .map(|_| OrigamiVertex::new_random())
             .collect()
     }
+
+    pub fn process_keyboard(&mut self, key: VirtualKeyCode, state: ElementState) {
+        if key == VirtualKeyCode::N && state == ElementState::Pressed {
+            self.vertices = Self::new_random_vertices(20);
+            // dbg!(&self.vertices);
+        }
+    }
+
     pub fn new_random_indices(n_indices: u32, n_generate: u32) -> Vec<u32> {
         let mut rng = rand::thread_rng();
         let mut num = || rng.gen_range(0..n_indices);
 
         (0..n_generate).map(|_| num()).collect()
     }
+
     pub fn init(
         device: &wgpu::Device,
         format: wgpu::TextureFormat,
-        size: (u32, u32),
         shader: wgpu::ShaderModule,
         config: &OrigamiConfig,
     ) -> Result<Self, KintaroError> {
@@ -122,7 +132,7 @@ impl Origami {
         &mut self,
         device: &wgpu::Device,
         queue: &wgpu::Queue,
-        size: (u32, u32),
+        _size: (u32, u32),
         view: &wgpu::TextureView,
         clear: bool,
     ) {
@@ -130,13 +140,11 @@ impl Origami {
             label: Some("Render Encoder"),
         });
 
-        let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        self.vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Vertex Buffer"),
             contents: bytemuck::cast_slice(&self.vertices.as_slice()),
             usage: wgpu::BufferUsages::VERTEX,
         });
-
-        self.vertex_buffer = vertex_buffer;
 
         // let clear_color = new_clear_color();
 

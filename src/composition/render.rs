@@ -4,12 +4,20 @@ use crate::{
 };
 use kintaro_egui_lib::InstanceMul;
 use wgpu::TextureView;
+use winit::event::{ElementState, VirtualKeyCode};
 
 use crate::clock::Clock;
 
 use super::Composition;
 
 impl Composition {
+    pub fn handle_keyboard_input(&mut self, key: VirtualKeyCode, state: ElementState) {
+        self.camera.controller.process_keyboard(key, state);
+        self.renderables.iter_mut().for_each(|renderable| {
+            renderable.process_keyboard(key, state);
+        });
+    }
+
     pub fn render(
         &mut self,
         device: &wgpu::Device,

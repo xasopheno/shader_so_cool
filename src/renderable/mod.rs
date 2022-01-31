@@ -1,4 +1,5 @@
 use kintaro_egui_lib::InstanceMul;
+use winit::event::{ElementState, VirtualKeyCode};
 
 use crate::{
     application::AvMap, canvas::Canvas, clock::ClockResult, config::Config, error::KintaroError,
@@ -23,6 +24,7 @@ pub struct RenderableInput<'a> {
 pub trait Renderable<'a> {
     fn update(&mut self, input: &'a RenderableInput) -> Result<(), KintaroError>;
     fn render_pass(&mut self, input: &'a RenderableInput, clear: bool) -> Result<(), KintaroError>;
+    fn process_keyboard(&mut self, key: VirtualKeyCode, state: ElementState);
 }
 
 pub trait ToRenderable {
@@ -48,8 +50,7 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
         match self {
             RenderableConfig::Origami(origami_config) => {
                 let shader = make_shader(device, origami_config.shader_path)?;
-                let origami =
-                    Origami::init(device, format, config.window_size, shader, origami_config)?;
+                let origami = Origami::init(device, format, shader, origami_config)?;
                 Ok(RenderableEnum::Origami(origami))
             }
             RenderableConfig::Toy(renderable_config) => {
@@ -160,6 +161,13 @@ impl<'a> Renderable<'a> for RenderableEnum {
 
         Ok(())
     }
+
+    fn process_keyboard(&mut self, key: VirtualKeyCode, state: ElementState) {
+        if let RenderableEnum::Origami(origami) = self {
+            origami.process_keyboard(key, state);
+        }
+    }
+
     fn render_pass(&mut self, input: &'a RenderableInput, clear: bool) -> Result<(), KintaroError> {
         match self {
             RenderableEnum::Origami(origami) => {

@@ -13,10 +13,7 @@ impl RealTimeState {
             ..
         } = event
         {
-            self.composition
-                .camera
-                .controller
-                .process_keyboard(*key, *state);
+            self.composition.handle_keyboard_input(*key, *state)
         };
     }
 
