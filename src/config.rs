@@ -56,8 +56,8 @@ fn renderable_configs() -> Vec<RenderableConfig<'static>> {
         }),
         RenderableConfig::Glyphy(GlyphyConfig::GlypyTextConfig {
             text: vec![("Danny Meyer", "#ff2365")],
-            location: (0.8, 0.9),
-            scale: 100.0,
+            location: (0.7, 0.9),
+            scale: 60.0,
         }),
     ]
 }

@@ -30,6 +30,7 @@ impl RealTimeState {
         self.render_gui(window, &view);
 
         // Submit the commands.
+        // let texture = the_frame.texture.as_image_copy();
         the_frame.present();
 
         self.update_gui();

@@ -46,6 +46,11 @@ impl Origami {
             self.vertices = Self::new_random_vertices(20);
             // dbg!(&self.vertices);
         }
+        if key == VirtualKeyCode::P && state == ElementState::Released {
+            println!("Printing frame");
+            // self.vertices = Self::new_random_vertices(20);
+            // dbg!(&self.vertices);
+        }
     }
 
     pub fn new_random_indices(n_indices: u32, n_generate: u32) -> Vec<u32> {

@@ -171,7 +171,13 @@ impl<'a> Renderable<'a> for RenderableEnum {
     fn render_pass(&mut self, input: &'a RenderableInput, clear: bool) -> Result<(), KintaroError> {
         match self {
             RenderableEnum::Origami(origami) => {
-                origami.render(input.device, input.queue, input.size, input.view, false);
+                origami.render(
+                    input.device,
+                    input.queue,
+                    input.size,
+                    input.view,
+                    input.clear,
+                );
             }
             RenderableEnum::EventStreams(event_streams) => {
                 let mut encoder =
