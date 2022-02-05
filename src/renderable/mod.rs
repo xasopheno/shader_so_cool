@@ -171,13 +171,7 @@ impl<'a> Renderable<'a> for RenderableEnum {
     fn render_pass(&mut self, input: &'a RenderableInput, clear: bool) -> Result<(), KintaroError> {
         match self {
             RenderableEnum::Origami(origami) => {
-                origami.render(
-                    input.device,
-                    input.queue,
-                    input.size,
-                    input.view,
-                    input.clear,
-                );
+                origami.render(input.device, input.queue, input.size, input.view, clear);
             }
             RenderableEnum::EventStreams(event_streams) => {
                 let mut encoder =
@@ -192,7 +186,7 @@ impl<'a> Renderable<'a> for RenderableEnum {
                         .uniforms
                         .update_view_proj(input.view_position, input.view_proj);
 
-                    renderpass.render(&mut encoder, input.view, input.config, !input.clear);
+                    renderpass.render(&mut encoder, input.view, input.config, !clear);
                 }
 
                 input.queue.submit(Some(encoder.finish()));
@@ -205,14 +199,14 @@ impl<'a> Renderable<'a> for RenderableEnum {
                     input.view,
                     input.size,
                     input.clock_result.total_elapsed,
-                    input.clear,
+                    clear,
                 )?;
             }
             RenderableEnum::Glyphy(glyphy) => {
-                glyphy.render(input.device, input.queue, input.size, input.view, false);
+                glyphy.render(input.device, input.queue, input.size, input.view, clear);
             }
             RenderableEnum::ImageRenderer(image_renderer) => {
-                image_renderer.render(input.device, input.queue, input.view)?;
+                image_renderer.render(input.device, input.queue, input.view, clear)?;
             }
         }
 

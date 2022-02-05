@@ -29,8 +29,9 @@ impl ImageRenderer {
         device: &wgpu::Device,
         queue: &wgpu::Queue,
         view: &wgpu::TextureView,
+        clear: bool,
     ) -> Result<(), wgpu::SurfaceError> {
-        self.image_render.render_pass(device, queue, view);
+        self.image_render.render_pass(device, queue, view, clear);
 
         Ok(())
     }

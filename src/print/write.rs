@@ -60,6 +60,33 @@ pub fn copy_texture_to_buffer(
     output_buffer
 }
 
+pub fn copy_image_copy_buffer_to_buffer(
+    encoder: &mut wgpu::CommandEncoder,
+    size: (u32, u32),
+    device: &wgpu::Device,
+    input: wgpu::ImageCopyTexture,
+) -> wgpu::Buffer {
+    let output_buffer = make_output_buffer(device, size);
+
+    encoder.copy_texture_to_buffer(
+        input,
+        wgpu::ImageCopyBuffer {
+            buffer: &output_buffer,
+            layout: wgpu::ImageDataLayout {
+                offset: 0,
+                bytes_per_row: std::num::NonZeroU32::new(U32_SIZE * size.0),
+                rows_per_image: std::num::NonZeroU32::new(size.1),
+            },
+        },
+        wgpu::Extent3d {
+            width: size.0,
+            height: size.1,
+            depth_or_array_layers: 1,
+        },
+    );
+    output_buffer
+}
+
 fn make_output_buffer(device: &wgpu::Device, size: (u32, u32)) -> wgpu::Buffer {
     let output_buffer_size = (U32_SIZE * size.0 * size.1) as wgpu::BufferAddress;
     let output_buffer_desc = wgpu::BufferDescriptor {

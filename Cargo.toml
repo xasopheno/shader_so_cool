@@ -6,6 +6,8 @@ resolver = "2"
 
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+#[patch.crates-io]
+#uuid = { git = 'https://github.com/gfx-rs/wgpu' }
 
 [dependencies]
 anyhow = "1.0.53"

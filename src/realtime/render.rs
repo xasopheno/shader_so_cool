@@ -1,4 +1,9 @@
-use crate::{clock::Clock, error::KintaroError, realtime::RealTimeState};
+use crate::{
+    clock::Clock,
+    error::KintaroError,
+    print::write::{copy_image_copy_buffer_to_buffer, copy_texture_to_buffer},
+    realtime::RealTimeState,
+};
 
 impl RealTimeState {
     pub fn render(&mut self, window: &winit::window::Window) -> Result<(), KintaroError> {
@@ -29,8 +34,19 @@ impl RealTimeState {
 
         self.render_gui(window, &view);
 
-        // Submit the commands.
-        // let texture = the_frame.texture.as_image_copy();
+        let mut encoder = self
+            .device
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                label: Some("Render Encoder"),
+            });
+
+        // let buffer = copy_image_copy_buffer_to_buffer(
+        // &mut encoder,
+        // self.size,
+        // &self.device,
+        // the_frame.texture.as_image_copy(),
+        // );
+
         the_frame.present();
 
         self.update_gui();

@@ -1,6 +1,5 @@
 // Vertex shader
 
-//[[block]]
 struct Uniforms {
     view_proj: mat4x4<f32>;
 };
