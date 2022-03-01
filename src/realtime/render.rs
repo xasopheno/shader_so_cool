@@ -34,19 +34,6 @@ impl RealTimeState {
 
         self.render_gui(window, &view);
 
-        let mut encoder = self
-            .device
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                label: Some("Render Encoder"),
-            });
-
-        // let buffer = copy_image_copy_buffer_to_buffer(
-        // &mut encoder,
-        // self.size,
-        // &self.device,
-        // the_frame.texture.as_image_copy(),
-        // );
-
         the_frame.present();
 
         self.update_gui();
