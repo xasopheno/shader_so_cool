@@ -8,6 +8,7 @@ use crate::application::AvMap;
 use crate::canvas::Canvas;
 use crate::composition::Composition;
 use crate::error::KintaroError;
+use crate::main_texture::types::MainTexture;
 use crate::renderable::RenderableEnum;
 use crate::renderable::ToRenderable;
 use setup::Setup;
@@ -34,6 +35,7 @@ pub struct RealTimeState {
     pub queue: wgpu::Queue,
     pub size: (u32, u32),
     pub surface: wgpu::Surface,
+    pub main_texture: MainTexture,
 
     pub mouse_pressed: bool,
     pub gui: Gui,
@@ -55,9 +57,10 @@ impl<'a> RealTimeState {
         let Setup {
             device,
             surface,
+            main_texture,
             queue,
             gui,
-        } = block_on(Setup::init(window, config));
+        } = block_on(Setup::init(window, config))?;
 
         let renderable_configs = config.renderable_configs.to_owned();
         let renderables = renderable_configs
@@ -80,6 +83,7 @@ impl<'a> RealTimeState {
                 canvas: Canvas::init(size),
             },
             surface,
+            main_texture,
             gui,
             repaint_signal,
             av_map,

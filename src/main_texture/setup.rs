@@ -1,10 +1,13 @@
-use super::{types::MainTexture, vertex::make_buffers};
+use super::{
+    types::{MainTexture, SurfaceVertex},
+    vertex::make_buffers,
+};
 use crate::shader::make_shader;
 use anyhow::Result;
 
 impl MainTexture {
     pub fn new(device: &wgpu::Device, size: (u32, u32)) -> Result<Self> {
-        let main_shader = make_shader(&device, "./surface_shader.wgsl");
+        let main_shader = make_shader(&device, "./src/main_texture/main_texture_shader.wgsl");
 
         let texture =
             super::texture::Texture::new(&device, (size.0, size.1), "main_texture").unwrap();
@@ -91,7 +94,7 @@ pub fn make_render_pipeline(
         vertex: wgpu::VertexState {
             module: &shader,
             entry_point: "vs_main",
-            buffers: &[],
+            buffers: &[SurfaceVertex::desc()],
         },
         fragment: Some(wgpu::FragmentState {
             module: &shader,

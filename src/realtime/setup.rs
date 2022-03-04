@@ -1,7 +1,6 @@
-use std::sync::{Arc, Mutex};
-
-use crate::config::Config;
+use crate::{config::Config, error::KintaroError, main_texture::types::MainTexture};
 use kintaro_egui_lib::{Platform, PlatformDescriptor, RenderPass, UiState};
+use std::sync::{Arc, Mutex};
 use winit::window::Window;
 
 pub struct Gui {
@@ -13,13 +12,14 @@ pub struct Gui {
 
 pub struct Setup {
     pub surface: wgpu::Surface,
+    pub main_texture: MainTexture,
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
     pub gui: Gui,
 }
 
 impl Setup {
-    pub async fn init<'a>(window: &Window, config: &'a Config<'a>) -> Self {
+    pub async fn init<'a>(window: &Window, config: &'a Config<'a>) -> Result<Self, KintaroError> {
         let size = config.window_size;
         let instance = wgpu::Instance::new(wgpu::Backends::all());
         let surface = unsafe { instance.create_surface(window) };
@@ -54,6 +54,8 @@ impl Setup {
         };
         surface.configure(&device, &surface_config);
 
+        let main_texture = MainTexture::new(&device, size)?;
+
         let platform = Platform::new(PlatformDescriptor {
             physical_width: size.0,
             physical_height: size.1,
@@ -72,8 +74,9 @@ impl Setup {
         }));
         let app = kintaro_egui_lib::WrapApp::init(state.clone(), config.cameras.len());
 
-        Self {
+        Ok(Self {
             surface,
+            main_texture,
             device,
             queue,
             gui: Gui {
@@ -82,6 +85,6 @@ impl Setup {
                 app,
                 state,
             },
-        }
+        })
     }
 }

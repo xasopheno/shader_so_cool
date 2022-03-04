@@ -1,4 +1,4 @@
-use anyhow::Result;
+use crate::error::KintaroError;
 
 pub struct Texture {
     pub view: wgpu::TextureView,
@@ -6,7 +6,7 @@ pub struct Texture {
 }
 
 impl Texture {
-    pub fn new(device: &wgpu::Device, size: (u32, u32), label: &str) -> Result<Self> {
+    pub fn new(device: &wgpu::Device, size: (u32, u32), label: &str) -> Result<Self, KintaroError> {
         let texture = device.create_texture(&wgpu::TextureDescriptor {
             label: Some(label),
             size: wgpu::Extent3d {
