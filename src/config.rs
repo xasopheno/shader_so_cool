@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::camera::default::default_cameras;
 use crate::instance::instancer::{Instancer, SimpleInstancer};
+#[allow(unused_imports)]
 use crate::renderable::{
     EventStreamConfig, GlyphyConfig, ImageRendererConfig, OrigamiConfig, RenderableConfig,
     ToyConfig,

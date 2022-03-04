@@ -1,9 +1,4 @@
-use crate::{
-    clock::Clock,
-    error::KintaroError,
-    print::write::{copy_image_copy_buffer_to_buffer, copy_texture_to_buffer},
-    realtime::RealTimeState,
-};
+use crate::{clock::Clock, error::KintaroError, realtime::RealTimeState};
 
 impl RealTimeState {
     pub fn render(&mut self, window: &winit::window::Window) -> Result<(), KintaroError> {

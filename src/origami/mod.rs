@@ -7,8 +7,8 @@ use winit::event::{ElementState, VirtualKeyCode};
 
 use crate::error::KintaroError;
 use crate::renderable::OrigamiConfig;
-use crate::shared::helpers::new_clear_color;
-use crate::shared::new_random_clear_color;
+// use crate::shared::helpers::new_clear_color;
+// use crate::shared::new_random_clear_color;
 
 use self::render_pipeline::create_origami_render_pipeline;
 use self::vertex::OrigamiVertex;
@@ -64,7 +64,7 @@ impl Origami {
         device: &wgpu::Device,
         format: wgpu::TextureFormat,
         shader: wgpu::ShaderModule,
-        config: &OrigamiConfig,
+        _config: &OrigamiConfig,
     ) -> Result<Self, KintaroError> {
         let vertices = Self::new_random_vertices(20);
         let num_vertices = vertices.len() as u32;
