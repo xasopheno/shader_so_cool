@@ -1,30 +1,11 @@
-use super::types::SurfaceVertex;
+use super::types::MainTextureVertex;
 use wgpu::util::DeviceExt;
 
-pub const SURFACE_VERTICES: &[SurfaceVertex] = &[
-    SurfaceVertex {
-        position: [1.0, 1.0, 0.0],
-        tex_coords: [1.0, 0.0],
-    },
-    SurfaceVertex {
-        position: [-1.0, 1.0, 0.0],
-        tex_coords: [0.0, 0.0],
-    },
-    SurfaceVertex {
-        position: [-1.0, -1.0, 0.0],
-        tex_coords: [0.0, 1.0],
-    },
-    SurfaceVertex {
-        position: [1.0, -1.0, 0.0],
-        tex_coords: [1.0, 1.0],
-    },
-];
-
-impl SurfaceVertex {
+impl MainTextureVertex {
     pub fn desc<'a>() -> wgpu::VertexBufferLayout<'a> {
         use std::mem;
         wgpu::VertexBufferLayout {
-            array_stride: mem::size_of::<SurfaceVertex>() as wgpu::BufferAddress,
+            array_stride: mem::size_of::<MainTextureVertex>() as wgpu::BufferAddress,
             step_mode: wgpu::VertexStepMode::Vertex,
             attributes: &[
                 wgpu::VertexAttribute {
@@ -41,6 +22,25 @@ impl SurfaceVertex {
         }
     }
 }
+
+pub const SURFACE_VERTICES: &[MainTextureVertex] = &[
+    MainTextureVertex {
+        position: [1.0, 1.0, 0.0],
+        tex_coords: [1.0, 0.0],
+    },
+    MainTextureVertex {
+        position: [-1.0, 1.0, 0.0],
+        tex_coords: [0.0, 0.0],
+    },
+    MainTextureVertex {
+        position: [-1.0, -1.0, 0.0],
+        tex_coords: [0.0, 1.0],
+    },
+    MainTextureVertex {
+        position: [1.0, -1.0, 0.0],
+        tex_coords: [1.0, 1.0],
+    },
+];
 
 pub const SURFACE_INDICES: &[u16] = &[0, 1, 3, 1, 2, 3, /* padding */ 0];
 

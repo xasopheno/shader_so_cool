@@ -10,7 +10,7 @@ pub struct MainTexture {
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
-pub struct SurfaceVertex {
+pub struct MainTextureVertex {
     pub position: [f32; 3],
     pub tex_coords: [f32; 2],
 }

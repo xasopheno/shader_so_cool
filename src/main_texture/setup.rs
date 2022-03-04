@@ -1,5 +1,5 @@
 use super::{
-    types::{MainTexture, SurfaceVertex},
+    types::{MainTexture, MainTextureVertex},
     vertex::make_buffers,
 };
 use crate::shader::make_shader;
@@ -94,7 +94,7 @@ pub fn make_render_pipeline(
         vertex: wgpu::VertexState {
             module: &shader,
             entry_point: "vs_main",
-            buffers: &[SurfaceVertex::desc()],
+            buffers: &[MainTextureVertex::desc()],
         },
         fragment: Some(wgpu::FragmentState {
             module: &shader,
