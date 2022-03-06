@@ -11,6 +11,7 @@ use crate::error::KintaroError;
 use crate::main_texture::types::MainTexture;
 use crate::renderable::RenderableEnum;
 use crate::renderable::ToRenderable;
+use crate::surface::Surface;
 use setup::Setup;
 
 use crate::{
@@ -34,7 +35,7 @@ pub struct RealTimeState {
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
     pub size: (u32, u32),
-    pub surface: wgpu::Surface,
+    pub surface: Surface,
     pub main_texture: MainTexture,
 
     pub mouse_pressed: bool,

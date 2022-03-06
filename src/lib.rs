@@ -20,6 +20,7 @@ pub mod renderable;
 pub mod save;
 pub mod shader;
 pub mod shared;
+pub mod surface;
 pub mod toy;
 pub mod uniforms;
 pub mod vertex;

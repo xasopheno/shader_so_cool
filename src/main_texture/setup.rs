@@ -1,17 +1,29 @@
 use super::{
     types::{MainTexture, MainTextureVertex},
-    vertex::make_buffers,
+    vertex::{make_buffers, MAIN_TEXTURE_INDICES},
 };
 use crate::shader::make_shader;
 use anyhow::Result;
 
 impl MainTexture {
-    pub fn new(device: &wgpu::Device, size: (u32, u32)) -> Result<Self> {
+    pub fn new(
+        device: &wgpu::Device,
+        size: (u32, u32),
+        format: wgpu::TextureFormat,
+    ) -> Result<Self> {
         let main_shader = make_shader(&device, "./src/main_texture/main_texture_shader.wgsl");
 
         let texture =
-            super::texture::Texture::new(&device, (size.0, size.1), "main_texture").unwrap();
+            super::texture::Texture::new(&device, (size.0, size.1), "main_texture", format)
+                .unwrap();
+
         let texture_bind_group_layout = make_texture_bind_group_layout(&device);
+
+        let texture_bind_group = crate::main_texture::setup::make_main_texture_bind_group(
+            device,
+            &texture_bind_group_layout,
+            &texture,
+        );
 
         let render_pipeline = make_render_pipeline(
             &device,
@@ -28,6 +40,8 @@ impl MainTexture {
             index_buffer,
             texture,
             texture_bind_group_layout,
+            texture_bind_group,
+            indices: MAIN_TEXTURE_INDICES.to_vec(),
         })
     }
 }

@@ -6,6 +6,8 @@ pub struct MainTexture {
     pub index_buffer: wgpu::Buffer,
     pub texture: Texture,
     pub texture_bind_group_layout: wgpu::BindGroupLayout,
+    pub texture_bind_group: wgpu::BindGroup,
+    pub indices: Vec<u16>,
 }
 
 #[repr(C)]

@@ -6,6 +6,7 @@ impl MainTexture {
             device,
             (new_size.width, new_size.height),
             "Surface Texture",
+            self.texture.format,
         )
         .unwrap();
     }

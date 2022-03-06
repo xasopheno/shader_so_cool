@@ -1,4 +1,6 @@
-use crate::{config::Config, error::KintaroError, main_texture::types::MainTexture};
+use crate::{
+    config::Config, error::KintaroError, main_texture::types::MainTexture, surface::Surface,
+};
 use kintaro_egui_lib::{Platform, PlatformDescriptor, RenderPass, UiState};
 use std::sync::{Arc, Mutex};
 use winit::window::Window;
@@ -11,7 +13,7 @@ pub struct Gui {
 }
 
 pub struct Setup {
-    pub surface: wgpu::Surface,
+    pub surface: Surface,
     pub main_texture: MainTexture,
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
@@ -43,18 +45,18 @@ impl Setup {
             )
             .await
             .unwrap();
-        let surface_format = surface.get_preferred_format(&adapter).unwrap();
+        let format = surface.get_preferred_format(&adapter).unwrap();
 
         let surface_config = wgpu::SurfaceConfiguration {
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
-            format: surface_format,
+            format,
             width: size.0,
             height: size.1,
             present_mode: wgpu::PresentMode::Fifo,
         };
         surface.configure(&device, &surface_config);
 
-        let main_texture = MainTexture::new(&device, size)?;
+        let main_texture = MainTexture::new(&device, size, format)?;
 
         let platform = Platform::new(PlatformDescriptor {
             physical_width: size.0,
@@ -63,7 +65,7 @@ impl Setup {
             style: Default::default(),
             ..Default::default()
         });
-        let renderpass = RenderPass::new(&device, surface_format, 1);
+        let renderpass = RenderPass::new(&device, format, 1);
         let state = Arc::new(Mutex::new(kintaro_egui_lib::UiState {
             play: true,
             save: false,
@@ -73,6 +75,8 @@ impl Setup {
             reset: false,
         }));
         let app = kintaro_egui_lib::WrapApp::init(state.clone(), config.cameras.len());
+
+        let surface = Surface { surface };
 
         Ok(Self {
             surface,

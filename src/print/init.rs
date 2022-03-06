@@ -1,6 +1,8 @@
 use super::PrintState;
 use crate::application::AvMap;
 use crate::composition::Composition;
+use crate::error::KintaroError;
+use crate::main_texture::types::MainTexture;
 use crate::renderable::{RenderableEnum, ToRenderable};
 use crate::{
     canvas::Canvas,
@@ -11,7 +13,10 @@ use colored::*;
 use weresocool::error::Error;
 
 impl PrintState {
-    pub async fn init(config: &mut Config<'static>, av_map: &AvMap) -> Result<PrintState, Error> {
+    pub async fn init(
+        config: &mut Config<'static>,
+        av_map: &AvMap,
+    ) -> Result<PrintState, KintaroError> {
         let size = config.window_size;
         println!("{}", format!("Frame Size: {}/{}\n", size.0, size.1).green());
         let format = wgpu::TextureFormat::Rgba8UnormSrgb;
@@ -43,8 +48,8 @@ impl PrintState {
             usage: wgpu::TextureUsages::COPY_SRC | wgpu::TextureUsages::RENDER_ATTACHMENT,
             label: None,
         };
-        let texture = device.create_texture(&texture_desc);
-        let texture_view = texture.create_view(&Default::default());
+        // let texture = device.create_texture(&texture_desc);
+        // let texture_view = texture.create_view(&Default::default());
 
         let renderable_configs = config.renderable_configs.to_owned();
         let renderables: Vec<RenderableEnum> = renderable_configs
@@ -55,6 +60,8 @@ impl PrintState {
                     .unwrap()
             })
             .collect();
+
+        let main_texture = MainTexture::new(&device, size, format)?;
 
         Ok(PrintState {
             device,
@@ -69,9 +76,9 @@ impl PrintState {
                 camera: crate::camera::Camera::new(&config.cameras[0], size, config, 0),
                 canvas: Canvas::init(size),
             },
-
-            texture,
-            texture_view,
+            main_texture,
+            // texture,
+            // texture_view,
             time_elapsed: std::time::Duration::from_millis(0),
         })
     }

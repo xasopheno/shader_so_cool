@@ -153,7 +153,7 @@ fn get_audiovisual_data(filename: &str) -> Result<AudioVisual, Error> {
     }
 }
 
-fn print(mut config: Config<'static>, av: &AvMap, n_frames: usize) -> Result<(), Error> {
+fn print(mut config: Config<'static>, av: &AvMap, n_frames: usize) -> Result<(), KintaroError> {
     let mut state = async_std::task::block_on(PrintState::init(&mut config, av))?;
     for i in 0..n_frames {
         async_std::task::block_on(state.render())

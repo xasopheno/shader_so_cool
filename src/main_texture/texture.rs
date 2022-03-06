@@ -1,12 +1,19 @@
 use crate::error::KintaroError;
 
 pub struct Texture {
+    pub texture: wgpu::Texture,
     pub view: wgpu::TextureView,
     pub sampler: wgpu::Sampler,
+    pub format: wgpu::TextureFormat,
 }
 
 impl Texture {
-    pub fn new(device: &wgpu::Device, size: (u32, u32), label: &str) -> Result<Self, KintaroError> {
+    pub fn new(
+        device: &wgpu::Device,
+        size: (u32, u32),
+        label: &str,
+        format: wgpu::TextureFormat,
+    ) -> Result<Self, KintaroError> {
         let texture = device.create_texture(&wgpu::TextureDescriptor {
             label: Some(label),
             size: wgpu::Extent3d {
@@ -17,8 +24,9 @@ impl Texture {
             mip_level_count: 1,
             sample_count: 1,
             dimension: wgpu::TextureDimension::D2,
-            format: wgpu::TextureFormat::Bgra8UnormSrgb,
+            format,
             usage: wgpu::TextureUsages::TEXTURE_BINDING
+                | wgpu::TextureUsages::COPY_SRC
                 | wgpu::TextureUsages::COPY_DST
                 | wgpu::TextureUsages::RENDER_ATTACHMENT,
         });
@@ -34,6 +42,11 @@ impl Texture {
             ..Default::default()
         });
 
-        Ok(Self { view, sampler })
+        Ok(Self {
+            texture,
+            view,
+            sampler,
+            format,
+        })
     }
 }

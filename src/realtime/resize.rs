@@ -9,7 +9,6 @@ impl RealTimeState {
         if new_size.width > 0 && new_size.height > 0 {
             self.size = (new_size.width, new_size.height);
             self.main_texture.resize(&self.device, new_size);
-
             self.composition.canvas = Canvas::init((new_size.width, new_size.height));
 
             // let (instances, instance_buffer) =
@@ -30,7 +29,7 @@ impl RealTimeState {
                 present_mode: wgpu::PresentMode::Fifo,
             };
 
-            self.surface.configure(&self.device, &config);
+            self.surface.surface.configure(&self.device, &config);
         }
     }
 }

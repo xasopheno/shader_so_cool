@@ -1,7 +1,6 @@
 use crate::{camera::Camera, clock::Clock, realtime::RealTimeState, save::ConfigState};
 use kintaro_egui_lib::{epi::App, ScreenDescriptor};
 use std::{fs::File, io::Write, thread};
-use wgpu::TextureView;
 
 /// A custom event type for the winit app.
 pub enum Event {
@@ -41,7 +40,7 @@ impl RealTimeState {
         }
     }
 
-    pub fn render_gui(&mut self, window: &winit::window::Window, view: &TextureView) {
+    pub fn render_gui(&mut self, window: &winit::window::Window) {
         let mut encoder = self
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor {
@@ -96,7 +95,13 @@ impl RealTimeState {
         // Record all render passes.
         self.gui
             .renderpass
-            .execute(&mut encoder, view, &paint_jobs, &screen_descriptor, None)
+            .execute(
+                &mut encoder,
+                &self.main_texture.texture.view,
+                &paint_jobs,
+                &screen_descriptor,
+                None,
+            )
             .unwrap();
 
         self.queue.submit(Some(encoder.finish()));
