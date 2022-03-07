@@ -10,7 +10,6 @@ use crate::{
     config::Config,
 };
 use colored::*;
-use weresocool::error::Error;
 
 impl PrintState {
     pub async fn init(
@@ -33,23 +32,6 @@ impl PrintState {
             .request_device(&Default::default(), None)
             .await
             .unwrap();
-
-        let texture_desc = wgpu::TextureDescriptor {
-            size: wgpu::Extent3d {
-                width: size.0,
-                height: size.1,
-                depth_or_array_layers: 1,
-            },
-            mip_level_count: 1,
-            sample_count: 1,
-            dimension: wgpu::TextureDimension::D2,
-            format,
-            // format: wgpu::TextureFormat::Bgra8UnormSrgb,
-            usage: wgpu::TextureUsages::COPY_SRC | wgpu::TextureUsages::RENDER_ATTACHMENT,
-            label: None,
-        };
-        // let texture = device.create_texture(&texture_desc);
-        // let texture_view = texture.create_view(&Default::default());
 
         let renderable_configs = config.renderable_configs.to_owned();
         let renderables: Vec<RenderableEnum> = renderable_configs
@@ -77,8 +59,6 @@ impl PrintState {
                 canvas: Canvas::init(size),
             },
             main_texture,
-            // texture,
-            // texture_view,
             time_elapsed: std::time::Duration::from_millis(0),
         })
     }

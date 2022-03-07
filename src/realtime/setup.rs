@@ -18,6 +18,7 @@ pub struct Setup {
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
     pub gui: Gui,
+    pub format: wgpu::TextureFormat,
 }
 
 impl Setup {
@@ -33,6 +34,7 @@ impl Setup {
             })
             .await
             .unwrap();
+        let format = surface.get_preferred_format(&adapter).unwrap();
 
         let (device, queue) = adapter
             .request_device(
@@ -79,10 +81,11 @@ impl Setup {
         let surface = Surface { surface };
 
         Ok(Self {
-            surface,
-            main_texture,
             device,
             queue,
+            surface,
+            main_texture,
+            format,
             gui: Gui {
                 platform,
                 renderpass,

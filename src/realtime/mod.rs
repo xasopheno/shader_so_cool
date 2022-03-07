@@ -25,18 +25,18 @@ use winit::window::Window;
 use self::setup::Gui;
 
 pub struct RealTimeState {
+    pub device: wgpu::Device,
+    pub queue: wgpu::Queue,
+    pub size: (u32, u32),
+    pub surface: Surface,
+    pub main_texture: MainTexture,
+
     pub composition: Composition,
     pub av_map: AvMap,
     pub audio_stream_handle: Option<rodio::Sink>,
 
     pub clock: RenderClock,
     pub count: u32,
-
-    pub device: wgpu::Device,
-    pub queue: wgpu::Queue,
-    pub size: (u32, u32),
-    pub surface: Surface,
-    pub main_texture: MainTexture,
 
     pub mouse_pressed: bool,
     pub gui: Gui,
@@ -54,13 +54,13 @@ impl<'a> RealTimeState {
     ) -> Result<RealTimeState, KintaroError> {
         let size = (config.window_size.0, config.window_size.1);
         println!("{}/{}", size.0, size.1);
-        let format = wgpu::TextureFormat::Bgra8UnormSrgb;
         let Setup {
             device,
             surface,
             main_texture,
             queue,
             gui,
+            format,
         } = block_on(Setup::init(window, config))?;
 
         let renderable_configs = config.renderable_configs.to_owned();
