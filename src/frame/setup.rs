@@ -11,7 +11,7 @@ impl Frame {
         size: (u32, u32),
         format: wgpu::TextureFormat,
     ) -> Result<Self> {
-        let main_shader = make_shader(&device, "./src/frame/frame_shaderm.wgsl");
+        let main_shader = make_shader(&device, "./src/frame/frame_shader.wgsl");
 
         let texture =
             super::texture::Texture::new(&device, (size.0, size.1), "frame", format).unwrap();
