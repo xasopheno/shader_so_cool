@@ -1,6 +1,4 @@
-use crate::{
-    config::Config, error::KintaroError, main_texture::types::MainTexture, surface::Surface,
-};
+use crate::{config::Config, error::KintaroError, frame::types::Frame, surface::Surface};
 use kintaro_egui_lib::{Platform, PlatformDescriptor, RenderPass, UiState};
 use std::sync::{Arc, Mutex};
 use winit::window::Window;
@@ -14,7 +12,7 @@ pub struct Gui {
 
 pub struct Setup {
     pub surface: Surface,
-    pub main_texture: MainTexture,
+    pub frame: Frame,
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
     pub gui: Gui,
@@ -34,7 +32,6 @@ impl Setup {
             })
             .await
             .unwrap();
-        let format = surface.get_preferred_format(&adapter).unwrap();
 
         let (device, queue) = adapter
             .request_device(
@@ -58,7 +55,7 @@ impl Setup {
         };
         surface.configure(&device, &surface_config);
 
-        let main_texture = MainTexture::new(&device, size, format)?;
+        let frame = Frame::new(&device, size, format)?;
 
         let platform = Platform::new(PlatformDescriptor {
             physical_width: size.0,
@@ -84,7 +81,7 @@ impl Setup {
             device,
             queue,
             surface,
-            main_texture,
+            frame,
             format,
             gui: Gui {
                 platform,

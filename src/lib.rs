@@ -11,7 +11,7 @@ pub mod gen;
 pub mod glyphy;
 pub mod image_renderer;
 pub mod instance;
-pub mod main_texture;
+pub mod frame;
 pub mod op_stream;
 pub mod origami;
 pub mod print;

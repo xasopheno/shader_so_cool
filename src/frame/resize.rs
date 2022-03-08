@@ -1,6 +1,6 @@
-use super::types::MainTexture;
+use super::types::Frame;
 
-impl MainTexture {
+impl Frame {
     pub fn resize(&mut self, device: &wgpu::Device, new_size: winit::dpi::PhysicalSize<u32>) {
         self.texture = super::texture::Texture::new(
             device,

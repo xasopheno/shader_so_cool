@@ -1,15 +1,11 @@
-use crate::main_texture::types::MainTexture;
+use crate::frame::types::Frame;
 
 pub struct Surface {
     pub surface: wgpu::Surface,
 }
 
 impl Surface {
-    pub fn render(
-        &self,
-        main_encoder: &mut wgpu::CommandEncoder,
-        main_texture: &MainTexture,
-    ) -> impl FnOnce() {
+    pub fn render(&self, main_encoder: &mut wgpu::CommandEncoder, frame: &Frame) -> impl FnOnce() {
         let surface_frame = self
             .surface
             .get_current_texture()
@@ -37,15 +33,12 @@ impl Surface {
                 depth_stencil_attachment: None,
             });
 
-            main_rpass.set_pipeline(&main_texture.render_pipeline);
-            main_rpass.set_bind_group(0, &main_texture.texture_bind_group, &[]);
-            main_rpass.set_vertex_buffer(0, main_texture.vertex_buffer.slice(..));
+            main_rpass.set_pipeline(&frame.render_pipeline);
+            main_rpass.set_bind_group(0, &frame.texture_bind_group, &[]);
+            main_rpass.set_vertex_buffer(0, frame.vertex_buffer.slice(..));
             // main_rpass.set_vertex_buffer(1, self.surface_vertex_buffer.slice(..));
-            main_rpass.set_index_buffer(
-                main_texture.index_buffer.slice(..),
-                wgpu::IndexFormat::Uint16,
-            );
-            main_rpass.draw_indexed(0..main_texture.indices.len() as u32, 0, 0..1);
+            main_rpass.set_index_buffer(frame.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
+            main_rpass.draw_indexed(0..frame.indices.len() as u32, 0, 0..1);
             // main_rpass.draw_model(&self.model);
         }
 

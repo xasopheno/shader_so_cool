@@ -21,14 +21,14 @@ impl PrintState {
             self.size,
             &self.clock,
             self.composition.config.instance_mul,
-            &self.main_texture.texture.view,
+            &self.frame.texture.view,
         )?;
 
         let output_buffer = copy_texture_to_buffer(
             &mut encoder,
             self.size,
             &self.device,
-            &self.main_texture.texture.texture,
+            &self.frame.texture.texture,
         );
 
         self.queue.submit(Some(encoder.finish()));

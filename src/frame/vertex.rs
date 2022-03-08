@@ -1,11 +1,11 @@
-use super::types::MainTextureVertex;
+use super::types::FrameVertex;
 use wgpu::util::DeviceExt;
 
-impl MainTextureVertex {
+impl FrameVertex {
     pub fn desc<'a>() -> wgpu::VertexBufferLayout<'a> {
         use std::mem;
         wgpu::VertexBufferLayout {
-            array_stride: mem::size_of::<MainTextureVertex>() as wgpu::BufferAddress,
+            array_stride: mem::size_of::<FrameVertex>() as wgpu::BufferAddress,
             step_mode: wgpu::VertexStepMode::Vertex,
             attributes: &[
                 wgpu::VertexAttribute {
@@ -23,36 +23,36 @@ impl MainTextureVertex {
     }
 }
 
-pub const MAIN_TEXTURE_VERTICES: &[MainTextureVertex] = &[
-    MainTextureVertex {
+pub const FRAME_VERTICES: &[FrameVertex] = &[
+    FrameVertex {
         position: [1.0, 1.0, 0.0],
         tex_coords: [1.0, 0.0],
     },
-    MainTextureVertex {
+    FrameVertex {
         position: [-1.0, 1.0, 0.0],
         tex_coords: [0.0, 0.0],
     },
-    MainTextureVertex {
+    FrameVertex {
         position: [-1.0, -1.0, 0.0],
         tex_coords: [0.0, 1.0],
     },
-    MainTextureVertex {
+    FrameVertex {
         position: [1.0, -1.0, 0.0],
         tex_coords: [1.0, 1.0],
     },
 ];
 
-pub const MAIN_TEXTURE_INDICES: &[u16] = &[0, 1, 3, 1, 2, 3, /* padding */ 0];
+pub const FRAME_INDICES: &[u16] = &[0, 1, 3, 1, 2, 3, /* padding */ 0];
 
 pub fn make_buffers(device: &wgpu::Device) -> (wgpu::Buffer, wgpu::Buffer) {
     let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
         label: Some("Surface Vertex Buffer"),
-        contents: bytemuck::cast_slice(MAIN_TEXTURE_VERTICES),
+        contents: bytemuck::cast_slice(FRAME_VERTICES),
         usage: wgpu::BufferUsages::VERTEX,
     });
     let index_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
         label: Some("Surface Index Buffer"),
-        contents: bytemuck::cast_slice(MAIN_TEXTURE_INDICES),
+        contents: bytemuck::cast_slice(FRAME_INDICES),
         usage: wgpu::BufferUsages::INDEX,
     });
 

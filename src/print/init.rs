@@ -2,7 +2,7 @@ use super::PrintState;
 use crate::application::AvMap;
 use crate::composition::Composition;
 use crate::error::KintaroError;
-use crate::main_texture::types::MainTexture;
+use crate::frame::types::Frame;
 use crate::renderable::{RenderableEnum, ToRenderable};
 use crate::{
     canvas::Canvas,
@@ -43,7 +43,7 @@ impl PrintState {
             })
             .collect();
 
-        let main_texture = MainTexture::new(&device, size, format)?;
+        let frame = Frame::new(&device, size, format)?;
 
         Ok(PrintState {
             device,
@@ -58,7 +58,7 @@ impl PrintState {
                 camera: crate::camera::Camera::new(&config.cameras[0], size, config, 0),
                 canvas: Canvas::init(size),
             },
-            main_texture,
+            frame,
             time_elapsed: std::time::Duration::from_millis(0),
         })
     }

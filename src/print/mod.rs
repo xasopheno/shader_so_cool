@@ -3,11 +3,11 @@ mod render;
 pub mod write;
 use crate::clock::PrintClock;
 use crate::composition::Composition;
-use crate::main_texture::types::MainTexture;
+use crate::frame::types::Frame;
 
 pub struct PrintState {
     pub composition: Composition,
-    pub main_texture: MainTexture,
+    pub frame: Frame,
 
     pub clock: PrintClock,
     pub count: u32,

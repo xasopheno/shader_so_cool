@@ -97,7 +97,7 @@ impl RealTimeState {
             .renderpass
             .execute(
                 &mut encoder,
-                &self.main_texture.texture.view,
+                &self.frame.texture.view,
                 &paint_jobs,
                 &screen_descriptor,
                 None,

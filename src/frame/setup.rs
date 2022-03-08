@@ -1,25 +1,24 @@
 use super::{
-    types::{MainTexture, MainTextureVertex},
-    vertex::{make_buffers, MAIN_TEXTURE_INDICES},
+    types::{Frame, FrameVertex},
+    vertex::{make_buffers, FRAME_INDICES},
 };
 use crate::shader::make_shader;
 use anyhow::Result;
 
-impl MainTexture {
+impl Frame {
     pub fn new(
         device: &wgpu::Device,
         size: (u32, u32),
         format: wgpu::TextureFormat,
     ) -> Result<Self> {
-        let main_shader = make_shader(&device, "./src/main_texture/main_texture_shader.wgsl");
+        let main_shader = make_shader(&device, "./src/frame/frame_shaderm.wgsl");
 
         let texture =
-            super::texture::Texture::new(&device, (size.0, size.1), "main_texture", format)
-                .unwrap();
+            super::texture::Texture::new(&device, (size.0, size.1), "frame", format).unwrap();
 
         let texture_bind_group_layout = make_texture_bind_group_layout(&device);
 
-        let texture_bind_group = crate::main_texture::setup::make_main_texture_bind_group(
+        let texture_bind_group = crate::frame::setup::make_frame_texture_bind_group(
             device,
             &texture_bind_group_layout,
             &texture,
@@ -41,26 +40,26 @@ impl MainTexture {
             texture,
             texture_bind_group_layout,
             texture_bind_group,
-            indices: MAIN_TEXTURE_INDICES.to_vec(),
+            indices: FRAME_INDICES.to_vec(),
         })
     }
 }
 
-pub fn make_main_texture_bind_group(
+pub fn make_frame_texture_bind_group(
     device: &wgpu::Device,
-    main_texture_bind_group_layout: &wgpu::BindGroupLayout,
-    main_texture: &crate::main_texture::texture::Texture,
+    frame_bind_group_layout: &wgpu::BindGroupLayout,
+    frame: &crate::frame::texture::Texture,
 ) -> wgpu::BindGroup {
     device.create_bind_group(&wgpu::BindGroupDescriptor {
-        layout: main_texture_bind_group_layout,
+        layout: frame_bind_group_layout,
         entries: &[
             wgpu::BindGroupEntry {
                 binding: 0,
-                resource: wgpu::BindingResource::TextureView(&main_texture.view),
+                resource: wgpu::BindingResource::TextureView(&frame.view),
             },
             wgpu::BindGroupEntry {
                 binding: 1,
-                resource: wgpu::BindingResource::Sampler(&main_texture.sampler),
+                resource: wgpu::BindingResource::Sampler(&frame.sampler),
             },
         ],
         label: Some("main_bind_group"),
@@ -87,19 +86,19 @@ pub fn make_texture_bind_group_layout(device: &wgpu::Device) -> wgpu::BindGroupL
                 count: None,
             },
         ],
-        label: Some("main_texture_bind_group_layout"),
+        label: Some("frame_bind_group_layout"),
     })
 }
 
 pub fn make_render_pipeline(
     device: &wgpu::Device,
-    main_texture_bind_group_layout: &wgpu::BindGroupLayout,
+    frame_bind_group_layout: &wgpu::BindGroupLayout,
     shader: &wgpu::ShaderModule,
     format: wgpu::TextureFormat,
 ) -> wgpu::RenderPipeline {
     let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
         label: Some("Render Pipeline Layout"),
-        bind_group_layouts: &[&main_texture_bind_group_layout],
+        bind_group_layouts: &[&frame_bind_group_layout],
         push_constant_ranges: &[],
     });
     device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
@@ -108,7 +107,7 @@ pub fn make_render_pipeline(
         vertex: wgpu::VertexState {
             module: &shader,
             entry_point: "vs_main",
-            buffers: &[MainTextureVertex::desc()],
+            buffers: &[FrameVertex::desc()],
         },
         fragment: Some(wgpu::FragmentState {
             module: &shader,
