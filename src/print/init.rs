@@ -3,6 +3,7 @@ use crate::application::AvMap;
 use crate::composition::Composition;
 use crate::error::KintaroError;
 use crate::frame::types::Frame;
+use crate::frame::vertex::make_square_buffers;
 use crate::renderable::{RenderableEnum, ToRenderable};
 use crate::{
     canvas::Canvas,
@@ -43,7 +44,7 @@ impl PrintState {
             })
             .collect();
 
-        let frame = Frame::new(&device, size, format)?;
+        let frame = Frame::new(&device, size, format, make_square_buffers)?;
 
         Ok(PrintState {
             device,

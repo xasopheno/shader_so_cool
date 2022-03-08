@@ -1,4 +1,6 @@
-use crate::{clock::Clock, error::KintaroError, realtime::RealTimeState};
+use crate::{
+    clock::Clock, error::KintaroError, frame::instance::make_instances, realtime::RealTimeState,
+};
 
 impl RealTimeState {
     pub fn render(&mut self, window: &winit::window::Window) -> Result<(), KintaroError> {
@@ -20,9 +22,11 @@ impl RealTimeState {
                     label: Some("Surface Encoder"),
                 });
 
+        // self.frame.instances = make_instances(&self.device);
+
         let finish = self.surface.render(&mut surface_encoder, &self.frame);
 
-        self.render_gui(window);
+        // self.render_gui(window);
 
         self.queue.submit(std::iter::once(surface_encoder.finish()));
 

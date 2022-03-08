@@ -1,4 +1,9 @@
-use crate::{config::Config, error::KintaroError, frame::types::Frame, surface::Surface};
+use crate::{
+    config::Config,
+    error::KintaroError,
+    frame::{types::Frame, vertex::make_square_buffers},
+    surface::Surface,
+};
 use kintaro_egui_lib::{Platform, PlatformDescriptor, RenderPass, UiState};
 use std::sync::{Arc, Mutex};
 use winit::window::Window;
@@ -55,7 +60,7 @@ impl Setup {
         };
         surface.configure(&device, &surface_config);
 
-        let frame = Frame::new(&device, size, format)?;
+        let frame = Frame::new(&device, size, format, make_square_buffers)?;
 
         let platform = Platform::new(PlatformDescriptor {
             physical_width: size.0,

@@ -1,6 +1,6 @@
 use super::{
+    instance::FrameInstanceRaw,
     types::{Frame, FrameVertex},
-    vertex::{make_buffers, FRAME_INDICES},
 };
 use crate::shader::make_shader;
 use anyhow::Result;
@@ -10,6 +10,7 @@ impl Frame {
         device: &wgpu::Device,
         size: (u32, u32),
         format: wgpu::TextureFormat,
+        make_buffers_and_indices: impl FnOnce(&wgpu::Device) -> (wgpu::Buffer, wgpu::Buffer, Vec<u16>),
     ) -> Result<Self> {
         let main_shader = make_shader(&device, "./src/frame/frame_shader.wgsl");
 
@@ -31,7 +32,9 @@ impl Frame {
             wgpu::TextureFormat::Bgra8UnormSrgb,
         );
 
-        let (vertex_buffer, index_buffer) = make_buffers(device);
+        let (vertex_buffer, index_buffer, indices) = make_buffers_and_indices(device);
+
+        let instances = crate::frame::instance::make_instances(device);
 
         Ok(Self {
             render_pipeline,
@@ -40,7 +43,8 @@ impl Frame {
             texture,
             texture_bind_group_layout,
             texture_bind_group,
-            indices: FRAME_INDICES.to_vec(),
+            indices,
+            instances,
         })
     }
 }
@@ -107,7 +111,7 @@ pub fn make_render_pipeline(
         vertex: wgpu::VertexState {
             module: &shader,
             entry_point: "vs_main",
-            buffers: &[FrameVertex::desc()],
+            buffers: &[FrameVertex::desc(), FrameInstanceRaw::desc()],
         },
         fragment: Some(wgpu::FragmentState {
             module: &shader,

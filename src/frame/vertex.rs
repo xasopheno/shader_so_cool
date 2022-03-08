@@ -44,7 +44,7 @@ pub const FRAME_VERTICES: &[FrameVertex] = &[
 
 pub const FRAME_INDICES: &[u16] = &[0, 1, 3, 1, 2, 3, /* padding */ 0];
 
-pub fn make_buffers(device: &wgpu::Device) -> (wgpu::Buffer, wgpu::Buffer) {
+pub fn make_square_buffers(device: &wgpu::Device) -> (wgpu::Buffer, wgpu::Buffer, Vec<u16>) {
     let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
         label: Some("Surface Vertex Buffer"),
         contents: bytemuck::cast_slice(FRAME_VERTICES),
@@ -56,5 +56,5 @@ pub fn make_buffers(device: &wgpu::Device) -> (wgpu::Buffer, wgpu::Buffer) {
         usage: wgpu::BufferUsages::INDEX,
     });
 
-    (vertex_buffer, index_buffer)
+    (vertex_buffer, index_buffer, FRAME_INDICES.to_vec())
 }

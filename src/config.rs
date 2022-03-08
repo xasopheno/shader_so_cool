@@ -13,6 +13,21 @@ use crate::vertex::shape::{RandIndex, RandPosition, Shape};
 #[allow(unused_imports)]
 use crate::{color_map_from_named_colorsets, ColorMap, ColorSets};
 
+pub fn named_colorsets<'a>() -> Vec<(&'a str, Vec<&'a str>)> {
+    vec![
+        ("a", vec!["#dd1133", "#030303"]),
+        ("b", vec!["#2339e3", "#303030"]),
+        ("c", vec!["#744253", "#ccddaa"]),
+        ("d", vec!["#887880", "#facba2"]),
+        ("e", vec!["#63474D", "#adc37a"]),
+        ("f", vec!["#683347", "#faed00"]),
+        ("g", vec!["#1A3A3A", "#fadf23"]),
+        ("h", vec!["#383F51", "#dadfea"]),
+        ("i", vec!["#cc2277", "#232423"]),
+        ("j", vec!["#ee4499", "#3f2527"]),
+    ]
+}
+
 fn renderable_configs() -> Vec<RenderableConfig<'static>> {
     vec![
         // RenderableConfig::ImageRenderer(ImageRendererConfig {
@@ -41,14 +56,14 @@ fn renderable_configs() -> Vec<RenderableConfig<'static>> {
         RenderableConfig::Toy(ToyConfig {
             shader_path: "src/origami/shaders/toy3.wgsl",
         }),
-        RenderableConfig::Origami(OrigamiConfig {
-            shader_path: "./src/origami_shader.wgsl",
-            n_indices: 30,
-            n_vertices: 20,
+        RenderableConfig::EventStreams(EventStreamConfig {
+            socool_path: "kintaro.socool".to_string(),
+            shader_path: "./src/shader.wgsl",
         }),
-        // RenderableConfig::EventStreams(EventStreamConfig {
-        // socool_path: "kintaro.socool".to_string(),
-        // shader_path: "./src/shader.wgsl",
+        // RenderableConfig::Origami(OrigamiConfig {
+        // shader_path: "./src/origami_shader.wgsl",
+        // n_indices: 30,
+        // n_vertices: 20,
         // }),
         RenderableConfig::Glyphy(GlyphyConfig::GlypyTextConfig {
             text: vec![("Polygami", "#ff2323")],
@@ -63,13 +78,13 @@ fn renderable_configs() -> Vec<RenderableConfig<'static>> {
     ]
 }
 
-pub fn named_colorsets<'a>() -> Vec<(&'a str, Vec<&'a str>)> {
-    vec![
-        ("meg_0311", vec!["#dd1133", "#122333"]),
-        ("meg_0321", vec!["#11aa88", "#11a111"]),
-        ("meg_0331", vec!["#885533", "#ffaaaa"]),
-    ]
-}
+// pub fn named_colorsets<'a>() -> Vec<(&'a str, Vec<&'a str>)> {
+// vec![
+// ("meg_0311", vec!["#dd1133", "#122333"]),
+// ("meg_0321", vec!["#11aa88", "#11a111"]),
+// ("meg_0331", vec!["#885533", "#ffaaaa"]),
+// ]
+// }
 
 impl<'a> Default for Config<'a> {
     fn default() -> Self {
