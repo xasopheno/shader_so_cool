@@ -64,7 +64,7 @@ fn renderable_configs() -> Vec<RenderableConfig<'static>> {
         RenderableConfig::Glyphy(GlyphyConfig::GlypyTextConfig {
             text: vec![("Cool", "#ff2365")],
             location: (0.7, 0.9),
-            scale: 170.0,
+            scale: 100.0,
         }),
     ]
 }

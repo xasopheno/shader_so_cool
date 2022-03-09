@@ -5,15 +5,12 @@ pub struct Surface {
 }
 
 impl Surface {
-    pub fn render(&self, main_encoder: &mut wgpu::CommandEncoder, frame: &Frame) -> impl FnOnce() {
-        let surface_frame = self
-            .surface
-            .get_current_texture()
-            .expect("Failed to acquire next swap chain texture");
-        let surface_texture_view = surface_frame
-            .texture
-            .create_view(&wgpu::TextureViewDescriptor::default());
-
+    pub fn render(
+        &self,
+        main_encoder: &mut wgpu::CommandEncoder,
+        frame: &Frame,
+        surface_texture_view: &wgpu::TextureView,
+    ) {
         {
             let mut main_rpass = main_encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 label: Some("Render Pass"),
@@ -42,7 +39,5 @@ impl Surface {
             main_rpass.draw_indexed(0..frame.indices.len() as u32, 0, 0..4);
             // main_rpass.draw_model(&self.model);
         }
-
-        return move || surface_frame.present();
     }
 }

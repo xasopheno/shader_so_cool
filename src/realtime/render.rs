@@ -1,6 +1,4 @@
-use crate::{
-    clock::Clock, error::KintaroError, frame::instance::make_instances, realtime::RealTimeState,
-};
+use crate::{clock::Clock, error::KintaroError, realtime::RealTimeState};
 
 impl RealTimeState {
     pub fn render(&mut self, window: &winit::window::Window) -> Result<(), KintaroError> {
@@ -23,14 +21,22 @@ impl RealTimeState {
                 });
 
         // self.frame.instances = make_instances(&self.device);
+        let surface_frame = self
+            .surface
+            .surface
+            .get_current_texture()
+            .expect("Failed to acquire next swap chain texture");
+        let surface_texture_view = surface_frame
+            .texture
+            .create_view(&wgpu::TextureViewDescriptor::default());
 
-        let finish = self.surface.render(&mut surface_encoder, &self.frame);
-
-        // self.render_gui(window);
+        self.surface
+            .render(&mut surface_encoder, &self.frame, &surface_texture_view);
 
         self.queue.submit(std::iter::once(surface_encoder.finish()));
+        self.render_gui(window, &surface_texture_view);
 
-        finish();
+        surface_frame.present();
 
         self.update_gui();
 

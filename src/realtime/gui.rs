@@ -40,7 +40,7 @@ impl RealTimeState {
         }
     }
 
-    pub fn render_gui(&mut self, window: &winit::window::Window) {
+    pub fn render_gui(&mut self, window: &winit::window::Window, view: &wgpu::TextureView) {
         let mut encoder = self
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor {
@@ -97,7 +97,8 @@ impl RealTimeState {
             .renderpass
             .execute(
                 &mut encoder,
-                &self.frame.texture.view,
+                // &self.frame.texture.view,
+                view,
                 &paint_jobs,
                 &screen_descriptor,
                 None,
