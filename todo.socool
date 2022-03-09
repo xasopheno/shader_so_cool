@@ -1,0 +1,26 @@
+RenderableConfig::Toy(ToyConfig {
+    shader_path: "src/origami/shaders/toy3.wgsl",
+    input: "frame1"
+    output: "frame1"
+}),
+RenderableConfig::Toy(ToyConfig {
+    shader_path: "src/origami/shaders/toy3.wgsl",
+    input: "frame1"
+    output: "frame1"
+}),
+RenderableConfig::Sampler(SamplerConfig {
+    shader_path: "src/origami/shaders/toy3.wgsl",
+    input: "frame1" 
+    output: "main"
+}),
+
+RenderableConfig::Toy(ToyConfig {
+    shader_path: "src/origami/shaders/toy3.wgsl",
+    input: "frame2"
+    output: "main"
+}),
+
+
+
+
+

@@ -36,10 +36,6 @@ fn renderable_configs() -> Vec<RenderableConfig<'static>> {
         // RenderableConfig::Toy(ToyConfig {
         // shader_path: "src/toy.wgsl",
         // }),
-        // RenderableConfig::EventStreams(EventStreamConfig {
-        // socool_path: "kintaro.socool".to_string(),
-        // shader_path: "./src/shader.wgsl",
-        // }),
         // RenderableConfig::Toy(ToyConfig {
         // shader_path: "src/toy2.wgsl",
         // }),
