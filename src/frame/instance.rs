@@ -62,7 +62,7 @@ impl FrameInstance {
     }
 }
 
-const NUM_INSTANCES_PER_ROW: u32 = 4;
+const NUM_INSTANCES_PER_ROW: u32 = 2;
 const INSTANCE_DISPLACEMENT: cgmath::Vector3<f32> = cgmath::Vector3::new(
     NUM_INSTANCES_PER_ROW as f32 * 0.5,
     0.0,
@@ -74,8 +74,8 @@ pub fn make_instances(device: &wgpu::Device) -> wgpu::Buffer {
         .flat_map(|z| {
             (0..NUM_INSTANCES_PER_ROW).map(move |x| {
                 let position = cgmath::Vector3 {
-                    x: x as f32 * 2.0 - 0.5,
-                    y: z as f32 * 2.0 - 2.0,
+                    x: x as f32 * 2.0,
+                    y: z as f32 * 2.0 - 1.0,
                     z: z as f32,
                 } - INSTANCE_DISPLACEMENT;
 

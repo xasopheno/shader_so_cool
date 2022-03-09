@@ -66,14 +66,9 @@ fn renderable_configs() -> Vec<RenderableConfig<'static>> {
         // n_vertices: 20,
         // }),
         RenderableConfig::Glyphy(GlyphyConfig::GlypyTextConfig {
-            text: vec![("Polygami", "#ff2323")],
-            location: (0.0, 0.0),
-            scale: 50.0,
-        }),
-        RenderableConfig::Glyphy(GlyphyConfig::GlypyTextConfig {
-            text: vec![("Danny Meyer", "#ff2365")],
+            text: vec![("Cool", "#ff2365")],
             location: (0.7, 0.9),
-            scale: 60.0,
+            scale: 170.0,
         }),
     ]
 }

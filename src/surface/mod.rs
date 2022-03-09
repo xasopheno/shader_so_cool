@@ -22,9 +22,9 @@ impl Surface {
                     resolve_target: None,
                     ops: wgpu::Operations {
                         load: wgpu::LoadOp::Clear(wgpu::Color {
-                            r: 0.6,
-                            g: 0.2,
-                            b: 0.1,
+                            r: 0.1,
+                            g: 0.04,
+                            b: 0.08,
                             a: 1.0,
                         }),
                         store: true,
@@ -39,7 +39,7 @@ impl Surface {
             // main_rpass.set_vertex_buffer(1, self.surface_vertex_buffer.slice(..));
             main_rpass.set_vertex_buffer(1, frame.instances.slice(..));
             main_rpass.set_index_buffer(frame.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
-            main_rpass.draw_indexed(0..frame.indices.len() as u32, 0, 0..16);
+            main_rpass.draw_indexed(0..frame.indices.len() as u32, 0, 0..4);
             // main_rpass.draw_model(&self.model);
         }
 

@@ -28,7 +28,7 @@ fn vs_main(
         //instance.model_matrix_2,
         //vec4<f32>(0.0, 0.3, 0.0, 0.0),
         //vec4<f32>(0.0, 0.0, 0.3, 0.0),
-        vec4<f32>(instance.model_matrix_3[0], instance.model_matrix_3[1], instance.model_matrix_3[3] * 1.5, 4.0),
+        vec4<f32>(instance.model_matrix_3[0], instance.model_matrix_3[1], instance.model_matrix_3[3] * 1.0, 2.1),
         //instance.model_matrix_2,
         //instance.model_matrix_3,
     );
