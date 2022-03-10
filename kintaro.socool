@@ -263,6 +263,6 @@ main = {
         ] | Lm 7/6,
     ]
     | Gm 1/2
-    -- | Repeat 2
+    | Seq [Fm 1, Fm 5/4 | Lm 4/5, Fm 9/8 | Lm 4/3]
     | Fm 9/8
 }
