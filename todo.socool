@@ -1,26 +1,34 @@
-RenderableConfig::Toy(ToyConfig {
-    shader_path: "src/origami/shaders/toy3.wgsl",
-    input: "frame1"
-    output: "frame1"
-}),
-RenderableConfig::Toy(ToyConfig {
-    shader_path: "src/origami/shaders/toy3.wgsl",
-    input: "frame1"
-    output: "frame1"
-}),
-RenderableConfig::Sampler(SamplerConfig {
-    shader_path: "src/origami/shaders/toy3.wgsl",
-    input: "frame1" 
-    output: "main"
-}),
+move instancer, shape, (and instance_mul) to EventStream
+multiple frames,
 
-RenderableConfig::Toy(ToyConfig {
-    shader_path: "src/origami/shaders/toy3.wgsl",
-    input: "frame2"
-    output: "main"
-}),
-
-
-
+frames: HashMap<Frame>;
+composition = [
+    {
+        frame: "frame1", 
+        renderables: [
+            RenderableConfig::Toy(ToyConfig {
+                shader_path: "src/origami/shaders/toy3.wgsl",
+            }),
+            RenderableConfig::EventStreams(EventStreamConfig {
+                socool_path: "kintaro.socool".to_string(),
+                shader_path: "./src/shader.wgsl",
+            }),
+            RenderableConfig::Glyphy(GlyphyConfig::GlypyTextConfig {
+                text: vec![("Cool", "#ff2365")],
+                location: (0.7, 0.9),
+                scale: 100.0,
+            })
+        ],
+    },
+    {
+        frame: "main",
+        renderables: [
+            RenderableConfig::Sampler(ToyConfig {
+                shader_path: "sampler_shader",
+                input: "frame1"
+            })
+        ]
+    }
+]
 
 

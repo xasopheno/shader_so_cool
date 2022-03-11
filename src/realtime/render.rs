@@ -20,7 +20,6 @@ impl RealTimeState {
                     label: Some("Surface Encoder"),
                 });
 
-        // self.frame.instances = make_instances(&self.device);
         let surface_frame = self
             .surface
             .surface

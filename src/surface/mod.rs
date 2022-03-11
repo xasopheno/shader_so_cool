@@ -1,4 +1,4 @@
-use crate::frame::{instance::make_instances, types::Frame};
+use crate::frame::types::Frame;
 
 pub struct Surface {
     pub surface: wgpu::Surface,

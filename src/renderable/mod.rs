@@ -4,7 +4,7 @@ use winit::event::{ElementState, VirtualKeyCode};
 use crate::{
     application::AvMap, canvas::Canvas, clock::ClockResult, config::Config, error::KintaroError,
     glyphy::Glyphy, image_renderer::ImageRenderer, op_stream::renderpasses::make_renderpasses,
-    origami::Origami, shader::make_shader, shared::RenderPassInput, toy::Toy,
+    origami::Origami, sampler::Sampler, shader::make_shader, shared::RenderPassInput, toy::Toy,
 };
 
 pub struct RenderableInput<'a> {
@@ -48,6 +48,11 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
         format: wgpu::TextureFormat,
     ) -> Result<RenderableEnum, KintaroError> {
         match self {
+            RenderableConfig::SamplerConfig(sampler_config) => {
+                let shader = make_shader(device, sampler_config.shader_path)?;
+                let sampler = Sampler::init(device, format, shader, sampler_config)?;
+                Ok(RenderableEnum::Sampler(sampler))
+            }
             RenderableConfig::Origami(origami_config) => {
                 let shader = make_shader(device, origami_config.shader_path)?;
                 let origami = Origami::init(device, format, shader, origami_config)?;
@@ -95,6 +100,7 @@ pub enum RenderableEnum {
     Glyphy(Box<Glyphy>),
     EventStreams(Vec<RenderPassInput>),
     Origami(Origami),
+    Sampler(Sampler),
 }
 
 #[derive(Clone)]
@@ -104,11 +110,18 @@ pub enum RenderableConfig<'a> {
     Glyphy(GlyphyConfig),
     EventStreams(EventStreamConfig<'a>),
     Origami(OrigamiConfig<'a>),
+    SamplerConfig(SamplerConfig<'a>),
 }
 
 #[derive(Clone)]
 pub struct ToyConfig<'a> {
     pub shader_path: &'a str,
+}
+
+#[derive(Clone)]
+pub struct SamplerConfig<'a> {
+    shader_path: &'a str,
+    input_frame: &'a str,
 }
 
 #[derive(Clone)]
@@ -170,6 +183,9 @@ impl<'a> Renderable<'a> for RenderableEnum {
 
     fn render_pass(&mut self, input: &'a RenderableInput, clear: bool) -> Result<(), KintaroError> {
         match self {
+            RenderableEnum::Sampler(sample) => {
+                todo!()
+            }
             RenderableEnum::Origami(origami) => {
                 origami.render(input.device, input.queue, input.size, input.view, clear);
             }

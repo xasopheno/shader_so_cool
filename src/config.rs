@@ -28,26 +28,44 @@ pub fn named_colorsets<'a>() -> Vec<(&'a str, Vec<&'a str>)> {
     ]
 }
 
+struct FramePass<'a> {
+    frame: &'a str,
+    renderables: Vec<RenderableConfig<'static>>,
+}
+
+fn frame_passes() -> Vec<FramePass<'static>> {
+    vec![
+        FramePass {
+            frame: "frame1",
+            renderables: vec![
+                RenderableConfig::Toy(ToyConfig {
+                    shader_path: "src/origami/shaders/toy3.wgsl",
+                }),
+                RenderableConfig::EventStreams(EventStreamConfig {
+                    socool_path: "kintaro.socool".to_string(),
+                    shader_path: "./src/shader.wgsl",
+                }),
+                RenderableConfig::Glyphy(GlyphyConfig::GlypyTextConfig {
+                    text: vec![("Cool", "#ff2365")],
+                    location: (0.7, 0.9),
+                    scale: 100.0,
+                }),
+            ],
+        },
+        // FramePass {
+        // frame: "main",
+        // renderables: [RenderableConfig::Sampler(SamplerConfig {
+        // shader_path: "sampler_shader",
+        // input: "frame1",
+        // })],
+        // },
+    ]
+}
+
 fn renderable_configs() -> Vec<RenderableConfig<'static>> {
     vec![
         // RenderableConfig::ImageRenderer(ImageRendererConfig {
         // image_path: "src/image_renderer/milo.png",
-        // }),
-        // RenderableConfig::Toy(ToyConfig {
-        // shader_path: "src/toy.wgsl",
-        // }),
-        // RenderableConfig::Toy(ToyConfig {
-        // shader_path: "src/toy2.wgsl",
-        // }),
-        // RenderableConfig::Glyphy(GlyphyConfig::GlyphyNamedColorSetConfig {
-        // text: named_colorsets(),
-        // location: (0.05, 0.9),
-        // scale: 50.0,
-        // }),
-        // RenderableConfig::Glyphy(GlyphyConfig::GlypyTextConfig {
-        // text: vec![("Mimpy", "#ff2323")],
-        // location: (0.3, 0.2),
-        // scale: 200.0,
         // }),
         RenderableConfig::Toy(ToyConfig {
             shader_path: "src/origami/shaders/toy3.wgsl",
@@ -68,14 +86,6 @@ fn renderable_configs() -> Vec<RenderableConfig<'static>> {
         }),
     ]
 }
-
-// pub fn named_colorsets<'a>() -> Vec<(&'a str, Vec<&'a str>)> {
-// vec![
-// ("meg_0311", vec!["#dd1133", "#122333"]),
-// ("meg_0321", vec!["#11aa88", "#11a111"]),
-// ("meg_0331", vec!["#885533", "#ffaaaa"]),
-// ]
-// }
 
 impl<'a> Default for Config<'a> {
     fn default() -> Self {
