@@ -1,7 +1,10 @@
+use std::collections::HashMap;
+
 use kintaro_egui_lib::InstanceMul;
 use serde::{Deserialize, Serialize};
 
 use crate::camera::default::default_cameras;
+use crate::frame::types::Frame;
 use crate::instance::instancer::{Instancer, SimpleInstancer};
 #[allow(unused_imports)]
 use crate::renderable::{
@@ -32,6 +35,8 @@ struct FramePass<'a> {
     frame: &'a str,
     renderables: Vec<RenderableConfig<'static>>,
 }
+
+pub type Frames = HashMap<String, Frame>;
 
 fn frame_passes() -> Vec<FramePass<'static>> {
     vec![

@@ -111,7 +111,8 @@ pub fn make_render_pipeline(
         vertex: wgpu::VertexState {
             module: &shader,
             entry_point: "vs_main",
-            buffers: &[FrameVertex::desc(), FrameInstanceRaw::desc()],
+            // buffers: &[FrameVertex::desc(), FrameInstanceRaw::desc()],
+            buffers: &[FrameVertex::desc()],
         },
         fragment: Some(wgpu::FragmentState {
             module: &shader,
