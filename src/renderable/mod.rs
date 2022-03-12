@@ -184,7 +184,7 @@ impl<'a> Renderable<'a> for RenderableEnum {
 
     fn render_pass(&mut self, input: &'a RenderableInput, clear: bool) -> Result<(), KintaroError> {
         match self {
-            RenderableEnum::Sampler(sample) => {
+            RenderableEnum::Sampler(_sampler) => {
                 todo!()
             }
             RenderableEnum::Origami(origami) => {
