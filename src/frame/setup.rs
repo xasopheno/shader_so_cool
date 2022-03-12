@@ -1,7 +1,4 @@
-use super::{
-    instance::FrameInstanceRaw,
-    types::{Frame, FrameVertex},
-};
+use super::types::{Frame, FrameVertex};
 use crate::shader::make_shader;
 use anyhow::Result;
 
@@ -34,7 +31,7 @@ impl Frame {
 
         let (vertex_buffer, index_buffer, indices) = make_buffers_and_indices(device);
 
-        let instances = crate::frame::instance::make_instances(device);
+        // let instances = crate::frame::instance::make_instances(device);
 
         Ok(Self {
             render_pipeline,
@@ -44,7 +41,7 @@ impl Frame {
             texture_bind_group_layout,
             texture_bind_group,
             indices,
-            instances,
+            // instances,
         })
     }
 }

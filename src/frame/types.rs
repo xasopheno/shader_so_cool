@@ -4,7 +4,7 @@ pub struct Frame {
     pub render_pipeline: wgpu::RenderPipeline,
     pub vertex_buffer: wgpu::Buffer,
     pub index_buffer: wgpu::Buffer,
-    pub instances: wgpu::Buffer,
+    // pub instances: wgpu::Buffer,
     pub texture: Texture,
     pub texture_bind_group_layout: wgpu::BindGroupLayout,
     pub texture_bind_group: wgpu::BindGroup,

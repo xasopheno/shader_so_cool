@@ -1,22 +1,22 @@
 use cgmath::prelude::*;
 use wgpu::util::DeviceExt;
 
-pub struct FrameInstance {
+pub struct SamplerInstance {
     position: cgmath::Vector3<f32>,
     rotation: cgmath::Quaternion<f32>,
 }
 
 #[repr(C)]
 #[derive(Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
-pub struct FrameInstanceRaw {
+pub struct SamplerInstanceRaw {
     model: [[f32; 4]; 4],
 }
 
-impl FrameInstanceRaw {
+impl SamplerInstanceRaw {
     pub fn desc<'a>() -> wgpu::VertexBufferLayout<'a> {
         use std::mem;
         wgpu::VertexBufferLayout {
-            array_stride: mem::size_of::<FrameInstanceRaw>() as wgpu::BufferAddress,
+            array_stride: mem::size_of::<SamplerInstanceRaw>() as wgpu::BufferAddress,
             // We need to switch from using a step mode of Vertex to Instance
             // This means that our shaders will only change to use the next
             // instance when the shader starts processing a new instance
@@ -52,9 +52,9 @@ impl FrameInstanceRaw {
     }
 }
 
-impl FrameInstance {
-    fn to_raw(&self) -> FrameInstanceRaw {
-        FrameInstanceRaw {
+impl SamplerInstance {
+    fn to_raw(&self) -> SamplerInstanceRaw {
+        SamplerInstanceRaw {
             model: (cgmath::Matrix4::from_translation(self.position)
                 * cgmath::Matrix4::from(self.rotation))
             .into(),
@@ -87,14 +87,14 @@ pub fn make_instances(device: &wgpu::Device) -> wgpu::Buffer {
                     cgmath::Quaternion::from_axis_angle(position.normalize(), cgmath::Deg(45.0))
                 };
 
-                FrameInstance { position, rotation }
+                SamplerInstance { position, rotation }
             })
         })
         .collect::<Vec<_>>();
 
     let instance_data = instances
         .iter()
-        .map(FrameInstance::to_raw)
+        .map(SamplerInstance::to_raw)
         .collect::<Vec<_>>();
     let instance_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
         label: Some("Instance Buffer"),

@@ -1,4 +1,3 @@
-pub mod instance;
 pub mod resize;
 pub mod setup;
 pub mod texture;

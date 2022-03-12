@@ -1,5 +1,5 @@
 use super::{
-    instance::FrameInstanceRaw,
+    instance::SamplerInstanceRaw,
     types::{Sampler, SamplerVertex},
 };
 use crate::{frame::vertex::make_square_buffers, shader::make_shader};
@@ -10,12 +10,11 @@ impl Sampler {
         device: &wgpu::Device,
         size: (u32, u32),
         format: wgpu::TextureFormat,
-        // make_buffers_and_indices: impl FnOnce(&wgpu::Device) -> (wgpu::Buffer, wgpu::Buffer, Vec<u16>),
     ) -> Result<Self> {
-        let main_shader = make_shader(&device, "./src/frame/frame_shader.wgsl");
+        let main_shader = make_shader(&device, "./src/sampler/sampler_shader.wgsl");
 
         let texture =
-            crate::frame::texture::Texture::new(&device, (size.0, size.1), "frame", format)
+            crate::frame::texture::Texture::new(&device, (size.0, size.1), "sampler_frame", format)
                 .unwrap();
 
         let texture_bind_group_layout = make_texture_bind_group_layout(&device);
@@ -35,7 +34,7 @@ impl Sampler {
 
         let (vertex_buffer, index_buffer, indices) = make_square_buffers(device);
 
-        let instances = crate::frame::instance::make_instances(device);
+        let instances = super::instance::make_instances(device);
 
         Ok(Self {
             render_pipeline,
@@ -112,8 +111,8 @@ pub fn make_render_pipeline(
         vertex: wgpu::VertexState {
             module: &shader,
             entry_point: "vs_main",
-            // buffers: &[FrameVertex::desc(), FrameInstanceRaw::desc()],
-            buffers: &[SamplerVertex::desc()],
+            buffers: &[SamplerVertex::desc(), SamplerInstanceRaw::desc()],
+            // buffers: &[SamplerVertex::desc()],
         },
         fragment: Some(wgpu::FragmentState {
             module: &shader,
