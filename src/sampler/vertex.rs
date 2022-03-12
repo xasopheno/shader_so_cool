@@ -1,34 +1,11 @@
-use rand::prelude::*;
-
-#[repr(C)]
-#[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
-pub struct SamplerVertex {
-    pub position: [f32; 3],
-    pub color: [f32; 3],
-    pub direction: [f32; 3],
-    pub velocity: f32,
-}
+use super::types::SamplerVertex;
+use wgpu::util::DeviceExt;
 
 impl SamplerVertex {
-    pub fn new_random() -> Self {
-        let mut rng = rand::thread_rng();
-        let mut r = || rng.gen::<f32>() * 2.0 - 1.0;
-        Self {
-            position: [r(), r(), r()],
-            color: [r(), r(), r()],
-            direction: [r(), r(), r()],
-            velocity: r(),
-        }
-    }
-    pub fn update(&mut self) {
-        // self.position[0] += self.velocity * self.direction[0] * 0.001;
-        // self.position[1] += self.velocity * self.direction[0] * 0.001;
-        // self.position[2] += self.velocity * self.direction[0] * 0.001;
-    }
-
     pub fn desc<'a>() -> wgpu::VertexBufferLayout<'a> {
+        use std::mem;
         wgpu::VertexBufferLayout {
-            array_stride: std::mem::size_of::<SamplerVertex>() as wgpu::BufferAddress,
+            array_stride: mem::size_of::<SamplerVertex>() as wgpu::BufferAddress,
             step_mode: wgpu::VertexStepMode::Vertex,
             attributes: &[
                 wgpu::VertexAttribute {
@@ -37,14 +14,47 @@ impl SamplerVertex {
                     format: wgpu::VertexFormat::Float32x3,
                 },
                 wgpu::VertexAttribute {
-                    offset: std::mem::size_of::<[f32; 3]>() as wgpu::BufferAddress,
+                    offset: mem::size_of::<[f32; 3]>() as wgpu::BufferAddress,
                     shader_location: 1,
-                    format: wgpu::VertexFormat::Float32x3,
+                    format: wgpu::VertexFormat::Float32x2,
                 },
             ],
         }
     }
 }
 
-// unsafe impl bytemuck::Pod for Vertex {}
-// unsafe impl bytemuck::Zeroable for Vertex {}
+pub const SAMPLER_VERTICES: &[SamplerVertex] = &[
+    SamplerVertex {
+        position: [1.0, 1.0, 0.0],
+        tex_coords: [1.0, 0.0],
+    },
+    SamplerVertex {
+        position: [-1.0, 1.0, 0.0],
+        tex_coords: [0.0, 0.0],
+    },
+    SamplerVertex {
+        position: [-1.0, -1.0, 0.0],
+        tex_coords: [0.0, 1.0],
+    },
+    SamplerVertex {
+        position: [1.0, -1.0, 0.0],
+        tex_coords: [1.0, 1.0],
+    },
+];
+
+pub const SAMPLER_INDICES: &[u16] = &[0, 1, 3, 1, 2, 3, /* padding */ 0];
+
+pub fn make_sampler_buffers(device: &wgpu::Device) -> (wgpu::Buffer, wgpu::Buffer, Vec<u16>) {
+    let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        label: Some("Surface Vertex Buffer"),
+        contents: bytemuck::cast_slice(SAMPLER_VERTICES),
+        usage: wgpu::BufferUsages::VERTEX,
+    });
+    let index_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        label: Some("Surface Index Buffer"),
+        contents: bytemuck::cast_slice(SAMPLER_INDICES),
+        usage: wgpu::BufferUsages::INDEX,
+    });
+
+    (vertex_buffer, index_buffer, SAMPLER_INDICES.to_vec())
+}

@@ -4,7 +4,9 @@ use kintaro_egui_lib::InstanceMul;
 use serde::{Deserialize, Serialize};
 
 use crate::camera::default::default_cameras;
+use crate::error::KintaroError;
 use crate::frame::types::Frame;
+use crate::frame::vertex::make_square_buffers;
 use crate::instance::instancer::{Instancer, SimpleInstancer};
 #[allow(unused_imports)]
 use crate::renderable::{
@@ -38,6 +40,21 @@ struct FramePass<'a> {
 
 pub type Frames = HashMap<String, Frame>;
 
+fn make_frames(
+    device: &wgpu::Device,
+    size: (u32, u32),
+    format: wgpu::TextureFormat,
+) -> Result<Frames, KintaroError> {
+    let frame1 = Frame::new(&device, size, format, make_square_buffers)?;
+    let main = Frame::new(&device, size, format, make_square_buffers)?;
+
+    let mut result = HashMap::new();
+    result.insert("frame1".to_string(), frame1);
+    result.insert("main".to_string(), main);
+
+    Ok(result)
+}
+
 fn frame_passes() -> Vec<FramePass<'static>> {
     vec![
         FramePass {
@@ -60,7 +77,7 @@ fn frame_passes() -> Vec<FramePass<'static>> {
         // FramePass {
         // frame: "main",
         // renderables: [RenderableConfig::Sampler(SamplerConfig {
-        // shader_path: "sampler_shader",
+        // shader_path&: "sampler_shader",
         // input: "frame1",
         // })],
         // },

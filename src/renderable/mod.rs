@@ -4,7 +4,8 @@ use winit::event::{ElementState, VirtualKeyCode};
 use crate::{
     application::AvMap, canvas::Canvas, clock::ClockResult, config::Config, error::KintaroError,
     glyphy::Glyphy, image_renderer::ImageRenderer, op_stream::renderpasses::make_renderpasses,
-    origami::Origami, sampler::Sampler, shader::make_shader, shared::RenderPassInput, toy::Toy,
+    origami::Origami, sampler::types::Sampler, shader::make_shader, shared::RenderPassInput,
+    toy::Toy,
 };
 
 pub struct RenderableInput<'a> {
@@ -49,8 +50,8 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
     ) -> Result<RenderableEnum, KintaroError> {
         match self {
             RenderableConfig::SamplerConfig(sampler_config) => {
-                let shader = make_shader(device, sampler_config.shader_path)?;
-                let sampler = Sampler::init(device, format, shader, sampler_config)?;
+                let _shader = make_shader(device, sampler_config.shader_path)?;
+                let sampler = Sampler::new(device, config.window_size, format)?;
                 Ok(RenderableEnum::Sampler(sampler))
             }
             RenderableConfig::Origami(origami_config) => {
