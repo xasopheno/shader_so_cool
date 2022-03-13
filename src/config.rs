@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::camera::default::default_cameras;
 use crate::error::KintaroError;
-use crate::frame::types::Frame;
+use crate::frame::types::{Frame, Frames};
 use crate::frame::vertex::make_square_buffers;
 use crate::instance::instancer::{Instancer, SimpleInstancer};
 #[allow(unused_imports)]

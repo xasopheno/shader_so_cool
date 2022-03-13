@@ -1,4 +1,8 @@
+use std::collections::HashMap;
+
 use super::texture::Texture;
+
+pub type Frames = HashMap<String, Frame>;
 
 pub struct Frame {
     pub render_pipeline: wgpu::RenderPipeline,

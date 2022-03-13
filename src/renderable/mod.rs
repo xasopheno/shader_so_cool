@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use kintaro_egui_lib::InstanceMul;
 use winit::event::{ElementState, VirtualKeyCode};
 
@@ -7,6 +9,7 @@ use crate::{
     clock::ClockResult,
     config::{Config, FramePass},
     error::KintaroError,
+    frame::types::Frame,
     glyphy::Glyphy,
     image_renderer::ImageRenderer,
     op_stream::renderpasses::make_renderpasses,
@@ -29,6 +32,7 @@ pub struct RenderableInput<'a> {
     pub view_proj: [[f32; 4]; 4],
     pub instance_mul: InstanceMul,
     pub clear: bool,
+    pub frames: &'a HashMap<String, Frame>,
 }
 
 pub trait Renderable<'a> {
@@ -193,7 +197,8 @@ impl<'a> Renderable<'a> for RenderableEnum {
 
     fn render_pass(&mut self, input: &'a RenderableInput, clear: bool) -> Result<(), KintaroError> {
         match self {
-            RenderableEnum::Sampler(_sampler) => {}
+            RenderableEnum::Sampler(sampler) => {}
+            // sampler.render(input.device, make_instances),
             RenderableEnum::Origami(origami) => {
                 origami.render(input.device, input.queue, input.size, input.view, clear);
             }

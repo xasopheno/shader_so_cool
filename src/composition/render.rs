@@ -46,6 +46,7 @@ impl Composition {
             view_proj,
             instance_mul,
             clear: false,
+            frames: &self.frames,
         };
 
         for (idx, renderable) in self.renderables.iter_mut().enumerate() {

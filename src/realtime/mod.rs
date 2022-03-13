@@ -4,11 +4,15 @@ pub mod render;
 mod resize;
 pub mod setup;
 
+use std::collections::HashMap;
+
 use crate::application::AvMap;
 use crate::canvas::Canvas;
 use crate::composition::Composition;
 use crate::error::KintaroError;
 use crate::frame::types::Frame;
+use crate::frame::types::Frames;
+use crate::frame::vertex::make_square_buffers;
 use crate::renderable::RenderableEnum;
 use crate::renderable::ToRenderable;
 use crate::surface::Surface;
@@ -43,6 +47,22 @@ pub struct RealTimeState {
     pub repaint_signal: std::sync::Arc<GuiRepaintSignal>,
 }
 
+pub fn make_frames<'a>(
+    device: &wgpu::Device,
+    size: (u32, u32),
+    format: wgpu::TextureFormat,
+    names: Vec<&'a str>,
+) -> Result<Frames, KintaroError> {
+    let mut result = HashMap::new();
+    names.iter().map(|n| {
+        let frame =
+            Frame::new(&device, size, format, make_square_buffers).expect("unable to make frame");
+        result.insert(n.to_string(), frame);
+    });
+
+    Ok(result)
+}
+
 impl<'a> RealTimeState {
     pub fn init(
         window: &Window,
@@ -64,11 +84,11 @@ impl<'a> RealTimeState {
         } = block_on(Setup::init(window, config))?;
 
         let frame_passes = config.renderable_configs.to_owned();
-        let mut frames = vec![];
+        let mut frame_names = vec![];
         let renderable_configs: Vec<crate::renderable::RenderableConfig> = frame_passes
             .into_iter()
             .flat_map(|frame_pass| {
-                frames.push(frame_pass.output_frame);
+                frame_names.push(frame_pass.output_frame);
                 frame_pass.renderables
             })
             .collect();
@@ -78,6 +98,8 @@ impl<'a> RealTimeState {
                 renderable_config.to_renderable(&device, &queue, config, &av_map, format)
             })
             .collect::<Result<Vec<RenderableEnum>, _>>()?;
+
+        let frames = make_frames(&device, size, format, frame_names)?;
 
         Ok(Self {
             device,
@@ -90,6 +112,7 @@ impl<'a> RealTimeState {
                 config: config.clone(),
                 camera: crate::camera::Camera::new(&config.cameras[0], size, config, 0),
                 canvas: Canvas::init(size),
+                frames,
             },
             surface,
             frame,
