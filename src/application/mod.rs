@@ -1,5 +1,7 @@
 use crate::config::Config;
 use crate::error::KintaroError;
+use crate::frame::types::Frame;
+use crate::frame::vertex::make_square_buffers;
 use crate::print::PrintState;
 use crate::realtime::gui::GuiRepaintSignal;
 use crate::realtime::RealTimeState;
@@ -80,7 +82,11 @@ pub fn run(filename: &str, config: Config<'static>) -> Result<(), KintaroError> 
     let mut av_map: AvMap = HashMap::new();
     let mut audios: Vec<Audio> = vec![];
 
-    for c in config.renderable_configs.iter() {
+    for c in config
+        .renderable_configs
+        .iter()
+        .flat_map(|c| &c.renderables)
+    {
         if let RenderableConfig::EventStreams(e) = c {
             let result = get_audiovisual_data(&e.socool_path)?;
 
@@ -256,4 +262,22 @@ fn realtime(
     });
     #[allow(unreachable_code)]
     Ok(())
+}
+
+pub type Frames = HashMap<String, Frame>;
+
+fn make_frames<'a>(
+    device: &wgpu::Device,
+    size: (u32, u32),
+    format: wgpu::TextureFormat,
+    names: Vec<&'a str>,
+) -> Result<Frames, KintaroError> {
+    let mut result = HashMap::new();
+    names.iter().map(|n| {
+        let frame =
+            Frame::new(&device, size, format, make_square_buffers).expect("unable to make frame");
+        result.insert(n.to_string(), frame);
+    });
+
+    Ok(result)
 }

@@ -11,7 +11,7 @@ use crate::instance::instancer::{Instancer, SimpleInstancer};
 #[allow(unused_imports)]
 use crate::renderable::{
     EventStreamConfig, GlyphyConfig, ImageRendererConfig, OrigamiConfig, RenderableConfig,
-    ToyConfig,
+    SamplerConfig, ToyConfig,
 };
 use crate::save::ConfigState;
 use crate::vertex::shape::{RandIndex, RandPosition, Shape};
@@ -33,32 +33,16 @@ pub fn named_colorsets<'a>() -> Vec<(&'a str, Vec<&'a str>)> {
     ]
 }
 
-struct FramePass<'a> {
-    frame: &'a str,
-    renderables: Vec<RenderableConfig<'static>>,
+#[derive(Clone)]
+pub struct FramePass {
+    pub output_frame: &'static str,
+    pub renderables: Vec<RenderableConfig<'static>>,
 }
 
-pub type Frames = HashMap<String, Frame>;
-
-fn make_frames(
-    device: &wgpu::Device,
-    size: (u32, u32),
-    format: wgpu::TextureFormat,
-) -> Result<Frames, KintaroError> {
-    let frame1 = Frame::new(&device, size, format, make_square_buffers)?;
-    let main = Frame::new(&device, size, format, make_square_buffers)?;
-
-    let mut result = HashMap::new();
-    result.insert("frame1".to_string(), frame1);
-    result.insert("main".to_string(), main);
-
-    Ok(result)
-}
-
-fn frame_passes() -> Vec<FramePass<'static>> {
+fn frame_passes() -> Vec<FramePass> {
     vec![
         FramePass {
-            frame: "frame1",
+            output_frame: "frame1",
             renderables: vec![
                 RenderableConfig::Toy(ToyConfig {
                     shader_path: "src/origami/shaders/toy3.wgsl",
@@ -74,13 +58,13 @@ fn frame_passes() -> Vec<FramePass<'static>> {
                 }),
             ],
         },
-        // FramePass {
-        // frame: "main",
-        // renderables: [RenderableConfig::Sampler(SamplerConfig {
-        // shader_path&: "sampler_shader",
-        // input: "frame1",
-        // })],
-        // },
+        FramePass {
+            output_frame: "main",
+            renderables: vec![RenderableConfig::Sampler(SamplerConfig {
+                shader_path: "./src/sampler/sampler_shader.wgsl",
+                input_frame: "frame1",
+            })],
+        },
     ]
 }
 
@@ -122,7 +106,8 @@ impl<'a> Default for Config<'a> {
         let (cameras, instance_mul) = Config::handle_save(instance_mul);
         Config {
             composition_name: "kintaro",
-            renderable_configs: renderable_configs(),
+            // renderable_configs: renderable_configs(),
+            renderable_configs: frame_passes(),
             instancer: Box::new(SimpleInstancer {}),
             instance_mul,
             accumulation: false,
@@ -183,5 +168,5 @@ pub struct Config<'a> {
     pub shape: Shape,
     pub instance_mul: InstanceMul,
     pub instancer: Box<dyn Instancer>,
-    pub renderable_configs: Vec<RenderableConfig<'a>>,
+    pub renderable_configs: Vec<FramePass>,
 }

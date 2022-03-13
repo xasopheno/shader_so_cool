@@ -63,7 +63,15 @@ impl<'a> RealTimeState {
             format,
         } = block_on(Setup::init(window, config))?;
 
-        let renderable_configs = config.renderable_configs.to_owned();
+        let frame_passes = config.renderable_configs.to_owned();
+        let mut frames = vec![];
+        let renderable_configs: Vec<crate::renderable::RenderableConfig> = frame_passes
+            .into_iter()
+            .flat_map(|frame_pass| {
+                frames.push(frame_pass.output_frame);
+                frame_pass.renderables
+            })
+            .collect();
         let renderables = renderable_configs
             .iter()
             .map(|renderable_config| {

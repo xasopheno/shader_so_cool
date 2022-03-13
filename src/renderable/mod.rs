@@ -2,9 +2,18 @@ use kintaro_egui_lib::InstanceMul;
 use winit::event::{ElementState, VirtualKeyCode};
 
 use crate::{
-    application::AvMap, canvas::Canvas, clock::ClockResult, config::Config, error::KintaroError,
-    glyphy::Glyphy, image_renderer::ImageRenderer, op_stream::renderpasses::make_renderpasses,
-    origami::Origami, sampler::types::Sampler, shader::make_shader, shared::RenderPassInput,
+    application::AvMap,
+    canvas::Canvas,
+    clock::ClockResult,
+    config::{Config, FramePass},
+    error::KintaroError,
+    glyphy::Glyphy,
+    image_renderer::ImageRenderer,
+    op_stream::renderpasses::make_renderpasses,
+    origami::Origami,
+    sampler::types::Sampler,
+    shader::make_shader,
+    shared::RenderPassInput,
     toy::Toy,
 };
 
@@ -49,7 +58,7 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
         format: wgpu::TextureFormat,
     ) -> Result<RenderableEnum, KintaroError> {
         match self {
-            RenderableConfig::SamplerConfig(sampler_config) => {
+            RenderableConfig::Sampler(sampler_config) => {
                 let _shader = make_shader(device, sampler_config.shader_path)?;
                 let sampler = Sampler::new(device, config.window_size, format)?;
                 Ok(RenderableEnum::Sampler(sampler))
@@ -111,7 +120,7 @@ pub enum RenderableConfig<'a> {
     Glyphy(GlyphyConfig),
     EventStreams(EventStreamConfig<'a>),
     Origami(OrigamiConfig<'a>),
-    SamplerConfig(SamplerConfig<'a>),
+    Sampler(SamplerConfig<'a>),
 }
 
 #[derive(Clone)]
@@ -121,8 +130,8 @@ pub struct ToyConfig<'a> {
 
 #[derive(Clone)]
 pub struct SamplerConfig<'a> {
-    shader_path: &'a str,
-    input_frame: &'a str,
+    pub shader_path: &'a str,
+    pub input_frame: &'a str,
 }
 
 #[derive(Clone)]
@@ -184,9 +193,7 @@ impl<'a> Renderable<'a> for RenderableEnum {
 
     fn render_pass(&mut self, input: &'a RenderableInput, clear: bool) -> Result<(), KintaroError> {
         match self {
-            RenderableEnum::Sampler(_sampler) => {
-                todo!()
-            }
+            RenderableEnum::Sampler(_sampler) => {}
             RenderableEnum::Origami(origami) => {
                 origami.render(input.device, input.queue, input.size, input.view, clear);
             }
