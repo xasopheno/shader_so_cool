@@ -25,7 +25,7 @@ impl Composition {
         size: (u32, u32),
         clock: &impl Clock,
         instance_mul: InstanceMul,
-        view: &TextureView,
+        // view: &TextureView,
     ) -> Result<(), KintaroError> {
         let clock_result = clock.current();
         self.camera.update(clock_result.last_period);
@@ -37,7 +37,7 @@ impl Composition {
         let render_input = RenderableInput {
             device,
             queue,
-            view,
+            // view,
             clock_result,
             canvas: &self.canvas,
             config: &self.config,

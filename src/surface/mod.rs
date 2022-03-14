@@ -13,7 +13,7 @@ impl Surface {
     ) {
         {
             let mut main_rpass = main_encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-                label: Some("Render Pass"),
+                label: Some("Surface Render Pass"),
                 color_attachments: &[wgpu::RenderPassColorAttachment {
                     view: &surface_texture_view,
                     resolve_target: None,

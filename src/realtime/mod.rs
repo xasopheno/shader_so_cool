@@ -33,8 +33,7 @@ pub struct RealTimeState {
     pub queue: wgpu::Queue,
     pub size: (u32, u32),
     pub surface: Surface,
-    pub frame: Frame,
-
+    // pub frame: Frame,
     pub composition: Composition,
     pub av_map: AvMap,
     pub audio_stream_handle: Option<rodio::Sink>,
@@ -54,7 +53,7 @@ pub fn make_frames<'a>(
     names: Vec<&'a str>,
 ) -> Result<Frames, KintaroError> {
     let mut result = HashMap::new();
-    names.iter().map(|n| {
+    names.iter().for_each(|n| {
         let frame =
             Frame::new(&device, size, format, make_square_buffers).expect("unable to make frame");
         result.insert(n.to_string(), frame);
@@ -115,7 +114,7 @@ impl<'a> RealTimeState {
                 frames,
             },
             surface,
-            frame,
+            // frame,
             gui,
             repaint_signal,
             av_map,

@@ -11,7 +11,7 @@ impl RealTimeState {
             self.size,
             &self.clock,
             self.gui.state.lock().unwrap().instance_mul,
-            &self.frame.texture.view,
+            // &self.frame.texture.view,
         )?;
 
         let mut surface_encoder =
@@ -29,8 +29,11 @@ impl RealTimeState {
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
 
-        self.surface
-            .render(&mut surface_encoder, &self.frame, &surface_texture_view);
+        self.surface.render(
+            &mut surface_encoder,
+            &self.composition.frames.get("main").unwrap(),
+            &surface_texture_view,
+        );
 
         self.queue.submit(std::iter::once(surface_encoder.finish()));
         self.render_gui(window, &surface_texture_view);

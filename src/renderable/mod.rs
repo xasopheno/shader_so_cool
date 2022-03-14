@@ -24,7 +24,7 @@ pub struct RenderableInput<'a> {
     pub device: &'a wgpu::Device,
     pub queue: &'a wgpu::Queue,
     pub clock_result: ClockResult,
-    pub view: &'a wgpu::TextureView,
+    // pub view: &'a wgpu::TextureView,
     pub config: &'a Config<'a>,
     pub canvas: &'a Canvas,
     pub size: (u32, u32),
@@ -197,10 +197,19 @@ impl<'a> Renderable<'a> for RenderableEnum {
 
     fn render_pass(&mut self, input: &'a RenderableInput, clear: bool) -> Result<(), KintaroError> {
         match self {
-            RenderableEnum::Sampler(sampler) => {}
-            // sampler.render(input.device, make_instances),
+            RenderableEnum::Sampler(sampler) => sampler.render(
+                input.device,
+                input.frames.get("frame1").unwrap(),
+                input.frames.get("main").unwrap(),
+            ),
             RenderableEnum::Origami(origami) => {
-                origami.render(input.device, input.queue, input.size, input.view, clear);
+                origami.render(
+                    input.device,
+                    input.queue,
+                    input.size,
+                    &input.frames.get("frame1").unwrap().texture.view,
+                    clear,
+                );
             }
             RenderableEnum::EventStreams(event_streams) => {
                 let mut encoder =
@@ -215,7 +224,12 @@ impl<'a> Renderable<'a> for RenderableEnum {
                         .uniforms
                         .update_view_proj(input.view_position, input.view_proj);
 
-                    renderpass.render(&mut encoder, input.view, input.config, !clear);
+                    renderpass.render(
+                        &mut encoder,
+                        &input.frames.get("frame1").unwrap().texture.view,
+                        input.config,
+                        !clear,
+                    );
                 }
 
                 input.queue.submit(Some(encoder.finish()));
@@ -225,17 +239,28 @@ impl<'a> Renderable<'a> for RenderableEnum {
                     input.clock_result.is_playing,
                     input.device,
                     input.queue,
-                    input.view,
+                    &input.frames.get("frame1").unwrap().texture.view,
                     input.size,
                     input.clock_result.total_elapsed,
                     clear,
                 )?;
             }
             RenderableEnum::Glyphy(glyphy) => {
-                glyphy.render(input.device, input.queue, input.size, input.view, clear);
+                glyphy.render(
+                    input.device,
+                    input.queue,
+                    input.size,
+                    &input.frames.get("frame1").unwrap().texture.view,
+                    clear,
+                );
             }
             RenderableEnum::ImageRenderer(image_renderer) => {
-                image_renderer.render(input.device, input.queue, input.view, clear)?;
+                image_renderer.render(
+                    input.device,
+                    input.queue,
+                    &input.frames.get("frame1").unwrap().texture.view,
+                    clear,
+                )?;
             }
         }
 
