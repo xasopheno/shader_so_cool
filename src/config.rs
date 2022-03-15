@@ -1,12 +1,7 @@
-use std::collections::HashMap;
-
 use kintaro_egui_lib::InstanceMul;
 use serde::{Deserialize, Serialize};
 
 use crate::camera::default::default_cameras;
-use crate::error::KintaroError;
-use crate::frame::types::{Frame, Frames};
-use crate::frame::vertex::make_square_buffers;
 use crate::instance::instancer::{Instancer, SimpleInstancer};
 #[allow(unused_imports)]
 use crate::renderable::{
@@ -48,7 +43,7 @@ fn frame_passes() -> Vec<FramePass> {
                     shader_path: "src/origami/shaders/toy3.wgsl",
                 }),
                 RenderableConfig::EventStreams(EventStreamConfig {
-                    socool_path: "kintaro.socool".to_string(),
+                    socool_path: "kintaro3.socool".to_string(),
                     shader_path: "./src/shader.wgsl",
                 }),
                 RenderableConfig::Glyphy(GlyphyConfig::GlypyTextConfig {
@@ -77,7 +72,7 @@ fn renderable_configs() -> Vec<RenderableConfig<'static>> {
             shader_path: "src/origami/shaders/toy3.wgsl",
         }),
         RenderableConfig::EventStreams(EventStreamConfig {
-            socool_path: "kintaro.socool".to_string(),
+            socool_path: "kintaro3.socool".to_string(),
             shader_path: "./src/shader.wgsl",
         }),
         // RenderableConfig::Origami(OrigamiConfig {
@@ -105,7 +100,7 @@ impl<'a> Default for Config<'a> {
         };
         let (cameras, instance_mul) = Config::handle_save(instance_mul);
         Config {
-            composition_name: "kintaro",
+            composition_name: "kintaro3",
             // renderable_configs: renderable_configs(),
             renderable_configs: frame_passes(),
             instancer: Box::new(SimpleInstancer {}),

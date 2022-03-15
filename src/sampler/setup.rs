@@ -1,8 +1,9 @@
 use super::{
     instance::SamplerInstanceRaw,
     types::{Sampler, SamplerVertex},
+    vertex::make_sampler_buffers,
 };
-use crate::{frame::vertex::make_square_buffers, shader::make_shader};
+use crate::shader::make_shader;
 use anyhow::Result;
 
 impl Sampler {
@@ -32,7 +33,7 @@ impl Sampler {
             wgpu::TextureFormat::Bgra8UnormSrgb,
         );
 
-        let (vertex_buffer, index_buffer, indices) = make_square_buffers(device);
+        let (vertex_buffer, index_buffer, indices) = make_sampler_buffers(device);
 
         let instances = super::instance::make_instances(device);
 

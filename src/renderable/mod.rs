@@ -199,6 +199,7 @@ impl<'a> Renderable<'a> for RenderableEnum {
         match self {
             RenderableEnum::Sampler(sampler) => sampler.render(
                 input.device,
+                input.queue,
                 input.frames.get("frame1").unwrap(),
                 input.frames.get("main").unwrap(),
             ),

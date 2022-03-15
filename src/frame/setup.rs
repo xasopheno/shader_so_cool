@@ -31,8 +31,6 @@ impl Frame {
 
         let (vertex_buffer, index_buffer, indices) = make_buffers_and_indices(device);
 
-        // let instances = crate::frame::instance::make_instances(device);
-
         Ok(Self {
             render_pipeline,
             vertex_buffer,
@@ -41,7 +39,6 @@ impl Frame {
             texture_bind_group_layout,
             texture_bind_group,
             indices,
-            // instances,
         })
     }
 }
@@ -63,7 +60,7 @@ pub fn make_frame_texture_bind_group(
                 resource: wgpu::BindingResource::Sampler(&frame.sampler),
             },
         ],
-        label: Some("main_bind_group"),
+        label: Some("frame_bind_group"),
     })
 }
 
