@@ -1,6 +1,7 @@
 use crate::frame::texture::Texture;
 
 pub struct Sampler {
+    pub input_frame: String,
     pub render_pipeline: wgpu::RenderPipeline,
     pub vertex_buffer: wgpu::Buffer,
     pub index_buffer: wgpu::Buffer,

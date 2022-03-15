@@ -11,6 +11,7 @@ impl Sampler {
         device: &wgpu::Device,
         size: (u32, u32),
         format: wgpu::TextureFormat,
+        input_frame: String,
     ) -> Result<Self> {
         let main_shader = make_shader(&device, "./src/sampler/sampler_shader.wgsl");
 
@@ -38,6 +39,7 @@ impl Sampler {
         let instances = super::instance::make_instances(device);
 
         Ok(Self {
+            input_frame,
             render_pipeline,
             vertex_buffer,
             index_buffer,

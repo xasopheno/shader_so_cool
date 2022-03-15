@@ -84,19 +84,28 @@ impl<'a> RealTimeState {
 
         let frame_passes = config.renderable_configs.to_owned();
         let mut frame_names = vec![];
-        let renderable_configs: Vec<crate::renderable::RenderableConfig> = frame_passes
+        let renderables: Vec<crate::renderable::RenderableEnum> = frame_passes
             .into_iter()
             .flat_map(|frame_pass| {
                 frame_names.push(frame_pass.output_frame);
-                frame_pass.renderables
+                frame_pass
+                    .renderables
+                    .iter()
+                    .map(|renderable_config| {
+                        renderable_config
+                            .to_renderable(
+                                &device,
+                                &queue,
+                                config,
+                                &av_map,
+                                format,
+                                frame_pass.output_frame.to_string(),
+                            )
+                            .unwrap()
+                    })
+                    .collect::<Vec<RenderableEnum>>()
             })
-            .collect();
-        let renderables = renderable_configs
-            .iter()
-            .map(|renderable_config| {
-                renderable_config.to_renderable(&device, &queue, config, &av_map, format)
-            })
-            .collect::<Result<Vec<RenderableEnum>, _>>()?;
+            .collect::<Vec<RenderableEnum>>();
 
         let frames = make_frames(&device, size, format, frame_names)?;
 
@@ -114,7 +123,6 @@ impl<'a> RealTimeState {
                 frames,
             },
             surface,
-            // frame,
             gui,
             repaint_signal,
             av_map,

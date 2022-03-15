@@ -20,12 +20,13 @@ impl Sampler {
                     view: &output_frame.texture.view,
                     resolve_target: None,
                     ops: wgpu::Operations {
-                        load: wgpu::LoadOp::Clear(wgpu::Color {
-                            r: 0.1,
-                            g: 0.02,
-                            b: 0.08,
-                            a: 1.0,
-                        }),
+                        load: wgpu::LoadOp::Load,
+                        // load: wgpu::LoadOp::Clear(wgpu::Color {
+                        // r: 0.1,
+                        // g: 0.02,
+                        // b: 0.08,
+                        // a: 0.0,
+                        // }),
                         store: true,
                     },
                 }],

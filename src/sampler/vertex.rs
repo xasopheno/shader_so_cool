@@ -37,7 +37,7 @@ pub const SAMPLER_VERTICES: &[SamplerVertex] = &[
         tex_coords: [0.0, 1.0],
     },
     SamplerVertex {
-        position: [1.4, 0.0, 0.0],
+        position: [1.0, -1.0, 0.0],
         tex_coords: [1.0, 1.0],
     },
 ];

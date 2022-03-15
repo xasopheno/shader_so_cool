@@ -55,36 +55,21 @@ fn frame_passes() -> Vec<FramePass> {
         },
         FramePass {
             output_frame: "main",
-            renderables: vec![RenderableConfig::Sampler(SamplerConfig {
-                shader_path: "./src/sampler/sampler_shader.wgsl",
-                input_frame: "frame1",
-            })],
+            renderables: vec![
+                // RenderableConfig::ImageRenderer(ImageRendererConfig {
+                // image_path: "src/image_renderer/milo.png",
+                // }),
+                RenderableConfig::Origami(OrigamiConfig {
+                    shader_path: "./src/origami_shader.wgsl",
+                    n_indices: 30,
+                    n_vertices: 20,
+                }),
+                RenderableConfig::Sampler(SamplerConfig {
+                    shader_path: "./src/sampler/sampler_shader.wgsl",
+                    input_frame: "frame1",
+                }),
+            ],
         },
-    ]
-}
-
-fn renderable_configs() -> Vec<RenderableConfig<'static>> {
-    vec![
-        // RenderableConfig::ImageRenderer(ImageRendererConfig {
-        // image_path: "src/image_renderer/milo.png",
-        // }),
-        RenderableConfig::Toy(ToyConfig {
-            shader_path: "src/origami/shaders/toy3.wgsl",
-        }),
-        RenderableConfig::EventStreams(EventStreamConfig {
-            socool_path: "kintaro3.socool".to_string(),
-            shader_path: "./src/shader.wgsl",
-        }),
-        // RenderableConfig::Origami(OrigamiConfig {
-        // shader_path: "./src/origami_shader.wgsl",
-        // n_indices: 30,
-        // n_vertices: 20,
-        // }),
-        RenderableConfig::Glyphy(GlyphyConfig::GlypyTextConfig {
-            text: vec![("Cool", "#ff2365")],
-            location: (0.7, 0.9),
-            scale: 100.0,
-        }),
     ]
 }
 

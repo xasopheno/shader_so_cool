@@ -49,6 +49,7 @@ pub trait ToRenderable {
         config: &mut Config,
         av_map: &AvMap,
         format: wgpu::TextureFormat,
+        output_frame: String,
     ) -> Result<RenderableEnum, KintaroError>;
 }
 
@@ -60,28 +61,34 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
         config: &mut Config,
         av_map: &AvMap,
         format: wgpu::TextureFormat,
+        output_frame: String,
     ) -> Result<RenderableEnum, KintaroError> {
         match self {
             RenderableConfig::Sampler(sampler_config) => {
                 let _shader = make_shader(device, sampler_config.shader_path)?;
-                let sampler = Sampler::new(device, config.window_size, format)?;
-                Ok(RenderableEnum::Sampler(sampler))
+                let sampler = Sampler::new(
+                    device,
+                    config.window_size,
+                    format,
+                    sampler_config.input_frame.to_string(),
+                )?;
+                Ok(RenderableEnum::Sampler(output_frame, sampler))
             }
             RenderableConfig::Origami(origami_config) => {
                 let shader = make_shader(device, origami_config.shader_path)?;
                 let origami = Origami::init(device, format, shader, origami_config)?;
-                Ok(RenderableEnum::Origami(origami))
+                Ok(RenderableEnum::Origami(output_frame, origami))
             }
             RenderableConfig::Toy(renderable_config) => {
                 let shader = make_shader(device, renderable_config.shader_path)?;
                 let toy = crate::toy::setup_toy(device, shader, config.window_size, format);
-                Ok(RenderableEnum::Toy(toy))
+                Ok(RenderableEnum::Toy(output_frame, toy))
             }
             RenderableConfig::Glyphy(renderable_config) => {
                 let glyphy = Glyphy::init(device, format, renderable_config.to_owned())
                     .expect("Unable to setup Glyphy");
 
-                Ok(RenderableEnum::Glyphy(Box::new(glyphy)))
+                Ok(RenderableEnum::Glyphy(output_frame, Box::new(glyphy)))
             }
             RenderableConfig::ImageRenderer(renderable_config) => {
                 let image_renderer = pollster::block_on(ImageRenderer::new(
@@ -91,7 +98,7 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
                     renderable_config.image_path,
                 ))?;
 
-                Ok(RenderableEnum::ImageRenderer(image_renderer))
+                Ok(RenderableEnum::ImageRenderer(output_frame, image_renderer))
             }
             RenderableConfig::EventStreams(renderable_config) => {
                 let associated_av = av_map
@@ -102,19 +109,19 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
 
                 let renderpasses = make_renderpasses(device, op_streams, &shader, config, format);
 
-                Ok(RenderableEnum::EventStreams(renderpasses))
+                Ok(RenderableEnum::EventStreams(output_frame, renderpasses))
             }
         }
     }
 }
 
 pub enum RenderableEnum {
-    Toy(Toy),
-    ImageRenderer(ImageRenderer),
-    Glyphy(Box<Glyphy>),
-    EventStreams(Vec<RenderPassInput>),
-    Origami(Origami),
-    Sampler(Sampler),
+    Toy(String, Toy),
+    ImageRenderer(String, ImageRenderer),
+    Glyphy(String, Box<Glyphy>),
+    EventStreams(String, Vec<RenderPassInput>),
+    Origami(String, Origami),
+    Sampler(String, Sampler),
 }
 
 #[derive(Clone)]
@@ -172,7 +179,7 @@ pub enum GlyphyConfig {
 
 impl<'a> Renderable<'a> for RenderableEnum {
     fn update(&mut self, input: &'a RenderableInput) -> Result<(), KintaroError> {
-        if let RenderableEnum::EventStreams(event_streams) = self {
+        if let RenderableEnum::EventStreams(_, event_streams) = self {
             for renderpass in event_streams.iter_mut() {
                 renderpass.update(
                     input.clock_result,
@@ -190,29 +197,29 @@ impl<'a> Renderable<'a> for RenderableEnum {
     }
 
     fn process_keyboard(&mut self, key: VirtualKeyCode, state: ElementState) {
-        if let RenderableEnum::Origami(origami) = self {
+        if let RenderableEnum::Origami(_, origami) = self {
             origami.process_keyboard(key, state);
         }
     }
 
     fn render_pass(&mut self, input: &'a RenderableInput, clear: bool) -> Result<(), KintaroError> {
         match self {
-            RenderableEnum::Sampler(sampler) => sampler.render(
+            RenderableEnum::Sampler(output_frame, sampler) => sampler.render(
                 input.device,
                 input.queue,
-                input.frames.get("frame1").unwrap(),
-                input.frames.get("main").unwrap(),
+                input.frames.get(&sampler.input_frame).unwrap(),
+                input.frames.get(output_frame).unwrap(),
             ),
-            RenderableEnum::Origami(origami) => {
+            RenderableEnum::Origami(output_frame, origami) => {
                 origami.render(
                     input.device,
                     input.queue,
                     input.size,
-                    &input.frames.get("frame1").unwrap().texture.view,
+                    &input.frames.get(output_frame).unwrap().texture.view,
                     clear,
                 );
             }
-            RenderableEnum::EventStreams(event_streams) => {
+            RenderableEnum::EventStreams(output_frame, event_streams) => {
                 let mut encoder =
                     input
                         .device
@@ -227,7 +234,7 @@ impl<'a> Renderable<'a> for RenderableEnum {
 
                     renderpass.render(
                         &mut encoder,
-                        &input.frames.get("frame1").unwrap().texture.view,
+                        &input.frames.get(output_frame).unwrap().texture.view,
                         input.config,
                         !clear,
                     );
@@ -235,31 +242,31 @@ impl<'a> Renderable<'a> for RenderableEnum {
 
                 input.queue.submit(Some(encoder.finish()));
             }
-            RenderableEnum::Toy(toy) => {
+            RenderableEnum::Toy(output_frame, toy) => {
                 toy.toy_renderpass(
                     input.clock_result.is_playing,
                     input.device,
                     input.queue,
-                    &input.frames.get("frame1").unwrap().texture.view,
+                    &input.frames.get(output_frame).unwrap().texture.view,
                     input.size,
                     input.clock_result.total_elapsed,
                     clear,
                 )?;
             }
-            RenderableEnum::Glyphy(glyphy) => {
+            RenderableEnum::Glyphy(output_frame, glyphy) => {
                 glyphy.render(
                     input.device,
                     input.queue,
                     input.size,
-                    &input.frames.get("frame1").unwrap().texture.view,
+                    &input.frames.get(output_frame).unwrap().texture.view,
                     clear,
                 );
             }
-            RenderableEnum::ImageRenderer(image_renderer) => {
+            RenderableEnum::ImageRenderer(output_frame, image_renderer) => {
                 image_renderer.render(
                     input.device,
                     input.queue,
-                    &input.frames.get("frame1").unwrap().texture.view,
+                    &input.frames.get(output_frame).unwrap().texture.view,
                     clear,
                 )?;
             }
