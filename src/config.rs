@@ -37,11 +37,11 @@ pub struct FramePass {
 fn frame_passes() -> Vec<FramePass> {
     vec![
         FramePass {
-            output_frame: "frame1",
+            output_frame: "main",
             renderables: vec![
-                RenderableConfig::Toy(ToyConfig {
-                    shader_path: "src/origami/shaders/toy3.wgsl",
-                }),
+                // RenderableConfig::Toy(ToyConfig {
+                // shader_path: "src/origami/shaders/toy3.wgsl",
+                // }),
                 RenderableConfig::EventStreams(EventStreamConfig {
                     socool_path: "kintaro3.socool".to_string(),
                     shader_path: "./src/shader.wgsl",
@@ -53,23 +53,23 @@ fn frame_passes() -> Vec<FramePass> {
                 }),
             ],
         },
-        FramePass {
-            output_frame: "main",
-            renderables: vec![
-                // RenderableConfig::ImageRenderer(ImageRendererConfig {
-                // image_path: "src/image_renderer/milo.png",
-                // }),
-                RenderableConfig::Origami(OrigamiConfig {
-                    shader_path: "./src/origami_shader.wgsl",
-                    n_indices: 30,
-                    n_vertices: 20,
-                }),
-                RenderableConfig::Sampler(SamplerConfig {
-                    shader_path: "./src/sampler/sampler_shader.wgsl",
-                    input_frame: "frame1",
-                }),
-            ],
-        },
+        // FramePass {
+        // output_frame: "main",
+        // renderables: vec![
+        // // RenderableConfig::ImageRenderer(ImageRendererConfig {
+        // // image_path: "src/image_renderer/milo.png",
+        // // }),
+        // RenderableConfig::Origami(OrigamiConfig {
+        // shader_path: "./src/origami_shader.wgsl",
+        // n_indices: 30,
+        // n_vertices: 20,
+        // }),
+        // RenderableConfig::Sampler(SamplerConfig {
+        // shader_path: "./src/sampler/sampler_shader.wgsl",
+        // input_frame: "frame1",
+        // }),
+        // ],
+        // },
     ]
 }
 
