@@ -1,5 +1,5 @@
 use super::types::{Frame, FrameVertex};
-use crate::shader::make_shader;
+use crate::shader::{make_shader, make_shader_from_string};
 use anyhow::Result;
 
 impl Frame {
@@ -9,7 +9,7 @@ impl Frame {
         format: wgpu::TextureFormat,
         make_buffers_and_indices: impl FnOnce(&wgpu::Device) -> (wgpu::Buffer, wgpu::Buffer, Vec<u16>),
     ) -> Result<Self> {
-        let main_shader = make_shader(&device, "./src/frame/frame_shader.wgsl");
+        let main_shader = make_shader_from_string(&device, include_str!("frame_shader.wgsl"));
 
         let texture =
             super::texture::Texture::new(&device, (size.0, size.1), "frame", format).unwrap();

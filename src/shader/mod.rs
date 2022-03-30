@@ -10,3 +10,12 @@ pub fn make_shader(device: &wgpu::Device, path: &str) -> Result<wgpu::ShaderModu
         ),
     }))
 }
+
+pub fn make_shader_from_string(device: &wgpu::Device, shader_str: &str) -> Result<wgpu::ShaderModule, Error> {
+    Ok(device.create_shader_module(&wgpu::ShaderModuleDescriptor {
+        label: Some("Shader"),
+        source: wgpu::ShaderSource::Wgsl(
+            shader_str.into()
+        ),
+    }))
+}

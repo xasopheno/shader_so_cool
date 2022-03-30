@@ -28,6 +28,10 @@ pub fn named_colorsets<'a>() -> Vec<(&'a str, Vec<&'a str>)> {
     ]
 }
 
+pub fn color_map() -> ColorMap {
+    color_map_from_named_colorsets(named_colorsets())
+}
+
 #[derive(Clone)]
 pub struct FramePass {
     pub output_frame: &'static str,
@@ -39,9 +43,9 @@ fn frame_passes() -> Vec<FramePass> {
         FramePass {
             output_frame: "main",
             renderables: vec![
-                // RenderableConfig::Toy(ToyConfig {
-                // shader_path: "src/origami/shaders/toy3.wgsl",
-                // }),
+                RenderableConfig::Toy(ToyConfig {
+                    shader_path: "src/origami/shaders/toy3.wgsl",
+                }),
                 RenderableConfig::EventStreams(EventStreamConfig {
                     socool_path: "kintaro3.socool".to_string(),
                     shader_path: "./src/shader.wgsl",
@@ -86,7 +90,6 @@ impl<'a> Default for Config<'a> {
         let (cameras, instance_mul) = Config::handle_save(instance_mul);
         Config {
             composition_name: "kintaro3",
-            // renderable_configs: renderable_configs(),
             renderable_configs: frame_passes(),
             instancer: Box::new(SimpleInstancer {}),
             instance_mul,
@@ -98,7 +101,7 @@ impl<'a> Default for Config<'a> {
                 n_vertices: 50,
                 n_indices: 50,
                 position: Box::new(RandPosition),
-                color: Box::new(color_map_from_named_colorsets(named_colorsets())),
+                color: Box::new(color_map()),
 
                 indices: Box::new(RandIndex),
             },
