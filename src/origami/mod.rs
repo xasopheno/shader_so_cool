@@ -162,14 +162,14 @@ impl Origami {
                     resolve_target: None,
                     ops: wgpu::Operations {
                         // load: if clear {
-                        load: wgpu::LoadOp::Clear(wgpu::Color {
-                            r: 0.03,
-                            g: 0.01,
-                            b: 0.04,
-                            a: 1.0,
-                        }),
+                        // load: wgpu::LoadOp::Clear(wgpu::Color {
+                        // r: 0.03,
+                        // g: 0.01,
+                        // b: 0.04,
+                        // a: 1.0,
+                        // }),
                         // } else {
-                        // wgpu::LoadOp::Load
+                        load: wgpu::LoadOp::Load,
                         // },
                         store: true,
                     },

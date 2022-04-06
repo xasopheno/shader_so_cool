@@ -63,11 +63,14 @@ fn frame_passes() -> Vec<FramePass> {
                 // RenderableConfig::ImageRenderer(ImageRendererConfig {
                 // image_path: "src/image_renderer/milo.png",
                 // }),
-                RenderableConfig::Origami(OrigamiConfig {
-                    shader_path: "./src/origami_shader.wgsl",
-                    n_indices: 30,
-                    n_vertices: 20,
+                RenderableConfig::Toy(ToyConfig {
+                    shader_path: "src/origami/shaders/toy3.wgsl",
                 }),
+                // RenderableConfig::Origami(OrigamiConfig {
+                // shader_path: "./src/origami_shader.wgsl",
+                // n_indices: 30,
+                // n_vertices: 20,
+                // }),
                 RenderableConfig::Sampler(SamplerConfig {
                     shader_path: "./src/sampler/sampler_shader.wgsl",
                     input_frame: "frame1",
