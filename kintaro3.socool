@@ -36,36 +36,36 @@ thing1 = {
         | Seq [AsIs | Pa 1/3, Reverse | Pa -1/3]
         | Seq [
           Overlay [
-            Fm 3 | *(
+            #a | Fm 3 | *(
               f: 0|31 [1]
             ) Take 26 | Gm 3/4,
-            Fm 2 | Repeat 23 | Gm 3/4, 
-            *(
+            #c | Fm 2 | Repeat 23 | Gm 3/4, 
+            #b | *(
               f: 0|31 [-1]
             ) Take 25
           ]
         ],
-        Seq [Fm 1, Fm 2, Fm 3, Fm 4],
+        #b | Seq [Fm 1, Fm 2, Fm 3, Fm 4],
         Seq [Fm 4, Fm 3, Fm 2, Fm 1, Fm 3/4, Fm 1/2]
-        | Seq [AsIs | Pa 1/2, Reverse | Pa -1/2]
+        | Seq [#a | AsIs | Pa 1/2, #b | Reverse | Pa -1/2]
         | repeat,
         Seq [Fm 3, Fm 9/2, Fm 2, Fm 1, Fm 3/4, Fm 1/2]
-        | Seq [AsIs | Pa 1/2, Reverse | Pa -1/2]
+        | Seq [#a | AsIs | Pa 1/2, #b | Reverse | Pa -1/2]
         | repeat,
         Seq [Fm 5, Fm 4, Fm 3, Fm 1, Fm 3/4, Fm 1/2]
-        | Seq [AsIs | Pa 1/2, Reverse | Pa -1/2]
+        | Seq [#a | AsIs | Pa 1/2, #b | Reverse | Pa -1/2]
         | repeat,
         Seq [
             Fm 5, Fm 4, Fm 3, Fm 1, Fm 3/4, Fm 1/2, 
             Fm 1, Fm 7/6, Fm 3/2, Fm 2, Fm 7/3, Fm 3, Fm 4,
         ]
-        | Seq [Pa -1, Pa 1]
+        | Seq [#a | Pa -1, #b | Pa 1]
         | repeat,
         Seq [
             Fm 4, Fm 3, Fm 1, Fm 1/2, Fm 3/4, Fm 2, 
             Fm 9/4, Fm 5/2, Fm 3, Fm 10/4, Fm 15/4,
         ]
-        | Seq [Pa -1, Pa 1]
+        | Seq [#a | Pa -1, #b | Pa 1]
         | Seq [Fa 0, Fa 4, Fa 8, Fa 12, Fa 16, Fa -16]
     ]
     | Fm 1/2
@@ -74,6 +74,7 @@ thing1 = {
 }
 
 thing2 = {
+    #d | 
     Seq [
         O[
             (3, -4, 1, -1/2),
@@ -107,28 +108,6 @@ thing2 = {
             (1/4, 3, 1, 1),
             (1/4, 0, 1, -1),
         ],
-        -- Seq [
-            -- Seq [
-                -- #a | O[
-                    -- (3, -4, 1, -1/2),
-                    -- (3, 0, 1, 1/2),
-                    -- (11/8, 2, 1, -1/3),
-                    -- (5/2, 0, 1, 1/3),
-                    -- (15/8, 0, 1, 1),
-                    -- (5/3, 2, 1, -1),
-                    -- (1, 2, 1, -1),
-                    -- (1, 0, 1, 1),
-                    -- (2/3, 3, 1, -1),
-                    -- (2/3, 0, 1, 1),
-                    -- (1/2, 7, 1, 1),
-                    -- (1/2, 0, 1, -1),
-                    -- (1/3, 2, 1, 1),
-                    -- (1/3, 0, 1, -1),
-                -- ],
-                 -- Fm 0, 
-            -- ]
-            -- | Seq [Fm 0 | Lm 4, Gm 1/5 | Fm 9 | Lm 1/8, Gm 3/5, Gm 2/5, Gm 1/5, Gm 2/5 | Fm 7/8]
-        -- ]
     ]
     | Gm 1/2
     | FitLength thing1
