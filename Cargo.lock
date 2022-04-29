@@ -1692,7 +1692,7 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror",
- "weresocool",
+ "weresocool_core",
  "wgpu",
  "wgpu-types",
  "wgpu_glyph",
@@ -3412,7 +3412,35 @@ dependencies = [
 ]
 
 [[package]]
-name = "weresocool"
+name = "weresocool_analyze"
+version = "1.0.0"
+dependencies = [
+ "weresocool_shared",
+]
+
+[[package]]
+name = "weresocool_ast"
+version = "1.0.0"
+dependencies = [
+ "colored",
+ "csv",
+ "indexmap",
+ "meval",
+ "num-integer",
+ "num-rational",
+ "num-traits",
+ "polynomials",
+ "pretty_assertions",
+ "rand 0.7.3",
+ "scop",
+ "serde",
+ "weresocool_error",
+ "weresocool_ring_buffer",
+ "weresocool_shared",
+]
+
+[[package]]
+name = "weresocool_core"
 version = "1.0.0"
 dependencies = [
  "bytes",
@@ -3450,34 +3478,6 @@ dependencies = [
  "weresocool_ring_buffer",
  "weresocool_shared",
  "zip",
-]
-
-[[package]]
-name = "weresocool_analyze"
-version = "1.0.0"
-dependencies = [
- "weresocool_shared",
-]
-
-[[package]]
-name = "weresocool_ast"
-version = "1.0.0"
-dependencies = [
- "colored",
- "csv",
- "indexmap",
- "meval",
- "num-integer",
- "num-rational",
- "num-traits",
- "polynomials",
- "pretty_assertions",
- "rand 0.7.3",
- "scop",
- "serde",
- "weresocool_error",
- "weresocool_ring_buffer",
- "weresocool_shared",
 ]
 
 [[package]]

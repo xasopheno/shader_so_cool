@@ -50,6 +50,18 @@ fn frame_passes() -> Vec<FramePass> {
                     socool_path: "kintaro3.socool".to_string(),
                     shader_path: "./src/shader.wgsl",
                 }),
+            ],
+        },
+        FramePass {
+            output_frame: "frame2",
+            renderables: vec![
+                RenderableConfig::Toy(ToyConfig {
+                    shader_path: "src/origami/shaders/toy3.wgsl",
+                }),
+                RenderableConfig::Sampler(SamplerConfig {
+                    shader_path: "./src/sampler/sampler_shader.wgsl",
+                    input_frame: "frame1",
+                }),
                 RenderableConfig::Glyphy(GlyphyConfig::GlypyTextConfig {
                     text: vec![("Cool", "#ff2365")],
                     location: (0.7, 0.9),
@@ -73,7 +85,7 @@ fn frame_passes() -> Vec<FramePass> {
                 // }),
                 RenderableConfig::Sampler(SamplerConfig {
                     shader_path: "./src/sampler/sampler_shader.wgsl",
-                    input_frame: "frame1",
+                    input_frame: "frame2",
                 }),
             ],
         },
@@ -149,8 +161,11 @@ pub struct Config<'a> {
     pub composition_name: &'a str,
     pub volume: f32,
     pub window_size: (u32, u32),
+    // Gosh...do I have multiple cameras?
     pub cameras: Vec<CameraConfig>,
+    // need to handle opacity correctly
     pub accumulation: bool,
+    // move shape, instancer, and instance_mul to appropriate context
     pub shape: Shape,
     pub instance_mul: InstanceMul,
     pub instancer: Box<dyn Instancer>,

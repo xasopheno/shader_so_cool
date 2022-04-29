@@ -33,7 +33,6 @@ pub struct RealTimeState {
     pub queue: wgpu::Queue,
     pub size: (u32, u32),
     pub surface: Surface,
-    // pub frame: Frame,
     pub composition: Composition,
     pub av_map: AvMap,
     pub audio_stream_handle: Option<rodio::Sink>,
@@ -76,7 +75,6 @@ impl<'a> RealTimeState {
         let Setup {
             device,
             surface,
-            frame,
             queue,
             gui,
             format,

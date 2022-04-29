@@ -28,7 +28,7 @@ rayon = "1.5.1"
 rodio = "0.14.0"
 serde = { version = "1.0.119", features = ["derive"] }
 serde_json = "1.0.64"
-weresocool = { path = "../weresocool" }
+weresocool = { path = "../weresocool", package="weresocool_core" }
 wgpu = "0.12.0"
 wgpu-types = "=0.12.0"
 winit = "0.26.0"

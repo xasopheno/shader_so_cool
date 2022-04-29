@@ -1,9 +1,4 @@
-use crate::{
-    config::Config,
-    error::KintaroError,
-    frame::{types::Frame, vertex::make_square_buffers},
-    surface::Surface,
-};
+use crate::{config::Config, error::KintaroError, surface::Surface};
 use kintaro_egui_lib::{Platform, PlatformDescriptor, RenderPass, UiState};
 use std::sync::{Arc, Mutex};
 use winit::window::Window;
@@ -17,7 +12,6 @@ pub struct Gui {
 
 pub struct Setup {
     pub surface: Surface,
-    pub frame: Frame,
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
     pub gui: Gui,
@@ -60,8 +54,6 @@ impl Setup {
         };
         surface.configure(&device, &surface_config);
 
-        let frame = Frame::new(&device, size, format, make_square_buffers)?;
-
         let platform = Platform::new(PlatformDescriptor {
             physical_width: size.0,
             physical_height: size.1,
@@ -86,7 +78,6 @@ impl Setup {
             device,
             queue,
             surface,
-            frame,
             format,
             gui: Gui {
                 platform,

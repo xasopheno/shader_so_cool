@@ -1,7 +1,5 @@
 use crate::config::Config;
 use crate::error::KintaroError;
-use crate::frame::types::{Frame, Frames};
-use crate::frame::vertex::make_square_buffers;
 use crate::print::PrintState;
 use crate::realtime::gui::GuiRepaintSignal;
 use crate::realtime::RealTimeState;
@@ -184,7 +182,7 @@ fn realtime(
         .with_transparent(false)
         .with_title(title)
         // .with_fullscreen(Some(Fullscreen::Borderless(None)))
-        .with_decorations(true)
+        // .with_decorations(true)
         .build(&event_loop)
         .expect("Unable to create window");
 
