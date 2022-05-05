@@ -3,19 +3,19 @@ use kintaro_egui_lib::{Platform, PlatformDescriptor, RenderPass, UiState};
 use std::sync::{Arc, Mutex};
 use winit::window::Window;
 
+pub struct Setup {
+    pub surface: Surface,
+    pub device: wgpu::Device,
+    pub queue: wgpu::Queue,
+    pub format: wgpu::TextureFormat,
+    pub gui: Gui,
+}
+
 pub struct Gui {
     pub platform: Platform,
     pub renderpass: RenderPass,
     pub app: kintaro_egui_lib::WrapApp,
     pub state: Arc<Mutex<UiState>>,
-}
-
-pub struct Setup {
-    pub surface: Surface,
-    pub device: wgpu::Device,
-    pub queue: wgpu::Queue,
-    pub gui: Gui,
-    pub format: wgpu::TextureFormat,
 }
 
 impl Setup {
@@ -61,7 +61,7 @@ impl Setup {
             style: Default::default(),
             ..Default::default()
         });
-        let renderpass = RenderPass::new(&device, format, 1);
+        let renderpass = RenderPass::new(&device, format);
         let state = Arc::new(Mutex::new(kintaro_egui_lib::UiState {
             play: true,
             save: false,

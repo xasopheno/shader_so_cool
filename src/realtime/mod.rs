@@ -6,9 +6,10 @@ pub mod setup;
 
 use std::collections::HashMap;
 
-use crate::application::AvMap;
+use crate::application::VisualsMap;
 use crate::canvas::Canvas;
 use crate::composition::Composition;
+use crate::composition::RenderableEnums;
 use crate::error::KintaroError;
 use crate::frame::types::Frame;
 use crate::frame::types::Frames;
@@ -33,16 +34,15 @@ pub struct RealTimeState {
     pub queue: wgpu::Queue,
     pub size: (u32, u32),
     pub surface: Surface,
-    pub composition: Composition,
-    pub av_map: AvMap,
-    pub audio_stream_handle: Option<rodio::Sink>,
-
+    pub gui: Gui,
+    pub mouse_pressed: bool,
+    pub repaint_signal: std::sync::Arc<GuiRepaintSignal>,
     pub clock: RenderClock,
     pub count: u32,
 
-    pub mouse_pressed: bool,
-    pub gui: Gui,
-    pub repaint_signal: std::sync::Arc<GuiRepaintSignal>,
+    pub composition: Composition,
+    pub av_map: VisualsMap,
+    pub audio_stream_handle: Option<rodio::Sink>,
 }
 
 pub fn make_frames<'a>(
@@ -67,7 +67,7 @@ impl<'a> RealTimeState {
         //TODO: remove mut
         config: &mut Config<'static>,
         repaint_signal: std::sync::Arc<GuiRepaintSignal>,
-        av_map: AvMap,
+        av_map: VisualsMap,
         audio_stream_handle: Option<rodio::Sink>,
     ) -> Result<RealTimeState, KintaroError> {
         let size = (config.window_size.0, config.window_size.1);
@@ -80,30 +80,8 @@ impl<'a> RealTimeState {
             format,
         } = block_on(Setup::init(window, config))?;
 
-        let frame_passes = config.renderable_configs.to_owned();
-        let mut frame_names = vec![];
-        let renderables: Vec<crate::renderable::RenderableEnum> = frame_passes
-            .into_iter()
-            .flat_map(|frame_pass| {
-                frame_names.push(frame_pass.output_frame);
-                frame_pass
-                    .renderables
-                    .iter()
-                    .map(|renderable_config| {
-                        renderable_config
-                            .to_renderable(
-                                &device,
-                                &queue,
-                                config,
-                                &av_map,
-                                format,
-                                frame_pass.output_frame.to_string(),
-                            )
-                            .unwrap()
-                    })
-                    .collect::<Vec<RenderableEnum>>()
-            })
-            .collect::<Vec<RenderableEnum>>();
+        let (renderables, frame_names) =
+            make_renderable_enums(&device, &queue, format, &av_map, config);
 
         let frames = make_frames(&device, size, format, frame_names)?;
 
@@ -143,4 +121,42 @@ impl<'a> RealTimeState {
             a.pause()
         }
     }
+}
+
+fn make_renderable_enums(
+    device: &wgpu::Device,
+    queue: &wgpu::Queue,
+    format: wgpu::TextureFormat,
+    av_map: &VisualsMap,
+    config: &mut Config<'static>,
+) -> (RenderableEnums, Vec<&'static str>) {
+    let mut frame_names = vec![];
+    let renderables = RenderableEnums(
+        config
+            .frame_passes
+            .to_owned()
+            .into_iter()
+            .flat_map(|frame_pass| {
+                frame_names.push(frame_pass.output_frame);
+                frame_pass
+                    .renderables
+                    .iter()
+                    .map(|renderable_config| {
+                        renderable_config
+                            .to_renderable(
+                                &device,
+                                &queue,
+                                config,
+                                &av_map,
+                                format,
+                                frame_pass.output_frame.to_string(),
+                            )
+                            .unwrap()
+                    })
+                    .collect::<Vec<RenderableEnum>>()
+            })
+            .collect(),
+    );
+
+    (renderables, frame_names)
 }

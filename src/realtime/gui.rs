@@ -17,26 +17,24 @@ impl kintaro_egui_lib::epi::backend::RepaintSignal for GuiRepaintSignal {
 
 impl RealTimeState {
     pub fn handle_save(&mut self) {
-        {
-            let mut state = self.gui.state.lock().unwrap();
-            if state.save {
-                let filename = "./save/saved.json";
-                let instance_mul = state.instance_mul.to_owned();
-                let camera = self.composition.camera.current_state();
-                thread::spawn(move || {
-                    let mut file = File::create(filename).unwrap();
-                    let config_state = ConfigState {
-                        camera,
-                        instance_mul,
-                    };
-                    let serialized = serde_json::to_string(&config_state)
-                        .unwrap_or_else(|_| panic!("unable to serialize, {}", filename));
-                    file.write_all(serialized.as_bytes())
-                        .expect("unable to write to file on save");
-                });
-                state.save = false;
-                println!("Saved {}", filename);
-            }
+        let mut state = self.gui.state.lock().unwrap();
+        if state.save {
+            let filename = "./save/saved.json";
+            let instance_mul = state.instance_mul.to_owned();
+            let camera = self.composition.camera.current_state();
+            thread::spawn(move || {
+                let mut file = File::create(filename).unwrap();
+                let config_state = ConfigState {
+                    camera,
+                    instance_mul,
+                };
+                let serialized = serde_json::to_string(&config_state)
+                    .unwrap_or_else(|_| panic!("unable to serialize, {}", filename));
+                file.write_all(serialized.as_bytes())
+                    .expect("unable to write to file on save");
+            });
+            state.save = false;
+            println!("Saved {}", filename);
         }
     }
 

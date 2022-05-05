@@ -4,8 +4,9 @@ use crate::{
     renderable::RenderableEnum,
 };
 
+pub struct RenderableEnums(pub Vec<RenderableEnum>);
 pub struct Composition {
-    pub renderables: Vec<RenderableEnum>,
+    pub renderables: RenderableEnums,
     pub frames: Frames,
     pub canvas: Canvas,
     pub camera: Camera,

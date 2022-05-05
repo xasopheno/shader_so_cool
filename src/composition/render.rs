@@ -13,7 +13,7 @@ use super::Composition;
 impl Composition {
     pub fn handle_keyboard_input(&mut self, key: VirtualKeyCode, state: ElementState) {
         self.camera.controller.process_keyboard(key, state);
-        self.renderables.iter_mut().for_each(|renderable| {
+        self.renderables.0.iter_mut().for_each(|renderable| {
             renderable.process_keyboard(key, state);
         });
     }
@@ -49,7 +49,7 @@ impl Composition {
             frames: &self.frames,
         };
 
-        for (idx, renderable) in self.renderables.iter_mut().enumerate() {
+        for (idx, renderable) in self.renderables.0.iter_mut().enumerate() {
             renderable.update(&render_input)?;
             renderable.render_pass(&render_input, idx == 0)?;
         }

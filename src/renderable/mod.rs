@@ -4,7 +4,7 @@ use kintaro_egui_lib::InstanceMul;
 use winit::event::{ElementState, VirtualKeyCode};
 
 use crate::{
-    application::AvMap,
+    application::VisualsMap,
     canvas::Canvas,
     clock::ClockResult,
     config::{Config, FramePass},
@@ -12,12 +12,14 @@ use crate::{
     frame::types::Frame,
     glyphy::Glyphy,
     image_renderer::ImageRenderer,
+    instance::instancer::Instancer,
     op_stream::renderpasses::make_renderpasses,
     origami::Origami,
     sampler::types::Sampler,
     shader::make_shader,
     shared::RenderPassInput,
     toy::Toy,
+    vertex::shape::Shape,
 };
 
 pub struct RenderableInput<'a> {
@@ -47,7 +49,7 @@ pub trait ToRenderable {
         device: &wgpu::Device,
         queue: &wgpu::Queue,
         config: &mut Config,
-        av_map: &AvMap,
+        av_map: &VisualsMap,
         format: wgpu::TextureFormat,
         output_frame: String,
     ) -> Result<RenderableEnum, KintaroError>;
@@ -59,7 +61,7 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
         device: &wgpu::Device,
         queue: &wgpu::Queue,
         config: &mut Config,
-        av_map: &AvMap,
+        av_map: &VisualsMap,
         format: wgpu::TextureFormat,
         output_frame: String,
     ) -> Result<RenderableEnum, KintaroError> {
@@ -107,7 +109,14 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
                 let shader = make_shader(device, renderable_config.shader_path)?;
                 let op_streams = crate::op_stream::OpStream::from_vec_op4d(associated_av);
 
-                let renderpasses = make_renderpasses(device, op_streams, &shader, config, format);
+                let renderpasses = make_renderpasses(
+                    device,
+                    op_streams,
+                    &shader,
+                    config,
+                    format,
+                    renderable_config.shape.to_owned(),
+                );
 
                 Ok(RenderableEnum::EventStreams(output_frame, renderpasses))
             }
@@ -161,6 +170,9 @@ pub struct OrigamiConfig<'a> {
 pub struct EventStreamConfig<'a> {
     pub socool_path: String,
     pub shader_path: &'a str,
+    pub shape: Shape,
+    pub instancer: Box<dyn Instancer>,
+    // pub instance_mul: InstanceMul,
 }
 
 #[derive(Clone)]

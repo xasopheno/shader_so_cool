@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, Mutex};
 
-/// All the different demo apps.
 pub struct Apps {
     controls: crate::apps::Controls,
 }

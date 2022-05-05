@@ -10,16 +10,19 @@ use rodio::OutputStream;
 use std::collections::HashMap;
 use std::io::Write;
 use std::str::FromStr;
-use weresocool::error::Error;
-use weresocool::generation::parsed_to_render::AudioVisual;
-use weresocool::generation::{Op4D, RenderReturn, RenderType};
-use weresocool::interpretable::{InputType, Interpretable};
-use winit::dpi::PhysicalSize;
-#[allow(unused_imports)]
-use winit::window::Fullscreen;
-use winit::{event::*, event_loop::ControlFlow, window::WindowBuilder};
+use weresocool::{
+    error::Error,
+    generation::parsed_to_render::AudioVisual,
+    generation::{Op4D, RenderReturn, RenderType},
+    interpretable::{InputType, Interpretable},
+};
 
-pub type AvMap = HashMap<String, Visual>;
+#[allow(unused_imports)]
+use winit::{
+    dpi::PhysicalSize, event::*, event_loop::ControlFlow, window::Fullscreen, window::WindowBuilder,
+};
+
+pub type VisualsMap = HashMap<String, Visual>;
 
 #[derive(Clone, Debug)]
 /// AudioVisual is the datatype for audiovisualization
@@ -77,14 +80,10 @@ pub fn sum_vec(a: &mut Vec<u8>, b: &[u8]) {
 
 pub fn run(filename: &str, config: Config<'static>) -> Result<(), KintaroError> {
     println!("preparing for audiovisualization: {}", &filename);
-    let mut av_map: AvMap = HashMap::new();
+    let mut av_map: VisualsMap = HashMap::new();
     let mut audios: Vec<Audio> = vec![];
 
-    for c in config
-        .renderable_configs
-        .iter()
-        .flat_map(|c| &c.renderables)
-    {
+    for c in config.frame_passes.iter().flat_map(|c| &c.renderables) {
         if let RenderableConfig::EventStreams(e) = c {
             let result = get_audiovisual_data(&e.socool_path)?;
 
@@ -157,7 +156,11 @@ fn get_audiovisual_data(filename: &str) -> Result<AudioVisual, Error> {
     }
 }
 
-fn print(mut config: Config<'static>, av: &AvMap, n_frames: usize) -> Result<(), KintaroError> {
+fn print(
+    mut config: Config<'static>,
+    av: &VisualsMap,
+    n_frames: usize,
+) -> Result<(), KintaroError> {
     let mut state = async_std::task::block_on(PrintState::init(&mut config, av))?;
     for i in 0..n_frames {
         async_std::task::block_on(state.render())
@@ -168,7 +171,7 @@ fn print(mut config: Config<'static>, av: &AvMap, n_frames: usize) -> Result<(),
 
 fn realtime(
     mut config: Config<'static>,
-    av_map: AvMap,
+    av_map: VisualsMap,
     stream_handles: Option<rodio::Sink>,
 ) -> Result<(), KintaroError> {
     env_logger::init();
