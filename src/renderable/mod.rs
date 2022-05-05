@@ -4,21 +4,10 @@ use kintaro_egui_lib::InstanceMul;
 use winit::event::{ElementState, VirtualKeyCode};
 
 use crate::{
-    application::VisualsMap,
-    canvas::Canvas,
-    clock::ClockResult,
-    config::{Config, FramePass},
-    error::KintaroError,
-    frame::types::Frame,
-    glyphy::Glyphy,
-    image_renderer::ImageRenderer,
-    instance::instancer::Instancer,
-    op_stream::renderpasses::make_renderpasses,
-    origami::Origami,
-    sampler::types::Sampler,
-    shader::make_shader,
-    shared::RenderPassInput,
-    toy::Toy,
+    application::VisualsMap, canvas::Canvas, clock::ClockResult, config::Config,
+    error::KintaroError, frame::types::Frame, glyphy::Glyphy, image_renderer::ImageRenderer,
+    instance::instancer::Instancer, op_stream::renderpasses::make_renderpasses, origami::Origami,
+    sampler::types::Sampler, shader::make_shader, shared::RenderPassInput, toy::Toy,
     vertex::shape::Shape,
 };
 
@@ -171,7 +160,7 @@ pub struct EventStreamConfig<'a> {
     pub socool_path: String,
     pub shader_path: &'a str,
     pub shape: Shape,
-    pub instancer: Box<dyn Instancer>,
+    // pub instancer: Box<dyn Instancer>,
     // pub instance_mul: InstanceMul,
 }
 

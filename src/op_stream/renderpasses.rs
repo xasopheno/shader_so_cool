@@ -2,6 +2,7 @@ use crate::instance::make_instances_and_instance_buffer;
 use crate::shared::create_render_pipeline;
 use crate::vertex::shape::ShapeGenResult;
 use crate::vertex::{create_index_buffer, create_vertex_buffer};
+use crate::Instancer;
 use crate::Shape;
 use crate::{config::Config, shared::RenderPassInput};
 
