@@ -6,9 +6,8 @@ use winit::event::{ElementState, VirtualKeyCode};
 use crate::{
     application::VisualsMap, canvas::Canvas, clock::ClockResult, config::Config,
     error::KintaroError, frame::types::Frame, glyphy::Glyphy, image_renderer::ImageRenderer,
-    instance::instancer::Instancer, op_stream::renderpasses::make_renderpasses, origami::Origami,
-    sampler::types::Sampler, shader::make_shader, shared::RenderPassInput, toy::Toy,
-    vertex::shape::Shape,
+    op_stream::renderpasses::make_renderpasses, origami::Origami, sampler::types::Sampler,
+    shader::make_shader, shared::RenderPassInput, toy::Toy, vertex::shape::Shape,
 };
 
 pub struct RenderableInput<'a> {

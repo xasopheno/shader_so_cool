@@ -3,7 +3,6 @@ use crate::{
     renderable::{Renderable, RenderableInput},
 };
 use kintaro_egui_lib::InstanceMul;
-use wgpu::TextureView;
 use winit::event::{ElementState, VirtualKeyCode};
 
 use crate::clock::Clock;
@@ -25,7 +24,6 @@ impl Composition {
         size: (u32, u32),
         clock: &impl Clock,
         instance_mul: InstanceMul,
-        // view: &TextureView,
     ) -> Result<(), KintaroError> {
         let clock_result = clock.current();
         self.camera.update(clock_result.last_period);
@@ -37,7 +35,6 @@ impl Composition {
         let render_input = RenderableInput {
             device,
             queue,
-            // view,
             clock_result,
             canvas: &self.canvas,
             config: &self.config,
