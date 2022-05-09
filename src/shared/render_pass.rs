@@ -20,6 +20,7 @@ pub struct RenderPassInput {
     pub index_buffer: wgpu::Buffer,
     pub instance_buffer: wgpu::Buffer,
     pub instances: Vec<Instance>,
+    pub instancer: Box<dyn Instancer>,
     pub uniforms: crate::uniforms::RealtimeUniforms,
     pub uniform_bind_group: wgpu::BindGroup,
     pub uniform_buffer: wgpu::Buffer,
@@ -31,13 +32,12 @@ impl RenderPassInput {
         &self,
         encoder: &mut wgpu::CommandEncoder,
         view: &wgpu::TextureView,
-        config: &Config,
         accumulation: bool,
     ) {
         let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             label: Some("Render Pass"),
             // This is what [[location(0)]] in the fragment shader targets
-            color_attachments: &make_color_attachments(view, accumulation || config.accumulation),
+            color_attachments: &make_color_attachments(view, accumulation),
             depth_stencil_attachment: None,
         });
 
@@ -60,9 +60,10 @@ impl RenderPassInput {
         canvas: &Canvas,
         device: &wgpu::Device,
         queue: &wgpu::Queue,
-        config: &Config,
+        _config: &Config,
         size: (u32, u32),
         instance_mul: InstanceMul,
+        instancer: Box<dyn Instancer>,
     ) {
         if clock_result.frame_count % 1000 == 0 {
             // renderpass.vertices = renderpass.shape.gen().vertices;
@@ -76,7 +77,7 @@ impl RenderPassInput {
                 self,
                 canvas,
                 device,
-                &*config.instancer,
+                &*instancer,
                 size,
                 instance_mul,
             );

@@ -15,6 +15,7 @@ pub fn make_renderpasses(
     config: &mut Config,
     format: wgpu::TextureFormat,
     mut shape: Shape,
+    instancer: Box<dyn Instancer>,
 ) -> Vec<RenderPassInput> {
     op_streams
         .iter()
@@ -36,6 +37,7 @@ pub fn make_renderpasses(
                 uniform_bind_group,
                 instances,
                 instance_buffer,
+                instancer: instancer.clone(),
                 uniform_buffer,
                 uniforms,
                 shape: shape.clone(),

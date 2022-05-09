@@ -49,6 +49,7 @@ fn frame_passes() -> Vec<FramePass> {
                 RenderableConfig::EventStreams(EventStreamConfig {
                     socool_path: "kintaro3.socool".to_string(),
                     shader_path: "./src/shader.wgsl",
+                    instancer: Box::new(SimpleInstancer {}),
                     shape: Shape {
                         n_vertices: 50,
                         n_indices: 50,
@@ -110,13 +111,12 @@ impl<'a> Default for Config<'a> {
             size: 23.0,
             length: 1.0,
         };
+
         let (cameras, instance_mul) = Config::handle_save(instance_mul);
         Config {
             composition_name: "kintaro3",
             frame_passes: frame_passes(),
-            instancer: Box::new(SimpleInstancer {}),
             instance_mul,
-            accumulation: false,
             volume: 0.20,
             window_size: (2560, 1440),
             cameras,
@@ -163,10 +163,8 @@ pub struct Config<'a> {
     pub window_size: (u32, u32),
     // Gosh...do I have multiple cameras?
     pub cameras: Vec<CameraConfig>,
-    // need to handle opacity correctly
-    pub accumulation: bool,
     // move shape, instancer, and instance_mul to appropriate context
     pub instance_mul: InstanceMul,
-    pub instancer: Box<dyn Instancer>,
+    // pub instancer: Box<dyn Instancer>,
     pub frame_passes: Vec<FramePass>,
 }

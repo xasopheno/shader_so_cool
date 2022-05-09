@@ -7,7 +7,7 @@ use crate::{
     application::VisualsMap, canvas::Canvas, clock::ClockResult, config::Config,
     error::KintaroError, frame::types::Frame, glyphy::Glyphy, image_renderer::ImageRenderer,
     op_stream::renderpasses::make_renderpasses, origami::Origami, sampler::types::Sampler,
-    shader::make_shader, shared::RenderPassInput, toy::Toy, vertex::shape::Shape,
+    shader::make_shader, shared::RenderPassInput, toy::Toy, vertex::shape::Shape, Instancer,
 };
 
 pub struct RenderableInput<'a> {
@@ -104,6 +104,7 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
                     config,
                     format,
                     renderable_config.shape.to_owned(),
+                    renderable_config.instancer.to_owned(),
                 );
 
                 Ok(RenderableEnum::EventStreams(output_frame, renderpasses))
@@ -159,7 +160,7 @@ pub struct EventStreamConfig<'a> {
     pub socool_path: String,
     pub shader_path: &'a str,
     pub shape: Shape,
-    // pub instancer: Box<dyn Instancer>,
+    pub instancer: Box<dyn Instancer>,
     // pub instance_mul: InstanceMul,
 }
 
@@ -189,6 +190,7 @@ impl<'a> Renderable<'a> for RenderableEnum {
                     input.config,
                     input.size,
                     input.instance_mul,
+                    renderpass.instancer.clone(),
                 );
             }
         }
@@ -235,7 +237,6 @@ impl<'a> Renderable<'a> for RenderableEnum {
                     renderpass.render(
                         &mut encoder,
                         &input.frames.get(output_frame).unwrap().texture.view,
-                        input.config,
                         !clear,
                     );
                 }
