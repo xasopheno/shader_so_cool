@@ -193,14 +193,9 @@ fn realtime(
         event_loop.create_proxy(),
     )));
 
-    let mut state = RealTimeState::init(
-        &window,
-        &mut config,
-        repaint_signal,
-        av_map,
-        stream_handles,
-        // &av
-    )?;
+    let mut state =
+        RealTimeState::init(&window, &mut config, repaint_signal, av_map, stream_handles)?;
+
     state.play();
 
     event_loop.run(move |event, _, control_flow| {
