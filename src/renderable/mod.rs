@@ -187,7 +187,6 @@ impl<'a> Renderable<'a> for RenderableEnum {
                     input.canvas,
                     input.device,
                     input.queue,
-                    input.config,
                     input.size,
                     input.instance_mul,
                     renderpass.instancer.clone(),

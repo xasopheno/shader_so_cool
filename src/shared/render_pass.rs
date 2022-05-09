@@ -2,7 +2,6 @@ use kintaro_egui_lib::InstanceMul;
 
 use crate::canvas::Canvas;
 use crate::clock::ClockResult;
-use crate::config::Config;
 use crate::instance::instancer::{op4d_to_instance, prepare_op4d_to_instancer_input};
 use crate::instance::{make_instance_buffer, Instance};
 use crate::op_stream::OpStream;
@@ -60,7 +59,6 @@ impl RenderPassInput {
         canvas: &Canvas,
         device: &wgpu::Device,
         queue: &wgpu::Queue,
-        _config: &Config,
         size: (u32, u32),
         instance_mul: InstanceMul,
         instancer: Box<dyn Instancer>,
