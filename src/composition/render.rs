@@ -37,7 +37,6 @@ impl Composition {
             queue,
             clock_result,
             canvas: &self.canvas,
-            config: &self.config,
             size,
             view_position,
             view_proj,

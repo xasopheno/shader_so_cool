@@ -90,32 +90,23 @@ impl RealTimeState {
             &screen_descriptor,
         );
 
-        // Record all render passes.
         self.gui
             .renderpass
-            .execute(
-                &mut encoder,
-                // &self.frame.texture.view,
-                view,
-                &paint_jobs,
-                &screen_descriptor,
-                None,
-            )
+            .execute(&mut encoder, view, &paint_jobs, &screen_descriptor, None)
             .unwrap();
 
         self.queue.submit(Some(encoder.finish()));
     }
 
-    pub fn update_gui(&mut self) {
+    pub fn update_gui(&mut self, size: (u32, u32)) {
         let s = self.gui.state.lock().unwrap();
         if let Some(a) = &self.audio_stream_handle {
             a.set_volume(s.volume);
         };
         if s.camera_index != self.composition.camera.index {
             self.composition.camera = Camera::new(
-                &self.composition.config.cameras[s.camera_index],
-                self.composition.config.window_size,
-                &self.composition.config,
+                &self.composition.camera_configs[s.camera_index],
+                size,
                 s.camera_index,
             )
         }

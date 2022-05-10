@@ -11,7 +11,6 @@ impl RealTimeState {
             self.size,
             &self.clock,
             self.gui.state.lock().unwrap().instance_mul,
-            // &self.frame.texture.view,
         )?;
 
         let mut surface_encoder =
@@ -40,7 +39,7 @@ impl RealTimeState {
 
         surface_frame.present();
 
-        self.update_gui();
+        self.update_gui(self.size);
 
         Ok(())
     }

@@ -93,8 +93,8 @@ impl<'a> RealTimeState {
             count: 0,
             composition: Composition {
                 renderables,
-                config: config.clone(),
-                camera: crate::camera::Camera::new(&config.cameras[0], size, config, 0),
+                camera: crate::camera::Camera::new(&config.cameras[0], size, 0),
+                camera_configs: config.cameras.clone(),
                 canvas: Canvas::init(size),
                 frames,
             },

@@ -14,8 +14,6 @@ pub struct RenderableInput<'a> {
     pub device: &'a wgpu::Device,
     pub queue: &'a wgpu::Queue,
     pub clock_result: ClockResult,
-    // pub view: &'a wgpu::TextureView,
-    pub config: &'a Config<'a>,
     pub canvas: &'a Canvas,
     pub size: (u32, u32),
     pub view_position: [f32; 4],

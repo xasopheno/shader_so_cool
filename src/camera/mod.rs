@@ -28,12 +28,7 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn new(
-        camera_config: &CameraConfig,
-        size: (u32, u32),
-        _config: &Config,
-        index: usize,
-    ) -> Self {
+    pub fn new(camera_config: &CameraConfig, size: (u32, u32), index: usize) -> Self {
         Self {
             position: camera_config.position.into(),
             yaw: cgmath::Deg(camera_config.yaw).into(),

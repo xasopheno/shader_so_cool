@@ -1,6 +1,6 @@
 pub mod render;
 use crate::{
-    camera::Camera, canvas::Canvas, config::Config, frame::types::Frames,
+    camera::Camera, canvas::Canvas, config::CameraConfig, frame::types::Frames,
     renderable::RenderableEnum,
 };
 
@@ -10,5 +10,5 @@ pub struct Composition {
     pub frames: Frames,
     pub canvas: Canvas,
     pub camera: Camera,
-    pub config: Config<'static>,
+    pub camera_configs: Vec<CameraConfig>,
 }
