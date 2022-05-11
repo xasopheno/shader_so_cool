@@ -33,11 +33,11 @@ impl RealTimeState {
                 true
             }
             DeviceEvent::Button { button: _, state } => {
-                self.mouse_pressed = *state == ElementState::Pressed;
+                self.controls.mouse_pressed = *state == ElementState::Pressed;
                 true
             }
             DeviceEvent::MouseMotion { delta } => {
-                if self.mouse_pressed {
+                if self.controls.mouse_pressed {
                     self.composition
                         .camera
                         .controller

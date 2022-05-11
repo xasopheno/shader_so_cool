@@ -2,7 +2,7 @@ use kintaro_egui_lib::InstanceMul;
 use serde::{Deserialize, Serialize};
 
 use crate::camera::default::default_cameras;
-use crate::instance::instancer::{Instancer, SimpleInstancer};
+use crate::instance::instancer::SimpleInstancer;
 #[allow(unused_imports)]
 use crate::renderable::{
     EventStreamConfig, GlyphyConfig, ImageRendererConfig, OrigamiConfig, RenderableConfig,

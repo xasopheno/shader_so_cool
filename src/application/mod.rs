@@ -200,7 +200,7 @@ fn realtime(
 
     event_loop.run(move |event, _, control_flow| {
         #[allow(unused_assignments)]
-        state.gui.platform.handle_event(&event);
+        state.controls.platform.handle_event(&event);
         match event {
             Event::MainEventsCleared => window.request_redraw(),
             Event::DeviceEvent { ref event, .. } => {

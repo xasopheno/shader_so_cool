@@ -27,7 +27,7 @@ use crate::{
 use futures::executor::block_on;
 use winit::window::Window;
 
-use self::setup::Gui;
+use self::setup::Controls;
 
 pub struct RealTimeState {
     pub device: wgpu::Device,
@@ -36,12 +36,9 @@ pub struct RealTimeState {
     pub surface: Surface,
     pub clock: RenderClock,
 
-    pub gui: Gui,
-    pub mouse_pressed: bool,
-    pub repaint_signal: std::sync::Arc<GuiRepaintSignal>,
+    pub controls: Controls,
+
     pub composition: Composition,
-    pub av_map: VisualsMap,
-    pub audio_stream_handle: Option<rodio::Sink>,
 }
 
 pub fn make_frames<'a>(
@@ -74,9 +71,14 @@ impl<'a> RealTimeState {
             device,
             surface,
             queue,
-            gui,
+            controls: gui,
             format,
-        } = block_on(Setup::init(window, config))?;
+        } = block_on(Setup::init(
+            window,
+            config,
+            repaint_signal,
+            audio_stream_handle,
+        ))?;
 
         let (renderables, frame_names) =
             make_renderable_enums(&device, &queue, format, &av_map, config);
@@ -96,17 +98,13 @@ impl<'a> RealTimeState {
                 frames,
             },
             surface,
-            gui,
-            repaint_signal,
-            av_map,
-            audio_stream_handle,
-            mouse_pressed: false,
+            controls: gui,
         })
     }
 
     pub fn play(&mut self) {
         self.clock.play();
-        if let Some(a) = &self.audio_stream_handle {
+        if let Some(a) = &self.controls.audio_stream_handle {
             a.play()
         }
     }
@@ -114,7 +112,7 @@ impl<'a> RealTimeState {
     #[allow(dead_code)]
     pub fn pause(&mut self) {
         self.clock.pause();
-        if let Some(a) = &self.audio_stream_handle {
+        if let Some(a) = &self.controls.audio_stream_handle {
             a.pause()
         }
     }

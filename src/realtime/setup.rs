@@ -1,4 +1,6 @@
-use crate::{config::Config, error::KintaroError, surface::Surface};
+use crate::{
+    config::Config, error::KintaroError, realtime::gui::GuiRepaintSignal, surface::Surface,
+};
 use kintaro_egui_lib::{Platform, PlatformDescriptor, RenderPass, UiState};
 use std::sync::{Arc, Mutex};
 use winit::window::Window;
@@ -8,18 +10,26 @@ pub struct Setup {
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
     pub format: wgpu::TextureFormat,
-    pub gui: Gui,
+    pub controls: Controls,
 }
 
-pub struct Gui {
+pub struct Controls {
     pub platform: Platform,
     pub renderpass: RenderPass,
     pub app: kintaro_egui_lib::WrapApp,
     pub state: Arc<Mutex<UiState>>,
+    pub repaint_signal: std::sync::Arc<GuiRepaintSignal>,
+    pub audio_stream_handle: Option<rodio::Sink>,
+    pub mouse_pressed: bool,
 }
 
 impl Setup {
-    pub async fn init<'a>(window: &Window, config: &'a Config<'a>) -> Result<Self, KintaroError> {
+    pub async fn init<'a>(
+        window: &Window,
+        config: &'a Config<'a>,
+        repaint_signal: std::sync::Arc<GuiRepaintSignal>,
+        audio_stream_handle: Option<rodio::Sink>,
+    ) -> Result<Self, KintaroError> {
         let size = config.window_size;
         let instance = wgpu::Instance::new(wgpu::Backends::all());
         let surface = unsafe { instance.create_surface(window) };
@@ -79,11 +89,14 @@ impl Setup {
             queue,
             surface,
             format,
-            gui: Gui {
+            controls: Controls {
                 platform,
                 renderpass,
                 app,
                 state,
+                audio_stream_handle,
+                repaint_signal,
+                mouse_pressed: false,
             },
         })
     }

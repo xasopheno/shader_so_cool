@@ -17,7 +17,7 @@ impl kintaro_egui_lib::epi::backend::RepaintSignal for GuiRepaintSignal {
 
 impl RealTimeState {
     pub fn handle_save(&mut self) {
-        let mut state = self.gui.state.lock().unwrap();
+        let mut state = self.controls.state.lock().unwrap();
         if state.save {
             let filename = "./save/saved.json";
             let instance_mul = state.instance_mul.to_owned();
@@ -45,7 +45,7 @@ impl RealTimeState {
                 label: Some("RenderPassInput Command Encoder"),
             });
 
-        self.gui.platform.begin_frame();
+        self.controls.platform.begin_frame();
         let previous_frame_time = self.clock.current().last_period;
         let app_output = kintaro_egui_lib::epi::backend::AppOutput::default();
 
@@ -59,14 +59,16 @@ impl RealTimeState {
             },
             // tex_allocator: &mut self.gui.renderpass,
             output: app_output,
-            repaint_signal: self.repaint_signal.clone(),
+            repaint_signal: self.controls.repaint_signal.clone(),
         });
 
-        self.gui.app.update(&self.gui.platform.context(), &frame);
+        self.controls
+            .app
+            .update(&self.controls.platform.context(), &frame);
 
         // End the UI frame. We could now handle the output and draw the UI with the backend.
-        let (_output, paint_commands) = self.gui.platform.end_frame(Some(window));
-        let paint_jobs = self.gui.platform.context().tessellate(paint_commands);
+        let (_output, paint_commands) = self.controls.platform.end_frame(Some(window));
+        let paint_jobs = self.controls.platform.context().tessellate(paint_commands);
 
         // Upload all resources for the GPU.
         let screen_descriptor = ScreenDescriptor {
@@ -74,23 +76,23 @@ impl RealTimeState {
             physical_height: self.size.1,
             scale_factor: window.scale_factor() as f32,
         };
-        self.gui.renderpass.update_texture(
+        self.controls.renderpass.update_texture(
             &self.device,
             &self.queue,
-            &self.gui.platform.context().font_image(),
+            &self.controls.platform.context().font_image(),
         );
-        self.gui
+        self.controls
             .renderpass
             .update_user_textures(&self.device, &self.queue);
 
-        self.gui.renderpass.update_buffers(
+        self.controls.renderpass.update_buffers(
             &self.device,
             &self.queue,
             &paint_jobs,
             &screen_descriptor,
         );
 
-        self.gui
+        self.controls
             .renderpass
             .execute(&mut encoder, view, &paint_jobs, &screen_descriptor, None)
             .unwrap();
@@ -99,8 +101,8 @@ impl RealTimeState {
     }
 
     pub fn update_gui(&mut self, size: (u32, u32)) {
-        let s = self.gui.state.lock().unwrap();
-        if let Some(a) = &self.audio_stream_handle {
+        let s = self.controls.state.lock().unwrap();
+        if let Some(a) = &self.controls.audio_stream_handle {
             a.set_volume(s.volume);
         };
         if s.camera_index != self.composition.camera.index {
@@ -110,7 +112,7 @@ impl RealTimeState {
                 s.camera_index,
             )
         }
-        if let Some(a) = &self.audio_stream_handle {
+        if let Some(a) = &self.controls.audio_stream_handle {
             if !s.play && !a.is_paused() {
                 a.pause();
             }

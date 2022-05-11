@@ -10,7 +10,7 @@ impl RealTimeState {
             &self.queue,
             self.size,
             &self.clock,
-            self.gui.state.lock().unwrap().instance_mul,
+            self.controls.state.lock().unwrap().instance_mul,
         )?;
 
         let mut surface_encoder =

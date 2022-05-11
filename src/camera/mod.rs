@@ -1,11 +1,10 @@
 use cgmath::*;
 pub mod default;
+use crate::config::CameraConfig;
 use serde::{Deserialize, Serialize};
 use std::f32::consts::FRAC_PI_2;
 use winit::dpi::PhysicalPosition;
 use winit::event::*;
-
-use crate::config::{CameraConfig, Config};
 
 #[rustfmt::skip]
 pub const OPENGL_TO_WGPU_MATRIX: cgmath::Matrix4<f32> = cgmath::Matrix4::new(
