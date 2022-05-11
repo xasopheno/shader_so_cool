@@ -1,4 +1,4 @@
-use crate::config::Config;
+use crate::config::{CameraConfig, Config};
 use crate::error::KintaroError;
 use crate::print::PrintState;
 use crate::realtime::gui::GuiRepaintSignal;
@@ -6,6 +6,7 @@ use crate::realtime::RealTimeState;
 use crate::renderable::RenderableConfig;
 use colored::*;
 use cradle::prelude::*;
+use kintaro_egui_lib::InstanceMul;
 use rodio::OutputStream;
 use std::collections::HashMap;
 use std::io::Write;
@@ -104,6 +105,16 @@ pub fn run(filename: &str, config: Config<'static>) -> Result<(), KintaroError> 
         stream_handle = Some(s_h);
     }
 
+    let instance_mul = InstanceMul {
+        x: 9.0,
+        y: 19.0,
+        z: 1.0,
+        life: 2.0,
+        size: 23.0,
+        length: 1.0,
+    };
+    let (cameras, instance_mul) = Config::handle_save(instance_mul);
+
     if std::env::args().any(|x| x == "--print") {
         println!(
             "{}",
@@ -134,7 +145,7 @@ pub fn run(filename: &str, config: Config<'static>) -> Result<(), KintaroError> 
         }
     } else {
         println!("****REALTIME****");
-        realtime(config, av_map, stream_handle)?;
+        realtime(config, av_map, stream_handle, instance_mul, cameras)?;
     }
     Ok(())
 }
@@ -173,6 +184,8 @@ fn realtime(
     mut config: Config<'static>,
     av_map: VisualsMap,
     stream_handles: Option<rodio::Sink>,
+    // instance_mul: InstanceMul,
+    // cameras: Vec<CameraConfig>,
 ) -> Result<(), KintaroError> {
     env_logger::init();
     let title = env!("CARGO_PKG_NAME");

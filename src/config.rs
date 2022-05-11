@@ -116,10 +116,12 @@ impl<'a> Default for Config<'a> {
         Config {
             composition_name: "kintaro3",
             frame_passes: frame_passes(),
+
             instance_mul,
+            cameras,
+
             volume: 0.20,
             window_size: (2560, 1440),
-            cameras,
         }
     }
 }
@@ -159,9 +161,11 @@ pub struct CameraConfig {
 #[derive(Clone)]
 pub struct Config<'a> {
     pub composition_name: &'a str,
-    pub volume: f32,
-    pub window_size: (u32, u32),
+    pub frame_passes: Vec<FramePass>,
+
     pub cameras: Vec<CameraConfig>,
     pub instance_mul: InstanceMul,
-    pub frame_passes: Vec<FramePass>,
+
+    pub volume: f32,
+    pub window_size: (u32, u32),
 }
