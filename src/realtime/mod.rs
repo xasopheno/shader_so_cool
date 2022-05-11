@@ -34,12 +34,11 @@ pub struct RealTimeState {
     pub queue: wgpu::Queue,
     pub size: (u32, u32),
     pub surface: Surface,
+    pub clock: RenderClock,
+
     pub gui: Gui,
     pub mouse_pressed: bool,
     pub repaint_signal: std::sync::Arc<GuiRepaintSignal>,
-    pub clock: RenderClock,
-    pub count: u32,
-
     pub composition: Composition,
     pub av_map: VisualsMap,
     pub audio_stream_handle: Option<rodio::Sink>,
@@ -64,8 +63,7 @@ pub fn make_frames<'a>(
 impl<'a> RealTimeState {
     pub fn init(
         window: &Window,
-        //TODO: remove mut
-        config: &mut Config<'static>,
+        config: &Config<'static>,
         repaint_signal: std::sync::Arc<GuiRepaintSignal>,
         av_map: VisualsMap,
         audio_stream_handle: Option<rodio::Sink>,
@@ -90,7 +88,6 @@ impl<'a> RealTimeState {
             queue,
             size,
             clock: RenderClock::init(config),
-            count: 0,
             composition: Composition {
                 renderables,
                 camera: crate::camera::Camera::new(&config.cameras[0], size, 0),
@@ -128,7 +125,7 @@ fn make_renderable_enums(
     queue: &wgpu::Queue,
     format: wgpu::TextureFormat,
     av_map: &VisualsMap,
-    config: &mut Config<'static>,
+    config: &Config<'static>,
 ) -> (RenderableEnums, Vec<&'static str>) {
     let mut frame_names = vec![];
     let renderables = RenderableEnums(

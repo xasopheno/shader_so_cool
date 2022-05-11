@@ -12,7 +12,7 @@ pub fn make_renderpasses(
     device: &wgpu::Device,
     op_streams: Vec<OpStream>,
     shader: &wgpu::ShaderModule,
-    config: &mut Config,
+    config: &Config,
     format: wgpu::TextureFormat,
     mut shape: Shape,
     instancer: Box<dyn Instancer>,

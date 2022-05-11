@@ -161,10 +161,7 @@ pub struct Config<'a> {
     pub composition_name: &'a str,
     pub volume: f32,
     pub window_size: (u32, u32),
-    // Gosh...do I have multiple cameras?
     pub cameras: Vec<CameraConfig>,
-    // move shape, instancer, and instance_mul to appropriate context
     pub instance_mul: InstanceMul,
-    // pub instancer: Box<dyn Instancer>,
     pub frame_passes: Vec<FramePass>,
 }

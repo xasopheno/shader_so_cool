@@ -79,7 +79,6 @@ pub fn sum_vec(a: &mut Vec<u8>, b: &[u8]) {
 }
 
 pub fn run(filename: &str, config: Config<'static>) -> Result<(), KintaroError> {
-    // env_logger::init();
     println!("preparing for audiovisualization: {}", &filename);
     let mut av_map: VisualsMap = HashMap::new();
     let mut audios: Vec<Audio> = vec![];
