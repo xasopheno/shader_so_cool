@@ -61,23 +61,34 @@ impl Setup {
         };
         surface.configure(&device, &surface_config);
 
-        let platform = Platform::new(PlatformDescriptor {
-            physical_width: size.0,
-            physical_height: size.1,
-            scale_factor: window.scale_factor(),
-            style: Default::default(),
-            ..Default::default()
-        });
-        let renderpass = RenderPass::new(&device, format);
-        let state = Arc::new(Mutex::new(kintaro_egui_lib::UiState {
-            play: true,
-            save: false,
-            volume: config.volume,
-            camera_index: 0,
-            instance_mul: config.instance_mul,
-            reset: false,
-        }));
-        let app = kintaro_egui_lib::WrapApp::init(state.clone(), config.cameras.len());
+        let controls = if let Some(rps) = repaint_signal {
+            let platform = Platform::new(PlatformDescriptor {
+                physical_width: size.0,
+                physical_height: size.1,
+                scale_factor: window.scale_factor(),
+                style: Default::default(),
+                ..Default::default()
+            });
+            let renderpass = RenderPass::new(&device, format);
+            let state = Arc::new(Mutex::new(kintaro_egui_lib::UiState {
+                play: true,
+                save: false,
+                volume: config.volume,
+                camera_index: 0,
+                instance_mul: config.instance_mul,
+                reset: false,
+            }));
+            let app = kintaro_egui_lib::WrapApp::init(state.clone(), config.cameras.len());
+            Some(Controls {
+                platform,
+                renderpass,
+                app,
+                state,
+                repaint_signal,
+            })
+        } else {
+            None
+        };
 
         let surface = Surface { surface };
 
@@ -86,13 +97,7 @@ impl Setup {
             queue,
             surface,
             format,
-            controls: Controls {
-                platform,
-                renderpass,
-                app,
-                state,
-                repaint_signal,
-            },
+            controls,
         })
     }
 }
