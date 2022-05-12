@@ -18,9 +18,7 @@ pub struct Controls {
     pub platform: Platform,
     pub renderpass: RenderPass,
     pub state: Arc<Mutex<UiState>>,
-
     pub repaint_signal: std::sync::Arc<GuiRepaintSignal>,
-    pub audio_stream_handle: Option<rodio::Sink>,
 }
 
 impl Setup {
@@ -28,7 +26,6 @@ impl Setup {
         window: &Window,
         config: &'a Config<'a>,
         repaint_signal: std::sync::Arc<GuiRepaintSignal>,
-        audio_stream_handle: Option<rodio::Sink>,
     ) -> Result<Self, KintaroError> {
         let size = config.window_size;
         let instance = wgpu::Instance::new(wgpu::Backends::all());
@@ -94,7 +91,6 @@ impl Setup {
                 renderpass,
                 app,
                 state,
-                audio_stream_handle,
                 repaint_signal,
             },
         })

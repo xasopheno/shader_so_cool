@@ -41,6 +41,8 @@ pub struct RealTimeState {
     pub composition: Composition,
 
     pub controls: Option<Controls>,
+
+    pub audio_stream_handle: Option<rodio::Sink>,
     pub base_instance_mul: InstanceMul,
 }
 
@@ -76,12 +78,7 @@ impl<'a> RealTimeState {
             queue,
             controls,
             format,
-        } = block_on(Setup::init(
-            window,
-            config,
-            repaint_signal,
-            audio_stream_handle,
-        ))?;
+        } = block_on(Setup::init(window, config, repaint_signal))?;
 
         let (renderables, frame_names) =
             make_renderable_enums(&device, &queue, format, &av_map, config);
@@ -99,6 +96,8 @@ impl<'a> RealTimeState {
             controls: None,
             mouse_pressed: false,
             base_instance_mul,
+            audio_stream_handle,
+
             composition: Composition {
                 renderables,
                 camera: crate::camera::Camera::new(&config.cameras[0], size, 0),
@@ -111,20 +110,16 @@ impl<'a> RealTimeState {
 
     pub fn play(&mut self) {
         self.clock.play();
-        if let Some(ref mut controls) = self.controls {
-            if let Some(a) = &controls.audio_stream_handle {
-                a.play()
-            }
+        if let Some(a) = &self.audio_stream_handle {
+            a.play()
         }
     }
 
     #[allow(dead_code)]
     pub fn pause(&mut self) {
         self.clock.pause();
-        if let Some(ref mut controls) = self.controls {
-            if let Some(a) = &controls.audio_stream_handle {
-                a.pause()
-            }
+        if let Some(a) = &self.audio_stream_handle {
+            a.pause()
         }
     }
 }
