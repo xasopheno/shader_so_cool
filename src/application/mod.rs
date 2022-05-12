@@ -105,15 +105,15 @@ pub fn run(filename: &str, config: Config<'static>) -> Result<(), KintaroError> 
         stream_handle = Some(s_h);
     }
 
-    let instance_mul = InstanceMul {
-        x: 9.0,
-        y: 19.0,
-        z: 1.0,
-        life: 2.0,
-        size: 23.0,
-        length: 1.0,
-    };
-    let (cameras, instance_mul) = Config::handle_save(instance_mul);
+    // let instance_mul = InstanceMul {
+    // x: 9.0,
+    // y: 19.0,
+    // z: 1.0,
+    // life: 2.0,
+    // size: 23.0,
+    // length: 1.0,
+    // };
+    // let (cameras, instance_mul) = Config::handle_save(instance_mul);
 
     if std::env::args().any(|x| x == "--print") {
         println!(
@@ -145,7 +145,12 @@ pub fn run(filename: &str, config: Config<'static>) -> Result<(), KintaroError> 
         }
     } else {
         println!("****REALTIME****");
-        realtime(config, av_map, stream_handle, instance_mul, cameras)?;
+        realtime(
+            config,
+            av_map,
+            stream_handle,
+            // instance_mul, cameras
+        )?;
     }
     Ok(())
 }

@@ -35,10 +35,10 @@ pub struct RealTimeState {
     pub size: (u32, u32),
     pub surface: Surface,
     pub clock: RenderClock,
-
-    pub controls: Controls,
+    pub mouse_pressed: bool,
 
     pub composition: Composition,
+    pub controls: Controls,
 }
 
 pub fn make_frames<'a>(
@@ -71,7 +71,7 @@ impl<'a> RealTimeState {
             device,
             surface,
             queue,
-            controls: gui,
+            controls,
             format,
         } = block_on(Setup::init(
             window,
@@ -90,6 +90,9 @@ impl<'a> RealTimeState {
             queue,
             size,
             clock: RenderClock::init(config),
+            surface,
+            controls,
+            mouse_pressed: false,
             composition: Composition {
                 renderables,
                 camera: crate::camera::Camera::new(&config.cameras[0], size, 0),
@@ -97,8 +100,6 @@ impl<'a> RealTimeState {
                 canvas: Canvas::init(size),
                 frames,
             },
-            surface,
-            controls: gui,
         })
     }
 
@@ -118,7 +119,7 @@ impl<'a> RealTimeState {
     }
 }
 
-fn make_renderable_enums(
+pub fn make_renderable_enums(
     device: &wgpu::Device,
     queue: &wgpu::Queue,
     format: wgpu::TextureFormat,

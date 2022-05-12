@@ -1,7 +1,7 @@
 pub mod render;
 use crate::{
-    application::VisualsMap, camera::Camera, canvas::Canvas, config::CameraConfig,
-    frame::types::Frames, renderable::RenderableEnum,
+    camera::Camera, canvas::Canvas, config::CameraConfig, frame::types::Frames,
+    renderable::RenderableEnum,
 };
 
 pub struct RenderableEnums(pub Vec<RenderableEnum>);

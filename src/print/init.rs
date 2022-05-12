@@ -3,8 +3,10 @@ use crate::application::VisualsMap;
 use crate::composition::Composition;
 use crate::error::KintaroError;
 use crate::frame::types::Frame;
+use crate::realtime::{make_frames, make_renderable_enums};
+// use crate::frame::types::Frame;
 use crate::frame::vertex::make_square_buffers;
-use crate::renderable::{RenderableEnum, ToRenderable};
+// use crate::renderable::ToRenderable;
 use crate::{
     canvas::Canvas,
     clock::{Clock, PrintClock},
@@ -17,51 +19,48 @@ impl PrintState {
         config: &mut Config<'static>,
         av_map: &VisualsMap,
     ) -> Result<PrintState, KintaroError> {
-        todo!();
-        // let size = config.window_size;
-        // println!("{}", format!("Frame Size: {}/{}\n", size.0, size.1).green());
-        // let format = wgpu::TextureFormat::Rgba8UnormSrgb;
-        // let instance = wgpu::Instance::new(wgpu::Backends::PRIMARY);
-        // let adapter = instance
-        // .request_adapter(&wgpu::RequestAdapterOptions {
-        // power_preference: wgpu::PowerPreference::default(),
-        // compatible_surface: None,
-        // force_fallback_adapter: false,
-        // })
-        // .await
-        // .unwrap();
-        // let (device, queue) = adapter
-        // .request_device(&Default::default(), None)
-        // .await
-        // .unwrap();
-
-        // let renderable_configs = config.renderable_configs.to_owned();
-        // let renderables: Vec<RenderableEnum> = renderable_configs
-        // .iter()
-        // .map(|renderable_config| {
-        // renderable_config
-        // .to_renderable(&device, &queue, config, av_map, format)
-        // .unwrap()
-        // })
-        // .collect();
+        let size = config.window_size;
+        println!("{}", format!("Frame Size: {}/{}\n", size.0, size.1).green());
+        let format = wgpu::TextureFormat::Bgra8UnormSrgb;
+        let instance = wgpu::Instance::new(wgpu::Backends::PRIMARY);
+        let adapter = instance
+            .request_adapter(&wgpu::RequestAdapterOptions {
+                power_preference: wgpu::PowerPreference::default(),
+                compatible_surface: None,
+                force_fallback_adapter: false,
+            })
+            .await
+            .unwrap();
+        let (device, queue) = adapter
+            .request_device(&Default::default(), None)
+            .await
+            .unwrap();
 
         // let frame = Frame::new(&device, size, format, make_square_buffers)?;
 
-        // Ok(PrintState {
-        // device,
-        // queue,
-        // size,
-        // clock: PrintClock::init(config),
-        // count: 0,
+        let (renderables, frame_names) =
+            make_renderable_enums(&device, &queue, format, &av_map, config);
 
-        // composition: Composition {
-        // renderables,
-        // config: config.clone(),
-        // camera: crate::camera::Camera::new(&config.cameras[0], size, config, 0),
-        // canvas: Canvas::init(size),
-        // },
-        // frame,
-        // time_elapsed: std::time::Duration::from_millis(0),
-        // })
+        let frames = make_frames(&device, size, format, frame_names)?;
+
+        Ok(PrintState {
+            device,
+            queue,
+            size,
+            clock: PrintClock::init(config),
+            count: 0,
+
+            composition: Composition {
+                frames,
+                renderables,
+                camera: crate::camera::Camera::new(&config.cameras[0], size, 0),
+                canvas: Canvas::init(size),
+                camera_configs: config.cameras.clone(),
+            },
+
+            instance_mul: config.instance_mul,
+            // frame,
+            time_elapsed: std::time::Duration::from_millis(0),
+        })
     }
 }

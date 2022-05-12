@@ -14,13 +14,13 @@ pub struct Setup {
 }
 
 pub struct Controls {
+    pub app: kintaro_egui_lib::WrapApp,
     pub platform: Platform,
     pub renderpass: RenderPass,
-    pub app: kintaro_egui_lib::WrapApp,
     pub state: Arc<Mutex<UiState>>,
+
     pub repaint_signal: std::sync::Arc<GuiRepaintSignal>,
     pub audio_stream_handle: Option<rodio::Sink>,
-    pub mouse_pressed: bool,
 }
 
 impl Setup {
@@ -96,7 +96,6 @@ impl Setup {
                 state,
                 audio_stream_handle,
                 repaint_signal,
-                mouse_pressed: false,
             },
         })
     }
