@@ -3,6 +3,7 @@ use crate::{
     camera::Camera, canvas::Canvas, config::CameraConfig, frame::types::Frames,
     renderable::RenderableEnum,
 };
+use kintaro_egui_lib::InstanceMul;
 
 pub struct RenderableEnums(pub Vec<RenderableEnum>);
 pub struct Composition {

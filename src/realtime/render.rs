@@ -2,17 +2,24 @@ use crate::{clock::Clock, error::KintaroError, realtime::RealTimeState};
 
 impl RealTimeState {
     pub fn render(&mut self, window: &winit::window::Window) -> Result<(), KintaroError> {
-        // self.handle_save();
+        self.handle_save();
         self.clock.update();
 
         if let Some(controls) = &self.controls {
-            todo!();
             self.composition.render(
                 &self.device,
                 &self.queue,
                 self.size,
                 &self.clock,
                 controls.state.lock().unwrap().instance_mul,
+            )?;
+        } else {
+            self.composition.render(
+                &self.device,
+                &self.queue,
+                self.size,
+                &self.clock,
+                self.base_instance_mul,
             )?;
         }
 

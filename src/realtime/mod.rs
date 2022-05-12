@@ -17,6 +17,7 @@ use crate::frame::vertex::make_square_buffers;
 use crate::renderable::RenderableEnum;
 use crate::renderable::ToRenderable;
 use crate::surface::Surface;
+use kintaro_egui_lib::InstanceMul;
 use setup::Setup;
 
 use crate::{
@@ -40,6 +41,7 @@ pub struct RealTimeState {
     pub composition: Composition,
 
     pub controls: Option<Controls>,
+    pub base_instance_mul: InstanceMul,
 }
 
 pub fn make_frames<'a>(
@@ -85,6 +87,7 @@ impl<'a> RealTimeState {
             make_renderable_enums(&device, &queue, format, &av_map, config);
 
         let frames = make_frames(&device, size, format, frame_names)?;
+        let base_instance_mul = controls.state.lock().unwrap().instance_mul.clone();
 
         Ok(Self {
             device,
@@ -92,9 +95,10 @@ impl<'a> RealTimeState {
             size,
             clock: RenderClock::init(config),
             surface,
-            controls: Some(controls),
-            // controls: None,
+            // controls: Some(controls),
+            controls: None,
             mouse_pressed: false,
+            base_instance_mul,
             composition: Composition {
                 renderables,
                 camera: crate::camera::Camera::new(&config.cameras[0], size, 0),
