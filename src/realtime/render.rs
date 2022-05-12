@@ -2,16 +2,19 @@ use crate::{clock::Clock, error::KintaroError, realtime::RealTimeState};
 
 impl RealTimeState {
     pub fn render(&mut self, window: &winit::window::Window) -> Result<(), KintaroError> {
-        self.handle_save();
+        // self.handle_save();
         self.clock.update();
 
-        self.composition.render(
-            &self.device,
-            &self.queue,
-            self.size,
-            &self.clock,
-            self.controls.state.lock().unwrap().instance_mul,
-        )?;
+        if let Some(controls) = &self.controls {
+            todo!();
+            self.composition.render(
+                &self.device,
+                &self.queue,
+                self.size,
+                &self.clock,
+                controls.state.lock().unwrap().instance_mul,
+            )?;
+        }
 
         let mut surface_encoder =
             self.device
@@ -39,7 +42,7 @@ impl RealTimeState {
 
         surface_frame.present();
 
-        self.update_gui(self.size);
+        // self.update_gui(self.size);
 
         Ok(())
     }

@@ -38,7 +38,8 @@ pub struct RealTimeState {
     pub mouse_pressed: bool,
 
     pub composition: Composition,
-    pub controls: Controls,
+
+    pub controls: Option<Controls>,
 }
 
 pub fn make_frames<'a>(
@@ -91,7 +92,8 @@ impl<'a> RealTimeState {
             size,
             clock: RenderClock::init(config),
             surface,
-            controls,
+            controls: Some(controls),
+            // controls: None,
             mouse_pressed: false,
             composition: Composition {
                 renderables,
@@ -105,16 +107,20 @@ impl<'a> RealTimeState {
 
     pub fn play(&mut self) {
         self.clock.play();
-        if let Some(a) = &self.controls.audio_stream_handle {
-            a.play()
+        if let Some(ref mut controls) = self.controls {
+            if let Some(a) = &controls.audio_stream_handle {
+                a.play()
+            }
         }
     }
 
     #[allow(dead_code)]
     pub fn pause(&mut self) {
         self.clock.pause();
-        if let Some(a) = &self.controls.audio_stream_handle {
-            a.pause()
+        if let Some(ref mut controls) = self.controls {
+            if let Some(a) = &controls.audio_stream_handle {
+                a.pause()
+            }
         }
     }
 }

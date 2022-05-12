@@ -218,7 +218,9 @@ fn realtime(
 
     event_loop.run(move |event, _, control_flow| {
         #[allow(unused_assignments)]
-        state.controls.platform.handle_event(&event);
+        if let Some(ref mut controls) = state.controls {
+            controls.platform.handle_event(&event);
+        }
         match event {
             Event::MainEventsCleared => window.request_redraw(),
             Event::DeviceEvent { ref event, .. } => {

@@ -17,111 +17,117 @@ impl kintaro_egui_lib::epi::backend::RepaintSignal for GuiRepaintSignal {
 
 impl RealTimeState {
     pub fn handle_save(&mut self) {
-        let mut state = self.controls.state.lock().unwrap();
-        if state.save {
-            let filename = "./save/saved.json";
-            let instance_mul = state.instance_mul.to_owned();
-            let camera = self.composition.camera.current_state();
-            thread::spawn(move || {
-                let mut file = File::create(filename).unwrap();
-                let config_state = ConfigState {
-                    camera,
-                    instance_mul,
-                };
-                let serialized = serde_json::to_string(&config_state)
-                    .unwrap_or_else(|_| panic!("unable to serialize, {}", filename));
-                file.write_all(serialized.as_bytes())
-                    .expect("unable to write to file on save");
-            });
-            state.save = false;
-            println!("Saved {}", filename);
+        if let Some(ref mut controls) = self.controls {
+            let mut state = controls.state.lock().unwrap();
+            if state.save {
+                let filename = "./save/saved.json";
+                let instance_mul = state.instance_mul.to_owned();
+                let camera = self.composition.camera.current_state();
+
+                thread::spawn(move || {
+                    let mut file = File::create(filename).unwrap();
+                    let config_state = ConfigState {
+                        camera,
+                        instance_mul,
+                    };
+                    let serialized = serde_json::to_string(&config_state)
+                        .unwrap_or_else(|_| panic!("unable to serialize, {}", filename));
+                    file.write_all(serialized.as_bytes())
+                        .expect("unable to write to file on save");
+                });
+                state.save = false;
+                println!("Saved {}", filename);
+            }
         }
     }
 
     pub fn render_gui(&mut self, window: &winit::window::Window, view: &wgpu::TextureView) {
-        let mut encoder = self
-            .device
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                label: Some("RenderPassInput Command Encoder"),
-            });
+        if let Some(ref mut controls) = self.controls {
+            let mut encoder = self
+                .device
+                .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                    label: Some("RenderPassInput Command Encoder"),
+                });
 
-        self.controls.platform.begin_frame();
-        let previous_frame_time = self.clock.current().last_period;
-        let app_output = kintaro_egui_lib::epi::backend::AppOutput::default();
+            controls.platform.begin_frame();
+            let previous_frame_time = self.clock.current().last_period;
+            let app_output = kintaro_egui_lib::epi::backend::AppOutput::default();
 
-        let frame = kintaro_egui_lib::epi::Frame::new(kintaro_egui_lib::epi::backend::FrameData {
-            info: kintaro_egui_lib::epi::IntegrationInfo {
-                name: "egui integration info",
-                web_info: None,
-                cpu_usage: Some(previous_frame_time),
-                native_pixels_per_point: Some(window.scale_factor() as _),
-                prefer_dark_mode: None,
-            },
-            // tex_allocator: &mut self.gui.renderpass,
-            output: app_output,
-            repaint_signal: self.controls.repaint_signal.clone(),
-        });
+            let frame =
+                kintaro_egui_lib::epi::Frame::new(kintaro_egui_lib::epi::backend::FrameData {
+                    info: kintaro_egui_lib::epi::IntegrationInfo {
+                        name: "egui integration info",
+                        web_info: None,
+                        cpu_usage: Some(previous_frame_time),
+                        native_pixels_per_point: Some(window.scale_factor() as _),
+                        prefer_dark_mode: None,
+                    },
+                    // tex_allocator: &mut self.gui.renderpass,
+                    output: app_output,
+                    repaint_signal: controls.repaint_signal.clone(),
+                });
 
-        self.controls
-            .app
-            .update(&self.controls.platform.context(), &frame);
+            controls.app.update(&controls.platform.context(), &frame);
 
-        // End the UI frame. We could now handle the output and draw the UI with the backend.
-        let (_output, paint_commands) = self.controls.platform.end_frame(Some(window));
-        let paint_jobs = self.controls.platform.context().tessellate(paint_commands);
+            // End the UI frame. We could now handle the output and draw the UI with the backend.
+            let (_output, paint_commands) = controls.platform.end_frame(Some(window));
+            let paint_jobs = controls.platform.context().tessellate(paint_commands);
 
-        // Upload all resources for the GPU.
-        let screen_descriptor = ScreenDescriptor {
-            physical_width: self.size.0,
-            physical_height: self.size.1,
-            scale_factor: window.scale_factor() as f32,
-        };
-        self.controls.renderpass.update_texture(
-            &self.device,
-            &self.queue,
-            &self.controls.platform.context().font_image(),
-        );
-        self.controls
-            .renderpass
-            .update_user_textures(&self.device, &self.queue);
+            // Upload all resources for the GPU.
+            let screen_descriptor = ScreenDescriptor {
+                physical_width: self.size.0,
+                physical_height: self.size.1,
+                scale_factor: window.scale_factor() as f32,
+            };
+            controls.renderpass.update_texture(
+                &self.device,
+                &self.queue,
+                &controls.platform.context().font_image(),
+            );
+            controls
+                .renderpass
+                .update_user_textures(&self.device, &self.queue);
 
-        self.controls.renderpass.update_buffers(
-            &self.device,
-            &self.queue,
-            &paint_jobs,
-            &screen_descriptor,
-        );
+            controls.renderpass.update_buffers(
+                &self.device,
+                &self.queue,
+                &paint_jobs,
+                &screen_descriptor,
+            );
 
-        self.controls
-            .renderpass
-            .execute(&mut encoder, view, &paint_jobs, &screen_descriptor, None)
-            .unwrap();
+            controls
+                .renderpass
+                .execute(&mut encoder, view, &paint_jobs, &screen_descriptor, None)
+                .unwrap();
 
-        self.queue.submit(Some(encoder.finish()));
+            self.queue.submit(Some(encoder.finish()));
+        }
     }
 
     pub fn update_gui(&mut self, size: (u32, u32)) {
-        let s = self.controls.state.lock().unwrap();
-        if let Some(a) = &self.controls.audio_stream_handle {
-            a.set_volume(s.volume);
-        };
-        if s.camera_index != self.composition.camera.index {
-            self.composition.camera = Camera::new(
-                &self.composition.camera_configs[s.camera_index],
-                size,
-                s.camera_index,
-            )
-        }
-        if let Some(a) = &self.controls.audio_stream_handle {
-            if !s.play && !a.is_paused() {
-                a.pause();
+        if let Some(ref mut controls) = self.controls {
+            let s = controls.state.lock().unwrap();
+            if let Some(a) = &controls.audio_stream_handle {
+                a.set_volume(s.volume);
+            };
+            if s.camera_index != self.composition.camera.index {
+                self.composition.camera = Camera::new(
+                    &self.composition.camera_configs[s.camera_index],
+                    size,
+                    s.camera_index,
+                )
             }
-            if s.play && a.is_paused() {
-                a.play();
-            }
-            a.set_volume(s.volume);
-        };
+            if let Some(a) = &controls.audio_stream_handle {
+                if !s.play && !a.is_paused() {
+                    a.pause();
+                }
+                if s.play && a.is_paused() {
+                    a.play();
+                }
+                a.set_volume(s.volume);
+            };
 
-        self.clock.set_playing(s.play);
+            self.clock.set_playing(s.play);
+        }
     }
 }
