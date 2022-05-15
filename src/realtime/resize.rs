@@ -16,8 +16,8 @@ impl RealTimeState {
             // self.renderpass.instances = instances;
             // self.renderpass.instance_buffer = instance_buffer;
 
-            self.composition
-                .camera
+            self.cameras
+                .current
                 .projection
                 .resize(new_size.width, new_size.height);
 

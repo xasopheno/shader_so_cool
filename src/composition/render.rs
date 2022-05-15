@@ -1,4 +1,5 @@
 use crate::{
+    camera::Cameras,
     canvas::Canvas,
     error::KintaroError,
     renderable::{Renderable, RenderableInput},
@@ -11,8 +12,13 @@ use crate::clock::Clock;
 use super::Composition;
 
 impl Composition {
-    pub fn handle_keyboard_input(&mut self, key: VirtualKeyCode, state: ElementState) {
-        self.camera.controller.process_keyboard(key, state);
+    pub fn handle_keyboard_input(
+        &mut self,
+        key: VirtualKeyCode,
+        state: ElementState,
+        cameras: &mut Cameras,
+    ) {
+        cameras.current.controller.process_keyboard(key, state);
         self.renderables.0.iter_mut().for_each(|renderable| {
             renderable.process_keyboard(key, state);
         });
@@ -26,13 +32,14 @@ impl Composition {
         clock: &impl Clock,
         instance_mul: InstanceMul,
         canvas: &Canvas,
+        cameras: &mut Cameras,
     ) -> Result<(), KintaroError> {
         let clock_result = clock.current();
-        self.camera.update(clock_result.last_period);
+        cameras.current.update(clock_result.last_period);
 
-        let view_position: [f32; 4] = self.camera.position.to_homogeneous().into();
+        let view_position: [f32; 4] = cameras.current.position.to_homogeneous().into();
         let view_proj: [[f32; 4]; 4] =
-            (self.camera.projection.calc_matrix() * self.camera.calc_matrix()).into();
+            (cameras.current.projection.calc_matrix() * cameras.current.calc_matrix()).into();
 
         let render_input = RenderableInput {
             device,

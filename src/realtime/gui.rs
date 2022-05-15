@@ -22,7 +22,7 @@ impl RealTimeState {
             if state.save {
                 let filename = "./save/saved.json";
                 let instance_mul = state.instance_mul.to_owned();
-                let camera = self.composition.camera.current_state();
+                let camera = self.cameras.current.state();
 
                 thread::spawn(move || {
                     let mut file = File::create(filename).unwrap();
@@ -110,12 +110,8 @@ impl RealTimeState {
             if let Some(a) = &self.audio_stream_handle {
                 a.set_volume(s.volume);
             };
-            if s.camera_index != self.composition.camera.index {
-                self.composition.camera = Camera::new(
-                    &self.composition.camera_configs[s.camera_index],
-                    size,
-                    s.camera_index,
-                )
+            if s.camera_index != self.cameras.index {
+                self.cameras.current = Camera::new(&self.cameras.configs[s.camera_index], size)
             }
             if let Some(a) = &self.audio_stream_handle {
                 if !s.play && !a.is_paused() {

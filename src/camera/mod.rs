@@ -24,9 +24,9 @@ pub const OPENGL_TO_WGPU_MATRIX: cgmath::Matrix4<f32> = cgmath::Matrix4::new(
 const SAFE_FRAC_PI_2: f32 = FRAC_PI_2 - 0.0001;
 
 pub struct Cameras {
-    current: Camera,
-    configs: Vec<CameraConfig>,
-    index: usize,
+    pub current: Camera,
+    pub configs: Vec<CameraConfig>,
+    pub index: usize,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -36,18 +36,17 @@ pub struct Camera {
     pub pitch: Rad<f32>,
     pub projection: Projection,
     pub controller: CameraController,
-    pub index: usize,
+    // pub index: usize,
 }
 
 impl Camera {
-    pub fn new(camera_config: &CameraConfig, size: (u32, u32), index: usize) -> Self {
+    pub fn new(camera_config: &CameraConfig, size: (u32, u32)) -> Self {
         Self {
             position: camera_config.position.into(),
             yaw: cgmath::Deg(camera_config.yaw).into(),
             pitch: cgmath::Deg(camera_config.pitch).into(),
             projection: Projection::new(size.0, size.1, cgmath::Deg(70.0), 0.1, 60_000.0),
             controller: CameraController::new(10.0, 1.0),
-            index,
         }
     }
 
@@ -102,7 +101,7 @@ impl Camera {
         }
     }
 
-    pub fn current_state(&self) -> CameraConfig {
+    pub fn state(&self) -> CameraConfig {
         let yaw: Deg<f32> = self.yaw.into();
         let pitch: Deg<f32> = self.pitch.into();
         CameraConfig {

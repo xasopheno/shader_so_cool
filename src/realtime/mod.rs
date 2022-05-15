@@ -7,6 +7,7 @@ pub mod setup;
 use std::collections::HashMap;
 
 use crate::application::VisualsMap;
+use crate::camera::Cameras;
 use crate::composition::Composition;
 use crate::composition::RenderableEnums;
 use crate::error::KintaroError;
@@ -45,6 +46,10 @@ pub struct RealTimeState {
 
     pub audio_stream_handle: Option<rodio::Sink>,
     pub base_instance_mul: InstanceMul,
+
+    pub cameras: Cameras,
+    // pub camera_configs: Vec<CameraConfig>,
+    // pub camera: Camera
 }
 
 pub fn make_frames<'a>(
@@ -99,11 +104,13 @@ impl<'a> RealTimeState {
 
             controls,
             base_instance_mul,
-
+            cameras: Cameras {
+                current: crate::camera::Camera::new(&config.cameras[0], size),
+                configs: config.cameras.clone(),
+                index: 0,
+            },
             composition: Composition {
                 renderables,
-                camera: crate::camera::Camera::new(&config.cameras[0], size, 0),
-                camera_configs: config.cameras.clone(),
                 frames,
             },
         })

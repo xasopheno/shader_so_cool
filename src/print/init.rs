@@ -1,12 +1,9 @@
 use super::PrintState;
 use crate::application::VisualsMap;
+use crate::camera::Cameras;
 use crate::composition::Composition;
 use crate::error::KintaroError;
-use crate::frame::types::Frame;
 use crate::realtime::{make_frames, make_renderable_enums};
-// use crate::frame::types::Frame;
-use crate::frame::vertex::make_square_buffers;
-// use crate::renderable::ToRenderable;
 use crate::{
     canvas::Canvas,
     clock::{Clock, PrintClock},
@@ -50,12 +47,15 @@ impl PrintState {
             clock: PrintClock::init(config),
             canvas: Canvas::init(size),
             count: 0,
+            cameras: Cameras {
+                current: crate::camera::Camera::new(&config.cameras[0], size),
+                configs: config.cameras.clone(),
+                index: 0,
+            },
 
             composition: Composition {
                 frames,
                 renderables,
-                camera: crate::camera::Camera::new(&config.cameras[0], size, 0),
-                camera_configs: config.cameras.clone(),
             },
 
             instance_mul: config.instance_mul,

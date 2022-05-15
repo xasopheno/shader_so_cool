@@ -1,6 +1,7 @@
 mod init;
 mod render;
 pub mod write;
+use crate::camera::Cameras;
 use crate::canvas::Canvas;
 use crate::clock::PrintClock;
 use crate::composition::Composition;
@@ -11,6 +12,8 @@ pub struct PrintState {
     pub clock: PrintClock,
     pub canvas: Canvas,
     pub count: u32,
+
+    pub cameras: Cameras,
 
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
