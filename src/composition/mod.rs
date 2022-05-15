@@ -9,7 +9,10 @@ pub struct RenderableEnums(pub Vec<RenderableEnum>);
 pub struct Composition {
     pub renderables: RenderableEnums,
     pub frames: Frames,
-    pub canvas: Canvas,
-    pub camera: Camera,
+
+    // should live with a given event_stream
+    // also instance_mul
     pub camera_configs: Vec<CameraConfig>,
+    pub camera: Camera,
+    pub canvas: Canvas,
 }

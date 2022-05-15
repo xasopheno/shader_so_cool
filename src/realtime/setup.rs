@@ -10,7 +10,7 @@ pub struct Setup {
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
     pub format: wgpu::TextureFormat,
-    pub controls: Controls,
+    pub controls: Option<Controls>,
 }
 
 pub struct Controls {
@@ -25,7 +25,7 @@ impl Setup {
     pub async fn init<'a>(
         window: &Window,
         config: &'a Config<'a>,
-        repaint_signal: std::sync::Arc<GuiRepaintSignal>,
+        repaint_signal: Option<std::sync::Arc<GuiRepaintSignal>>,
     ) -> Result<Self, KintaroError> {
         let size = config.window_size;
         let instance = wgpu::Instance::new(wgpu::Backends::all());
@@ -84,7 +84,7 @@ impl Setup {
                 renderpass,
                 app,
                 state,
-                repaint_signal,
+                repaint_signal: rps,
             })
         } else {
             None

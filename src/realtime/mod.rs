@@ -66,7 +66,7 @@ impl<'a> RealTimeState {
     pub fn init(
         window: &Window,
         config: &Config<'static>,
-        repaint_signal: std::sync::Arc<GuiRepaintSignal>,
+        repaint_signal: Option<std::sync::Arc<GuiRepaintSignal>>,
         av_map: VisualsMap,
         audio_stream_handle: Option<rodio::Sink>,
     ) -> Result<RealTimeState, KintaroError> {
@@ -84,7 +84,7 @@ impl<'a> RealTimeState {
             make_renderable_enums(&device, &queue, format, &av_map, config);
 
         let frames = make_frames(&device, size, format, frame_names)?;
-        let base_instance_mul = controls.state.lock().unwrap().instance_mul.clone();
+        let base_instance_mul = config.instance_mul;
 
         Ok(Self {
             device,
@@ -92,8 +92,7 @@ impl<'a> RealTimeState {
             size,
             clock: RenderClock::init(config),
             surface,
-            // controls: Some(controls),
-            controls: None,
+            controls,
             mouse_pressed: false,
             base_instance_mul,
             audio_stream_handle,

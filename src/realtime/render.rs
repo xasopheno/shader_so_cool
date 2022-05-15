@@ -49,7 +49,7 @@ impl RealTimeState {
 
         surface_frame.present();
 
-        // self.update_gui(self.size);
+        self.update_gui(self.size);
 
         Ok(())
     }
