@@ -1,10 +1,17 @@
 use cgmath::*;
 pub mod default;
-use crate::config::CameraConfig;
+// use crate::config::CameraConfig;
 use serde::{Deserialize, Serialize};
 use std::f32::consts::FRAC_PI_2;
 use winit::dpi::PhysicalPosition;
 use winit::event::*;
+
+#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
+pub struct CameraConfig {
+    pub position: (f32, f32, f32),
+    pub yaw: f32,
+    pub pitch: f32,
+}
 
 #[rustfmt::skip]
 pub const OPENGL_TO_WGPU_MATRIX: cgmath::Matrix4<f32> = cgmath::Matrix4::new(
@@ -15,6 +22,12 @@ pub const OPENGL_TO_WGPU_MATRIX: cgmath::Matrix4<f32> = cgmath::Matrix4::new(
 );
 
 const SAFE_FRAC_PI_2: f32 = FRAC_PI_2 - 0.0001;
+
+pub struct Cameras {
+    current: Camera,
+    configs: Vec<CameraConfig>,
+    index: usize,
+}
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Camera {

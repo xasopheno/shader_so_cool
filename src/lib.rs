@@ -26,7 +26,7 @@ pub mod toy;
 pub mod uniforms;
 pub mod vertex;
 
-pub use crate::camera::default::default_cameras;
+pub use crate::camera::{default::default_cameras, CameraConfig};
 pub use crate::color::{
     color_map_from_named_colorsets,
     color_map_from_named_gen_color,
@@ -40,7 +40,7 @@ pub use crate::color::{
     RandColor,
     RandColorSet,
 };
-pub use crate::config::{CameraConfig, Config};
+pub use crate::config::Config;
 pub use crate::gen::*;
 pub use crate::instance::{
     instancer::{Instancer, InstancerInput, InstancerOutput},

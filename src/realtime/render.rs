@@ -12,6 +12,7 @@ impl RealTimeState {
                 self.size,
                 &self.clock,
                 controls.state.lock().unwrap().instance_mul,
+                &self.canvas,
             )?;
         } else {
             self.composition.render(
@@ -20,6 +21,7 @@ impl RealTimeState {
                 self.size,
                 &self.clock,
                 self.base_instance_mul,
+                &self.canvas,
             )?;
         }
 

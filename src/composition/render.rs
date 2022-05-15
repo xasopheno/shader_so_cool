@@ -1,4 +1,5 @@
 use crate::{
+    canvas::Canvas,
     error::KintaroError,
     renderable::{Renderable, RenderableInput},
 };
@@ -24,6 +25,7 @@ impl Composition {
         size: (u32, u32),
         clock: &impl Clock,
         instance_mul: InstanceMul,
+        canvas: &Canvas,
     ) -> Result<(), KintaroError> {
         let clock_result = clock.current();
         self.camera.update(clock_result.last_period);
@@ -36,7 +38,7 @@ impl Composition {
             device,
             queue,
             clock_result,
-            canvas: &self.canvas,
+            canvas,
             size,
             view_position,
             view_proj,

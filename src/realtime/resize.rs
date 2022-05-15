@@ -9,7 +9,7 @@ impl RealTimeState {
         if new_size.width > 0 && new_size.height > 0 {
             self.size = (new_size.width, new_size.height);
             // self.frame.resize(&self.device, new_size);
-            self.composition.canvas = Canvas::init((new_size.width, new_size.height));
+            self.canvas = Canvas::init((new_size.width, new_size.height));
 
             // let (instances, instance_buffer) =
             // make_instances_and_instance_buffer(0, (new_size.width, new_size.height), &self.device);

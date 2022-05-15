@@ -1,4 +1,4 @@
-save/
+save/*
 /target
 *.wav
 *.spv

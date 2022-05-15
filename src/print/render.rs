@@ -21,6 +21,7 @@ impl PrintState {
             self.size,
             &self.clock,
             self.instance_mul,
+            &self.canvas,
         )?;
 
         let output_buffer = copy_texture_to_buffer(

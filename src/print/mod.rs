@@ -1,15 +1,15 @@
 mod init;
 mod render;
 pub mod write;
+use crate::canvas::Canvas;
 use crate::clock::PrintClock;
 use crate::composition::Composition;
-use crate::frame::types::Frame;
 use kintaro_egui_lib::InstanceMul;
 
 pub struct PrintState {
     pub composition: Composition,
-    // pub frame: Frame,
     pub clock: PrintClock,
+    pub canvas: Canvas,
     pub count: u32,
 
     pub device: wgpu::Device,

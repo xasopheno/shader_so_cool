@@ -1,7 +1,7 @@
 use kintaro_egui_lib::InstanceMul;
-use serde::{Deserialize, Serialize};
 
 use crate::camera::default::default_cameras;
+use crate::camera::CameraConfig;
 use crate::instance::instancer::SimpleInstancer;
 #[allow(unused_imports)]
 use crate::renderable::{
@@ -41,7 +41,7 @@ pub struct FramePass {
 fn frame_passes() -> Vec<FramePass> {
     vec![
         FramePass {
-            output_frame: "frame1",
+            output_frame: "main",
             renderables: vec![
                 RenderableConfig::Toy(ToyConfig {
                     shader_path: "src/origami/shaders/toy3.wgsl",
@@ -61,43 +61,26 @@ fn frame_passes() -> Vec<FramePass> {
                 }),
             ],
         },
-        FramePass {
-            output_frame: "frame2",
-            renderables: vec![
-                RenderableConfig::Toy(ToyConfig {
-                    shader_path: "src/origami/shaders/toy3.wgsl",
-                }),
-                RenderableConfig::Sampler(SamplerConfig {
-                    shader_path: "./src/sampler/sampler_shader.wgsl",
-                    input_frame: "frame1",
-                }),
-                RenderableConfig::Glyphy(GlyphyConfig::GlypyTextConfig {
-                    text: vec![("Cool", "#ff2365")],
-                    location: (0.7, 0.9),
-                    scale: 100.0,
-                }),
-            ],
-        },
-        FramePass {
-            output_frame: "main",
-            renderables: vec![
-                // RenderableConfig::ImageRenderer(ImageRendererConfig {
-                // image_path: "src/image_renderer/milo.png",
-                // }),
-                RenderableConfig::Toy(ToyConfig {
-                    shader_path: "src/origami/shaders/toy3.wgsl",
-                }),
-                // RenderableConfig::Origami(OrigamiConfig {
-                // shader_path: "./src/origami_shader.wgsl",
-                // n_indices: 30,
-                // n_vertices: 20,
-                // }),
-                RenderableConfig::Sampler(SamplerConfig {
-                    shader_path: "./src/sampler/sampler_shader.wgsl",
-                    input_frame: "frame2",
-                }),
-            ],
-        },
+        // FramePass {
+        // output_frame: "main",
+        // renderables: vec![
+        // // RenderableConfig::ImageRenderer(ImageRendererConfig {
+        // // image_path: "src/image_renderer/milo.png",
+        // // }),
+        // RenderableConfig::Toy(ToyConfig {
+        // shader_path: "src/origami/shaders/toy3.wgsl",
+        // }),
+        // // RenderableConfig::Origami(OrigamiConfig {
+        // // shader_path: "./src/origami_shader.wgsl",
+        // // n_indices: 30,
+        // // n_vertices: 20,
+        // // }),
+        // RenderableConfig::Sampler(SamplerConfig {
+        // shader_path: "./src/sampler/sampler_shader.wgsl",
+        // input_frame: "frame2",
+        // }),
+        // ],
+        // },
     ]
 }
 
@@ -149,13 +132,6 @@ impl<'a> Config<'a> {
         };
         (cameras, instance_mul)
     }
-}
-
-#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
-pub struct CameraConfig {
-    pub position: (f32, f32, f32),
-    pub yaw: f32,
-    pub pitch: f32,
 }
 
 #[derive(Clone)]

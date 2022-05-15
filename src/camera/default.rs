@@ -1,4 +1,4 @@
-use crate::config::CameraConfig;
+use super::CameraConfig;
 
 pub fn default_cameras(
     mut vec_saved_cameras: Vec<CameraConfig>,

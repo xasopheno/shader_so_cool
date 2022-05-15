@@ -7,7 +7,6 @@ pub mod setup;
 use std::collections::HashMap;
 
 use crate::application::VisualsMap;
-use crate::canvas::Canvas;
 use crate::composition::Composition;
 use crate::composition::RenderableEnums;
 use crate::error::KintaroError;
@@ -21,6 +20,7 @@ use kintaro_egui_lib::InstanceMul;
 use setup::Setup;
 
 use crate::{
+    canvas::Canvas,
     clock::{Clock, RenderClock},
     config::Config,
     realtime::gui::GuiRepaintSignal,
@@ -35,6 +35,7 @@ pub struct RealTimeState {
     pub queue: wgpu::Queue,
     pub size: (u32, u32),
     pub surface: Surface,
+    pub canvas: Canvas,
     pub clock: RenderClock,
     pub mouse_pressed: bool,
 
@@ -92,16 +93,17 @@ impl<'a> RealTimeState {
             size,
             clock: RenderClock::init(config),
             surface,
-            controls,
+            canvas: Canvas::init(size),
             mouse_pressed: false,
-            base_instance_mul,
             audio_stream_handle,
+
+            controls,
+            base_instance_mul,
 
             composition: Composition {
                 renderables,
                 camera: crate::camera::Camera::new(&config.cameras[0], size, 0),
                 camera_configs: config.cameras.clone(),
-                canvas: Canvas::init(size),
                 frames,
             },
         })

@@ -1,4 +1,5 @@
-use crate::config::{CameraConfig, Config};
+use crate::camera::CameraConfig;
+use crate::config::Config;
 use crate::error::KintaroError;
 use crate::print::PrintState;
 use crate::realtime::gui::GuiRepaintSignal;

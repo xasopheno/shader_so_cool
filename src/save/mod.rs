@@ -1,7 +1,7 @@
 use kintaro_egui_lib::InstanceMul;
 use serde::{Deserialize, Serialize};
 
-use crate::config::CameraConfig;
+use crate::camera::CameraConfig;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ConfigState {
