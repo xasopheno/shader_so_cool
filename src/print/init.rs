@@ -33,8 +33,6 @@ impl PrintState {
             .await
             .unwrap();
 
-        // let frame = Frame::new(&device, size, format, make_square_buffers)?;
-
         let (renderables, frame_names) =
             make_renderable_enums(&device, &queue, format, &av_map, config);
 
@@ -59,7 +57,6 @@ impl PrintState {
             },
 
             instance_mul: config.instance_mul,
-            // frame,
             time_elapsed: std::time::Duration::from_millis(0),
         })
     }

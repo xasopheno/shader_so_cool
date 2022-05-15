@@ -48,8 +48,6 @@ pub struct RealTimeState {
     pub base_instance_mul: InstanceMul,
 
     pub cameras: Cameras,
-    // pub camera_configs: Vec<CameraConfig>,
-    // pub camera: Camera
 }
 
 pub fn make_frames<'a>(
