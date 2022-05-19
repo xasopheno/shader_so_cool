@@ -1,6 +1,9 @@
-use crate::config::Config;
+pub mod print;
+pub mod realtime;
+pub mod utils;
+use crate::application::print::print_audio_and_video;
+use crate::config::{Config, FramePass};
 use crate::error::KintaroError;
-use crate::print::PrintState;
 use crate::realtime::gui::GuiRepaintSignal;
 use crate::realtime::RealTimeState;
 use crate::renderable::RenderableConfig;
@@ -8,8 +11,6 @@ use colored::*;
 use cradle::prelude::*;
 use rodio::OutputStream;
 use std::collections::HashMap;
-use std::io::Write;
-use std::str::FromStr;
 use weresocool::{
     error::Error,
     generation::parsed_to_render::AudioVisual,
@@ -49,41 +50,13 @@ fn split_audio_visual(av: AudioVisual) -> (Audio, Visual) {
     )
 }
 
-pub fn sum_all_waveforms(mut vec_wav: Vec<Vec<u8>>) -> Vec<u8> {
-    // Sort the vectors by length
-    sort_vecs(&mut vec_wav);
-
-    // Get the length of the longest vector
-    let max_len = vec_wav[0].len();
-
-    let mut result = vec![0; max_len];
-
-    for wav in vec_wav {
-        sum_vec(&mut result, &wav[..]);
-    }
-
-    result
-}
-
-/// Sort a Vec of Vec<u8> by length.
-fn sort_vecs(vec_wav: &mut Vec<Vec<u8>>) {
-    vec_wav.sort_unstable_by(|a, b| b.len().cmp(&a.len()));
-}
-
-/// Sum two vectors. Assumes vector a is longer than or of the same length
-/// as vector b.
-pub fn sum_vec(a: &mut Vec<u8>, b: &[u8]) {
-    for (ai, bi) in a.iter_mut().zip(b) {
-        *ai += *bi;
-    }
-}
-
-pub fn run(filename: &str, config: Config<'static>) -> Result<(), KintaroError> {
-    println!("preparing for audiovisualization: {}", &filename);
+pub fn audios_and_visuals_from_frame_passes(
+    frame_passes: &Vec<FramePass>,
+) -> Result<(Vec<Audio>, VisualsMap), Error> {
     let mut visuals_map: VisualsMap = HashMap::new();
     let mut audios: Vec<Audio> = vec![];
 
-    for c in config.frame_passes.iter().flat_map(|c| &c.renderables) {
+    for c in frame_passes.iter().flat_map(|c| &c.renderables) {
         if let RenderableConfig::EventStreams(e) = c {
             let result = get_audiovisual_data(&e.socool_path)?;
 
@@ -93,66 +66,30 @@ pub fn run(filename: &str, config: Config<'static>) -> Result<(), KintaroError> 
         }
     }
 
-    let mut audio: Option<Vec<u8>> = None;
-    let _stream: OutputStream;
-    let mut stream_handle: Option<rodio::Sink> = None;
-    if audios.len() > 0 {
-        let a = sum_all_waveforms(audios);
-        let (_s, s_h) = crate::audio::setup_audio(&config, &a);
-        audio = Some(a);
-        _stream = _s;
-        stream_handle = Some(s_h);
-    }
-
-    // let instance_mul = InstanceMul {
-    // x: 9.0,
-    // y: 19.0,
-    // z: 1.0,
-    // life: 2.0,
-    // size: 23.0,
-    // length: 1.0,
-    // };
-    // let (cameras, instance_mul) = Config::handle_save(instance_mul);
-
-    if std::env::args().any(|x| x == "--print") {
-        println!(
-            "{}",
-            "\n\n\n:::::<<<<<*****PRINTING*****>>>>>:::::".magenta()
-        );
-
-        let max_frames = match visuals_map.values().max_by_key(|v| v.length as usize) {
-            Some(mf) => mf.length as usize,
-            None => 1000,
-        };
-
-        let n_frames = (max_frames * 40) + 100;
-
-        println!("{}", format!("Number Frames: {}", n_frames).green());
-
-        print(config, &visuals_map, n_frames)?;
-
-        if let Some(a) = audio {
-            write_audio_to_file(
-                a.as_slice(),
-                std::path::PathBuf::from_str("kintaro.wav")
-                    .expect("unable to create pathbuf for kintaro.wav"),
-            )?;
-
-            let command_join_audio_and_video = "ffmpeg -framerate 40 -pattern_type glob -i out/*.png -i kintaro.wav -c:a copy -shortest -c:v libx264 -r 40 -pix_fmt yuv420p out.mov";
-
-            run!(Stdin("yes"), %command_join_audio_and_video);
-        }
-    } else {
-        println!("****REALTIME****");
-        realtime(config, visuals_map, stream_handle)?;
-    }
-    Ok(())
+    Ok((audios, visuals_map))
 }
 
-pub fn write_audio_to_file(audio: &[u8], filename: std::path::PathBuf) -> Result<(), KintaroError> {
-    let mut file = std::fs::File::create(filename.clone())?;
-    file.write_all(audio)?;
-    println!("Audio file written: {}", filename.display());
+pub fn run(filename: &str, config: Config<'static>) -> Result<(), KintaroError> {
+    // println!("preparing for audiovisualization: {}", &filename);
+    // let (audios, visuals_map) = audios_and_visuals_from_frame_passes(&config.frame_passes)?;
+
+    // let mut audio: Option<Vec<u8>> = None;
+    // let _stream: OutputStream;
+    // let mut stream_handle: Option<rodio::Sink> = None;
+    // if audios.len() > 0 {
+    // let a = sum_all_waveforms(audios);
+    // let (_s, s_h) = crate::audio::setup_audio(&config, &a);
+    // audio = Some(a);
+    // _stream = _s;
+    // stream_handle = Some(s_h);
+    // }
+
+    if std::env::args().any(|x| x == "--print") {
+        print_audio_and_video(config)?;
+    } else {
+        println!("****REALTIME****");
+        // realtime(config, visuals_map, stream_handle)?;
+    }
     Ok(())
 }
 
@@ -164,19 +101,6 @@ fn get_audiovisual_data(filename: &str) -> Result<AudioVisual, Error> {
     } else {
         Err(Error::with_msg(format!("Error rendering {}", filename)))
     }
-}
-
-fn print(
-    mut config: Config<'static>,
-    av: &VisualsMap,
-    n_frames: usize,
-) -> Result<(), KintaroError> {
-    let mut state = async_std::task::block_on(PrintState::init(&mut config, av))?;
-    for i in 0..n_frames {
-        async_std::task::block_on(state.render())
-            .unwrap_or_else(|_| panic!("Unable to render frame: {}", i));
-    }
-    Ok(())
 }
 
 fn realtime(
