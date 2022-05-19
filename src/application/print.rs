@@ -1,4 +1,4 @@
-use super::audios_and_visuals_from_frame_passes;
+use super::utils::audios_and_visuals_from_frame_passes;
 use super::utils::{sum_all_waveforms, write_audio_to_file};
 use crate::config::Config;
 use crate::error::KintaroError;

@@ -2,7 +2,7 @@ pub mod print;
 pub mod realtime;
 pub mod utils;
 use crate::application::print::print_audio_and_video;
-use crate::application::realtime::run_realtime;
+use crate::application::realtime::realtime;
 use crate::config::Config;
 use crate::error::KintaroError;
 
@@ -31,7 +31,7 @@ pub fn run(filename: &str, config: Config<'static>) -> Result<(), KintaroError> 
         print_audio_and_video(config)?;
     } else {
         println!("****REALTIME****");
-        run_realtime(config)?;
+        realtime(config)?;
     }
     Ok(())
 }

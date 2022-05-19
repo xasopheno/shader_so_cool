@@ -5,6 +5,22 @@ impl RealTimeState {
         self.handle_save();
         self.clock.update();
 
+        let mut surface_encoder =
+            self.device
+                .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                    label: Some("Surface Encoder"),
+                });
+
+        let surface_frame = self
+            .surface
+            .surface
+            .get_current_texture()
+            .expect("Failed to acquire next swap chain texture");
+        let surface_texture_view = surface_frame
+            .texture
+            .create_view(&wgpu::TextureViewDescriptor::default());
+
+
         if let Some(controls) = &self.controls {
             self.composition.render(
                 &self.device,
@@ -26,21 +42,6 @@ impl RealTimeState {
                 &mut self.cameras,
             )?;
         }
-
-        let mut surface_encoder =
-            self.device
-                .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                    label: Some("Surface Encoder"),
-                });
-
-        let surface_frame = self
-            .surface
-            .surface
-            .get_current_texture()
-            .expect("Failed to acquire next swap chain texture");
-        let surface_texture_view = surface_frame
-            .texture
-            .create_view(&wgpu::TextureViewDescriptor::default());
 
         self.surface.render(
             &mut surface_encoder,

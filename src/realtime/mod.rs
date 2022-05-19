@@ -69,8 +69,6 @@ impl<'a> RealTimeState {
         window: &Window,
         config: &Config<'static>,
         repaint_signal: Option<std::sync::Arc<GuiRepaintSignal>>,
-        av_map: VisualsMap,
-        audio_stream_handle: Option<rodio::Sink>,
     ) -> Result<RealTimeState, KintaroError> {
         let size = (config.window_size.0, config.window_size.1);
         println!("{}/{}", size.0, size.1);
@@ -82,11 +80,9 @@ impl<'a> RealTimeState {
             format,
         } = block_on(Setup::init(window, config, repaint_signal))?;
 
-        let (renderables, frame_names) =
-            make_renderable_enums(&device, &queue, format, &av_map, config);
-
-        let frames = make_frames(&device, size, format, frame_names)?;
         let base_instance_mul = config.instance_mul;
+
+        let composition = Composition::init_realtime(&device, &queue, format, config, size)?;
 
         Ok(Self {
             device,
@@ -107,11 +103,7 @@ impl<'a> RealTimeState {
                 index: 0,
             },
 
-            composition: Composition {
-                renderables,
-                frames,
-                audio_stream_handle,
-            },
+            composition,
         })
     }
 

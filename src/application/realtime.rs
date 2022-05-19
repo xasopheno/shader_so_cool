@@ -1,32 +1,11 @@
-use super::audios_and_visuals_from_frame_passes;
-use super::utils::sum_all_waveforms;
-use super::VisualsMap;
 use crate::config::Config;
 use crate::error::KintaroError;
 use crate::realtime::gui::GuiRepaintSignal;
 use crate::realtime::RealTimeState;
-use rodio::OutputStream;
 use winit::{dpi::PhysicalSize, event::*, event_loop::ControlFlow, window::WindowBuilder};
 
-pub fn run_realtime(config: Config<'static>) -> Result<(), KintaroError> {
-    let (audios, visuals_map) = audios_and_visuals_from_frame_passes(&config.frame_passes)?;
-    let _stream: OutputStream;
-    let mut stream_handle: Option<rodio::Sink> = None;
-    if audios.len() > 0 {
-        let a = sum_all_waveforms(audios);
-        let (_s, s_h) = crate::audio::setup_audio(&config, &a);
-        _stream = _s;
-        stream_handle = Some(s_h);
-    }
-
-    realtime(config, visuals_map, stream_handle)?;
-    Ok(())
-}
-
-fn realtime(
+pub fn realtime(
     mut config: Config<'static>,
-    visuals_map: VisualsMap,
-    stream_handles: Option<rodio::Sink>,
 ) -> Result<(), KintaroError> {
     env_logger::init();
     let title = env!("CARGO_PKG_NAME");
@@ -49,8 +28,6 @@ fn realtime(
         &window,
         &mut config,
         Some(repaint_signal),
-        visuals_map,
-        stream_handles,
     )?;
 
     state.play();
