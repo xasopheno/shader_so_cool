@@ -1,6 +1,6 @@
+use super::audios_and_visuals_from_frame_passes;
 use super::utils::{sum_all_waveforms, write_audio_to_file};
-use super::{audios_and_visuals_from_frame_passes, VisualsMap};
-use crate::config::{Config, FramePass};
+use crate::config::Config;
 use crate::error::KintaroError;
 use crate::print::PrintState;
 use colored::*;
