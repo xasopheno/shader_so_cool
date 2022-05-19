@@ -6,13 +6,6 @@ use std::f32::consts::FRAC_PI_2;
 use winit::dpi::PhysicalPosition;
 use winit::event::*;
 
-#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
-pub struct CameraConfig {
-    pub position: (f32, f32, f32),
-    pub yaw: f32,
-    pub pitch: f32,
-}
-
 #[rustfmt::skip]
 pub const OPENGL_TO_WGPU_MATRIX: cgmath::Matrix4<f32> = cgmath::Matrix4::new(
     1.0, 0.0, 0.0, 0.0,
@@ -29,6 +22,13 @@ pub struct Cameras {
     pub index: usize,
 }
 
+#[derive(Debug, Copy, Clone, Serialize, Deserialize)]
+pub struct CameraConfig {
+    pub position: (f32, f32, f32),
+    pub yaw: f32,
+    pub pitch: f32,
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Camera {
     pub position: Point3<f32>,
@@ -36,7 +36,6 @@ pub struct Camera {
     pub pitch: Rad<f32>,
     pub projection: Projection,
     pub controller: CameraController,
-    // pub index: usize,
 }
 
 impl Camera {

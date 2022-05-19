@@ -107,13 +107,13 @@ impl RealTimeState {
     pub fn update_gui(&mut self, size: (u32, u32)) {
         if let Some(ref mut controls) = self.controls {
             let s = controls.state.lock().unwrap();
-            if let Some(a) = &self.audio_stream_handle {
+            if let Some(a) = &self.composition.audio_stream_handle {
                 a.set_volume(s.volume);
             };
             if s.camera_index != self.cameras.index {
                 self.cameras.current = Camera::new(&self.cameras.configs[s.camera_index], size)
             }
-            if let Some(a) = &self.audio_stream_handle {
+            if let Some(a) = &self.composition.audio_stream_handle {
                 if !s.play && !a.is_paused() {
                     a.pause();
                 }

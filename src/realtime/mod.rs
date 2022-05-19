@@ -42,11 +42,9 @@ pub struct RealTimeState {
 
     pub composition: Composition,
 
-    pub controls: Option<Controls>,
-
-    pub audio_stream_handle: Option<rodio::Sink>,
     pub base_instance_mul: InstanceMul,
 
+    pub controls: Option<Controls>,
     pub cameras: Cameras,
 }
 
@@ -94,29 +92,32 @@ impl<'a> RealTimeState {
             device,
             queue,
             size,
-            clock: RenderClock::init(config),
             surface,
+
+            clock: RenderClock::init(config),
             canvas: Canvas::init(size),
-            mouse_pressed: false,
-            audio_stream_handle,
 
             controls,
+            mouse_pressed: false,
+
             base_instance_mul,
             cameras: Cameras {
                 current: crate::camera::Camera::new(&config.cameras[0], size),
                 configs: config.cameras.clone(),
                 index: 0,
             },
+
             composition: Composition {
                 renderables,
                 frames,
+                audio_stream_handle,
             },
         })
     }
 
     pub fn play(&mut self) {
         self.clock.play();
-        if let Some(a) = &self.audio_stream_handle {
+        if let Some(a) = &self.composition.audio_stream_handle {
             a.play()
         }
     }
@@ -124,7 +125,7 @@ impl<'a> RealTimeState {
     #[allow(dead_code)]
     pub fn pause(&mut self) {
         self.clock.pause();
-        if let Some(a) = &self.audio_stream_handle {
+        if let Some(a) = &self.composition.audio_stream_handle {
             a.pause()
         }
     }

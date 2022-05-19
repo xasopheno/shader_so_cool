@@ -1,4 +1,3 @@
-use crate::camera::CameraConfig;
 use crate::config::Config;
 use crate::error::KintaroError;
 use crate::print::PrintState;
@@ -7,7 +6,6 @@ use crate::realtime::RealTimeState;
 use crate::renderable::RenderableConfig;
 use colored::*;
 use cradle::prelude::*;
-use kintaro_egui_lib::InstanceMul;
 use rodio::OutputStream;
 use std::collections::HashMap;
 use std::io::Write;
@@ -33,7 +31,7 @@ pub struct Visual {
     pub name: String,
     /// length of seconds of composition
     pub length: f32,
-    /// audio data
+    /// visual data
     pub visual: Vec<Op4D>,
 }
 
@@ -82,7 +80,7 @@ pub fn sum_vec(a: &mut Vec<u8>, b: &[u8]) {
 
 pub fn run(filename: &str, config: Config<'static>) -> Result<(), KintaroError> {
     println!("preparing for audiovisualization: {}", &filename);
-    let mut av_map: VisualsMap = HashMap::new();
+    let mut visuals_map: VisualsMap = HashMap::new();
     let mut audios: Vec<Audio> = vec![];
 
     for c in config.frame_passes.iter().flat_map(|c| &c.renderables) {
@@ -91,7 +89,7 @@ pub fn run(filename: &str, config: Config<'static>) -> Result<(), KintaroError> 
 
             let (a, v) = split_audio_visual(result);
             audios.push(a);
-            av_map.insert(e.socool_path.to_string(), v);
+            visuals_map.insert(e.socool_path.to_string(), v);
         }
     }
 
@@ -122,7 +120,7 @@ pub fn run(filename: &str, config: Config<'static>) -> Result<(), KintaroError> 
             "\n\n\n:::::<<<<<*****PRINTING*****>>>>>:::::".magenta()
         );
 
-        let max_frames = match av_map.values().max_by_key(|v| v.length as usize) {
+        let max_frames = match visuals_map.values().max_by_key(|v| v.length as usize) {
             Some(mf) => mf.length as usize,
             None => 1000,
         };
@@ -131,7 +129,7 @@ pub fn run(filename: &str, config: Config<'static>) -> Result<(), KintaroError> 
 
         println!("{}", format!("Number Frames: {}", n_frames).green());
 
-        print(config, &av_map, n_frames)?;
+        print(config, &visuals_map, n_frames)?;
 
         if let Some(a) = audio {
             write_audio_to_file(
@@ -146,12 +144,7 @@ pub fn run(filename: &str, config: Config<'static>) -> Result<(), KintaroError> 
         }
     } else {
         println!("****REALTIME****");
-        realtime(
-            config,
-            av_map,
-            stream_handle,
-            // instance_mul, cameras
-        )?;
+        realtime(config, visuals_map, stream_handle)?;
     }
     Ok(())
 }
@@ -188,10 +181,8 @@ fn print(
 
 fn realtime(
     mut config: Config<'static>,
-    av_map: VisualsMap,
+    visuals_map: VisualsMap,
     stream_handles: Option<rodio::Sink>,
-    // instance_mul: InstanceMul,
-    // cameras: Vec<CameraConfig>,
 ) -> Result<(), KintaroError> {
     env_logger::init();
     let title = env!("CARGO_PKG_NAME");
@@ -216,7 +207,7 @@ fn realtime(
         &window,
         &mut config,
         Some(repaint_signal),
-        av_map,
+        visuals_map,
         stream_handles,
     )?;
 

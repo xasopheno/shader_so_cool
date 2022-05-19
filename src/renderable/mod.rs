@@ -159,7 +159,6 @@ pub struct EventStreamConfig<'a> {
     pub shader_path: &'a str,
     pub shape: Shape,
     pub instancer: Box<dyn Instancer>,
-    // pub instance_mul: InstanceMul,
 }
 
 #[derive(Clone)]

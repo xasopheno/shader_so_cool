@@ -54,6 +54,7 @@ impl PrintState {
             composition: Composition {
                 frames,
                 renderables,
+                audio_stream_handle: None,
             },
 
             instance_mul: config.instance_mul,
