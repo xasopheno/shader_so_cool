@@ -1,5 +1,56 @@
+use crate::application::{Audio, Visual, VisualsMap};
+use crate::config::FramePass;
 use crate::error::KintaroError;
+use crate::renderable::RenderableConfig;
+use std::collections::HashMap;
 use std::io::Write;
+use weresocool::{
+    error::Error,
+    generation::parsed_to_render::AudioVisual,
+    generation::{RenderReturn, RenderType},
+    interpretable::{InputType, Interpretable},
+};
+
+pub fn audios_and_visuals_from_frame_passes(
+    frame_passes: &Vec<FramePass>,
+) -> Result<(Vec<Audio>, VisualsMap), Error> {
+    let mut visuals_map: VisualsMap = HashMap::new();
+    let mut audios: Vec<Audio> = vec![];
+
+    for c in frame_passes.iter().flat_map(|c| &c.renderables) {
+        if let RenderableConfig::EventStreams(e) = c {
+            let result = get_audiovisual_data(&e.socool_path)?;
+
+            let (a, v) = split_audio_visual(result);
+            audios.push(a);
+            visuals_map.insert(e.socool_path.to_string(), v);
+        }
+    }
+
+    Ok((audios, visuals_map))
+}
+
+/// Sum a Vec<Vec<u8> to a single Vec<u8>.
+fn split_audio_visual(av: AudioVisual) -> (Audio, Visual) {
+    (
+        av.audio,
+        Visual {
+            name: av.name.clone(),
+            length: av.length,
+            visual: av.visual,
+        },
+    )
+}
+
+fn get_audiovisual_data(filename: &str) -> Result<AudioVisual, Error> {
+    if let RenderReturn::AudioVisual(av) =
+        InputType::Filename(filename).make(RenderType::AudioVisual, None)?
+    {
+        Ok(av)
+    } else {
+        Err(Error::with_msg(format!("Error rendering {}", filename)))
+    }
+}
 
 pub fn write_audio_to_file(audio: &[u8], filename: std::path::PathBuf) -> Result<(), KintaroError> {
     let mut file = std::fs::File::create(filename.clone())?;
