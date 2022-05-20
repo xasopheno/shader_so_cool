@@ -13,7 +13,6 @@ impl Composition {
         queue: &wgpu::Queue,
         format: wgpu::TextureFormat,
         config: &Config<'static>,
-        size: (u32, u32),
     ) -> Result<Self, KintaroError> {
         let (audios, visuals_map) = audios_and_visuals_from_frame_passes(&config.frame_passes)?;
         let mut audio_stream: Option<OutputStream> = None;
@@ -28,13 +27,13 @@ impl Composition {
         let (renderables, frame_names) =
             make_renderable_enums(&device, &queue, format, &visuals_map, config);
 
-        let frames = make_frames(&device, size, format, frame_names)?;
+        let frames = make_frames(&device, config.window_size, format, frame_names)?;
 
         Ok(Composition {
             renderables,
             frames,
             audio_stream_handle,
-            audio_stream
+            audio_stream,
         })
     }
 }

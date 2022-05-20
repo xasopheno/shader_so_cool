@@ -4,29 +4,27 @@ pub mod render;
 mod resize;
 pub mod setup;
 
-use std::collections::HashMap;
-
-use crate::application::VisualsMap;
-use crate::camera::Cameras;
-use crate::composition::Composition;
-use crate::composition::RenderableEnums;
-use crate::error::KintaroError;
-use crate::frame::types::Frame;
-use crate::frame::types::Frames;
-use crate::frame::vertex::make_square_buffers;
-use crate::renderable::RenderableEnum;
-use crate::renderable::ToRenderable;
-use crate::surface::Surface;
-use kintaro_egui_lib::InstanceMul;
-use setup::Setup;
-
 use crate::{
+    application::VisualsMap,
+    camera::Cameras,
     canvas::Canvas,
     clock::{Clock, RenderClock},
+    composition::Composition,
+    composition::RenderableEnums,
     config::Config,
+    error::KintaroError,
+    frame::types::Frame,
+    frame::types::Frames,
+    frame::vertex::make_square_buffers,
     realtime::gui::GuiRepaintSignal,
+    renderable::RenderableEnum,
+    renderable::ToRenderable,
+    surface::Surface,
 };
 use futures::executor::block_on;
+use kintaro_egui_lib::InstanceMul;
+use setup::Setup;
+use std::collections::HashMap;
 use winit::window::Window;
 
 use self::setup::Controls;
@@ -39,13 +37,12 @@ pub struct RealTimeState {
     pub canvas: Canvas,
     pub clock: RenderClock,
     pub mouse_pressed: bool,
-
-    pub composition: Option<Composition>,
-
     pub base_instance_mul: InstanceMul,
 
     pub controls: Option<Controls>,
     pub cameras: Cameras,
+
+    pub composition: Option<Composition>,
 }
 
 pub fn make_frames<'a>(
@@ -82,7 +79,7 @@ impl<'a> RealTimeState {
 
         let base_instance_mul = config.instance_mul;
 
-        let composition = Composition::init_realtime(&device, &queue, format, config, size)?;
+        let composition = Composition::init_realtime(&device, &queue, format, config)?;
 
         Ok(Self {
             device,
@@ -104,8 +101,20 @@ impl<'a> RealTimeState {
             },
 
             composition: Some(composition),
-            // composition: None,
         })
+    }
+
+    pub fn push_composition(&mut self, config: &Config<'static>) -> Result<(), KintaroError> {
+        self.pause();
+        self.composition = Some(Composition::init_realtime(
+            &self.device,
+            &self.queue,
+            wgpu::TextureFormat::Rgba8UnormSrgb,
+            config,
+        )?);
+        self.play();
+
+        Ok(())
     }
 
     pub fn play(&mut self) {
@@ -151,7 +160,7 @@ pub fn make_renderable_enums(
                             .to_renderable(
                                 &device,
                                 &queue,
-                                config,
+                                config.window_size,
                                 &av_map,
                                 format,
                                 frame_pass.output_frame.to_string(),

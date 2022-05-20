@@ -4,7 +4,7 @@ use crate::vertex::shape::ShapeGenResult;
 use crate::vertex::{create_index_buffer, create_vertex_buffer};
 use crate::Instancer;
 use crate::Shape;
-use crate::{config::Config, shared::RenderPassInput};
+use crate::shared::RenderPassInput;
 
 use super::OpStream;
 
@@ -12,7 +12,7 @@ pub fn make_renderpasses(
     device: &wgpu::Device,
     op_streams: Vec<OpStream>,
     shader: &wgpu::ShaderModule,
-    config: &Config,
+    window_size: (u32, u32),
     format: wgpu::TextureFormat,
     mut shape: Shape,
     instancer: Box<dyn Instancer>,
@@ -23,7 +23,7 @@ pub fn make_renderpasses(
             let ShapeGenResult { vertices, indices } = shape.gen(op_stream);
             shape.update();
             let (instances, instance_buffer) =
-                make_instances_and_instance_buffer(0, config.window_size, device);
+                make_instances_and_instance_buffer(0, window_size, device);
             let (uniforms, uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
                 crate::uniforms::RealtimeUniforms::new(device);
             let render_pipeline =

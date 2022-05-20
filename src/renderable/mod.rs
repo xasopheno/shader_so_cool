@@ -4,7 +4,7 @@ use kintaro_egui_lib::InstanceMul;
 use winit::event::{ElementState, VirtualKeyCode};
 
 use crate::{
-    application::VisualsMap, canvas::Canvas, clock::ClockResult, config::Config,
+    application::VisualsMap, canvas::Canvas, clock::ClockResult,
     error::KintaroError, frame::types::Frame, glyphy::Glyphy, image_renderer::ImageRenderer,
     op_stream::renderpasses::make_renderpasses, origami::Origami, sampler::types::Sampler,
     shader::make_shader, shared::RenderPassInput, toy::Toy, vertex::shape::Shape, Instancer,
@@ -34,7 +34,7 @@ pub trait ToRenderable {
         &self,
         device: &wgpu::Device,
         queue: &wgpu::Queue,
-        config: &Config,
+        window_size: (u32, u32),
         av_map: &VisualsMap,
         format: wgpu::TextureFormat,
         output_frame: String,
@@ -46,8 +46,8 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
         &self,
         device: &wgpu::Device,
         queue: &wgpu::Queue,
-        config: &Config,
-        av_map: &VisualsMap,
+        window_size: (u32, u32),
+        visuals_map: &VisualsMap,
         format: wgpu::TextureFormat,
         output_frame: String,
     ) -> Result<RenderableEnum, KintaroError> {
@@ -56,7 +56,7 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
                 let _shader = make_shader(device, sampler_config.shader_path)?;
                 let sampler = Sampler::new(
                     device,
-                    config.window_size,
+                    window_size,
                     format,
                     sampler_config.input_frame.to_string(),
                 )?;
@@ -69,7 +69,7 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
             }
             RenderableConfig::Toy(renderable_config) => {
                 let shader = make_shader(device, renderable_config.shader_path)?;
-                let toy = crate::toy::setup_toy(device, shader, config.window_size, format);
+                let toy = crate::toy::setup_toy(device, shader, window_size, format);
                 Ok(RenderableEnum::Toy(output_frame, toy))
             }
             RenderableConfig::Glyphy(renderable_config) => {
@@ -89,7 +89,7 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
                 Ok(RenderableEnum::ImageRenderer(output_frame, image_renderer))
             }
             RenderableConfig::EventStreams(renderable_config) => {
-                let associated_av = av_map
+                let associated_av = visuals_map
                     .get(&renderable_config.socool_path)
                     .expect("No associated av in AvMap");
                 let shader = make_shader(device, renderable_config.shader_path)?;
@@ -99,7 +99,7 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
                     device,
                     op_streams,
                     &shader,
-                    config,
+                    window_size,
                     format,
                     renderable_config.shape.to_owned(),
                     renderable_config.instancer.to_owned(),
