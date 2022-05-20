@@ -7,3 +7,5 @@ dev:
 watch:
   cargo watch
 
+run: 
+  cargo run --release

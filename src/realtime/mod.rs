@@ -40,7 +40,7 @@ pub struct RealTimeState {
     pub clock: RenderClock,
     pub mouse_pressed: bool,
 
-    pub composition: Composition,
+    pub composition: Option<Composition>,
 
     pub base_instance_mul: InstanceMul,
 
@@ -103,22 +103,27 @@ impl<'a> RealTimeState {
                 index: 0,
             },
 
-            composition,
+            composition: Some(composition),
+            // composition: None,
         })
     }
 
     pub fn play(&mut self) {
         self.clock.play();
-        if let Some(a) = &self.composition.audio_stream_handle {
-            a.play()
+        if let Some(ref mut composition) = self.composition {
+            if let Some(a) = &composition.audio_stream_handle {
+                a.play()
+            }
         }
     }
 
     #[allow(dead_code)]
     pub fn pause(&mut self) {
         self.clock.pause();
-        if let Some(a) = &self.composition.audio_stream_handle {
-            a.pause()
+        if let Some(ref mut composition) = self.composition {
+            if let Some(a) = &composition.audio_stream_handle {
+                a.pause()
+            }
         }
     }
 }

@@ -13,8 +13,9 @@ impl RealTimeState {
             ..
         } = event
         {
-            self.composition
-                .handle_keyboard_input(*key, *state, &mut self.cameras)
+            if let Some(ref mut composition) = self.composition {
+                composition.handle_keyboard_input(*key, *state, &mut self.cameras)
+            }
         };
     }
 

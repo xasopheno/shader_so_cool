@@ -20,34 +20,29 @@ impl RealTimeState {
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
 
+        if let Some(ref mut composition) = self.composition {
+            let instance_mul = if let Some(ref controls) = self.controls {
+                controls.state.lock().unwrap().instance_mul
+            } else {
+                self.base_instance_mul
+            };
 
-        if let Some(controls) = &self.controls {
-            self.composition.render(
+            composition.render(
                 &self.device,
                 &self.queue,
                 self.size,
                 &self.clock,
-                controls.state.lock().unwrap().instance_mul,
+                instance_mul,
                 &self.canvas,
                 &mut self.cameras,
             )?;
-        } else {
-            self.composition.render(
-                &self.device,
-                &self.queue,
-                self.size,
-                &self.clock,
-                self.base_instance_mul,
-                &self.canvas,
-                &mut self.cameras,
-            )?;
+
+            self.surface.render(
+                &mut surface_encoder,
+                &composition.frames.get("main").unwrap(),
+                &surface_texture_view,
+            );
         }
-
-        self.surface.render(
-            &mut surface_encoder,
-            &self.composition.frames.get("main").unwrap(),
-            &surface_texture_view,
-        );
 
         self.queue.submit(std::iter::once(surface_encoder.finish()));
         self.render_gui(window, &surface_texture_view);
