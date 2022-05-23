@@ -70,12 +70,12 @@ fn fs_main(
 //);
 //
 
-//   return vec4<f32>(
-//       sin(4.0/uv.x * 5.0/uv.y) * 0.15, 
-//       sin(4.0/uv.x * 5.0/uv.y) * 0.15, 
-//       sin(4.0/uv.x * 5.0/uv.y) * 0.15, 
-//       1.0
-//   );
+   return vec4<f32>(
+       sin(5.0/uv.x * 5.0/uv.y) * 0.03, 
+       sin(5.0/uv.x * 5.0/uv.y) * 0.03, 
+       sin(5.0/uv.x * 5.0/uv.y) * 0.03, 
+       1.0
+   );
 
 //   return vec4<f32>(
 //       sin(uv.y * uv.x) * 0.04, 
@@ -84,7 +84,7 @@ fn fs_main(
 //       1.0
 //   );
    // } else {
-       return vec4<f32>(0.0, 0.0, 0.0, 1.0);
+//       return vec4<f32>(0.0, 0.0, 0.0, 1.0);
   //  }
 }
 

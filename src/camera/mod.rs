@@ -188,39 +188,38 @@ impl CameraController {
             0.0
         };
         match key {
-            VirtualKeyCode::W | VirtualKeyCode::Up => {
-                self.amount_forward = amount;
-                true
-            }
-            VirtualKeyCode::S | VirtualKeyCode::Down => {
-                self.amount_backward = amount;
-                true
-            }
-            VirtualKeyCode::A | VirtualKeyCode::Left => {
-                self.amount_left = amount;
-                true
-            }
-            VirtualKeyCode::D | VirtualKeyCode::Right => {
-                self.amount_right = amount;
-                true
-            }
-            VirtualKeyCode::K => {
-                self.amount_up = amount;
-                true
-            }
-            VirtualKeyCode::J => {
-                self.amount_down = amount;
-                true
-            }
-            VirtualKeyCode::H => {
-                self.rotate_horizontal = -amount * 2.0;
-                true
-            }
-            VirtualKeyCode::L => {
-                self.rotate_horizontal = amount * 2.0;
-                true
-            }
-
+            // VirtualKeyCode::W | VirtualKeyCode::Up => {
+            // self.amount_forward = amount;
+            // true
+            // }
+            // VirtualKeyCode::S | VirtualKeyCode::Down => {
+            // self.amount_backward = amount;
+            // true
+            // }
+            // VirtualKeyCode::A | VirtualKeyCode::Left => {
+            // self.amount_left = amount;
+            // true
+            // }
+            // VirtualKeyCode::D | VirtualKeyCode::Right => {
+            // self.amount_right = amount;
+            // true
+            // }
+            // VirtualKeyCode::K => {
+            // self.amount_up = amount;
+            // true
+            // }
+            // VirtualKeyCode::J => {
+            // self.amount_down = amount;
+            // true
+            // }
+            // VirtualKeyCode::H => {
+            // self.rotate_horizontal = -amount * 2.0;
+            // true
+            // }
+            // VirtualKeyCode::L => {
+            // self.rotate_horizontal = amount * 2.0;
+            // true
+            // }
             _ => false,
         }
     }
