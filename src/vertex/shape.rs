@@ -21,6 +21,9 @@ pub struct Shape {
 }
 
 #[derive(Copy, Clone, Debug)]
+pub struct RandCircumference;
+
+#[derive(Copy, Clone, Debug)]
 pub struct RandPosition;
 #[derive(Copy, Clone, Debug)]
 pub struct RandIndex;
@@ -56,6 +59,18 @@ impl GenPosition for RandPosition {
             y: r(),
             z: r(),
         }
+    }
+}
+
+impl GenPosition for RandCircumference {
+    fn gen(&self) -> Position {
+        let mut rng = rand::thread_rng();
+        let mut r = || rng.gen::<f32>() * 2.0 - 1.0;
+        let v = r() * 10.0;
+        let x = f32::cos(v) * 10.0;
+        let y = f32::sin(v) * 10.0;
+
+        Position { x, y, z: 0.0 }
     }
 }
 

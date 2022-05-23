@@ -40,8 +40,10 @@ pub struct SimpleInstancer {}
 impl Instancer for SimpleInstancer {
     fn update_instance(&self, instance: &mut Instance, dt: f32) {
         instance.life -= dt * 0.1;
-        instance.position.x += 800.0 * (2.0 - instance.life) * f32::signum(instance.position.x);
-        // instance.position.y += f32::sin(3.0 * (2.0 - instance.life));
+        instance.position.y += 10.0 * (2.0 - instance.life);
+        instance.position.z -= 800.0 * (2.0 - instance.life);
+        instance.position.x -= 8.0 * (2.0 - instance.life) * f32::signum(instance.position.x);
+        // instance.positikn.y += f32::sin(3.0 * (2.0 - instance.life));
         // instance.position.y += f32::sin(3.0 * (2.0 - instance.life));
         // instance.position.y += 700.0 * (2.0 - instance.life) * f32::signum(instance.position.y);
         // instance.position.y += f32::sin(

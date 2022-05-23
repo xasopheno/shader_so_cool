@@ -25,6 +25,7 @@ use futures::executor::block_on;
 use kintaro_egui_lib::InstanceMul;
 use setup::Setup;
 use std::collections::HashMap;
+use std::sync::mpsc::{Receiver, Sender};
 use winit::window::Window;
 
 use self::setup::Controls;
@@ -43,6 +44,27 @@ pub struct RealTimeState {
     pub cameras: Cameras,
 
     pub composition: Option<Composition>,
+    pub watcher: Option<Watcher>,
+}
+pub struct Watcher {
+    pub receiver: Receiver<bool>,
+    pub kill_switch: Sender<bool>,
+}
+
+impl Watcher {
+    pub fn init(dir: &'static str) -> Result<Self, notify::Error> {
+        let (receiver, kill_switch) = crate::watch::watch(dir)?;
+        Ok(Self {
+            receiver,
+            kill_switch,
+        })
+    }
+
+    pub fn kill_current(&mut self) {
+        self.kill_switch.send(true).expect(
+            "oh no. couldn't kill watcher. memory officially leaked. ahhhh. run... ahhh...",
+        );
+    }
 }
 
 pub fn make_frames<'a>(
@@ -81,13 +103,15 @@ impl<'a> RealTimeState {
 
         let composition = Composition::init_realtime(&device, &queue, format, config)?;
 
+        let watcher = Watcher::init("./kintaro3.socool").unwrap();
+
         Ok(Self {
             device,
             queue,
             size,
             surface,
 
-            clock: RenderClock::init(config),
+            clock: RenderClock::init(),
             canvas: Canvas::init(size),
 
             controls,
@@ -101,7 +125,26 @@ impl<'a> RealTimeState {
             },
 
             composition: Some(composition),
+            // watcher: None,
+            watcher: Some(watcher),
         })
+    }
+
+    pub fn listen_for_new(&mut self, config: &Config<'static>) -> Result<(), KintaroError> {
+        if let Some(ref mut watcher) = self.watcher {
+            if let Ok(true) = watcher.receiver.try_recv() {
+                self.push_composition(config)?;
+                if let Some(ref mut watcher) = self.watcher {
+                    watcher.kill_current();
+                    let watcher = Watcher::init("./kintaro3.socool").unwrap();
+                    self.watcher = Some(watcher);
+                    self.clock.reset();
+                    self.clock.play();
+                }
+            }
+        }
+
+        Ok(())
     }
 
     pub fn push_composition(&mut self, config: &Config<'static>) -> Result<(), KintaroError> {

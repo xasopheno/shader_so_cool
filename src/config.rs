@@ -9,7 +9,7 @@ use crate::renderable::{
     SamplerConfig, ToyConfig,
 };
 use crate::save::ConfigState;
-use crate::vertex::shape::{RandIndex, RandPosition, Shape};
+use crate::vertex::shape::{RandCircumference, RandIndex, RandPosition, Shape};
 #[allow(unused_imports)]
 use crate::{color_map_from_named_colorsets, ColorMap, ColorSets};
 
@@ -51,11 +51,10 @@ fn frame_passes() -> Vec<FramePass> {
                     shader_path: "./src/shader.wgsl",
                     instancer: Box::new(SimpleInstancer {}),
                     shape: Shape {
-                        n_vertices: 50,
-                        n_indices: 50,
-                        position: Box::new(RandPosition),
+                        n_vertices: 200,
+                        n_indices: 200,
+                        position: Box::new(RandCircumference),
                         color: Box::new(color_map()),
-
                         indices: Box::new(RandIndex),
                     },
                 }),

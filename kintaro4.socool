@@ -1,0 +1,129 @@
+{ f: 311.127, l: 1, g: 1, p: 0 }
+
+repeat = {
+    -- Repeat 2
+    -- Seq [AsIs, Overlay [Fm 1, Fa -4 | Gm 1/2]]
+    Seq [#c | Fm 1, #e | Fm 1] 
+}
+    
+thing1 = {
+    O[
+        (4, 0, 1/20, 1/4),
+        (4, -4, 1/15, 1/4),
+        (2, 0, 1/3, 1/2),
+        (2, -7, 1/4, 1/2),
+        (1, 0, 7/10, -1),
+        (1, 0, 1, 1),
+    ]
+    | Seq [
+        Seq [Fm 1, Fm 2, Fm 3, Fm 4]
+        | Seq [AsIs | Pa 1/2, Reverse | Pa -1/2]
+        | repeat,
+        Seq [Fm 1, Fm 9/4, Fm 15/8, Fm 5/2]
+        | Seq [AsIs | Pa 1/2, Reverse | Pa -1/2]
+        | repeat,
+        Seq [Fm 1, Fm 7/4, Fm 25/12, Fm 5/2, Fm 3/2, Fm 10/3]
+        | Seq [AsIs | Pa 2/3, Reverse | Pa -2/3]
+        | repeat,
+        Seq [Fm 1, Fm 4/3, Fm 5/3, Fm 8/3, Fm 3/1, Fm 3/4]
+        | Seq [AsIs | Pa 1, Reverse | Pa -1]
+        | repeat,
+        Seq [Fm 1, Fm 8/5, Fm 5/2, Fm 3, Fm 10/3, Fm 4, Fm 5, Fm 6 | Lm 3]
+        -- | Overlay [AsIs, Fa -7 | Gm 1/2, Fm 3/4 | Gm 1/4]]
+        | Seq [AsIs | Pa 1/2, Reverse | Pa -1/2]
+        | repeat,
+        Seq [Fm 5/6, Fm 15/16]
+        | Seq [AsIs | Pa 1/3, Reverse | Pa -1/3]
+        | Seq [
+          Overlay [
+            #a | Fm 3 | *(
+              f: 0|31 [1]
+            ) Take 26 | Gm 3/4,
+            #c | Fm 2 | Repeat 23 | Gm 3/4, 
+            #b | *(
+              f: 0|31 [-1]
+            ) Take 25
+          ]
+        ],
+        #b | Seq [Fm 1, Fm 2, Fm 3, Fm 4],
+        Seq [Fm 4, Fm 3, Fm 2, Fm 1, Fm 3/4, Fm 1/2]
+        | Seq [#a | AsIs | Pa 1/2, #b | Reverse | Pa -1/2]
+        | repeat,
+        Seq [Fm 3, Fm 9/2, Fm 2, Fm 1, Fm 3/4, Fm 1/2]
+        | Seq [#a | AsIs | Pa 1/2, #b | Reverse | Pa -1/2]
+        | repeat,
+        Seq [Fm 5, Fm 4, Fm 3, Fm 1, Fm 3/4, Fm 1/2]
+        | Seq [#a | AsIs | Pa 1/2, #b | Reverse | Pa -1/2]
+        | repeat,
+        Seq [
+            Fm 5, Fm 4, Fm 3, Fm 1, Fm 3/4, Fm 1/2, 
+            Fm 1, Fm 7/6, Fm 3/2, Fm 2, Fm 7/3, Fm 3, Fm 4,
+        ]
+        | Seq [#a | Pa -1, #b | Pa 1]
+        | repeat,
+        Seq [
+            Fm 4, Fm 3, Fm 1, Fm 1/2, Fm 3/4, Fm 2, 
+            Fm 9/4, Fm 5/2, Fm 3, Fm 10/4, Fm 15/4,
+        ]
+        | Seq [#a | Pa -1, #b | Pa 1]
+        | Seq [Fa 0, Fa 4, Fa 8, Fa 12, Fa 16, Fa -16]
+    ]
+    | Fm 1/2
+    | Lm 1/8
+    | Overlay [Sine, Square 0.1 | Gm 1/60]
+}
+
+thing2 = {
+    #d | 
+    Seq [
+        O[
+            (3, -4, 1, -1/2),
+            (3, 0, 1, 1/2),
+            (5/2, 2, 1, -1/3),
+            (9/4, 0, 1, 1/3),
+            (5/3, 0, 1, 1),
+            (3/2, 2, 1, -1),
+            (1, 2, 1, -1),
+            (1, 0, 1, 1),
+            (3/4, 2, 1, -1),
+            (3/4, 0, 1, 1),
+            (1/2, 2, 1, 1),
+            (1/2, 0, 1, -1),
+            (1/4, 1, 1, 1),
+            (1/4, 0, 1, -1),
+        ],
+        O[
+            (3, -3, 1, -1/2),
+            (3, 0, 1, 1/2),
+            (5/2, 7, 1, -1/3),
+            (9/4, 0, 1, 1/3),
+            (5/3, 0, 1, 1),
+            (3/2, -3, 1, -1),
+            (1, 4, 1, -1),
+            (1, 0, 1, 1),
+            (3/4, 1, 1, -1),
+            (3/4, 0, 1, 1),
+            (1/2, 4, 1, 1),
+            (1/2, 0, 1, -1),
+            (1/4, 3, 1, 1),
+            (1/4, 0, 1, -1),
+        ],
+    ]
+    | Gm 1/2
+    | FitLength thing1
+    | Overlay [Sine, Square 0.1 | Gm 1/80, Sine 2.0 | Gm 1/70 | Pm -1]
+}
+
+main = {
+    Seq [
+        Overlay [
+            thing1,
+            thing2 | Gm 4/8
+        ]
+    ]
+    | Lm 3/4
+    | Seq [Pm 1, Pm -1]
+    | Lm 9/8
+    -- | Seq [Lm 1, Lm 9/8, Lm 7/8]
+    | Gm 1/4
+}

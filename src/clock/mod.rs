@@ -9,11 +9,12 @@ pub struct ClockResult {
 }
 
 pub trait Clock {
-    fn init(config: &Config) -> Self;
+    fn init() -> Self;
     fn update(&mut self);
     fn current(&self) -> ClockResult;
     fn play(&mut self);
     fn pause(&mut self);
+    fn reset(&mut self);
     fn set_playing(&mut self, play: bool);
     fn is_playing(&self) -> bool;
 }
@@ -34,7 +35,7 @@ pub struct RenderClock {
 }
 
 impl Clock for RenderClock {
-    fn init(_config: &Config) -> Self {
+    fn init() -> Self {
         Self {
             total_elapsed: std::time::Duration::ZERO,
             last_render_time: std::time::Instant::now(),
@@ -43,6 +44,11 @@ impl Clock for RenderClock {
             playing: false,
         }
     }
+
+    fn reset(&mut self) {
+        *self = Self::init();
+    }
+
     fn update(&mut self) {
         let now = std::time::Instant::now();
         let dt = now - self.last_render_time;
@@ -81,7 +87,7 @@ impl Clock for RenderClock {
 }
 
 impl Clock for PrintClock {
-    fn init(_config: &Config) -> Self {
+    fn init() -> Self {
         Self {
             rate: std::time::Duration::from_millis(25),
             time_elapsed: std::time::Duration::ZERO,
@@ -89,6 +95,7 @@ impl Clock for PrintClock {
             playing: true,
         }
     }
+
     fn update(&mut self) {
         self.time_elapsed += self.rate;
         self.frame_count += 1;
@@ -112,6 +119,10 @@ impl Clock for PrintClock {
 
     fn pause(&mut self) {
         self.playing = false;
+    }
+
+    fn reset(&mut self) {
+        *self = Self::init();
     }
 
     fn is_playing(&self) -> bool {

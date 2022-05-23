@@ -42,7 +42,7 @@ impl PrintState {
             device,
             queue,
             size,
-            clock: PrintClock::init(config),
+            clock: PrintClock::init(),
             canvas: Canvas::init(size),
             count: 0,
             cameras: Cameras {

@@ -4,9 +4,7 @@ use crate::realtime::gui::GuiRepaintSignal;
 use crate::realtime::RealTimeState;
 use winit::{dpi::PhysicalSize, event::*, event_loop::ControlFlow, window::WindowBuilder};
 
-pub fn realtime(
-    mut config: Config<'static>,
-) -> Result<(), KintaroError> {
+pub fn realtime(mut config: Config<'static>) -> Result<(), KintaroError> {
     env_logger::init();
     let title = env!("CARGO_PKG_NAME");
     let event_loop = winit::event_loop::EventLoop::with_user_event();
@@ -24,11 +22,7 @@ pub fn realtime(
         event_loop.create_proxy(),
     )));
 
-    let mut state = RealTimeState::init(
-        &window,
-        &mut config,
-        Some(repaint_signal),
-    )?;
+    let mut state = RealTimeState::init(&window, &mut config, Some(repaint_signal))?;
 
     state.play();
 
@@ -37,6 +31,7 @@ pub fn realtime(
         if let Some(ref mut controls) = state.controls {
             controls.platform.handle_event(&event);
         }
+        state.listen_for_new(&config).unwrap();
         match event {
             Event::MainEventsCleared => window.request_redraw(),
             Event::DeviceEvent { ref event, .. } => {
