@@ -152,12 +152,7 @@ impl<'a> RealTimeState {
                 .map(|watcher| watcher.receiver.try_recv().is_ok())
                 .any(|v| v)
             {
-                if let Some(ref mut watchers) = self.watchers {
-                    watchers.kill_all();
-                    self.push_composition(config)?;
-                    self.clock.reset();
-                    self.clock.play();
-                }
+                self.push_composition(config)?;
             }
         }
 
@@ -173,8 +168,13 @@ impl<'a> RealTimeState {
             config,
         )?;
         self.composition = Some(composition);
+        if let Some(ref mut watchers) = self.watchers {
+            watchers.kill_all();
+        }
         self.watchers = Some(watchers);
         self.play();
+        self.clock.reset();
+        self.clock.play();
 
         Ok(())
     }
@@ -205,7 +205,7 @@ pub fn make_renderable_enums(
     format: wgpu::TextureFormat,
     av_map: &VisualsMap,
     config: &Config<'static>,
-) -> (RenderableEnums, Vec<&'static str>) {
+) -> Result<(RenderableEnums, Vec<&'static str>), KintaroError> {
     let mut frame_names = vec![];
     let renderables = RenderableEnums(
         config
@@ -218,21 +218,21 @@ pub fn make_renderable_enums(
                     .renderables
                     .iter()
                     .map(|renderable_config| {
-                        renderable_config
-                            .to_renderable(
-                                &device,
-                                &queue,
-                                config.window_size,
-                                &av_map,
-                                format,
-                                frame_pass.output_frame.to_string(),
-                            )
-                            .unwrap()
+                        renderable_config.to_renderable(
+                            &device,
+                            &queue,
+                            config.window_size,
+                            &av_map,
+                            format,
+                            frame_pass.output_frame.to_string(),
+                        )
                     })
-                    .collect::<Vec<RenderableEnum>>()
+                    .collect::<Result<Vec<_>, _>>()
             })
-            .collect(),
+            .into_iter()
+            .flatten()
+            .collect::<Vec<RenderableEnum>>(),
     );
 
-    (renderables, frame_names)
+    Ok((renderables, frame_names))
 }

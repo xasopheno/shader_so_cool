@@ -27,7 +27,7 @@ impl Composition {
         }
 
         let (renderables, frame_names) =
-            make_renderable_enums(&device, &queue, format, &visuals_map, config);
+            make_renderable_enums(&device, &queue, format, &visuals_map, config)?;
 
         let frames = make_frames(&device, config.window_size, format, frame_names)?;
 

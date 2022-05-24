@@ -31,7 +31,10 @@ pub fn realtime(mut config: Config<'static>) -> Result<(), KintaroError> {
         if let Some(ref mut controls) = state.controls {
             controls.platform.handle_event(&event);
         }
-        state.listen_for_new(&config).unwrap();
+        match state.listen_for_new(&config) {
+            _ => {}
+        }
+
         match event {
             Event::MainEventsCleared => window.request_redraw(),
             Event::DeviceEvent { ref event, .. } => {
