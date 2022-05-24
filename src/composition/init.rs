@@ -4,6 +4,8 @@ use crate::application::utils::sum_all_waveforms;
 use crate::error::KintaroError;
 use crate::realtime::make_frames;
 use crate::realtime::make_renderable_enums;
+use crate::realtime::Watchers;
+use crate::renderable::ToRenderable;
 use crate::Config;
 use rodio::OutputStream;
 
@@ -13,7 +15,7 @@ impl Composition {
         queue: &wgpu::Queue,
         format: wgpu::TextureFormat,
         config: &Config<'static>,
-    ) -> Result<Self, KintaroError> {
+    ) -> Result<(Self, Watchers), KintaroError> {
         let (audios, visuals_map) = audios_and_visuals_from_frame_passes(&config.frame_passes)?;
         let mut audio_stream: Option<OutputStream> = None;
         let mut audio_stream_handle: Option<rodio::Sink> = None;
@@ -29,11 +31,30 @@ impl Composition {
 
         let frames = make_frames(&device, config.window_size, format, frame_names)?;
 
-        Ok(Composition {
-            renderables,
-            frames,
-            audio_stream_handle,
-            audio_stream,
-        })
+        let watchable_paths: Vec<String> = config
+            .frame_passes
+            .iter()
+            .map(|frame_pass| {
+                frame_pass
+                    .renderables
+                    .iter()
+                    .map(|r| r.watchable_paths())
+                    .flatten()
+                    .collect::<Vec<String>>()
+            })
+            .flatten()
+            .collect();
+
+        let watchers = Watchers::init(watchable_paths)?;
+
+        Ok((
+            Composition {
+                renderables,
+                frames,
+                audio_stream_handle,
+                audio_stream,
+            },
+            watchers,
+        ))
     }
 }

@@ -4,8 +4,8 @@ use kintaro_egui_lib::InstanceMul;
 use winit::event::{ElementState, VirtualKeyCode};
 
 use crate::{
-    application::VisualsMap, canvas::Canvas, clock::ClockResult,
-    error::KintaroError, frame::types::Frame, glyphy::Glyphy, image_renderer::ImageRenderer,
+    application::VisualsMap, canvas::Canvas, clock::ClockResult, error::KintaroError,
+    frame::types::Frame, glyphy::Glyphy, image_renderer::ImageRenderer,
     op_stream::renderpasses::make_renderpasses, origami::Origami, sampler::types::Sampler,
     shader::make_shader, shared::RenderPassInput, toy::Toy, vertex::shape::Shape, Instancer,
 };
@@ -39,6 +39,7 @@ pub trait ToRenderable {
         format: wgpu::TextureFormat,
         output_frame: String,
     ) -> Result<RenderableEnum, KintaroError>;
+    fn watchable_paths(&self) -> Vec<String>;
 }
 
 impl<'a> ToRenderable for RenderableConfig<'a> {
@@ -106,6 +107,19 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
                 );
 
                 Ok(RenderableEnum::EventStreams(output_frame, renderpasses))
+            }
+        }
+    }
+    fn watchable_paths(&self) -> Vec<String> {
+        match self {
+            RenderableConfig::Toy(config) => {
+                vec![config.shader_path.to_string()]
+            }
+            RenderableConfig::EventStreams(config) => {
+                vec![config.shader_path.to_string(), config.socool_path.clone()]
+            }
+            _ => {
+                vec![]
             }
         }
     }

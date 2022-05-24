@@ -5,14 +5,14 @@ use notify::{
 use std::path::Path;
 use std::sync::mpsc::{channel, Receiver, Sender};
 
-pub fn watch(dir: &'static str) -> Result<(Receiver<bool>, Sender<bool>), notify::Error> {
+pub fn watch(dir: String) -> Result<(Receiver<bool>, Sender<bool>), notify::Error> {
     let (tx, rx) = channel();
     let (output_tx, output_rx) = channel();
     let (kill_tx, kill_rx) = channel();
-    let path = Path::new(dir);
     let mut socool_watcher = RecommendedWatcher::new(tx).unwrap();
 
     std::thread::spawn(move || -> Result<(), notify::Error> {
+        let path = Path::new(&dir);
         socool_watcher
             .watch(path.as_ref(), RecursiveMode::Recursive)
             .unwrap();
