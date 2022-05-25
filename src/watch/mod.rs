@@ -20,7 +20,6 @@ pub fn watch(dir: String) -> Result<(Receiver<bool>, Sender<bool>), notify::Erro
         loop {
             {
                 if let Ok(true) = kill_rx.try_recv() {
-                    println!("killed watcher");
                     break;
                 }
                 if let Ok(event) = rx.try_recv() {

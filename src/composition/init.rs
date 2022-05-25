@@ -46,6 +46,7 @@ impl Composition {
             .collect();
 
         let watchers = Watchers::init(watchable_paths)?;
+        println!("Created {} watchers", watchers.len());
 
         Ok((
             Composition {

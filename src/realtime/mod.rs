@@ -62,8 +62,14 @@ impl Watchers {
         Ok(Watchers(watchers))
     }
 
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
     pub fn kill_all(&mut self) {
+        let n = self.len();
         self.0.iter_mut().for_each(|watcher| watcher.kill_current());
+        println!("killed {n} watchers")
     }
 }
 
