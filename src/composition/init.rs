@@ -4,7 +4,7 @@ use crate::application::utils::sum_all_waveforms;
 use crate::error::KintaroError;
 use crate::realtime::make_frames;
 use crate::realtime::make_renderable_enums;
-use crate::realtime::Watchers;
+use crate::realtime::Watcher;
 use crate::renderable::ToRenderable;
 use crate::Config;
 use rodio::OutputStream;
@@ -15,7 +15,7 @@ impl Composition {
         queue: &wgpu::Queue,
         format: wgpu::TextureFormat,
         config: &Config<'static>,
-    ) -> Result<(Self, Watchers), KintaroError> {
+    ) -> Result<(Self, Watcher), KintaroError> {
         let (audios, visuals_map) = audios_and_visuals_from_frame_passes(&config.frame_passes)?;
         let mut audio_stream: Option<OutputStream> = None;
         let mut audio_stream_handle: Option<rodio::Sink> = None;
@@ -45,8 +45,8 @@ impl Composition {
             .flatten()
             .collect();
 
-        let watchers = Watchers::init(watchable_paths)?;
-        println!("Created {} watchers", watchers.len());
+        let watchers = Watcher::init(watchable_paths.clone())?;
+        println!("Created {} watchers", watchable_paths.len());
 
         Ok((
             Composition {

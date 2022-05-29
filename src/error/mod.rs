@@ -2,6 +2,8 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum KintaroError {
+    #[error("Notify Error")]
+    NotifyError(#[from] notify::Error),
     #[error("Anyhow Error")]
     AnyhowError(#[from] anyhow::Error),
     #[error("Image Error")]

@@ -44,48 +44,16 @@ pub struct RealTimeState {
     pub cameras: Cameras,
 
     pub composition: Option<Composition>,
-    pub watchers: Option<Watchers>,
+    pub watchers: Option<Watcher>,
 }
 pub struct Watcher {
     pub receiver: Receiver<bool>,
-    pub kill_switch: Sender<bool>,
-}
-
-pub struct Watchers(Vec<Watcher>);
-
-impl Watchers {
-    pub fn init(paths: Vec<String>) -> Result<Self, KintaroError> {
-        let watchers = paths
-            .iter()
-            .map(|p| Watcher::init(p.to_string()).unwrap())
-            .collect();
-        Ok(Watchers(watchers))
-    }
-
-    pub fn len(&self) -> usize {
-        self.0.len()
-    }
-
-    pub fn kill_all(&mut self) {
-        let n = self.len();
-        self.0.iter_mut().for_each(|watcher| watcher.kill_current());
-        println!("killed {n} watchers")
-    }
 }
 
 impl Watcher {
-    pub fn init(path: String) -> Result<Self, notify::Error> {
-        let (receiver, kill_switch) = crate::watch::watch(path)?;
-        Ok(Self {
-            receiver,
-            kill_switch,
-        })
-    }
-
-    pub fn kill_current(&mut self) {
-        self.kill_switch.send(true).expect(
-            "oh no. couldn't kill watcher. memory officially leaked. ahhhh. run... ahhh...",
-        );
+    pub fn init(paths: Vec<String>) -> Result<Self, notify::Error> {
+        let receiver = crate::watch::watch(paths)?;
+        Ok(Self { receiver })
     }
 }
 
@@ -145,19 +113,13 @@ impl<'a> RealTimeState {
             },
 
             composition: Some(composition),
-            // watchers: None,
             watchers: Some(watchers),
         })
     }
 
     pub fn listen_for_new(&mut self, config: &Config<'static>) -> Result<(), KintaroError> {
         if let Some(ref mut watchers) = self.watchers {
-            if watchers
-                .0
-                .iter()
-                .map(|watcher| watcher.receiver.try_recv().is_ok())
-                .any(|v| v)
-            {
+            if watchers.receiver.try_recv().is_ok() {
                 self.push_composition(config)?;
             }
         }
@@ -167,17 +129,13 @@ impl<'a> RealTimeState {
 
     pub fn push_composition(&mut self, config: &Config<'static>) -> Result<(), KintaroError> {
         self.pause();
-        let (composition, watchers) = Composition::init_realtime(
+        let (composition, _) = Composition::init_realtime(
             &self.device,
             &self.queue,
             wgpu::TextureFormat::Rgba8UnormSrgb,
             config,
         )?;
         self.composition = Some(composition);
-        if let Some(ref mut watchers) = self.watchers {
-            watchers.kill_all();
-        }
-        self.watchers = Some(watchers);
         self.play();
         self.clock.reset();
         self.clock.play();
