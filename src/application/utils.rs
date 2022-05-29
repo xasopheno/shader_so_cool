@@ -19,7 +19,7 @@ pub fn audios_and_visuals_from_frame_passes(
 
     for c in frame_passes.iter().flat_map(|c| &c.renderables) {
         if let RenderableConfig::EventStreams(e) = c {
-            let result = get_audiovisual_data(&e.socool_path)?;
+            let result = get_audiovisual_data(&e.socool_path, e.render_audio)?;
 
             let (a, v) = split_audio_visual(result);
             audios.push(a);
@@ -42,15 +42,20 @@ fn split_audio_visual(av: AudioVisual) -> (Audio, Visual) {
     )
 }
 
-fn get_audiovisual_data(filename: &str) -> Result<AudioVisual, Error> {
-    if let RenderReturn::AudioVisual(av) =
-        InputType::Filename(filename).make(RenderType::AudioVisual, None)?
-    {
+fn get_audiovisual_data(filename: &str, render_audio: bool) -> Result<AudioVisual, Error> {
+    let render_type = if render_audio {
+        RenderType::AudioVisual
+    } else {
+        RenderType::Visual
+    };
+
+    if let RenderReturn::AudioVisual(av) = InputType::Filename(filename).make(render_type, None)? {
         Ok(av)
     } else {
         Err(Error::with_msg(format!("Error rendering {}", filename)))
     }
-}
+
+
 
 pub fn write_audio_to_file(audio: &[u8], filename: std::path::PathBuf) -> Result<(), KintaroError> {
     let mut file = std::fs::File::create(filename.clone())?;

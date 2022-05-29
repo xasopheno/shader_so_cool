@@ -1,5 +1,3 @@
-use kintaro_egui_lib::InstanceMul;
-
 use crate::camera::default::default_cameras;
 use crate::camera::CameraConfig;
 use crate::instance::instancer::SimpleInstancer;
@@ -47,12 +45,13 @@ fn frame_passes() -> Vec<FramePass> {
                     shader_path: "src/origami/shaders/toy3.wgsl",
                 }),
                 RenderableConfig::EventStreams(EventStreamConfig {
+                    render_audio: true,
                     socool_path: "kintaro3.socool".to_string(),
                     shader_path: "./src/shader.wgsl",
                     instancer: Box::new(SimpleInstancer {}),
                     shape: Shape {
-                        n_vertices: 200,
-                        n_indices: 200,
+                        n_vertices: 70,
+                        n_indices: 70,
                         position: Box::new(RandCircumference),
                         color: Box::new(color_map()),
                         indices: Box::new(RandIndex),
