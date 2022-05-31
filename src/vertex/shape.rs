@@ -67,8 +67,8 @@ impl GenPosition for RandCircumference {
         let mut rng = rand::thread_rng();
         let mut r = || rng.gen::<f32>() * 2.0 - 1.0;
         let v = r() * 10.0;
-        let x = f32::cos(v) * 10.0;
-        let y = f32::sin(v) * 10.0;
+        let x = f32::cos(v) * 1.0;
+        let y = f32::sin(v) * 1.0;
 
         Position { x, y, z: 0.0 }
     }

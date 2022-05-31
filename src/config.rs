@@ -8,6 +8,7 @@ use crate::renderable::{
 };
 use crate::save::ConfigState;
 use crate::vertex::shape::{RandCircumference, RandIndex, RandPosition, Shape};
+use crate::InstanceMul;
 #[allow(unused_imports)]
 use crate::{color_map_from_named_colorsets, ColorMap, ColorSets};
 

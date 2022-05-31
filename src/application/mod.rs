@@ -24,8 +24,8 @@ pub struct Visual {
 
 pub type Audio = Vec<u8>;
 
-pub fn run(filename: &str, config: Config<'static>) -> Result<(), KintaroError> {
-    println!("preparing for audiovisualization: {}", &filename);
+pub fn run(config: Config<'static>) -> Result<(), KintaroError> {
+    // println!("preparing for audiovisualization: {}", &filename);
 
     if std::env::args().any(|x| x == "--print") {
         print_audio_and_video(config)?;
