@@ -128,11 +128,18 @@ pub struct ColorMap {
 
 impl GenColor for ColorMap {
     fn gen(&self, op_stream: &OpStream) -> Color {
-        for (name, color) in self.colors.iter() {
-            if op_stream.names.contains(name) {
-                return color.gen(op_stream);
+        // for (name, color) in self.colors.iter() {
+        // if op_stream.names.contains(name) {
+        // return color.gen(op_stream);
+        // }
+        // }
+        if !op_stream.names.is_empty() {
+            let found = self.colors.get(op_stream.names.last().unwrap());
+            if found.is_some() {
+                return found.unwrap().gen(op_stream);
             }
         }
+
         self.default.gen(op_stream)
     }
     fn update(&mut self) {}

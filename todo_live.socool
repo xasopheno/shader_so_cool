@@ -1,0 +1,60 @@
+todo: 
+  [x] add names to render_op
+
+Frame Rate
+v1: 
+    At frame rate of audio. ~21 fps
+    Consume channel content every frame and immediately display
+v2: 
+    consume channel into Vec and visualize events based on time
+    this might require the vec to be sorted by sample index (.index)
+    This might be done with an intermediate BinaryHeap
+
+OpStream: 
+v1: 
+    Single RenderPass/OpStream
+    Ignore names. Everything will be the same color.
+    Where does normalization happen? 
+        [x] Can there just be a base normalizer? It always normalizes to the same values?
+
+        x: min_state.x.min(-(op.x).abs()),
+        y: min_state.y.min(op.y),
+        z: min_state.z.min(op.z),
+        {
+            x: 2000.0
+            y: -1.0, 1.0
+            z: 1.0,
+        }
+
+       [] remove_these_fields from Op4D {
+            event: min_state.event.min(op.event),
+            voice: min_state.voice.min(op.voice),
+            event_type: EventType::On,
+        }
+
+
+        [x] Or can I do normalization before sending? - yes
+            collect all index == 0 events and convert them into Normalized Op4D
+            Normalizer lives on the RenderManager.
+                Does RenderManager need a Option<Visualizer> field? Yes.
+
+    The viz_rx channel can live on RealTimeState
+    I'll pass a &array of events to each renderable
+        On read, I will sort the vector
+        It will be ignored if the frame is not an EventStream
+        For an EventStream
+            it will be read by the single EventStream 
+            new ops are created in update_instances
+                move creation up to update
+v2: 
+    create a render stream for every name in the colors
+    it might be easiest to group by last name when sending? 
+    Send a HashMap<string, Vec<Op4D>>?
+    Op4D -> KintaroOp? 
+         -> VizOp
+
+
+            
+
+
+

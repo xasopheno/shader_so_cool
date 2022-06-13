@@ -1,0 +1,20 @@
+update weresocool op.name_set to keep track of order
+
+NameSet
+    index: usize,
+    map: HashMap<String, usize>
+
+
+impl NameSet {
+    pub fn insert(&mut self, value) {
+        self.map.insert(value, self.index);
+        self.index += 1;
+    } 
+
+    pub fn to_vec(
+        let mut count_vec: Vec<(String, usize)> = count.iter().collect();
+        count_vec.sort_by(|a, b| b.1.cmp(a.1));
+        count_vec
+    )
+
+}

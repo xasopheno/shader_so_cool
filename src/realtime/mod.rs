@@ -25,7 +25,7 @@ use futures::executor::block_on;
 use kintaro_egui_lib::InstanceMul;
 use setup::Setup;
 use std::collections::HashMap;
-use std::sync::mpsc::{Receiver, Sender};
+use std::sync::mpsc::Receiver;
 use winit::window::Window;
 
 use self::setup::Controls;

@@ -98,6 +98,7 @@ fn update_instances(
     size: (u32, u32),
     mul: InstanceMul,
 ) {
+    //TODO move up to update
     let mut new_instances: Vec<Instance> = renderpass
         .op_stream
         .get_batch(clock_result.total_elapsed)
@@ -110,6 +111,7 @@ fn update_instances(
         .collect();
 
     renderpass.instances.append(&mut new_instances);
+    //
     renderpass
         .instances
         .iter_mut()
