@@ -145,21 +145,23 @@ impl<'a> RealTimeState {
 
     pub fn play(&mut self) {
         self.clock.play();
-        if let Some(ref mut composition) = self.composition {
-            if let Some(a) = &composition.audio_stream_handle {
-                a.play()
-            }
-        }
+        // todo!();
+        // if let Some(ref mut composition) = self.composition {
+        // if let Some(a) = &composition.audio_stream_handle {
+        // a.play()
+        // }
+        // }
     }
 
     #[allow(dead_code)]
     pub fn pause(&mut self) {
         self.clock.pause();
-        if let Some(ref mut composition) = self.composition {
-            if let Some(a) = &composition.audio_stream_handle {
-                a.pause()
-            }
-        }
+        // todo!();
+        // if let Some(ref mut composition) = self.composition {
+        // if let Some(a) = &composition.audio_stream_handle {
+        // a.pause()
+        // }
+        // }
     }
 }
 
@@ -167,7 +169,7 @@ pub fn make_renderable_enums(
     device: &wgpu::Device,
     queue: &wgpu::Queue,
     format: wgpu::TextureFormat,
-    av_map: &VisualsMap,
+    visuals_map: &VisualsMap,
     config: &Config<'static>,
 ) -> Result<(RenderableEnums, Vec<&'static str>), KintaroError> {
     let mut frame_names = vec![];
@@ -186,7 +188,7 @@ pub fn make_renderable_enums(
                             &device,
                             &queue,
                             config.window_size,
-                            &av_map,
+                            &visuals_map,
                             format,
                             frame_pass.output_frame.to_string(),
                         )

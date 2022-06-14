@@ -112,15 +112,16 @@ impl RealTimeState {
                 self.cameras.current = Camera::new(&self.cameras.configs[s.camera_index], size)
             }
             if let Some(ref mut composition) = self.composition {
-                if let Some(a) = &composition.audio_stream_handle {
-                    if !s.play && !a.is_paused() {
-                        a.pause();
-                    }
-                    if s.play && a.is_paused() {
-                        a.play();
-                    }
-                    a.set_volume(s.volume);
-                };
+                // todo!();
+                // if let Some(a) = &composition.audio_stream_handle {
+                // if !s.play && !a.is_paused() {
+                // a.pause();
+                // }
+                // if s.play && a.is_paused() {
+                // a.play();
+                // }
+                // a.set_volume(s.volume);
+                // };
             }
 
             self.clock.set_playing(s.play);

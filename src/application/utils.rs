@@ -2,7 +2,7 @@ use crate::application::{Audio, Visual, VisualsMap};
 use crate::config::FramePass;
 use crate::error::KintaroError;
 use crate::renderable::RenderableConfig;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::io::Write;
 use weresocool::{
     error::Error,
@@ -16,14 +16,18 @@ pub fn audios_and_visuals_from_frame_passes(
 ) -> Result<(Vec<Audio>, VisualsMap), Error> {
     let mut visuals_map: VisualsMap = HashMap::new();
     let mut audios: Vec<Audio> = vec![];
+    let mut rendered: HashSet<&String> = HashSet::new();
 
     for c in frame_passes.iter().flat_map(|c| &c.renderables) {
         if let RenderableConfig::EventStreams(e) = c {
-            let result = get_audiovisual_data(&e.socool_path, e.render_audio)?;
+            if rendered.contains(&e.socool_path) {
+                let result = get_audiovisual_data(&e.socool_path, e.render_audio)?;
 
-            let (a, v) = split_audio_visual(result);
-            audios.push(a);
-            visuals_map.insert(e.socool_path.to_string(), v);
+                let (a, v) = split_audio_visual(result);
+                audios.push(a);
+                visuals_map.insert(e.socool_path.to_string(), v);
+                rendered.insert(&e.socool_path);
+            };
         }
     }
 

@@ -17,14 +17,14 @@ impl Composition {
         config: &Config<'static>,
     ) -> Result<(Self, Watcher), KintaroError> {
         let (audios, visuals_map) = audios_and_visuals_from_frame_passes(&config.frame_passes)?;
-        let mut audio_stream: Option<OutputStream> = None;
-        let mut audio_stream_handle: Option<rodio::Sink> = None;
-        if audios.len() > 0 {
-            let a = sum_all_waveforms(audios);
-            let (s, s_h) = crate::audio::setup_audio(&config, &a);
-            audio_stream = Some(s);
-            audio_stream_handle = Some(s_h);
-        }
+        // let mut audio_stream: Option<OutputStream> = None;
+        // let mut audio_stream_handle: Option<rodio::Sink> = None;
+        // if audios.len() > 0 {
+        // let a = sum_all_waveforms(audios);
+        // let (s, s_h) = crate::audio::setup_audio(&config, &a);
+        // audio_stream = Some(s);
+        // audio_stream_handle = Some(s_h);
+        // }
 
         let (renderables, frame_names) =
             make_renderable_enums(&device, &queue, format, &visuals_map, config)?;
@@ -52,8 +52,8 @@ impl Composition {
             Composition {
                 renderables,
                 frames,
-                audio_stream_handle,
-                audio_stream,
+                // audio_stream_handle,
+                // audio_stream,
             },
             watchers,
         ))

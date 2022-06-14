@@ -63,24 +63,18 @@ impl RenderPassInput {
         instance_mul: InstanceMul,
         instancer: Box<dyn Instancer>,
     ) {
-        if clock_result.frame_count % 1000 == 0 {
-            // renderpass.vertices = renderpass.shape.gen().vertices;
-            // self.clear_color = crate::helpers::new_random_clear_color();
-        }
         self.vertex_buffer = make_vertex_buffer(device, self.vertices.as_slice());
 
         if clock_result.is_playing {
-            update_instances(
+            add_new_instances_to_render_pass(
                 &clock_result,
                 self,
-                canvas,
-                device,
+                &canvas,
                 &*instancer,
-                size,
                 instance_mul,
             );
+            update_instances(&clock_result, self, device, &*instancer, size);
         }
-        // renderpass.vertices.iter_mut().for_each(|v| v.update());
         queue.write_buffer(
             &self.uniform_buffer,
             0,
@@ -89,16 +83,13 @@ impl RenderPassInput {
     }
 }
 
-fn update_instances(
+fn add_new_instances_to_render_pass(
     clock_result: &ClockResult,
     renderpass: &mut RenderPassInput,
     canvas: &Canvas,
-    device: &wgpu::Device,
     instancer: &(impl Instancer + ?Sized),
-    size: (u32, u32),
     mul: InstanceMul,
 ) {
-    //TODO move up to update
     let mut new_instances: Vec<Instance> = renderpass
         .op_stream
         .get_batch(clock_result.total_elapsed)
@@ -111,7 +102,15 @@ fn update_instances(
         .collect();
 
     renderpass.instances.append(&mut new_instances);
-    //
+}
+
+fn update_instances(
+    clock_result: &ClockResult,
+    renderpass: &mut RenderPassInput,
+    device: &wgpu::Device,
+    instancer: &(impl Instancer + ?Sized),
+    size: (u32, u32),
+) {
     renderpass
         .instances
         .iter_mut()

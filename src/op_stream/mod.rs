@@ -15,6 +15,14 @@ pub struct OpStream {
 }
 
 impl OpStream {
+    pub fn init_empty() -> Self {
+        Self {
+            ops: vec![],
+            length: 0.0,
+            names: vec![],
+        }
+    }
+
     pub fn from_json(filename: &str) -> Vec<OpStream> {
         let data = std::fs::read_to_string(format!("./{}.socool.json", filename))
             .expect("Unable to read file");

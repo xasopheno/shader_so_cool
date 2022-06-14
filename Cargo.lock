@@ -1735,6 +1735,7 @@ dependencies = [
  "serde_json",
  "thiserror",
  "weresocool_core",
+ "weresocool_instrument",
  "wgpu",
  "wgpu-types",
  "wgpu_glyph",

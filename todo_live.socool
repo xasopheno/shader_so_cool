@@ -26,7 +26,7 @@ v1:
             z: 1.0,
         }
 
-       [] remove_these_fields from Op4D {
+       [-] remove_these_fields from Op4D {
             event: min_state.event.min(op.event),
             voice: min_state.voice.min(op.voice),
             event_type: EventType::On,
@@ -38,7 +38,7 @@ v1:
             Normalizer lives on the RenderManager.
                 Does RenderManager need a Option<Visualizer> field? Yes.
 
-    The viz_rx channel can live on RealTimeState
+    The viz_rx channel can live on RealTimeState.compostion
     I'll pass a &array of events to each renderable
         On read, I will sort the vector
         It will be ignored if the frame is not an EventStream
