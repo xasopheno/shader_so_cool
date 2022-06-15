@@ -2,8 +2,7 @@ use crate::config::Config;
 use crate::error::KintaroError;
 use crate::realtime::gui::GuiRepaintSignal;
 use crate::realtime::RealTimeState;
-use std::sync::mpsc;
-use std::sync::mpsc::{Receiver, Sender};
+use crossbeam_channel::{Receiver, Sender};
 use std::sync::{Arc, Mutex};
 use weresocool::generation::{
     json::Op4D,
@@ -33,7 +32,7 @@ pub fn live(mut config: Config<'static>) -> Result<(), KintaroError> {
         event_loop.create_proxy(),
     )));
 
-    let (tx, rx): (Sender<Vec<Op4D>>, Receiver<Vec<Op4D>>) = mpsc::channel();
+    let (tx, rx): (Sender<Vec<Op4D>>, Receiver<Vec<Op4D>>) = crossbeam_channel::unbounded();
 
     let filename = "./kintaro3.socool";
 
@@ -63,6 +62,10 @@ pub fn live(mut config: Config<'static>) -> Result<(), KintaroError> {
     render_manager.lock().unwrap().play();
 
     event_loop.run(move |event, _, control_flow| {
+        if let Ok(ops) = rx.try_recv() {
+            dbg!(ops.len());
+        };
+
         #[allow(unused_assignments)]
         if let Some(ref mut controls) = state.controls {
             controls.platform.handle_event(&event);
