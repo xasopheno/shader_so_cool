@@ -14,6 +14,55 @@ pub struct OpStream {
     pub names: Vec<String>,
 }
 
+pub trait GetOps {
+    fn get_batch(&mut self, t: f32) -> Vec<Op4D>;
+}
+
+pub enum OpInput {
+    OpReceiver(OpReceiver),
+    OpStream(OpStream),
+}
+
+impl GetOps for OpInput {
+    fn get_batch(&mut self, t: f32) -> Vec<Op4D> {
+        match self {
+            OpInput::OpReceiver(op_receiver) => op_receiver.get_batch(t),
+            OpInput::OpStream(op_stream) => op_stream.get_batch(t),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct OpReceiver {
+    pub channel: crossbeam_channel::Receiver<Vec<Op4D>>,
+}
+
+impl GetOps for OpReceiver {
+    fn get_batch(&mut self, t: f32) -> Vec<Op4D> {
+        if let Ok(ops) = self.channel.try_recv() {
+            return ops;
+        } else {
+            return vec![];
+        }
+    }
+}
+
+impl GetOps for OpStream {
+    fn get_batch(&mut self, t: f32) -> Vec<Op4D> {
+        let result: Vec<Op4D> = self
+            .ops
+            .iter()
+            .take_while(|op| op.t < t.into())
+            .map(|x| x.to_owned())
+            .collect();
+        for _ in 0..result.len() {
+            self.ops.remove(0);
+        }
+
+        result
+    }
+}
+
 impl OpStream {
     pub fn init_empty() -> Self {
         Self {

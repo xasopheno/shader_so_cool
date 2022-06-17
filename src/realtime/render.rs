@@ -1,4 +1,6 @@
+use crate::op_stream::GetOps;
 use crate::{clock::Clock, error::KintaroError, realtime::RealTimeState};
+use weresocool::generation::json::Op4D;
 
 impl RealTimeState {
     pub fn render(&mut self, window: &winit::window::Window) -> Result<(), KintaroError> {
@@ -27,6 +29,8 @@ impl RealTimeState {
                 self.base_instance_mul
             };
 
+            let ops: Vec<Op4D> = self.receiver.get_batch(0.0);
+
             composition.render(
                 &self.device,
                 &self.queue,
@@ -35,6 +39,7 @@ impl RealTimeState {
                 instance_mul,
                 &self.canvas,
                 &mut self.cameras,
+                &ops,
             )?;
 
             self.surface.render(

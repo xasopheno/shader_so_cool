@@ -4,12 +4,11 @@ pub type Index = u16;
 
 use crate::{
     color::Color,
-    op_stream::OpStream,
     vertex::{shape::Position, Vertex},
 };
 
 pub trait GenColor: dyn_clone::DynClone + Debug {
-    fn gen(&self, op_stream: &OpStream) -> Color;
+    fn gen(&self, names: &Vec<String>) -> Color;
     fn update(&mut self);
 }
 pub trait GenPosition: dyn_clone::DynClone + Debug {

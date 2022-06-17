@@ -72,7 +72,7 @@ impl Instancer for SimpleInstancer {
     }
 }
 
-pub fn op4d_to_instance(input: InstancerOutput, op4d: Op4D, canvas: &Canvas) -> Instance {
+pub fn op4d_to_instance(input: InstancerOutput, op4d: &Op4D, canvas: &Canvas) -> Instance {
     Instance {
         position: Vector3::new(
             canvas.n_row as f32 * input.x,
@@ -83,7 +83,7 @@ pub fn op4d_to_instance(input: InstancerOutput, op4d: Op4D, canvas: &Canvas) -> 
         life: input.life,
         size: input.size,
         length: input.length,
-        names: op4d.names,
+        names: op4d.names.clone(),
     }
 }
 

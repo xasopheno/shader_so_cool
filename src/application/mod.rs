@@ -3,7 +3,7 @@ pub mod print;
 pub mod realtime;
 pub mod utils;
 use crate::application::print::print_audio_and_video;
-use crate::application::realtime::realtime;
+// use crate::application::realtime::realtime;
 use crate::config::Config;
 use crate::error::KintaroError;
 use live::live;

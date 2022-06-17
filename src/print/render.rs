@@ -15,15 +15,15 @@ impl PrintState {
                 label: Some("Render Encoder"),
             });
 
-        self.composition.render(
-            &self.device,
-            &self.queue,
-            self.size,
-            &self.clock,
-            self.instance_mul,
-            &self.canvas,
-            &mut self.cameras,
-        )?;
+        // self.composition.render(
+        // &self.device,
+        // &self.queue,
+        // self.size,
+        // &self.clock,
+        // self.instance_mul,
+        // &self.canvas,
+        // &mut self.cameras,
+        // )?;
 
         let output_buffer = copy_texture_to_buffer(
             &mut encoder,

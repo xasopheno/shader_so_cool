@@ -6,7 +6,6 @@ use rand::prelude::*;
 use rand::seq::SliceRandom;
 
 use crate::gen::GenColor;
-use crate::op_stream::OpStream;
 use crate::{colorset_from_hex_strings, colorsets_from_vec_hex_strings, vec_hex_to_vec_color};
 
 pub type NamedValue<'a, T> = (&'a str, T);
@@ -127,20 +126,20 @@ pub struct ColorMap {
 }
 
 impl GenColor for ColorMap {
-    fn gen(&self, op_stream: &OpStream) -> Color {
+    fn gen(&self, names: &Vec<String>) -> Color {
         // for (name, color) in self.colors.iter() {
         // if op_stream.names.contains(name) {
         // return color.gen(op_stream);
         // }
         // }
-        if !op_stream.names.is_empty() {
-            let found = self.colors.get(op_stream.names.last().unwrap());
+        if !names.is_empty() {
+            let found = self.colors.get(names.last().unwrap());
             if found.is_some() {
-                return found.unwrap().gen(op_stream);
+                return found.unwrap().gen(names);
             }
         }
 
-        self.default.gen(op_stream)
+        self.default.gen(names)
     }
     fn update(&mut self) {}
 }
@@ -155,8 +154,8 @@ pub struct Color {
 }
 
 impl GenColor for ColorSets {
-    fn gen(&self, op_stream: &OpStream) -> Color {
-        self.colorsets[self.n].gen(op_stream)
+    fn gen(&self, names: &Vec<String>) -> Color {
+        self.colorsets[self.n].gen(names)
     }
     fn update(&mut self) {
         self.n = (self.n + 1) % self.colorsets.len();
@@ -164,7 +163,7 @@ impl GenColor for ColorSets {
 }
 
 impl GenColor for ColorSet {
-    fn gen(&self, _op_stream: &OpStream) -> Color {
+    fn gen(&self, _names: &Vec<String>) -> Color {
         self.colors
             .choose(&mut rand::thread_rng())
             .expect("color choice failed")
@@ -174,7 +173,7 @@ impl GenColor for ColorSet {
 }
 
 impl GenColor for RandColor {
-    fn gen(&self, _op_stream: &OpStream) -> Color {
+    fn gen(&self, _names: &Vec<String>) -> Color {
         let mut rng = rand::thread_rng();
         let mut r = || rng.gen::<f32>() * 2.0 - 1.0;
 
@@ -190,7 +189,7 @@ impl GenColor for RandColor {
 }
 
 impl GenColor for RandColorSet {
-    fn gen(&self, _op_stream: &OpStream) -> Color {
+    fn gen(&self, _names: &Vec<String>) -> Color {
         self.colors
             .choose(&mut rand::thread_rng())
             .expect("color choice failed")

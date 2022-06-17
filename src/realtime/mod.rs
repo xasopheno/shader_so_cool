@@ -16,6 +16,7 @@ use crate::{
     frame::types::Frame,
     frame::types::Frames,
     frame::vertex::make_square_buffers,
+    op_stream::{OpInput, OpReceiver},
     realtime::gui::GuiRepaintSignal,
     renderable::RenderableEnum,
     renderable::ToRenderable,
@@ -26,6 +27,7 @@ use kintaro_egui_lib::InstanceMul;
 use setup::Setup;
 use std::collections::HashMap;
 use std::sync::mpsc::Receiver;
+pub use weresocool::generation::json::Op4D;
 use winit::window::Window;
 
 use self::setup::Controls;
@@ -44,7 +46,9 @@ pub struct RealTimeState {
     pub cameras: Cameras,
 
     pub composition: Option<Composition>,
+
     pub watchers: Option<Watcher>,
+    pub receiver: OpInput,
 }
 pub struct Watcher {
     pub receiver: Receiver<bool>,
@@ -78,6 +82,7 @@ impl<'a> RealTimeState {
         window: &Window,
         config: &Config<'static>,
         repaint_signal: Option<std::sync::Arc<GuiRepaintSignal>>,
+        receiver: Option<crossbeam_channel::Receiver<Vec<Op4D>>>,
     ) -> Result<RealTimeState, KintaroError> {
         let size = (config.window_size.0, config.window_size.1);
         println!("{}/{}", size.0, size.1);
@@ -92,6 +97,11 @@ impl<'a> RealTimeState {
         let base_instance_mul = config.instance_mul;
 
         let (composition, watchers) = Composition::init_realtime(&device, &queue, format, config)?;
+        let input = if let Some(channel) = receiver {
+            channel
+        } else {
+            unimplemented!()
+        };
 
         Ok(Self {
             device,
@@ -114,6 +124,8 @@ impl<'a> RealTimeState {
 
             composition: Some(composition),
             watchers: Some(watchers),
+
+            receiver: OpInput::OpReceiver(OpReceiver { channel: input }),
         })
     }
 

@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use kintaro_egui_lib::InstanceMul;
+use weresocool::generation::json::Op4D;
 use winit::event::{ElementState, VirtualKeyCode};
 
 use crate::{
@@ -21,6 +22,7 @@ pub struct RenderableInput<'a> {
     pub instance_mul: InstanceMul,
     pub clear: bool,
     pub frames: &'a HashMap<String, Frame>,
+    pub ops: &'a Vec<Op4D>,
 }
 
 pub trait Renderable<'a> {
@@ -104,6 +106,7 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
                     format,
                     renderable_config.shape.to_owned(),
                     renderable_config.instancer.to_owned(),
+                    vec![],
                 );
 
                 Ok(RenderableEnum::EventStreams(output_frame, renderpasses))
@@ -202,6 +205,7 @@ impl<'a> Renderable<'a> for RenderableEnum {
                     input.size,
                     input.instance_mul,
                     renderpass.instancer.clone(),
+                    &input.ops.clone(),
                 );
             }
         }

@@ -4,10 +4,11 @@ use crate::canvas::Canvas;
 use crate::clock::ClockResult;
 use crate::instance::instancer::{op4d_to_instance, prepare_op4d_to_instancer_input};
 use crate::instance::{make_instance_buffer, Instance};
-use crate::op_stream::OpStream;
+use crate::op_stream::{GetOps, OpInput};
 use crate::vertex::shape::Shape;
 use crate::vertex::{make_vertex_buffer, Vertex};
 use crate::Instancer;
+use weresocool::generation::json::Op4D;
 
 use super::make_color_attachments;
 
@@ -23,7 +24,7 @@ pub struct RenderPassInput {
     pub uniforms: crate::uniforms::RealtimeUniforms,
     pub uniform_bind_group: wgpu::BindGroup,
     pub uniform_buffer: wgpu::Buffer,
-    pub op_stream: OpStream,
+    pub ops: Vec<Op4D>,
 }
 
 impl RenderPassInput {
@@ -62,6 +63,7 @@ impl RenderPassInput {
         size: (u32, u32),
         instance_mul: InstanceMul,
         instancer: Box<dyn Instancer>,
+        ops: &Vec<Op4D>,
     ) {
         self.vertex_buffer = make_vertex_buffer(device, self.vertices.as_slice());
 
@@ -72,6 +74,7 @@ impl RenderPassInput {
                 &canvas,
                 &*instancer,
                 instance_mul,
+                ops,
             );
             update_instances(&clock_result, self, device, &*instancer, size);
         }
@@ -89,10 +92,13 @@ fn add_new_instances_to_render_pass(
     canvas: &Canvas,
     instancer: &(impl Instancer + ?Sized),
     mul: InstanceMul,
+    ops: &Vec<Op4D>,
 ) {
-    let mut new_instances: Vec<Instance> = renderpass
-        .op_stream
-        .get_batch(clock_result.total_elapsed)
+    // let mut new_instances: Vec<Instance> = renderpass
+    // .op_stream
+    // .get_batch(clock_result.total_elapsed)
+    // .into_iter()
+    let mut new_instances = ops
         .into_iter()
         .map(|op| {
             let input = prepare_op4d_to_instancer_input(&mul, &op);

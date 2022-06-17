@@ -52,20 +52,14 @@ pub fn live(mut config: Config<'static>) -> Result<(), KintaroError> {
     )));
     let mut stream = real_time_render_manager(Arc::clone(&render_manager))?;
     render_manager.lock().unwrap().pause();
-    // TODO: start_paused
 
-    // put channel in RealTimeState
-    let mut state = RealTimeState::init(&window, &mut config, Some(repaint_signal))?;
+    let mut state = RealTimeState::init(&window, &mut config, Some(repaint_signal), Some(rx))?;
 
     stream.start().unwrap();
     state.play();
     render_manager.lock().unwrap().play();
 
     event_loop.run(move |event, _, control_flow| {
-        if let Ok(ops) = rx.try_recv() {
-            dbg!(ops.len());
-        };
-
         #[allow(unused_assignments)]
         if let Some(ref mut controls) = state.controls {
             controls.platform.handle_event(&event);

@@ -75,11 +75,11 @@ impl GenPosition for RandCircumference {
 }
 
 impl Shape {
-    pub fn gen(&mut self, op_stream: &OpStream) -> ShapeGenResult {
+    pub fn gen(&mut self, names: &Vec<String>) -> ShapeGenResult {
         ShapeGenResult {
             vertices: (0..self.n_vertices)
                 .into_iter()
-                .map(|_| Vertex::from_shape(self, op_stream))
+                .map(|_| Vertex::from_shape(self, names))
                 .collect(),
             indices: (0..self.n_indices)
                 .into_iter()
@@ -100,9 +100,9 @@ impl Shape {
 }
 
 impl Vertex {
-    pub fn from_shape(shape: &mut Shape, op_stream: &OpStream) -> Self {
+    pub fn from_shape(shape: &mut Shape, names: &Vec<String>) -> Self {
         let position = shape.position.gen();
-        let color = shape.color.gen(op_stream);
+        let color = shape.color.gen(names);
         let mut rng = rand::thread_rng();
         let mut r = || rng.gen::<f32>() * 2.0 - 1.0;
         Self {

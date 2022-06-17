@@ -5,6 +5,7 @@ use crate::{
     renderable::{Renderable, RenderableInput},
 };
 use kintaro_egui_lib::InstanceMul;
+use weresocool::generation::json::Op4D;
 use winit::event::{ElementState, VirtualKeyCode};
 
 use crate::clock::Clock;
@@ -33,6 +34,7 @@ impl Composition {
         instance_mul: InstanceMul,
         canvas: &Canvas,
         cameras: &mut Cameras,
+        ops: &Vec<Op4D>,
     ) -> Result<(), KintaroError> {
         let clock_result = clock.current();
         cameras.current.update(clock_result.last_period);
@@ -52,6 +54,7 @@ impl Composition {
             instance_mul,
             clear: false,
             frames: &self.frames,
+            ops,
         };
 
         for (idx, renderable) in self.renderables.0.iter_mut().enumerate() {

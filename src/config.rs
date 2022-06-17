@@ -53,7 +53,7 @@ fn frame_passes() -> Vec<FramePass> {
                     shape: Shape {
                         n_vertices: 70,
                         n_indices: 70,
-                        position: Box::new(RandCircumference),
+                        position: Box::new(RandPosition),
                         color: Box::new(color_map()),
                         indices: Box::new(RandIndex),
                     },
