@@ -34,16 +34,32 @@ impl GetOps for OpInput {
 
 #[derive(Debug, Clone)]
 pub struct OpReceiver {
+    pub ops: Vec<Op4D>,
     pub channel: crossbeam_channel::Receiver<Vec<Op4D>>,
 }
 
 impl GetOps for OpReceiver {
     fn get_batch(&mut self, t: f32) -> Vec<Op4D> {
-        if let Ok(ops) = self.channel.try_recv() {
-            return ops;
+        let new_ops = if let Ok(ops) = self.channel.try_recv() {
+            ops
         } else {
-            return vec![];
+            vec![]
+        };
+
+        self.ops.extend(new_ops);
+
+        let mut i = 0;
+        let mut result = vec![];
+        while i < self.ops.len() {
+            if (self.ops[i].t as f32) < t {
+                let val = self.ops.remove(i);
+                result.push(val)
+            } else {
+                i += 1;
+            }
         }
+
+        result
     }
 }
 

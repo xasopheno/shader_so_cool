@@ -125,7 +125,10 @@ impl<'a> RealTimeState {
             composition: Some(composition),
             watchers: Some(watchers),
 
-            receiver: OpInput::OpReceiver(OpReceiver { channel: input }),
+            receiver: OpInput::OpReceiver(OpReceiver {
+                ops: vec![],
+                channel: input,
+            }),
         })
     }
 

@@ -29,7 +29,8 @@ impl RealTimeState {
                 self.base_instance_mul
             };
 
-            let ops: Vec<Op4D> = self.receiver.get_batch(0.0);
+            let clock_result = self.clock.current();
+            let ops: Vec<Op4D> = self.receiver.get_batch(clock_result.total_elapsed);
 
             composition.render(
                 &self.device,
