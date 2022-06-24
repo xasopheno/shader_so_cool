@@ -5,7 +5,10 @@ use kintaro_egui_lib::InstanceMul;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
-pub use weresocool::generation::json::{EventType, Op4D};
+pub use weresocool::{
+    generation::json::{EventType, Op4D},
+    manager::VisEvent,
+};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct OpStream {
@@ -16,6 +19,7 @@ pub struct OpStream {
 
 pub trait GetOps {
     fn get_batch(&mut self, t: f32) -> Vec<Op4D>;
+    fn reset(&mut self);
 }
 
 pub enum OpInput {
@@ -30,40 +34,47 @@ impl GetOps for OpInput {
             OpInput::OpStream(op_stream) => op_stream.get_batch(t),
         }
     }
+
+    fn reset(&mut self) {
+        match self {
+            OpInput::OpReceiver(op_receiver) => op_receiver.reset(),
+            OpInput::OpStream(op_stream) => op_stream.reset(),
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
 pub struct OpReceiver {
-    pub ops: Vec<Op4D>,
-    pub channel: crossbeam_channel::Receiver<Vec<Op4D>>,
+    pub ops: opmap::OpMap<Op4D>,
+    pub channel: crossbeam_channel::Receiver<VisEvent>,
 }
 
 impl GetOps for OpReceiver {
+    fn reset(&mut self) {
+        self.ops = opmap::OpMap::default();
+    }
     fn get_batch(&mut self, t: f32) -> Vec<Op4D> {
-        let new_ops = if let Ok(ops) = self.channel.try_recv() {
-            ops
+        let new_ops = if let Ok(vis_event) = self.channel.try_recv() {
+            match vis_event {
+                VisEvent::Ops(ops) => ops,
+                VisEvent::Reset => {
+                    self.reset();
+                    opmap::OpMap::default()
+                }
+            }
         } else {
-            vec![]
+            opmap::OpMap::default()
         };
 
-        self.ops.extend(new_ops);
+        self.ops
+            .join(new_ops, |a, b| a.t.partial_cmp(&b.t).unwrap());
 
-        let mut i = 0;
-        let mut result = vec![];
-        while i < self.ops.len() {
-            if (self.ops[i].t as f32) < t {
-                let val = self.ops.remove(i);
-                result.push(val)
-            } else {
-                i += 1;
-            }
-        }
-
-        result
+        self.ops.get("a", |v| (v.t as f32) < t)
     }
 }
 
 impl GetOps for OpStream {
+    fn reset(&mut self) {}
     fn get_batch(&mut self, t: f32) -> Vec<Op4D> {
         let result: Vec<Op4D> = self
             .ops

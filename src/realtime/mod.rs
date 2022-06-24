@@ -16,7 +16,7 @@ use crate::{
     frame::types::Frame,
     frame::types::Frames,
     frame::vertex::make_square_buffers,
-    op_stream::{OpInput, OpReceiver},
+    op_stream::{GetOps, OpInput, OpReceiver},
     realtime::gui::GuiRepaintSignal,
     renderable::RenderableEnum,
     renderable::ToRenderable,
@@ -27,7 +27,10 @@ use kintaro_egui_lib::InstanceMul;
 use setup::Setup;
 use std::collections::HashMap;
 use std::sync::mpsc::Receiver;
+use std::sync::{Arc, Mutex};
 pub use weresocool::generation::json::Op4D;
+use weresocool::manager::{prepare_render_outside, VisEvent};
+use weresocool::{interpretable::InputType::Filename, manager::RenderManager};
 use winit::window::Window;
 
 use self::setup::Controls;
@@ -49,6 +52,7 @@ pub struct RealTimeState {
 
     pub watchers: Option<Watcher>,
     pub receiver: OpInput,
+    pub render_manager: Arc<Mutex<RenderManager>>,
 }
 pub struct Watcher {
     pub receiver: Receiver<bool>,
@@ -82,7 +86,8 @@ impl<'a> RealTimeState {
         window: &Window,
         config: &Config<'static>,
         repaint_signal: Option<std::sync::Arc<GuiRepaintSignal>>,
-        receiver: Option<crossbeam_channel::Receiver<Vec<Op4D>>>,
+        receiver: Option<crossbeam_channel::Receiver<VisEvent>>,
+        render_manager: Arc<Mutex<RenderManager>>,
     ) -> Result<RealTimeState, KintaroError> {
         let size = (config.window_size.0, config.window_size.1);
         println!("{}/{}", size.0, size.1);
@@ -126,9 +131,10 @@ impl<'a> RealTimeState {
             watchers: Some(watchers),
 
             receiver: OpInput::OpReceiver(OpReceiver {
-                ops: vec![],
+                ops: opmap::OpMap::default(),
                 channel: input,
             }),
+            render_manager,
         })
     }
 
@@ -143,22 +149,36 @@ impl<'a> RealTimeState {
     }
 
     pub fn push_composition(&mut self, config: &Config<'static>) -> Result<(), KintaroError> {
+        std::thread::sleep(std::time::Duration::from_millis(100));
         self.pause();
+        let render_voices = match prepare_render_outside(Filename("kintaro3.socool"), None) {
+            Ok(result) => Some(result),
+            Err(error) => {
+                println!("{}", error);
+                None
+            }
+        };
+
+        if let Some(voices) = render_voices {
+            self.render_manager.lock().unwrap().push_render(voices);
+        }
         let (composition, _) = Composition::init_realtime(
             &self.device,
             &self.queue,
             wgpu::TextureFormat::Rgba8UnormSrgb,
             config,
         )?;
+        // we dont want to reset until it starts sending new events
         self.composition = Some(composition);
-        self.play();
         self.clock.reset();
-        self.clock.play();
+        self.receiver.reset();
+        self.play();
 
         Ok(())
     }
 
     pub fn play(&mut self) {
+        self.render_manager.lock().unwrap().play();
         self.clock.play();
         // todo!();
         // if let Some(ref mut composition) = self.composition {
@@ -171,6 +191,7 @@ impl<'a> RealTimeState {
     #[allow(dead_code)]
     pub fn pause(&mut self) {
         self.clock.pause();
+        self.render_manager.lock().unwrap().pause();
         // todo!();
         // if let Some(ref mut composition) = self.composition {
         // if let Some(a) = &composition.audio_stream_handle {
@@ -184,7 +205,6 @@ pub fn make_renderable_enums(
     device: &wgpu::Device,
     queue: &wgpu::Queue,
     format: wgpu::TextureFormat,
-    visuals_map: &VisualsMap,
     config: &Config<'static>,
 ) -> Result<(RenderableEnums, Vec<&'static str>), KintaroError> {
     let mut frame_names = vec![];
@@ -203,7 +223,6 @@ pub fn make_renderable_enums(
                             &device,
                             &queue,
                             config.window_size,
-                            &visuals_map,
                             format,
                             frame_pass.output_frame.to_string(),
                         )

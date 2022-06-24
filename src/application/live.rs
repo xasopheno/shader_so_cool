@@ -4,12 +4,9 @@ use crate::realtime::gui::GuiRepaintSignal;
 use crate::realtime::RealTimeState;
 use crossbeam_channel::{Receiver, Sender};
 use std::sync::{Arc, Mutex};
-use weresocool::generation::{
-    json::Op4D,
-    parsed_to_render::{RenderReturn, RenderType},
-};
+use weresocool::generation::parsed_to_render::{RenderReturn, RenderType};
 use weresocool::interpretable::{InputType, Interpretable};
-use weresocool::manager::RenderManager;
+use weresocool::manager::{RenderManager, VisEvent};
 use weresocool::portaudio::real_time_render_manager;
 use weresocool_instrument::renderable::{nf_to_vec_renderable, renderables_to_render_voices};
 use winit::{dpi::PhysicalSize, event::*, event_loop::ControlFlow, window::WindowBuilder};
@@ -32,7 +29,7 @@ pub fn live(mut config: Config<'static>) -> Result<(), KintaroError> {
         event_loop.create_proxy(),
     )));
 
-    let (tx, rx): (Sender<Vec<Op4D>>, Receiver<Vec<Op4D>>) = crossbeam_channel::unbounded();
+    let (tx, rx): (Sender<VisEvent>, Receiver<VisEvent>) = crossbeam_channel::unbounded();
 
     let filename = "./kintaro3.socool";
 
@@ -51,15 +48,36 @@ pub fn live(mut config: Config<'static>) -> Result<(), KintaroError> {
         false,
     )));
     let mut stream = real_time_render_manager(Arc::clone(&render_manager))?;
+    //TODO: Move real_time_render_manager into RealTimeState
+    //need to push new ops to render_manager on push
     render_manager.lock().unwrap().pause();
 
-    let mut state = RealTimeState::init(&window, &mut config, Some(repaint_signal), Some(rx))?;
+    let mut state = RealTimeState::init(
+        &window,
+        &mut config,
+        Some(repaint_signal),
+        Some(rx),
+        render_manager,
+    )?;
 
     stream.start().unwrap();
     state.play();
-    render_manager.lock().unwrap().play();
+    // render_manager.lock().unwrap().play();
+    let time = std::time::SystemTime::now();
+    let mut frames: u64 = 0;
 
     event_loop.run(move |event, _, control_flow| {
+        frames += 1;
+        if (frames % 1000 == 0) {
+            let elapsed = time.elapsed().unwrap();
+            println!(
+                "\r{:?}, {:?}, {:?}",
+                (frames / (elapsed.as_secs() + 1)),
+                frames,
+                elapsed.as_secs() + 1
+            );
+        }
+
         #[allow(unused_assignments)]
         if let Some(ref mut controls) = state.controls {
             controls.platform.handle_event(&event);

@@ -30,7 +30,11 @@ impl RealTimeState {
             };
 
             let clock_result = self.clock.current();
-            let ops: Vec<Op4D> = self.receiver.get_batch(clock_result.total_elapsed);
+            let ops: Vec<Op4D> = if self.clock.is_playing() {
+                self.receiver.get_batch(clock_result.total_elapsed)
+            } else {
+                vec![]
+            };
 
             composition.render(
                 &self.device,

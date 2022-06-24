@@ -15,16 +15,16 @@ pub fn audios_and_visuals_from_frame_passes(
     frame_passes: &Vec<FramePass>,
 ) -> Result<(Vec<Audio>, VisualsMap), Error> {
     let mut visuals_map: VisualsMap = HashMap::new();
-    let mut audios: Vec<Audio> = vec![];
+    let audios: Vec<Audio> = vec![];
     let mut rendered: HashSet<&String> = HashSet::new();
 
     for c in frame_passes.iter().flat_map(|c| &c.renderables) {
         if let RenderableConfig::EventStreams(e) = c {
             if rendered.contains(&e.socool_path) {
-                let result = get_audiovisual_data(&e.socool_path, e.render_audio)?;
+                let result = get_audiovisual_data(&e.socool_path, false)?;
 
-                let (a, v) = split_audio_visual(result);
-                audios.push(a);
+                let (_a, v) = split_audio_visual(result);
+                // audios.push(a);
                 visuals_map.insert(e.socool_path.to_string(), v);
                 rendered.insert(&e.socool_path);
             };

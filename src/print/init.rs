@@ -33,8 +33,7 @@ impl PrintState {
             .await
             .unwrap();
 
-        let (renderables, frame_names) =
-            make_renderable_enums(&device, &queue, format, &av_map, config)?;
+        let (renderables, frame_names) = make_renderable_enums(&device, &queue, format, config)?;
 
         let frames = make_frames(&device, size, format, frame_names)?;
 

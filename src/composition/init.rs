@@ -16,18 +16,7 @@ impl Composition {
         format: wgpu::TextureFormat,
         config: &Config<'static>,
     ) -> Result<(Self, Watcher), KintaroError> {
-        let (audios, visuals_map) = audios_and_visuals_from_frame_passes(&config.frame_passes)?;
-        // let mut audio_stream: Option<OutputStream> = None;
-        // let mut audio_stream_handle: Option<rodio::Sink> = None;
-        // if audios.len() > 0 {
-        // let a = sum_all_waveforms(audios);
-        // let (s, s_h) = crate::audio::setup_audio(&config, &a);
-        // audio_stream = Some(s);
-        // audio_stream_handle = Some(s_h);
-        // }
-
-        let (renderables, frame_names) =
-            make_renderable_enums(&device, &queue, format, &visuals_map, config)?;
+        let (renderables, frame_names) = make_renderable_enums(&device, &queue, format, config)?;
 
         let frames = make_frames(&device, config.window_size, format, frame_names)?;
 
@@ -46,14 +35,12 @@ impl Composition {
             .collect();
 
         let watchers = Watcher::init(watchable_paths.clone())?;
-        println!("Created {} watchers", watchable_paths.len());
+        // println!("Created {} watchers", watchable_paths.len());
 
         Ok((
             Composition {
                 renderables,
                 frames,
-                // audio_stream_handle,
-                // audio_stream,
             },
             watchers,
         ))

@@ -37,7 +37,6 @@ pub trait ToRenderable {
         device: &wgpu::Device,
         queue: &wgpu::Queue,
         window_size: (u32, u32),
-        av_map: &VisualsMap,
         format: wgpu::TextureFormat,
         output_frame: String,
     ) -> Result<RenderableEnum, KintaroError>;
@@ -50,7 +49,6 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
         device: &wgpu::Device,
         queue: &wgpu::Queue,
         window_size: (u32, u32),
-        visuals_map: &VisualsMap,
         format: wgpu::TextureFormat,
         output_frame: String,
     ) -> Result<RenderableEnum, KintaroError> {
@@ -92,15 +90,9 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
                 Ok(RenderableEnum::ImageRenderer(output_frame, image_renderer))
             }
             RenderableConfig::EventStreams(renderable_config) => {
-                // let associated_av = visuals_map
-                // .get(&renderable_config.socool_path)
-                // .expect("No associated av in AvMap");
                 let shader = make_shader(device, renderable_config.shader_path)?;
-                // let op_streams = crate::op_stream::OpStream::from_vec_op4d(associated_av);
-
                 let renderpasses = make_renderpasses(
                     device,
-                    // op_streams,
                     &shader,
                     window_size,
                     format,

@@ -1033,6 +1033,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9ea835d29036a4087793836fa931b08837ad5e957da9e23886b29586fb9b6650"
 
 [[package]]
+name = "drain-while"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0285eb0b1d8610e71efc2b047ae006207c8596c0fce812b5871c9a28ee61db0b"
+
+[[package]]
 name = "dyn-clone"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1726,6 +1732,7 @@ dependencies = [
  "kintaro_egui_lib",
  "log",
  "notify",
+ "opmap",
  "pollster",
  "rand 0.8.4",
  "raw-window-handle 0.3.3",
@@ -2403,6 +2410,13 @@ name = "once_cell"
 version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "692fcb63b64b1758029e0a96ee63e049ce8c5948587f2f7208df04625e5f6b56"
+
+[[package]]
+name = "opmap"
+version = "0.1.0"
+dependencies = [
+ "drain-while",
+]
 
 [[package]]
 name = "ordered-float"
@@ -3541,6 +3555,7 @@ dependencies = [
  "num 0.3.1",
  "num-complex",
  "num-rational",
+ "opmap",
  "pbr",
  "portaudio",
  "rand 0.7.3",
