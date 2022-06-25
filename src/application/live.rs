@@ -1,3 +1,4 @@
+use crate::clock::Clock;
 use crate::config::Config;
 use crate::error::KintaroError;
 use crate::realtime::gui::GuiRepaintSignal;
@@ -50,8 +51,6 @@ pub fn live(mut config: Config<'static>) -> Result<(), KintaroError> {
         false,
     )));
     let mut stream = real_time_render_manager(Arc::clone(&render_manager))?;
-    //TODO: Move real_time_render_manager into RealTimeState
-    //need to push new ops to render_manager on push
     render_manager.lock().unwrap().pause();
 
     let mut state = RealTimeState::init(
@@ -81,13 +80,13 @@ pub fn live(mut config: Config<'static>) -> Result<(), KintaroError> {
 
     stream.start().unwrap();
     state.play();
-    // render_manager.lock().unwrap().play();
+
     let time = std::time::SystemTime::now();
     let mut frames: u64 = 0;
 
     event_loop.run(move |event, _, control_flow| {
         frames += 1;
-        if (frames % 1000 == 0) {
+        if frames % 1000 == 0 {
             let elapsed = time.elapsed().unwrap();
             println!(
                 "\r{:?}, {:?}, {:?}",
@@ -98,15 +97,14 @@ pub fn live(mut config: Config<'static>) -> Result<(), KintaroError> {
         }
 
         if watchers.receiver.try_recv().is_ok() {
+            state.pause();
+            state.clock.reset();
             state.push_composition(&config).unwrap();
+            state.play();
         };
 
-        #[allow(unused_assignments)]
         if let Some(ref mut controls) = state.controls {
             controls.platform.handle_event(&event);
-        }
-        match state.listen_for_new(&config) {
-            _ => {}
         }
 
         match event {

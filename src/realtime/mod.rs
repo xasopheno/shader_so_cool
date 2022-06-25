@@ -137,16 +137,6 @@ impl<'a> RealTimeState {
         })
     }
 
-    pub fn listen_for_new(&mut self, config: &Config<'static>) -> Result<(), KintaroError> {
-        // if let Some(ref mut watchers) = self.watchers {
-        // if watchers.receiver.try_recv().is_ok() {
-        // self.push_composition(config)?;
-        // }
-        // }
-
-        Ok(())
-    }
-
     pub fn push_composition(&mut self, config: &Config<'static>) -> Result<(), KintaroError> {
         std::thread::sleep(std::time::Duration::from_millis(100));
         self.pause();
@@ -167,11 +157,7 @@ impl<'a> RealTimeState {
             wgpu::TextureFormat::Rgba8UnormSrgb,
             config,
         )?;
-        // we dont want to reset until it starts sending new events
         self.composition = Some(composition);
-        self.clock.reset();
-        self.receiver.reset();
-        self.play();
 
         Ok(())
     }
@@ -179,24 +165,11 @@ impl<'a> RealTimeState {
     pub fn play(&mut self) {
         self.render_manager.lock().unwrap().play();
         self.clock.play();
-        // todo!();
-        // if let Some(ref mut composition) = self.composition {
-        // if let Some(a) = &composition.audio_stream_handle {
-        // a.play()
-        // }
-        // }
     }
 
-    #[allow(dead_code)]
     pub fn pause(&mut self) {
-        self.clock.pause();
         self.render_manager.lock().unwrap().pause();
-        // todo!();
-        // if let Some(ref mut composition) = self.composition {
-        // if let Some(a) = &composition.audio_stream_handle {
-        // a.pause()
-        // }
-        // }
+        self.clock.pause();
     }
 }
 
