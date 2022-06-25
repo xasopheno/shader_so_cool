@@ -35,10 +35,10 @@ fn fs_main(
 //      sin((80.0/uv.x * 85.0/uv.y) / 1.0) * 100.05, 
 //      1.0
 //  );
-  var time = u.time;
-  var r = sin(3.0/uv.x * 5.0/uv.y * sin(time/50.0 + 30.0));
-  var g = cos(4.0/uv.x * 4.0/uv.y * sin(time/10.0 + 100.0));
-  var b = cos(5.0/uv.x * 4.0/uv.y * sin(time/80.0 + 20.0));
+// var time = u.time;
+// var r = sin(3.0/uv.x * 5.0/uv.y * sin(time/50.0 + 30.0));
+// var g = cos(4.0/uv.x * 4.0/uv.y * sin(time/10.0 + 100.0));
+// var b = cos(5.0/uv.x * 4.0/uv.y * sin(time/80.0 + 20.0));
 // if (x < 0.5) {
 //   x = 0.0;
 // };
@@ -70,12 +70,12 @@ fn fs_main(
 //);
 //
 
-   return vec4<f32>(
-       sin(30000.0/uv.x + 10.1 * 1000.0/uv.y + 1.1 * u.time * 3.0) * 0.3, 
-       sin(20000.0/uv.x + 10.1 * 2000.0/uv.y + 1.1 * u.time * 1.0) * 0.3, 
-       sin(10000.0/uv.x + 10.1 * 3000.0/uv.y + 1.1 * u.time * 2.0) * 0.3, 
-       1.0
-   );
+//  return vec4<f32>(
+//      sin(30000.0/uv.x + 10.1 * 1000.0/uv.y + 1.1 * u.time * 3.0) * 0.3, 
+//      sin(20000.0/uv.x + 10.1 * 2000.0/uv.y + 1.1 * u.time * 1.0) * 0.3, 
+//      sin(10000.0/uv.x + 10.1 * 3000.0/uv.y + 1.1 * u.time * 2.0) * 0.3, 
+//      1.0
+//  );
 
 //   return vec4<f32>(
 //       sin(uv.y * uv.x) * 0.04, 
@@ -84,7 +84,7 @@ fn fs_main(
 //       1.0
 //   );
    // } else {
-//       return vec4<f32>(0.0, 0.0, 0.0, 1.0);
+       return vec4<f32>(0.0, 0.0, 0.0, 1.0);
   //  }
 }
 

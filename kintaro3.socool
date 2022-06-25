@@ -23,7 +23,7 @@ main = {
         Overlay [
             thing1,
         ]
-        | Lm 1/30
+        | Lm 1/10
         | Repeat 50
     ]
     -- | Gm 1/2

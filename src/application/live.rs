@@ -2,6 +2,8 @@ use crate::config::Config;
 use crate::error::KintaroError;
 use crate::realtime::gui::GuiRepaintSignal;
 use crate::realtime::RealTimeState;
+use crate::realtime::Watcher;
+use crate::renderable::ToRenderable;
 use crossbeam_channel::{Receiver, Sender};
 use std::sync::{Arc, Mutex};
 use weresocool::generation::parsed_to_render::{RenderReturn, RenderType};
@@ -60,6 +62,23 @@ pub fn live(mut config: Config<'static>) -> Result<(), KintaroError> {
         render_manager,
     )?;
 
+    let watchable_paths: Vec<String> = config
+        .frame_passes
+        .iter()
+        .map(|frame_pass| {
+            frame_pass
+                .renderables
+                .iter()
+                .map(|r| r.watchable_paths())
+                .flatten()
+                .collect::<Vec<String>>()
+        })
+        .flatten()
+        .collect();
+
+    let watchers = Watcher::init(watchable_paths.clone())?;
+    println!("Created {} watchers", watchable_paths.len());
+
     stream.start().unwrap();
     state.play();
     // render_manager.lock().unwrap().play();
@@ -77,6 +96,10 @@ pub fn live(mut config: Config<'static>) -> Result<(), KintaroError> {
                 elapsed.as_secs() + 1
             );
         }
+
+        if watchers.receiver.try_recv().is_ok() {
+            state.push_composition(&config).unwrap();
+        };
 
         #[allow(unused_assignments)]
         if let Some(ref mut controls) = state.controls {

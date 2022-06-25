@@ -50,7 +50,7 @@ pub struct RealTimeState {
 
     pub composition: Option<Composition>,
 
-    pub watchers: Option<Watcher>,
+    // pub watchers: Option<Watcher>,
     pub receiver: OpInput,
     pub render_manager: Arc<Mutex<RenderManager>>,
 }
@@ -101,7 +101,7 @@ impl<'a> RealTimeState {
 
         let base_instance_mul = config.instance_mul;
 
-        let (composition, watchers) = Composition::init_realtime(&device, &queue, format, config)?;
+        let composition = Composition::init_realtime(&device, &queue, format, config)?;
         let input = if let Some(channel) = receiver {
             channel
         } else {
@@ -128,8 +128,7 @@ impl<'a> RealTimeState {
             },
 
             composition: Some(composition),
-            watchers: Some(watchers),
-
+            // watchers: Some(watchers),
             receiver: OpInput::OpReceiver(OpReceiver {
                 ops: opmap::OpMap::default(),
                 channel: input,
@@ -139,11 +138,11 @@ impl<'a> RealTimeState {
     }
 
     pub fn listen_for_new(&mut self, config: &Config<'static>) -> Result<(), KintaroError> {
-        if let Some(ref mut watchers) = self.watchers {
-            if watchers.receiver.try_recv().is_ok() {
-                self.push_composition(config)?;
-            }
-        }
+        // if let Some(ref mut watchers) = self.watchers {
+        // if watchers.receiver.try_recv().is_ok() {
+        // self.push_composition(config)?;
+        // }
+        // }
 
         Ok(())
     }
@@ -162,7 +161,7 @@ impl<'a> RealTimeState {
         if let Some(voices) = render_voices {
             self.render_manager.lock().unwrap().push_render(voices);
         }
-        let (composition, _) = Composition::init_realtime(
+        let composition = Composition::init_realtime(
             &self.device,
             &self.queue,
             wgpu::TextureFormat::Rgba8UnormSrgb,
