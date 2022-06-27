@@ -18,8 +18,9 @@ pub struct OpStream {
 }
 
 pub trait GetOps {
-    fn get_batch(&mut self, t: f32) -> Vec<Op4D>;
+    fn get_batch(&mut self, t: f32, name: &str) -> Vec<Op4D>;
     fn reset(&mut self);
+    fn receive(&mut self);
 }
 
 pub enum OpInput {
@@ -28,10 +29,16 @@ pub enum OpInput {
 }
 
 impl GetOps for OpInput {
-    fn get_batch(&mut self, t: f32) -> Vec<Op4D> {
+    fn get_batch(&mut self, t: f32, name: &str) -> Vec<Op4D> {
         match self {
-            OpInput::OpReceiver(op_receiver) => op_receiver.get_batch(t),
+            OpInput::OpReceiver(op_receiver) => op_receiver.get_batch(t, name),
             OpInput::OpStream(op_stream) => op_stream.get_batch(t),
+        }
+    }
+    fn receive(&mut self) {
+        match self {
+            OpInput::OpReceiver(op_receiver) => op_receiver.receive(),
+            OpInput::OpStream(op_stream) => op_stream.receive(),
         }
     }
 
@@ -53,7 +60,8 @@ impl GetOps for OpReceiver {
     fn reset(&mut self) {
         self.ops = opmap::OpMap::default();
     }
-    fn get_batch(&mut self, t: f32) -> Vec<Op4D> {
+
+    fn receive(&mut self) {
         let new_ops = if let Ok(vis_event) = self.channel.try_recv() {
             match vis_event {
                 VisEvent::Ops(ops) => ops,
@@ -68,14 +76,17 @@ impl GetOps for OpReceiver {
 
         self.ops
             .join(new_ops, |a, b| a.t.partial_cmp(&b.t).unwrap());
+    }
 
-        self.ops.get("a", |v| (v.t as f32) < t)
+    fn get_batch(&mut self, t: f32, name: &str) -> Vec<Op4D> {
+        self.ops.get(name, |v| (v.t as f32) < t)
     }
 }
 
 impl GetOps for OpStream {
     fn reset(&mut self) {}
-    fn get_batch(&mut self, t: f32) -> Vec<Op4D> {
+    fn receive(&mut self) {}
+    fn get_batch(&mut self, t: f32, name: &str) -> Vec<Op4D> {
         let result: Vec<Op4D> = self
             .ops
             .iter()

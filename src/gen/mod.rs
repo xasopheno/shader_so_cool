@@ -10,6 +10,7 @@ use crate::{
 pub trait GenColor: dyn_clone::DynClone + Debug {
     fn gen(&self, names: &Vec<String>) -> Color;
     fn update(&mut self);
+    fn names(&self) -> Vec<String>;
 }
 pub trait GenPosition: dyn_clone::DynClone + Debug {
     fn gen(&self) -> Position;

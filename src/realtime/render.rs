@@ -29,29 +29,26 @@ impl RealTimeState {
                 self.base_instance_mul
             };
 
-            let clock_result = self.clock.current();
-            let ops: Vec<Op4D> = if self.clock.is_playing() {
-                self.receiver.get_batch(clock_result.total_elapsed)
-            } else {
-                vec![]
-            };
+            self.receiver.receive();
 
-            composition.render(
-                &self.device,
-                &self.queue,
-                self.size,
-                &self.clock,
-                instance_mul,
-                &self.canvas,
-                &mut self.cameras,
-                &ops,
-            )?;
+            if self.clock.is_playing() {
+                composition.render(
+                    &self.device,
+                    &self.queue,
+                    self.size,
+                    &self.clock,
+                    instance_mul,
+                    &self.canvas,
+                    &mut self.cameras,
+                    &mut self.receiver,
+                )?;
 
-            self.surface.render(
-                &mut surface_encoder,
-                &composition.frames.get("main").unwrap(),
-                &surface_texture_view,
-            );
+                self.surface.render(
+                    &mut surface_encoder,
+                    &composition.frames.get("main").unwrap(),
+                    &surface_texture_view,
+                );
+            }
         }
 
         self.queue.submit(std::iter::once(surface_encoder.finish()));

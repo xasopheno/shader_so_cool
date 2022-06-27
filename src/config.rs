@@ -46,7 +46,6 @@ fn frame_passes() -> Vec<FramePass> {
                     shader_path: "src/origami/shaders/toy3.wgsl",
                 }),
                 RenderableConfig::EventStreams(EventStreamConfig {
-                    render_audio: true,
                     socool_path: "kintaro3.socool".to_string(),
                     shader_path: "./src/shader.wgsl",
                     instancer: Box::new(SimpleInstancer {}),

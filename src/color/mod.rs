@@ -142,6 +142,10 @@ impl GenColor for ColorMap {
         self.default.gen(names)
     }
     fn update(&mut self) {}
+
+    fn names(&self) -> Vec<String> {
+        self.colors.keys().map(|c| c.clone()).collect()
+    }
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -160,6 +164,10 @@ impl GenColor for ColorSets {
     fn update(&mut self) {
         self.n = (self.n + 1) % self.colorsets.len();
     }
+
+    fn names(&self) -> Vec<String> {
+        vec!["default".to_string()]
+    }
 }
 
 impl GenColor for ColorSet {
@@ -170,6 +178,10 @@ impl GenColor for ColorSet {
             .to_owned()
     }
     fn update(&mut self) {}
+
+    fn names(&self) -> Vec<String> {
+        vec!["default".to_string()]
+    }
 }
 
 impl GenColor for RandColor {
@@ -186,6 +198,10 @@ impl GenColor for RandColor {
         }
     }
     fn update(&mut self) {}
+
+    fn names(&self) -> Vec<String> {
+        vec!["default".to_string()]
+    }
 }
 
 impl GenColor for RandColorSet {
@@ -196,6 +212,9 @@ impl GenColor for RandColorSet {
             .to_owned()
     }
     fn update(&mut self) {}
+    fn names(&self) -> Vec<String> {
+        vec!["default".to_string()]
+    }
 }
 
 impl Default for ColorSets {

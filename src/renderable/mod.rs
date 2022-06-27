@@ -5,10 +5,21 @@ use weresocool::generation::json::Op4D;
 use winit::event::{ElementState, VirtualKeyCode};
 
 use crate::{
-    application::VisualsMap, canvas::Canvas, clock::ClockResult, error::KintaroError,
-    frame::types::Frame, glyphy::Glyphy, image_renderer::ImageRenderer,
-    op_stream::renderpasses::make_renderpasses, origami::Origami, sampler::types::Sampler,
-    shader::make_shader, shared::RenderPassInput, toy::Toy, vertex::shape::Shape, Instancer,
+    canvas::Canvas,
+    clock::ClockResult,
+    error::KintaroError,
+    frame::types::Frame,
+    glyphy::Glyphy,
+    image_renderer::ImageRenderer,
+    op_stream::renderpasses::{make_renderpass, make_renderpasses},
+    op_stream::{GetOps, OpInput},
+    origami::Origami,
+    sampler::types::Sampler,
+    shader::make_shader,
+    shared::{EventStreams, RenderPassInput},
+    toy::Toy,
+    vertex::shape::Shape,
+    Instancer,
 };
 
 pub struct RenderableInput<'a> {
@@ -22,11 +33,15 @@ pub struct RenderableInput<'a> {
     pub instance_mul: InstanceMul,
     pub clear: bool,
     pub frames: &'a HashMap<String, Frame>,
-    pub ops: &'a Vec<Op4D>,
+    // pub ops: &'a Vec<Op4D>,
 }
 
 pub trait Renderable<'a> {
-    fn update(&mut self, input: &'a RenderableInput) -> Result<(), KintaroError>;
+    fn update(
+        &mut self,
+        input: &'a RenderableInput,
+        receiver: &mut OpInput,
+    ) -> Result<(), KintaroError>;
     fn render_pass(&mut self, input: &'a RenderableInput, clear: bool) -> Result<(), KintaroError>;
     fn process_keyboard(&mut self, key: VirtualKeyCode, state: ElementState);
 }
@@ -91,17 +106,25 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
             }
             RenderableConfig::EventStreams(renderable_config) => {
                 let shader = make_shader(device, renderable_config.shader_path)?;
-                let renderpasses = make_renderpasses(
-                    device,
-                    &shader,
-                    window_size,
-                    format,
-                    renderable_config.shape.to_owned(),
-                    renderable_config.instancer.to_owned(),
-                    vec![],
-                );
+                let names = renderable_config.shape.color.names();
+                let event_streams = names
+                    .into_iter()
+                    .map(|name| {
+                        let renderpass = make_renderpass(
+                            device,
+                            &shader,
+                            window_size,
+                            format,
+                            renderable_config.shape.to_owned(),
+                            renderable_config.instancer.to_owned(),
+                            name.clone(),
+                        );
 
-                Ok(RenderableEnum::EventStreams(output_frame, renderpasses))
+                        (name, renderpass)
+                    })
+                    .collect::<std::collections::HashMap<String, _>>();
+
+                Ok(RenderableEnum::EventStreams(output_frame, event_streams))
             }
         }
     }
@@ -124,7 +147,7 @@ pub enum RenderableEnum {
     Toy(String, Toy),
     ImageRenderer(String, ImageRenderer),
     Glyphy(String, Box<Glyphy>),
-    EventStreams(String, Vec<RenderPassInput>),
+    EventStreams(String, EventStreams),
     Origami(String, Origami),
     Sampler(String, Sampler),
 }
@@ -168,7 +191,6 @@ pub struct EventStreamConfig<'a> {
     pub shader_path: &'a str,
     pub shape: Shape,
     pub instancer: Box<dyn Instancer>,
-    pub render_audio: bool,
 }
 
 #[derive(Clone)]
@@ -186,9 +208,14 @@ pub enum GlyphyConfig {
 }
 
 impl<'a> Renderable<'a> for RenderableEnum {
-    fn update(&mut self, input: &'a RenderableInput) -> Result<(), KintaroError> {
+    fn update(
+        &mut self,
+        input: &'a RenderableInput,
+        receiver: &mut OpInput,
+    ) -> Result<(), KintaroError> {
         if let RenderableEnum::EventStreams(_, event_streams) = self {
-            for renderpass in event_streams.iter_mut() {
+            for (name, renderpass) in event_streams.iter_mut() {
+                let ops = receiver.get_batch(input.clock_result.total_elapsed, name);
                 renderpass.update(
                     input.clock_result,
                     input.canvas,
@@ -196,8 +223,7 @@ impl<'a> Renderable<'a> for RenderableEnum {
                     input.queue,
                     input.size,
                     input.instance_mul,
-                    renderpass.instancer.clone(),
-                    &input.ops.clone(),
+                    &ops,
                 );
             }
         }
@@ -236,7 +262,7 @@ impl<'a> Renderable<'a> for RenderableEnum {
                             label: Some("RenderPassInput Command Encoder"),
                         });
 
-                for renderpass in event_streams.iter_mut() {
+                for (name, renderpass) in event_streams.iter_mut() {
                     renderpass
                         .uniforms
                         .update_view_proj(input.view_position, input.view_proj);

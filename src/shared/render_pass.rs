@@ -12,6 +12,7 @@ use weresocool::generation::json::Op4D;
 
 use super::make_color_attachments;
 
+#[derive(Debug)]
 pub struct RenderPassInput {
     pub render_pipeline: wgpu::RenderPipeline,
     pub vertices: Vec<Vertex>,
@@ -24,8 +25,9 @@ pub struct RenderPassInput {
     pub uniforms: crate::uniforms::RealtimeUniforms,
     pub uniform_bind_group: wgpu::BindGroup,
     pub uniform_buffer: wgpu::Buffer,
-    pub ops: Vec<Op4D>,
 }
+
+pub type EventStreams = std::collections::HashMap<String, RenderPassInput>;
 
 impl RenderPassInput {
     pub fn render(
@@ -62,21 +64,13 @@ impl RenderPassInput {
         queue: &wgpu::Queue,
         size: (u32, u32),
         instance_mul: InstanceMul,
-        instancer: Box<dyn Instancer>,
         ops: &Vec<Op4D>,
     ) {
         self.vertex_buffer = make_vertex_buffer(device, self.vertices.as_slice());
 
         if clock_result.is_playing {
-            add_new_instances_to_render_pass(
-                &clock_result,
-                self,
-                &canvas,
-                &*instancer,
-                instance_mul,
-                ops,
-            );
-            update_instances(&clock_result, self, device, &*instancer, size);
+            add_new_instances_to_render_pass(self, &canvas, instance_mul, ops);
+            update_instances(&clock_result, self, device, size);
         }
         queue.write_buffer(
             &self.uniform_buffer,
@@ -87,22 +81,16 @@ impl RenderPassInput {
 }
 
 fn add_new_instances_to_render_pass(
-    clock_result: &ClockResult,
     renderpass: &mut RenderPassInput,
     canvas: &Canvas,
-    instancer: &(impl Instancer + ?Sized),
     mul: InstanceMul,
     ops: &Vec<Op4D>,
 ) {
-    // let mut new_instances: Vec<Instance> = renderpass
-    // .op_stream
-    // .get_batch(clock_result.total_elapsed)
-    // .into_iter()
     let mut new_instances = ops
         .into_iter()
         .map(|op| {
             let input = prepare_op4d_to_instancer_input(&mul, &op);
-            let transformation = instancer.op4d_to_instance_transformation(input);
+            let transformation = renderpass.instancer.op4d_to_instance_transformation(input);
             op4d_to_instance(transformation, op, canvas)
         })
         .collect();
@@ -114,13 +102,13 @@ fn update_instances(
     clock_result: &ClockResult,
     renderpass: &mut RenderPassInput,
     device: &wgpu::Device,
-    instancer: &(impl Instancer + ?Sized),
     size: (u32, u32),
 ) {
-    renderpass
-        .instances
-        .iter_mut()
-        .for_each(|i| instancer.update_instance(i, clock_result.last_period));
+    renderpass.instances.iter_mut().for_each(|i| {
+        renderpass
+            .instancer
+            .update_instance(i, clock_result.last_period)
+    });
 
     renderpass.instances.retain(|i| i.life > 0.0);
     renderpass.instance_buffer =
