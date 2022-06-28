@@ -97,9 +97,9 @@ pub fn live(mut config: Config<'static>) -> Result<(), KintaroError> {
         }
 
         if watchers.receiver.try_recv().is_ok() {
-            state.pause();
-            state.clock.reset();
+            std::thread::sleep(std::time::Duration::from_millis(100));
             state.push_composition(&config).unwrap();
+            state.clock.reset();
             state.play();
         };
 
