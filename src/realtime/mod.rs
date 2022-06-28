@@ -139,7 +139,6 @@ impl<'a> RealTimeState {
 
     pub fn push_composition(&mut self, config: &Config<'static>) -> Result<(), KintaroError> {
         std::thread::sleep(std::time::Duration::from_millis(100));
-        self.pause();
         let render_voices = match prepare_render_outside(Filename("kintaro3.socool"), None) {
             Ok(result) => Some(result),
             Err(error) => {
@@ -167,10 +166,10 @@ impl<'a> RealTimeState {
         self.clock.play();
     }
 
-    pub fn pause(&mut self) {
-        self.render_manager.lock().unwrap().pause();
-        self.clock.pause();
-    }
+    // pub fn pause(&mut self) {
+    // self.render_manager.lock().unwrap().pause();
+    // self.clock.pause();
+    // }
 }
 
 pub fn make_renderable_enums(
