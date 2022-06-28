@@ -103,7 +103,7 @@ impl ControlsInner {
             });
             ui.vertical(|ui| {
                 ui.label("x:");
-                if ui.add(egui::Slider::new(&mut x, 0.0..=200.0)).changed() {
+                if ui.add(egui::Slider::new(&mut x, 0.0..=2000.0)).changed() {
                     s.instance_mul.x = x
                 };
                 ui.end_row();
@@ -111,24 +111,24 @@ impl ControlsInner {
                 if ui.add(egui::Slider::new(&mut y, 0.0..=2000.0)).changed() {
                     s.instance_mul.y = y
                 };
-                ui.label("z:");
-                if ui.add(egui::Slider::new(&mut z, 0.0..=25.0)).changed() {
-                    s.instance_mul.z = z
-                };
+                // ui.label("z:");
+                // if ui.add(egui::Slider::new(&mut z, 0.0..=25.0)).changed() {
+                // s.instance_mul.z = z
+                // };
                 ui.end_row();
                 ui.label("size:");
-                if ui.add(egui::Slider::new(&mut size, 0.0..=500.0)).changed() {
+                if ui.add(egui::Slider::new(&mut size, 0.0..=2000.0)).changed() {
                     s.instance_mul.size = size
                 };
-                ui.label("life:");
-                if ui.add(egui::Slider::new(&mut life, 0.0..=10.0)).changed() {
-                    s.instance_mul.life = life
-                };
-                ui.label("length:");
-                if ui.add(egui::Slider::new(&mut length, 0.0..=25.0)).changed() {
-                    s.instance_mul.length = length
-                };
-                ui.end_row();
+                // ui.label("life:");
+                // if ui.add(egui::Slider::new(&mut life, 0.0..=10.0)).changed() {
+                // s.instance_mul.life = life
+                // };
+                // ui.label("length:");
+                // if ui.add(egui::Slider::new(&mut length, 0.0..=25.0)).changed() {
+                // s.instance_mul.length = length
+                // };
+                // ui.end_row();
             });
         });
     }
