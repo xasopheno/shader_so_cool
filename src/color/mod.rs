@@ -127,11 +127,6 @@ pub struct ColorMap {
 
 impl GenColor for ColorMap {
     fn gen(&self, names: &Vec<String>) -> Color {
-        // for (name, color) in self.colors.iter() {
-        // if op_stream.names.contains(name) {
-        // return color.gen(op_stream);
-        // }
-        // }
         if !names.is_empty() {
             let found = self.colors.get(names.last().unwrap());
             if found.is_some() {
@@ -144,7 +139,9 @@ impl GenColor for ColorMap {
     fn update(&mut self) {}
 
     fn names(&self) -> Vec<String> {
-        self.colors.keys().map(|c| c.clone()).collect()
+        let mut names: Vec<String> = self.colors.keys().map(|c| c.clone()).collect();
+        names.push("nameless".to_string());
+        names
     }
 }
 
