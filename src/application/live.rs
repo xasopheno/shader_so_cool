@@ -38,7 +38,7 @@ pub fn live(mut config: Config<'static>) -> Result<(), KintaroError> {
 
     let (tx, rx): (Sender<VisEvent>, Receiver<VisEvent>) = crossbeam_channel::unbounded();
 
-    let filename = "./kintaro3.socool";
+    let filename = config.socool_path;
 
     let (nf, basis, mut table) =
         match InputType::Filename(filename).make(RenderType::NfBasisAndTable, None)? {

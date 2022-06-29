@@ -125,6 +125,7 @@ impl<'a> Default for Config<'a> {
 
         let (cameras, instance_mul) = Config::handle_save(instance_mul);
         Config {
+            socool_path: "./kintaro3.socool",
             composition_name: "kintaro3",
             frame_passes: frame_passes(),
 
@@ -164,6 +165,7 @@ impl<'a> Config<'a> {
 
 #[derive(Clone)]
 pub struct Config<'a> {
+    pub socool_path: &'a str,
     pub composition_name: &'a str,
     pub frame_passes: Vec<FramePass>,
 
