@@ -4,7 +4,6 @@ use crate::canvas::Canvas;
 use crate::clock::ClockResult;
 use crate::instance::instancer::{op4d_to_instance, prepare_op4d_to_instancer_input};
 use crate::instance::{make_instance_buffer, Instance};
-use crate::op_stream::{GetOps, OpInput};
 use crate::vertex::shape::Shape;
 use crate::vertex::{make_vertex_buffer, Vertex};
 use crate::Instancer;

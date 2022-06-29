@@ -134,7 +134,7 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
                 vec![config.shader_path.to_string()]
             }
             RenderableConfig::EventStreams(config) => {
-                vec![config.shader_path.to_string(), config.socool_path.clone()]
+                vec![config.shader_path.to_string()]
             }
             _ => {
                 vec![]
@@ -187,7 +187,6 @@ pub struct OrigamiConfig<'a> {
 
 #[derive(Clone)]
 pub struct EventStreamConfig<'a> {
-    pub socool_path: String,
     pub shader_path: &'a str,
     pub shape: Shape,
     pub instancer: Box<dyn Instancer>,

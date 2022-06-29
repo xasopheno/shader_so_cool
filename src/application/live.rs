@@ -65,7 +65,7 @@ pub fn live(mut config: Config<'static>) -> Result<(), KintaroError> {
         render_manager,
     )?;
 
-    let watchable_paths: Vec<String> = config
+    let mut watchable_paths: Vec<String> = config
         .frame_passes
         .iter()
         .map(|frame_pass| {
@@ -79,8 +79,7 @@ pub fn live(mut config: Config<'static>) -> Result<(), KintaroError> {
         .flatten()
         .collect();
 
-    // let watchers = Watcher::init(watchable_paths.clone())?;
-    // println!("Created {} watchers", watchable_paths.len());
+    watchable_paths.push(filename.to_string());
 
     stream.start().unwrap();
     state.play();
