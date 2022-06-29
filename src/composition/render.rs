@@ -2,11 +2,10 @@ use crate::{
     camera::Cameras,
     canvas::Canvas,
     error::KintaroError,
-    op_stream::OpInput,
+    op_stream::{GetOps, OpInput},
     renderable::{Renderable, RenderableInput},
 };
 use kintaro_egui_lib::InstanceMul;
-use weresocool::generation::json::Op4D;
 use winit::event::{ElementState, VirtualKeyCode};
 
 use crate::clock::Clock;
@@ -55,13 +54,13 @@ impl Composition {
             instance_mul,
             clear: false,
             frames: &self.frames,
-            // ops,
         };
 
         for (idx, renderable) in self.renderables.0.iter_mut().enumerate() {
             renderable.update(&render_input, receiver)?;
             renderable.render_pass(&render_input, idx == 0)?;
         }
+        receiver.clear_cache();
 
         Ok(())
     }

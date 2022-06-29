@@ -10,7 +10,7 @@ use crate::save::ConfigState;
 use crate::vertex::shape::{RandCircumference, RandIndex, RandPosition, Shape};
 use crate::InstanceMul;
 #[allow(unused_imports)]
-use crate::{color_map_from_named_colorsets, ColorMap, ColorSets};
+use crate::{color_map_from_named_colorsets, ColorMap, ColorSets, RandColor};
 
 pub fn named_colorsets<'a>() -> Vec<(&'a str, Vec<&'a str>)> {
     vec![
@@ -27,8 +27,26 @@ pub fn named_colorsets<'a>() -> Vec<(&'a str, Vec<&'a str>)> {
     ]
 }
 
+pub fn named_colorsets2<'a>() -> Vec<(&'a str, Vec<&'a str>)> {
+    vec![
+        ("a", vec!["#dd1133", "#030303"]),
+        ("b", vec!["#dd1133", "#030303"]),
+        ("c", vec!["#dd1133", "#030303"]),
+        ("d", vec!["#dd1133", "#030303"]),
+        ("e", vec!["#dd1133", "#030303"]),
+        ("f", vec!["#dd1133", "#030303"]),
+        ("g", vec!["#dd1133", "#030303"]),
+        ("h", vec!["#dd1133", "#030303"]),
+        ("i", vec!["#dd1133", "#030303"]),
+        ("j", vec!["#dd1133", "#030303"]),
+    ]
+}
+
 pub fn color_map() -> ColorMap {
     color_map_from_named_colorsets(named_colorsets())
+}
+pub fn color_map2() -> ColorMap {
+    color_map_from_named_colorsets(named_colorsets2())
 }
 
 #[derive(Clone)]
@@ -57,6 +75,18 @@ fn frame_passes() -> Vec<FramePass> {
                         indices: Box::new(RandIndex),
                     },
                 }),
+                // RenderableConfig::EventStreams(EventStreamConfig {
+                // socool_path: "kintaro3.socool".to_string(),
+                // shader_path: "./src/shader.wgsl",
+                // instancer: Box::new(SimpleInstancer {}),
+                // shape: Shape {
+                // n_vertices: 100,
+                // n_indices: 100,
+                // position: Box::new(RandCircumference),
+                // color: Box::new(color_map2()),
+                // indices: Box::new(RandIndex),
+                // },
+                // }),
             ],
         },
         // FramePass {

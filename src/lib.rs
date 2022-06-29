@@ -25,7 +25,6 @@ pub mod surface;
 pub mod toy;
 pub mod uniforms;
 pub mod vertex;
-pub mod watch;
 
 pub use crate::camera::{default::default_cameras, CameraConfig};
 pub use crate::color::{

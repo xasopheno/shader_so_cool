@@ -3,16 +3,13 @@ use crate::config::Config;
 use crate::error::KintaroError;
 use crate::realtime::gui::GuiRepaintSignal;
 use crate::realtime::RealTimeState;
-// use crate::realtime::Watcher;
 use crate::renderable::ToRenderable;
-use crossbeam_channel::{Receiver, Sender};
+use crossbeam_channel::{bounded, Receiver, Sender};
 use notify::{
     event::AccessKind, event::AccessMode, event::EventKind, event::ModifyKind, RecommendedWatcher,
     RecursiveMode, Watcher,
 };
-use std::collections::HashSet;
 use std::path::Path;
-use std::sync::mpsc::channel;
 use std::sync::{Arc, Mutex};
 use weresocool::generation::parsed_to_render::{RenderReturn, RenderType};
 use weresocool::interpretable::{InputType, Interpretable};
@@ -91,8 +88,7 @@ pub fn live(mut config: Config<'static>) -> Result<(), KintaroError> {
     let time = std::time::SystemTime::now();
     let mut frames: u64 = 0;
 
-    let (tx, rx) = channel();
-    // let (output_tx, output_rx) = channel();
+    let (tx, rx) = bounded(1);
     let mut socool_watcher = RecommendedWatcher::new(tx).unwrap();
 
     watchable_paths.iter().for_each(|path| {
@@ -102,33 +98,17 @@ pub fn live(mut config: Config<'static>) -> Result<(), KintaroError> {
     });
 
     event_loop.run(move |event, _, control_flow| {
-        // if watchers.receiver.try_recv().is_ok() {
-        let mut x = || {
-            std::thread::sleep(std::time::Duration::from_millis(100));
-            state.push_composition(&config).unwrap();
-            state.clock.reset();
-            state.play();
-        };
-        // };
-
         if let Ok(event) = rx.try_recv() {
             // println!("{:?}", event);
             match event {
                 Ok(notify::Event {
-                    kind: EventKind::Access(AccessKind::Close(AccessMode::Write)),
+                    kind:
+                        EventKind::Access(AccessKind::Close(AccessMode::Write))
+                        | EventKind::Modify(ModifyKind::Data { .. }),
                     ..
                 }) => {
                     println!("updated");
-                    x();
-                    // output_tx.send(true).expect("oh no watcher can't send");
-                }
-                Ok(notify::Event {
-                    kind: EventKind::Modify(ModifyKind::Data { .. }),
-                    ..
-                }) => {
-                    println!("updated");
-                    x();
-                    // output_tx.send(true).expect("oh no! watcher can't send!");
+                    state.push_composition(&config).unwrap();
                 }
                 _ => {
                     // dbg!(event);
@@ -203,50 +183,3 @@ pub fn live(mut config: Config<'static>) -> Result<(), KintaroError> {
     #[allow(unreachable_code)]
     Ok(())
 }
-
-// pub fn watch(path_strings: Vec<String>) -> Result<Receiver<bool>, notify::Error> {
-// let path_strings: Vec<String> = path_strings
-// .into_iter()
-// .collect::<HashSet<_>>()
-// .into_iter()
-// .collect();
-// let (tx, rx) = channel();
-// let (output_tx, output_rx) = channel();
-// let mut socool_watcher = RecommendedWatcher::new(tx).unwrap();
-
-// std::thread::spawn(move || -> Result<(), notify::Error> {
-// path_strings.iter().for_each(|path| {
-// socool_watcher
-// .watch(Path::new(path).as_ref(), RecursiveMode::Recursive)
-// .unwrap();
-// });
-
-// loop {
-// if let Ok(event) = rx.try_recv() {
-// // println!("{:?}", event);
-// match event {
-// Ok(notify::Event {
-// kind: EventKind::Access(AccessKind::Close(AccessMode::Write)),
-// ..
-// }) => {
-// println!("updated");
-// output_tx.send(true).expect("oh no watcher can't send");
-// }
-// Ok(notify::Event {
-// kind: EventKind::Modify(ModifyKind::Data { .. }),
-// ..
-// }) => {
-// println!("updated");
-// output_tx.send(true).expect("oh no! watcher can't send!");
-// }
-// _ => {
-// // dbg!(event);
-// }
-// }
-// }
-// }
-// // Ok(())
-// });
-
-// Ok(output_rx)
-// }

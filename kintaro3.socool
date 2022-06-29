@@ -1,218 +1,129 @@
 { f: 311.127, l: 1, g: 1, p: 0 }
+
+repeat = {
+    -- Repeat 2
+    -- Seq [AsIs, Overlay [Fm 1, Fa -4 | Gm 1/2]]
+    Seq [#c | Fm 1, #e | Fm 1] 
+}
     
 thing1 = {
-    #a | O[
-        (3/2, 0, 1, -1/8),
-        (3/2, 0, 1, 1/8),
-        (1, 0, 1, -1),
+    O[
+        (4, 0, 1/20, 1/4),
+        (4, -4, 1/15, 1/4),
+        (2, 0, 1/3, 1/2),
+        (2, -7, 1/4, 1/2),
+        (1, 0, 7/10, -1),
         (1, 0, 1, 1),
-        (1/2, 0, 1, -1),
-        (1/2, 0, 1, 1),
-        (1/4, 0, 1, -1),
-        (1/4, 0, 1, 1),
     ]
     | Seq [
-        Fm 5, Fm 3, Fm 7/8, Fm 3/4 | Lm 3 
+        Seq [Fm 1, Fm 2, Fm 3, Fm 4]
+        | Seq [AsIs | Pa 1/2, Reverse | Pa -1/2]
+        | repeat,
+        Seq [Fm 1, Fm 9/4, Fm 15/8, Fm 5/2]
+        | Seq [AsIs | Pa 1/2, Reverse | Pa -1/2]
+        | repeat,
+        Seq [Fm 1, Fm 7/4, Fm 25/12, Fm 5/2, Fm 3/2, Fm 10/3]
+        | Seq [AsIs | Pa 2/3, Reverse | Pa -2/3]
+        | repeat,
+        Seq [Fm 1, Fm 4/3, Fm 5/3, Fm 8/3, Fm 3/1, Fm 3/4]
+        | Seq [AsIs | Pa 1, Reverse | Pa -1]
+        | repeat,
+        Seq [Fm 1, Fm 8/5, Fm 5/2, Fm 3, Fm 10/3, Fm 4, Fm 5, Fm 6 | Lm 3]
+        -- | Overlay [AsIs, Fa -7 | Gm 1/2, Fm 3/4 | Gm 1/4]]
+        | Seq [AsIs | Pa 1/2, Reverse | Pa -1/2]
+        | repeat,
+        Seq [Fm 5/6, Fm 15/16]
+        | Seq [AsIs | Pa 1/3, Reverse | Pa -1/3]
+        | Seq [
+          Overlay [
+            #a | Fm 3 | *(
+              f: 0|31 [1]
+            ) Take 26 | Gm 3/4,
+            #c | Fm 2 | Repeat 23 | Gm 3/4, 
+            #b | *(
+              f: 0|31 [-1]
+            ) Take 25
+          ]
+        ],
+        #b | Seq [Fm 1, Fm 2, Fm 3, Fm 4],
+        Seq [Fm 4, Fm 3, Fm 2, Fm 1, Fm 3/4, Fm 1/2]
+        | Seq [#a | AsIs | Pa 1/2, #b | Reverse | Pa -1/2]
+        | repeat,
+        Seq [Fm 3, Fm 9/2, Fm 2, Fm 1, Fm 3/4, Fm 1/2]
+        | Seq [#a | AsIs | Pa 1/2, #b | Reverse | Pa -1/2]
+        | repeat,
+        Seq [Fm 5, Fm 4, Fm 3, Fm 1, Fm 3/4, Fm 1/2]
+        | Seq [#a | AsIs | Pa 1/2, #b | Reverse | Pa -1/2]
+        | repeat,
+        Seq [
+            Fm 5, Fm 4, Fm 3, Fm 1, Fm 3/4, Fm 1/2, 
+            Fm 1, Fm 7/6, Fm 3/2, Fm 2, Fm 7/3, Fm 3, Fm 4,
+        ]
+        | Seq [#a | Pa -1, #b | Pa 1]
+        | repeat,
+        Seq [
+            Fm 4, Fm 3, Fm 1, Fm 1/2, Fm 3/4, Fm 2, 
+            Fm 9/4, Fm 5/2, Fm 3, Fm 10/4, Fm 15/4,
+        ]
+        | Seq [#a | Pa -1, #b | Pa 1]
+        | Seq [Fa 0, Fa 4, Fa 8, Fa 12, Fa 16, Fa -16]
     ]
     | Fm 1/2
     | Lm 1/8
-    | Seq [Reverse, AsIs | Fa -3]
-    | Repeat 8
+    | Overlay [Sine, Square 0.1 | Gm 1/60]
 }
 
 thing2 = {
-    #b   
-    | O[
-        (5/2, 0, 1, -1/8),
-        (5/2, 4, 1, 1/8),
-        (7/4, 0, 1, -1/8),
-        (7/4, 4, 1, 1/8),
-        (3/2, 3, 1, -1/8),
-        (3/2, 0, 1, 1/8),
-        (1, 0, 1, -1),
-        (1, 0, 1, 1),
-    ]
-    | Seq [
-        Fm 3/2, 
-        Fm 7/8 
-        | Seq [Fm 0 | Lm 1/4, Fm 1, Fm 0] 
-        | Repeat 3 
-        | Lm 1/3, 
-        Fm 0
-    ]
-    | Seq [
-        Fm 0, Fm 1, Fa -7, 
-        Fm 4 | Seq [Lm 2/3, Fm 5/3 | Lm 1/3]
-    ]
-    | Repeat 4
-    | FitLength thing1
-}
-
-thing3 = {
-    #c  
-    | O[
-        (2, 3, 1, -1/8),
-        (2, 0, 1, 1/8),
-        (5/4, 1, 1, -1/4),
-        (5/4, 1, 1, 1/4),
-        (9/8, 1, 1, -1/4),
-        (9/8, 1, 1, 1/4),
-        (1, 0, 1, -1),
-        (1, 0, 1, 1),
-        (1/2, 0, 1, -1),
-        (1/2, 0, 1, 1),
-    ]
-    | Fm 4
-    | Seq [
-       Fm 5/4, Fm 9/8, Fm 3/4, Fm 7/8, 
-       Fm 11/16, Fm 3/4,
-       Fm 15/16, Fm 9/8, Fm 4/3, Fm 5/4 | Lm 3, 
-       
-    ]
-    | Repeat 3
-    | Seq [Fm 0 | Repeat 3, Fm 1]
-    | FitLength thing1
-}
-
-thing4 = {
-    #e  
-    | Noise
-    | O[
-        (2, 3, 1, -1/8),
-        (2, 0, 1, 1/8),
-        (5/4, 1, 1, -1/4),
-        (5/4, 1, 1, 1/4),
-        (9/8, 1, 1, -1/4),
-        (9/8, 1, 1, 1/4),
-        (1, 0, 1, -1),
-        (1, 0, 1, 1),
-        (1/2, 0, 1, -1),
-        (1/2, 0, 1, 1),
-    ]
-    | Seq [
-        Fm 1, Fm 2, Fm 0, Fm 1, Fm 0, Fm 1/2, Fm 0, Fm 0 | Lm 4
-    ]
-    | Repeat 12
-    | Overlay [
-        Repeat 2 | Gm 1/2 | Fm 2,
-        #h | Lm 1/8 | Fm 16
-    ]
-    | FitLength thing1
-}
-
-thing5 = {
-    #f 
-    | O[
-        (1/2, 0, 1, -1),
-        (1/2, 8, 1, 1),
-        (1/4, -16, 1, -1),
-        (1/4, 0, 1, 1),
-    ]
-    | Seq [
-        Fm 1, Fm 0 | Lm 48
-    ]
-    | Repeat 24
-    | FitLength thing1
-}
-
-section1 = {
-    Overlay [
-        thing1,
-        thing2,
-        thing3,
-        thing4,
-        thing5,
-    ] 
-    -- | Repeat 4
-}
-
-section2 = {
-    #i
-    | O[
-        (5, 0, 1, -1/8),
-        (5, 8, 1, 1/8),
-        (3, 0, 1, -1/8),
-        (3, 8, 1, 1/8),
-        (1, 0, 1, -1),
-        (1, 8, 1, 1),
-        (1/2, 0, 1, -1),
-        (1/2, 8, 1, 1),
-        (1/4, 0, 1, -1),
-        (1/4, 0, 1, 1),
-    ]
-    | Seq [
-        Fm 5/4, Fm 3/2, Fm 1, Fm 7/8, 
-        Fm 4/3, Fm 3/2, Fm 9/8, Fm 7/8, 
-        Fm 5/3, Fm 2/3, Fm 4/3, Fm 9/8, Fm 1/2, Fm 5/6, 
-        Fm 15/8, Fm 3/2, Fm 5/8, Fm 5/4, Fm 9/8,
-        Fm 3/4, Fm 1/2, Fm 9/16, Fm 11/16, 
-        Fm 3/2, Fm 5/6, Fm 5/8, Fm 2, Fm 5/2,
-        Fm 2, Fm 9/8, Fm 2, Fm 1, Fm 1/2,
-        #j | Overlay [
-            Fm 1, Fm 3/2, Fm 9/4
-        ] | Gm 3/4
-        | Seq [
-            Fm 4/5, Fm 7/8, Fm 9/8, Fm 5/4, Fm 4/3, Fm 3/2,
-            Fm 11/8, Fm 4/3, Fm 9/8, Fm 4/3, Fm 11/8, Fm 4/3, Fm 5/4,
-        ]
-    ]
-    | Lm 1/10
-}
-
-feather_golem = {
+    #d | 
     Seq [
-        section1 | Repeat 2,
-        Fm 0 | Lm 1/100,
-        section2 | Repeat 3,
-        section1 | Repeat 3,
-        Fm 0 | Lm 1/100,
-        section2 
-        | Seq [
-            Fm 1, 
-            Fm 7/8 | Lm 8/7, 
-            Fm 5/6 | Lm 6/5 
+        O[
+            (3, -4, 1, -1/2),
+            (3, 0, 1, 1/2),
+            (5/2, 2, 1, -1/3),
+            (9/4, 0, 1, 1/3),
+            (5/3, 0, 1, 1),
+            (3/2, 2, 1, -1),
+            (1, 2, 1, -1),
+            (1, 0, 1, 1),
+            (3/4, 2, 1, -1),
+            (3/4, 0, 1, 1),
+            (1/2, 2, 1, 1),
+            (1/2, 0, 1, -1),
+            (1/4, 1, 1, 1),
+            (1/4, 0, 1, -1),
         ],
-        section1 | Repeat 3,
-        Fm 0 | Lm 1/12,
-        #a | O[
-            (17, 0, 1/32, -1/8),
-            (17, 3, 1/32, 1/8),
-            (11, 0, 1/2, -1/8),
-            (11, 11, 1/3, 1/8),
-            (9, 0, 1/2, -1/9),
-            (9, 11, 1, 1/2),
-            (7, 0, 1, -1/4),
-            (7, 7, 1, 1/7),
-            (5, 0, 1, -1/2),
-            (5, 7, 1, 1/8),
-            (10/3, 0, 1, -1),
-            (10/3, 8, 1, 1),
-            (3, 0, 1, -1/8),
-            (3, 8, 1, 1/8),
-            (15/8, 0, 1, -1),
-            (15/8, 8, 1, 1),
-            (5/4, 0, 1, -1),
-            (5/4, 8, 1, 1),
-            (1, 0, 1, -1),
-            (1, 8, 1, 1),
-            (1/2, 0, 1, 0),
-            (1/2, 8, 1, 0),
-            (1/4, 3, 1, -1),
-            (1/4, 0, 1, 1),
-        ] 
-        | Lm 45
-        | ModBy [
-            Fa 0, Fa -5, Fa -10, Fa -15, Fa -20, Fa -25, Fa -35,
-            Fa -50 | Lm 2
-        ]
+        O[
+            (3, -3, 1, -1/2),
+            (3, 0, 1, 1/2),
+            (5/2, 7, 1, -1/3),
+            (9/4, 0, 1, 1/3),
+            (5/3, 0, 1, 1),
+            (3/2, -3, 1, -1),
+            (1, 4, 1, -1),
+            (1, 0, 1, 1),
+            (3/4, 1, 1, -1),
+            (3/4, 0, 1, 1),
+            (1/2, 4, 1, 1),
+            (1/2, 0, 1, -1),
+            (1/4, 3, 1, 1),
+            (1/4, 0, 1, -1),
+        ],
     ]
+    | Gm 1/2
+    | FitLength thing1
+    | Overlay [Sine, Square 0.1 | Gm 1/80, Sine 2.0 | Gm 1/70 | Pm -1]
 }
 
 main = {
     Seq [
-        -- Fm 0 | Lm 1,
-        feather_golem,
-        Fm 0 | Lm 15,
+        Overlay [
+            thing1,
+            thing2 | Gm 4/8
+        ]
     ]
-    | Gm 3/4
+    | Lm 3/4
+    | Seq [Pm 1, Pm -1]
+    | Lm 9/8
+    -- | Seq [Lm 1, Lm 9/8, Lm 7/8]
+    | Gm 1/4
 }

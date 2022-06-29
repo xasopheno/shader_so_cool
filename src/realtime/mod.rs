@@ -50,19 +50,8 @@ pub struct RealTimeState {
 
     pub composition: Option<Composition>,
 
-    // pub watchers: Option<Watcher>,
     pub receiver: OpInput,
     pub render_manager: Arc<Mutex<RenderManager>>,
-}
-pub struct Watcher {
-    pub receiver: Receiver<bool>,
-}
-
-impl Watcher {
-    pub fn init(paths: Vec<String>) -> Result<Self, notify::Error> {
-        let receiver = crate::watch::watch(paths)?;
-        Ok(Self { receiver })
-    }
 }
 
 pub fn make_frames<'a>(
@@ -128,9 +117,9 @@ impl<'a> RealTimeState {
             },
 
             composition: Some(composition),
-            // watchers: Some(watchers),
             receiver: OpInput::OpReceiver(OpReceiver {
                 ops: opmap::OpMap::default(),
+                cache: opmap::OpMap::default(),
                 channel: input,
             }),
             render_manager,
@@ -157,6 +146,7 @@ impl<'a> RealTimeState {
             config,
         )?;
         self.composition = Some(composition);
+        self.clock.reset();
 
         Ok(())
     }
@@ -166,10 +156,10 @@ impl<'a> RealTimeState {
         self.clock.play();
     }
 
-    // pub fn pause(&mut self) {
-    // self.render_manager.lock().unwrap().pause();
-    // self.clock.pause();
-    // }
+    pub fn pause(&mut self) {
+        self.render_manager.lock().unwrap().pause();
+        self.clock.pause();
+    }
 }
 
 pub fn make_renderable_enums(

@@ -31,24 +31,22 @@ impl RealTimeState {
 
             self.receiver.receive();
 
-            if self.clock.is_playing() {
-                composition.render(
-                    &self.device,
-                    &self.queue,
-                    self.size,
-                    &self.clock,
-                    instance_mul,
-                    &self.canvas,
-                    &mut self.cameras,
-                    &mut self.receiver,
-                )?;
+            composition.render(
+                &self.device,
+                &self.queue,
+                self.size,
+                &self.clock,
+                instance_mul,
+                &self.canvas,
+                &mut self.cameras,
+                &mut self.receiver,
+            )?;
 
-                self.surface.render(
-                    &mut surface_encoder,
-                    &composition.frames.get("main").unwrap(),
-                    &surface_texture_view,
-                );
-            }
+            self.surface.render(
+                &mut surface_encoder,
+                &composition.frames.get("main").unwrap(),
+                &surface_texture_view,
+            );
         }
 
         self.queue.submit(std::iter::once(surface_encoder.finish()));

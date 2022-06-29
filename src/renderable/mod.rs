@@ -262,7 +262,7 @@ impl<'a> Renderable<'a> for RenderableEnum {
                             label: Some("RenderPassInput Command Encoder"),
                         });
 
-                for (name, renderpass) in event_streams.iter_mut() {
+                for (_, renderpass) in event_streams.iter_mut() {
                     renderpass
                         .uniforms
                         .update_view_proj(input.view_position, input.view_proj);

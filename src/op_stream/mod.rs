@@ -3,15 +3,15 @@ use crate::{application::Visual, instance::Instance};
 use cgmath::{Rotation3, Vector3};
 use kintaro_egui_lib::InstanceMul;
 use rand::Rng;
-use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 pub use weresocool::{
     generation::json::{EventType, Op4D},
     manager::VisEvent,
 };
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Debug, Clone)]
 pub struct OpStream {
+    //needs cache
     pub ops: Vec<Op4D>,
     pub length: f32,
     pub names: Vec<String>,
@@ -21,6 +21,7 @@ pub trait GetOps {
     fn get_batch(&mut self, t: f32, name: &str) -> Vec<Op4D>;
     fn reset(&mut self);
     fn receive(&mut self);
+    fn clear_cache(&mut self);
 }
 
 pub enum OpInput {
@@ -48,12 +49,19 @@ impl GetOps for OpInput {
             OpInput::OpStream(op_stream) => op_stream.reset(),
         }
     }
+    fn clear_cache(&mut self) {
+        match self {
+            OpInput::OpReceiver(op_receiver) => op_receiver.clear_cache(),
+            OpInput::OpStream(op_stream) => op_stream.clear_cache(),
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
 pub struct OpReceiver {
     pub ops: opmap::OpMap<Op4D>,
     pub channel: crossbeam_channel::Receiver<VisEvent>,
+    pub cache: opmap::OpMap<Op4D>,
 }
 
 impl GetOps for OpReceiver {
@@ -79,13 +87,26 @@ impl GetOps for OpReceiver {
     }
 
     fn get_batch(&mut self, t: f32, name: &str) -> Vec<Op4D> {
-        self.ops.get(name, |v| (v.t as f32) < t)
+        if let Some(cached) = self.cache.get(name) {
+            cached.clone()
+        } else {
+            let ops = self.ops.drain(name, |v| (v.t as f32) < t);
+            if ops.len() > 0 {
+                self.cache.set(name, ops.clone());
+            };
+            ops
+        }
+    }
+
+    fn clear_cache(&mut self) {
+        self.cache = opmap::OpMap::default();
     }
 }
 
 impl GetOps for OpStream {
     fn reset(&mut self) {}
     fn receive(&mut self) {}
+    fn clear_cache(&mut self) {}
     fn get_batch(&mut self, t: f32, name: &str) -> Vec<Op4D> {
         let result: Vec<Op4D> = self
             .ops
@@ -108,35 +129,6 @@ impl OpStream {
             length: 0.0,
             names: vec![],
         }
-    }
-
-    pub fn from_json(filename: &str) -> Vec<OpStream> {
-        let data = std::fs::read_to_string(format!("./{}.socool.json", filename))
-            .expect("Unable to read file");
-
-        let deserialized: OpStream = serde_json::from_str(&data).unwrap();
-        let mut op_streams = BTreeMap::<Vec<String>, Vec<Op4D>>::new();
-        deserialized.ops.iter().for_each(|op| {
-            if op.names.is_empty() {
-                let stream = op_streams
-                    .entry(vec!["nameless".into()])
-                    .or_insert_with(Vec::new);
-                stream.push(op.clone());
-            } else {
-                let names = &op.names;
-                let stream = op_streams.entry(names.to_owned()).or_insert_with(Vec::new);
-                stream.push(op.clone());
-            }
-        });
-
-        op_streams
-            .into_iter()
-            .map(|(names, ops)| OpStream {
-                ops,
-                length: deserialized.length,
-                names,
-            })
-            .collect()
     }
 
     pub fn from_vec_op4d(v: &Visual) -> Vec<OpStream> {
