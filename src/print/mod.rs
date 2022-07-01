@@ -5,10 +5,12 @@ use crate::camera::Cameras;
 use crate::canvas::Canvas;
 use crate::clock::PrintClock;
 use crate::composition::Composition;
+use crate::op_stream::OpReceiver;
 use kintaro_egui_lib::InstanceMul;
 
 pub struct PrintState {
     pub composition: Composition,
+    pub receiver: OpReceiver,
     pub clock: PrintClock,
     pub canvas: Canvas,
     pub count: u32,

@@ -16,7 +16,7 @@ use crate::{
     frame::types::Frame,
     frame::types::Frames,
     frame::vertex::make_square_buffers,
-    op_stream::{GetOps, OpInput, OpReceiver},
+    op_stream::{GetOps, OpReceiver},
     realtime::gui::GuiRepaintSignal,
     renderable::RenderableEnum,
     renderable::ToRenderable,
@@ -26,7 +26,6 @@ use futures::executor::block_on;
 use kintaro_egui_lib::InstanceMul;
 use setup::Setup;
 use std::collections::HashMap;
-use std::sync::mpsc::Receiver;
 use std::sync::{Arc, Mutex};
 pub use weresocool::generation::json::Op4D;
 use weresocool::manager::{prepare_render_outside, VisEvent};
@@ -50,7 +49,7 @@ pub struct RealTimeState {
 
     pub composition: Option<Composition>,
 
-    pub receiver: OpInput,
+    pub receiver: OpReceiver,
     pub render_manager: Arc<Mutex<RenderManager>>,
 }
 
@@ -117,11 +116,7 @@ impl<'a> RealTimeState {
             },
 
             composition: Some(composition),
-            receiver: OpInput::OpReceiver(OpReceiver {
-                ops: opmap::OpMap::default(),
-                cache: opmap::OpMap::default(),
-                channel: input,
-            }),
+            receiver: OpReceiver::init(None, Some(input)),
             render_manager,
         })
     }

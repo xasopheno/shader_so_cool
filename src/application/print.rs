@@ -1,4 +1,4 @@
-use super::utils::audios_and_visuals_from_frame_passes;
+use super::utils::audios_and_visuals_from_filename;
 use super::utils::{sum_all_waveforms, write_audio_to_file};
 use crate::config::Config;
 use crate::error::KintaroError;
@@ -8,7 +8,7 @@ use cradle::prelude::*;
 use std::str::FromStr;
 
 pub fn print_audio_and_video(mut config: Config<'static>) -> Result<(), KintaroError> {
-    let (audios, visuals_map) = audios_and_visuals_from_frame_passes(&config.frame_passes)?;
+    let (audios, visuals_map) = audios_and_visuals_from_filename(config.socool_path)?;
     let mut audio: Option<Vec<u8>> = None;
     if audios.len() > 0 {
         let a = sum_all_waveforms(audios);

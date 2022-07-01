@@ -3,7 +3,7 @@
 repeat = {
     -- Repeat 2
     -- Seq [AsIs, Overlay [Fm 1, Fa -4 | Gm 1/2]]
-    Seq [#c | Fm 1, #e | Fm 1] 
+    Seq [#c, #e] 
 }
     
 thing1 = {

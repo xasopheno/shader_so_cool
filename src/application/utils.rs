@@ -1,7 +1,5 @@
 use crate::application::{Audio, Visual, VisualsMap};
-use crate::config::FramePass;
 use crate::error::KintaroError;
-use crate::renderable::RenderableConfig;
 use std::collections::{HashMap, HashSet};
 use std::io::Write;
 use weresocool::{
@@ -11,25 +9,17 @@ use weresocool::{
     interpretable::{InputType, Interpretable},
 };
 
-pub fn audios_and_visuals_from_frame_passes(
-    frame_passes: &Vec<FramePass>,
+pub fn audios_and_visuals_from_filename(
+    filename: &'static str,
 ) -> Result<(Vec<Audio>, VisualsMap), Error> {
     let mut visuals_map: VisualsMap = HashMap::new();
-    let audios: Vec<Audio> = vec![];
-    let mut rendered: HashSet<&String> = HashSet::new();
+    let mut audios: Vec<Audio> = vec![];
 
-    for c in frame_passes.iter().flat_map(|c| &c.renderables) {
-        // if let RenderableConfig::EventStreams(e) = c {
-        // if rendered.contains(&e.socool_path) {
-        // let result = get_audiovisual_data(&e.socool_path, false)?;
+    let result = get_audiovisual_data(filename, true)?;
 
-        // let (_a, v) = split_audio_visual(result);
-        // // audios.push(a);
-        // visuals_map.insert(e.socool_path.to_string(), v);
-        // rendered.insert(&e.socool_path);
-        // };
-        // }
-    }
+    let (a, v) = split_audio_visual(result);
+    visuals_map.insert(filename.to_string(), v);
+    audios.push(a);
 
     Ok((audios, visuals_map))
 }

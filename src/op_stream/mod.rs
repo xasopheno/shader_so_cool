@@ -17,73 +17,69 @@ pub struct OpStream {
     pub names: Vec<String>,
 }
 
+#[derive(Debug, Clone)]
+pub struct OpReceiver {
+    pub ops: opmap::OpMap<Op4D>,
+    pub cache: opmap::OpMap<Op4D>,
+    pub channel: Option<crossbeam_channel::Receiver<VisEvent>>,
+}
+
 pub trait GetOps {
+    fn init(ops: Option<Vec<Op4D>>, channel: Option<crossbeam_channel::Receiver<VisEvent>>)
+        -> Self;
     fn get_batch(&mut self, t: f32, name: &str) -> Vec<Op4D>;
     fn reset(&mut self);
     fn receive(&mut self);
     fn clear_cache(&mut self);
 }
 
-pub enum OpInput {
-    OpReceiver(OpReceiver),
-    OpStream(OpStream),
-}
-
-impl GetOps for OpInput {
-    fn get_batch(&mut self, t: f32, name: &str) -> Vec<Op4D> {
-        match self {
-            OpInput::OpReceiver(op_receiver) => op_receiver.get_batch(t, name),
-            OpInput::OpStream(op_stream) => op_stream.get_batch(t),
-        }
-    }
-    fn receive(&mut self) {
-        match self {
-            OpInput::OpReceiver(op_receiver) => op_receiver.receive(),
-            OpInput::OpStream(op_stream) => op_stream.receive(),
-        }
-    }
-
-    fn reset(&mut self) {
-        match self {
-            OpInput::OpReceiver(op_receiver) => op_receiver.reset(),
-            OpInput::OpStream(op_stream) => op_stream.reset(),
-        }
-    }
-    fn clear_cache(&mut self) {
-        match self {
-            OpInput::OpReceiver(op_receiver) => op_receiver.clear_cache(),
-            OpInput::OpStream(op_stream) => op_stream.clear_cache(),
-        }
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct OpReceiver {
-    pub ops: opmap::OpMap<Op4D>,
-    pub channel: crossbeam_channel::Receiver<VisEvent>,
-    pub cache: opmap::OpMap<Op4D>,
-}
-
 impl GetOps for OpReceiver {
+    fn init(
+        ops: Option<Vec<Op4D>>,
+        channel: Option<crossbeam_channel::Receiver<VisEvent>>,
+    ) -> Self {
+        let mut results = opmap::OpMap::default();
+
+        if let Some(o) = ops {
+            o.iter().for_each(|op| {
+                let name = if let Some(last) = op.names.last() {
+                    last
+                } else {
+                    "nameless"
+                };
+
+                results.insert(name, op.clone());
+            });
+        }
+
+        Self {
+            ops: results,
+            cache: opmap::OpMap::default(),
+            channel,
+        }
+    }
+
     fn reset(&mut self) {
         self.ops = opmap::OpMap::default();
     }
 
     fn receive(&mut self) {
-        let new_ops = if let Ok(vis_event) = self.channel.try_recv() {
-            match vis_event {
-                VisEvent::Ops(ops) => ops,
-                VisEvent::Reset => {
-                    self.reset();
-                    opmap::OpMap::default()
+        if let Some(channel) = &self.channel {
+            let new_ops = if let Ok(vis_event) = channel.try_recv() {
+                match vis_event {
+                    VisEvent::Ops(ops) => ops,
+                    VisEvent::Reset => {
+                        self.reset();
+                        opmap::OpMap::default()
+                    }
                 }
-            }
-        } else {
-            opmap::OpMap::default()
-        };
+            } else {
+                opmap::OpMap::default()
+            };
 
-        self.ops
-            .join(new_ops, |a, b| a.t.partial_cmp(&b.t).unwrap());
+            self.ops
+                .join(new_ops, |a, b| a.t.partial_cmp(&b.t).unwrap());
+        }
     }
 
     fn get_batch(&mut self, t: f32, name: &str) -> Vec<Op4D> {
@@ -103,31 +99,12 @@ impl GetOps for OpReceiver {
     }
 }
 
-impl GetOps for OpStream {
-    fn reset(&mut self) {}
-    fn receive(&mut self) {}
-    fn clear_cache(&mut self) {}
-    fn get_batch(&mut self, t: f32, name: &str) -> Vec<Op4D> {
-        let result: Vec<Op4D> = self
-            .ops
-            .iter()
-            .take_while(|op| op.t < t.into())
-            .map(|x| x.to_owned())
-            .collect();
-        for _ in 0..result.len() {
-            self.ops.remove(0);
-        }
-
-        result
-    }
-}
-
 impl OpStream {
     pub fn init_empty() -> Self {
         Self {
             ops: vec![],
-            length: 0.0,
             names: vec![],
+            length: 0.0,
         }
     }
 

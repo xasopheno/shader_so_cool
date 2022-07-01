@@ -1,14 +1,10 @@
 use crate::instance::make_instances_and_instance_buffer;
-use crate::op_stream::OpInput;
 use crate::shared::create_render_pipeline;
 use crate::shared::RenderPassInput;
 use crate::vertex::shape::ShapeGenResult;
 use crate::vertex::{create_index_buffer, create_vertex_buffer};
 use crate::Instancer;
 use crate::Shape;
-use weresocool::generation::json::Op4D;
-
-use super::OpStream;
 
 pub fn make_renderpass(
     device: &wgpu::Device,

@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use kintaro_egui_lib::InstanceMul;
-use weresocool::generation::json::Op4D;
 use winit::event::{ElementState, VirtualKeyCode};
 
 use crate::{
@@ -12,7 +11,7 @@ use crate::{
     glyphy::Glyphy,
     image_renderer::ImageRenderer,
     op_stream::renderpasses::{make_renderpass, make_renderpasses},
-    op_stream::{GetOps, OpInput},
+    op_stream::{GetOps, OpReceiver},
     origami::Origami,
     sampler::types::Sampler,
     shader::make_shader,
@@ -40,7 +39,7 @@ pub trait Renderable<'a> {
     fn update(
         &mut self,
         input: &'a RenderableInput,
-        receiver: &mut OpInput,
+        receiver: &mut OpReceiver,
     ) -> Result<(), KintaroError>;
     fn render_pass(&mut self, input: &'a RenderableInput, clear: bool) -> Result<(), KintaroError>;
     fn process_keyboard(&mut self, key: VirtualKeyCode, state: ElementState);
@@ -210,7 +209,7 @@ impl<'a> Renderable<'a> for RenderableEnum {
     fn update(
         &mut self,
         input: &'a RenderableInput,
-        receiver: &mut OpInput,
+        receiver: &mut OpReceiver,
     ) -> Result<(), KintaroError> {
         if let RenderableEnum::EventStreams(_, event_streams) = self {
             for (name, renderpass) in event_streams.iter_mut() {

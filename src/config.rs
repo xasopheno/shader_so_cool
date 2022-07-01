@@ -132,7 +132,8 @@ impl<'a> Default for Config<'a> {
             cameras,
 
             volume: 0.20,
-            window_size: (2560, 1440),
+            // window_size: (2560, 1440),
+            window_size: (1792, 1120),
         }
     }
 }

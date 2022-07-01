@@ -3,6 +3,7 @@ use crate::application::VisualsMap;
 use crate::camera::Cameras;
 use crate::composition::Composition;
 use crate::error::KintaroError;
+use crate::op_stream::{GetOps, OpReceiver};
 use crate::realtime::{make_frames, make_renderable_enums};
 use crate::{
     canvas::Canvas,
@@ -37,6 +38,24 @@ impl PrintState {
 
         let frames = make_frames(&device, size, format, frame_names)?;
 
+        let filename = config.socool_path;
+
+        let (nf, basis, mut table) =
+            match InputType::Filename(filename).make(RenderType::NfBasisAndTable, None)? {
+                RenderReturn::NfBasisAndTable(nf, basis, table) => (nf, basis, table),
+                _ => panic!("Error. Unable to generate NormalForm"),
+            };
+        let renderables = nf_to_vec_renderable(&nf, &mut table, &basis)?;
+        let render_voices = renderables_to_render_voices(renderables);
+
+        let ops = av_map
+            .values()
+            .into_iter()
+            .map(|v| v.visual.to_owned())
+            .flatten()
+            .collect();
+        let receiver = OpReceiver::init(Some(ops), None);
+
         Ok(PrintState {
             device,
             queue,
@@ -49,6 +68,7 @@ impl PrintState {
                 configs: config.cameras.clone(),
                 index: 0,
             },
+            receiver,
 
             composition: Composition {
                 frames,

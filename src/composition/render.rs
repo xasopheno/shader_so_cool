@@ -2,7 +2,7 @@ use crate::{
     camera::Cameras,
     canvas::Canvas,
     error::KintaroError,
-    op_stream::{GetOps, OpInput},
+    op_stream::{GetOps, OpReceiver},
     renderable::{Renderable, RenderableInput},
 };
 use kintaro_egui_lib::InstanceMul;
@@ -34,7 +34,7 @@ impl Composition {
         instance_mul: InstanceMul,
         canvas: &Canvas,
         cameras: &mut Cameras,
-        receiver: &mut OpInput,
+        receiver: &mut OpReceiver,
     ) -> Result<(), KintaroError> {
         let clock_result = clock.current();
         cameras.current.update(clock_result.last_period);

@@ -1,3 +1,4 @@
+use crate::op_stream::GetOps;
 use crate::{clock::Clock, error::KintaroError};
 
 use super::{
@@ -15,15 +16,16 @@ impl PrintState {
                 label: Some("Render Encoder"),
             });
 
-        // self.composition.render(
-        // &self.device,
-        // &self.queue,
-        // self.size,
-        // &self.clock,
-        // self.instance_mul,
-        // &self.canvas,
-        // &mut self.cameras,
-        // )?;
+        self.composition.render(
+            &self.device,
+            &self.queue,
+            self.size,
+            &self.clock,
+            self.instance_mul,
+            &self.canvas,
+            &mut self.cameras,
+            &mut self.receiver,
+        )?;
 
         let output_buffer = copy_texture_to_buffer(
             &mut encoder,
