@@ -7,6 +7,7 @@ use crate::renderable::{
     SamplerConfig, ToyConfig,
 };
 use crate::save::ConfigState;
+#[allow(unused_imports)]
 use crate::vertex::shape::{RandCircumference, RandIndex, RandPosition, Shape};
 use crate::InstanceMul;
 #[allow(unused_imports)]

@@ -1,4 +1,3 @@
-use crate::clock::Clock;
 use crate::config::Config;
 use crate::error::KintaroError;
 use crate::realtime::gui::GuiRepaintSignal;

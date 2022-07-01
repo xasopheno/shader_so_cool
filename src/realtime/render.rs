@@ -1,6 +1,5 @@
 use crate::op_stream::GetOps;
 use crate::{clock::Clock, error::KintaroError, realtime::RealTimeState};
-use weresocool::generation::json::Op4D;
 
 impl RealTimeState {
     pub fn render(&mut self, window: &winit::window::Window) -> Result<(), KintaroError> {

@@ -40,13 +40,13 @@ impl PrintState {
 
         let filename = config.socool_path;
 
-        let (nf, basis, mut table) =
-            match InputType::Filename(filename).make(RenderType::NfBasisAndTable, None)? {
-                RenderReturn::NfBasisAndTable(nf, basis, table) => (nf, basis, table),
-                _ => panic!("Error. Unable to generate NormalForm"),
-            };
-        let renderables = nf_to_vec_renderable(&nf, &mut table, &basis)?;
-        let render_voices = renderables_to_render_voices(renderables);
+        // let (nf, basis, mut table) =
+        // match InputType::Filename(filename).make(RenderType::NfBasisAndTable, None)? {
+        // RenderReturn::NfBasisAndTable(nf, basis, table) => (nf, basis, table),
+        // _ => panic!("Error. Unable to generate NormalForm"),
+        // };
+        // let renderables = nf_to_vec_renderable(&nf, &mut table, &basis)?;
+        // let render_voices = renderables_to_render_voices(renderables);
 
         let ops = av_map
             .values()

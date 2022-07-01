@@ -62,10 +62,8 @@ impl ControlsInner {
         let InstanceMul {
             mut x,
             mut y,
-            mut z,
             mut size,
-            mut life,
-            mut length,
+            ..
         } = s.instance_mul;
 
         ui.vertical(|ui| {

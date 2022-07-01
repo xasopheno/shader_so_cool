@@ -1,5 +1,5 @@
 use super::types::{Frame, FrameVertex};
-use crate::shader::{make_shader, make_shader_from_string};
+use crate::shader::{make_shader_from_string};
 use anyhow::Result;
 
 impl Frame {

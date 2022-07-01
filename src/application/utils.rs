@@ -1,6 +1,6 @@
 use crate::application::{Audio, Visual, VisualsMap};
 use crate::error::KintaroError;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::io::Write;
 use weresocool::{
     error::Error,

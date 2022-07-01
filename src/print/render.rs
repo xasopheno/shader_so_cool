@@ -1,4 +1,3 @@
-use crate::op_stream::GetOps;
 use crate::{clock::Clock, error::KintaroError};
 
 use super::{
