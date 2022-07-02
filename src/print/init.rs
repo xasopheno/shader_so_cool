@@ -11,15 +11,16 @@ use crate::{
     config::Config,
 };
 use colored::*;
+use weresocool::generation::json::Op4D;
 
 impl PrintState {
     pub async fn init(
         config: &mut Config<'static>,
-        av_map: &VisualsMap,
+        ops: Vec<Op4D>,
     ) -> Result<PrintState, KintaroError> {
         let size = config.window_size;
         println!("{}", format!("Frame Size: {}/{}\n", size.0, size.1).green());
-        let format = wgpu::TextureFormat::Bgra8UnormSrgb;
+        let format = wgpu::TextureFormat::Rgba8UnormSrgb;
         let instance = wgpu::Instance::new(wgpu::Backends::PRIMARY);
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
@@ -38,22 +39,6 @@ impl PrintState {
 
         let frames = make_frames(&device, size, format, frame_names)?;
 
-        let filename = config.socool_path;
-
-        // let (nf, basis, mut table) =
-        // match InputType::Filename(filename).make(RenderType::NfBasisAndTable, None)? {
-        // RenderReturn::NfBasisAndTable(nf, basis, table) => (nf, basis, table),
-        // _ => panic!("Error. Unable to generate NormalForm"),
-        // };
-        // let renderables = nf_to_vec_renderable(&nf, &mut table, &basis)?;
-        // let render_voices = renderables_to_render_voices(renderables);
-
-        let ops = av_map
-            .values()
-            .into_iter()
-            .map(|v| v.visual.to_owned())
-            .flatten()
-            .collect();
         let receiver = OpReceiver::init(Some(ops), None);
 
         Ok(PrintState {
@@ -73,8 +58,6 @@ impl PrintState {
             composition: Composition {
                 frames,
                 renderables,
-                // audio_stream_handle: None,
-                // audio_stream: None,
             },
 
             instance_mul: config.instance_mul,

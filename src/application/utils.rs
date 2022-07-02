@@ -1,6 +1,5 @@
 use crate::application::{Audio, Visual, VisualsMap};
 use crate::error::KintaroError;
-use std::collections::HashMap;
 use std::io::Write;
 use weresocool::{
     error::Error,
@@ -9,19 +8,12 @@ use weresocool::{
     interpretable::{InputType, Interpretable},
 };
 
-pub fn audios_and_visuals_from_filename(
-    filename: &'static str,
-) -> Result<(Vec<Audio>, VisualsMap), Error> {
-    let mut visuals_map: VisualsMap = HashMap::new();
-    let mut audios: Vec<Audio> = vec![];
-
+pub fn audios_and_visuals_from_filename(filename: &'static str) -> Result<(Audio, Visual), Error> {
     let result = get_audiovisual_data(filename, true)?;
 
     let (a, v) = split_audio_visual(result);
-    visuals_map.insert(filename.to_string(), v);
-    audios.push(a);
 
-    Ok((audios, visuals_map))
+    Ok((a, v))
 }
 
 /// Sum a Vec<Vec<u8> to a single Vec<u8>.

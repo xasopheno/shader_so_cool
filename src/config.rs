@@ -124,6 +124,7 @@ impl<'a> Default for Config<'a> {
         };
 
         let (cameras, instance_mul) = Config::handle_save(instance_mul);
+        dbg!(&instance_mul);
         Config {
             socool_path: "./kintaro3.socool",
             composition_name: "kintaro3",
