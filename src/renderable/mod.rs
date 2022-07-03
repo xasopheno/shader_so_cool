@@ -10,12 +10,12 @@ use crate::{
     frame::types::Frame,
     glyphy::Glyphy,
     image_renderer::ImageRenderer,
-    op_stream::renderpasses::{make_renderpass},
+    op_stream::renderpasses::make_renderpass,
     op_stream::{GetOps, OpReceiver},
     origami::Origami,
     sampler::types::Sampler,
     shader::make_shader,
-    shared::{EventStreams},
+    shared::EventStreams,
     toy::Toy,
     vertex::shape::Shape,
     Instancer,
@@ -32,7 +32,6 @@ pub struct RenderableInput<'a> {
     pub instance_mul: InstanceMul,
     pub clear: bool,
     pub frames: &'a HashMap<String, Frame>,
-    // pub ops: &'a Vec<Op4D>,
 }
 
 pub trait Renderable<'a> {
