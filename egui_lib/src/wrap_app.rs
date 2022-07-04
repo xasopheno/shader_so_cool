@@ -17,7 +17,7 @@ impl Apps {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct UiState {
     pub play: bool,
     pub volume: f32,
@@ -25,6 +25,8 @@ pub struct UiState {
     pub instance_mul: InstanceMul,
     pub reset: bool,
     pub save: bool,
+    pub time: std::time::Instant,
+    pub frames: u64,
 }
 
 #[derive(Copy, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -39,11 +41,11 @@ pub struct InstanceMul {
 impl Default for InstanceMul {
     fn default() -> Self {
         Self {
-            x: 9.0,
-            y: 17.0,
+            x: 200.0,
+            y: 400.0,
+            size: 1000.0,
             z: 1.0,
             life: 2.0,
-            size: 23.0,
             length: 1.0,
         }
     }

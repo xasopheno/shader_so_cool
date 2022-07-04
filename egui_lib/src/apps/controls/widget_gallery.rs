@@ -65,6 +65,13 @@ impl ControlsInner {
             mut size,
             ..
         } = s.instance_mul;
+        let frames = s.frames;
+
+        let now = std::time::Instant::now();
+        let elapsed = now.duration_since(s.time).as_secs();
+        s.frames += 1;
+
+        let fps = frames / (elapsed + 1);
 
         ui.vertical(|ui| {
             // ui.style_mut().override_text_style = Some(egui::TextStyle::Heading);
@@ -75,6 +82,7 @@ impl ControlsInner {
                 if ui.button("Save").clicked() {
                     s.save = true
                 }
+                ui.label(format!("fps: {}", fps.to_string()));
                 ui.end_row();
                 // if ui.button("Reset").clicked() {
                 // s.reset = true

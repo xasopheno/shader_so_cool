@@ -83,8 +83,8 @@ pub fn live(mut config: Config<'static>) -> Result<(), KintaroError> {
     stream.start().unwrap();
     state.play();
 
-    let time = std::time::SystemTime::now();
-    let mut frames: u64 = 0;
+    // let time = std::time::SystemTime::now();
+    // let mut frames: u64 = 0;
 
     let (tx, rx) = bounded(1);
     let mut socool_watcher = RecommendedWatcher::new(tx).unwrap();
@@ -151,11 +151,6 @@ pub fn live(mut config: Config<'static>) -> Result<(), KintaroError> {
             }
 
             Event::RedrawRequested(_) => {
-                frames += 1;
-                if frames % 100 == 0 {
-                    let elapsed = time.elapsed().unwrap();
-                    println!("\r{}fps", (frames / (elapsed.as_secs() + 1)),);
-                };
                 match state.render(&window) {
                     Ok(_) => {}
                     // Recreate the swap_chain if lost

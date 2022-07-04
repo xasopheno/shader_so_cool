@@ -77,6 +77,8 @@ impl Setup {
                 camera_index: 0,
                 instance_mul: config.instance_mul,
                 reset: false,
+                time: std::time::Instant::now(),
+                frames: 0,
             }));
             let app = kintaro_egui_lib::WrapApp::init(state.clone(), config.cameras.len());
             Some(Controls {
