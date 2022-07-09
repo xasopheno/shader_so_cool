@@ -43,7 +43,7 @@ fn get_audiovisual_data(filename: &str, render_audio: bool) -> Result<AudioVisua
 }
 
 pub fn write_audio_to_file(audio: &[u8], filename: std::path::PathBuf) -> Result<(), KintaroError> {
-    let mut file = std::fs::File::create(filename.clone())?;
+    let mut file = std::fs::File::create(&filename)?;
     file.write_all(audio)?;
     println!("Audio file written: {}", filename.display());
     Ok(())

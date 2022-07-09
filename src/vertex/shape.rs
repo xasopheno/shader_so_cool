@@ -1,6 +1,4 @@
-use crate::{
-    gen::{GenColor, GenIndex, GenPosition, Index},
-};
+use crate::gen::{GenColor, GenIndex, GenPosition, Index};
 use rand::prelude::*;
 
 use super::Vertex;

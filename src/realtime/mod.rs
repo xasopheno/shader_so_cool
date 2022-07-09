@@ -154,6 +154,10 @@ impl<'a> RealTimeState {
         self.render_manager.lock().unwrap().pause();
         self.clock.pause();
     }
+
+    pub fn is_paused(&self) -> bool {
+        !self.clock.is_playing()
+    }
 }
 
 pub fn make_renderable_enums(

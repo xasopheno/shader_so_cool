@@ -97,14 +97,14 @@ impl ControlsInner {
                 ui.end_row();
 
                 // ui.label("Camera:");
-                (0..*n_camera).into_iter().for_each(|idx| {
-                    if ui
-                        .button(format!("  {}  ", (idx + 65) as u8 as char))
-                        .clicked()
-                    {
-                        s.camera_index = idx as usize;
-                    }
-                });
+                // (0..*n_camera).into_iter().for_each(|idx| {
+                // if ui
+                // .button(format!("  {}  ", (idx + 65) as u8 as char))
+                // .clicked()
+                // {
+                // s.camera_index = idx as usize;
+                // }
+                // });
                 ui.end_row();
             });
             ui.vertical(|ui| {

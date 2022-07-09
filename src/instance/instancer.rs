@@ -100,13 +100,3 @@ pub fn prepare_op4d_to_instancer_input(instance_mul: &InstanceMul, op4d: &Op4D) 
         size,
     }
 }
-
-// n_row as f32 * 1.0 / 2.0 * f32::powi(x, 2),
-// n_row as f32 * x / 3.0 * y,
-// sin(x ^ 1.0 / 2.0 - y ^ -2.0),
-// n_row as f32 * 1.0 * y / x,
-// n_row as f32 * (op4d.x * op4d.x) as f32 * 2.0 / op4d.y as f32,
-// n_column as f32 * (op4d.y * op4d.y) as f32 / 2.0 * 10.0,
-// (op4d.x as f32 * n_row as f32 * 4.0 / op4d.y as f32) / 3.0,
-// * f32::sin(1000.0 * op4d.y as f32),
-// op4d.y as f32 * n_column as f32 * 9.0,

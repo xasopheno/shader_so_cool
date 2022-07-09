@@ -1,21 +1,12 @@
 pub mod renderpasses;
-use crate::{application::Visual, instance::Instance};
+use crate::instance::Instance;
 use cgmath::{Rotation3, Vector3};
 use kintaro_egui_lib::InstanceMul;
 use rand::Rng;
-use std::collections::BTreeMap;
 pub use weresocool::{
     generation::json::{EventType, Op4D},
     manager::VisEvent,
 };
-
-#[derive(Debug, Clone)]
-pub struct OpStream {
-    //needs cache
-    pub ops: Vec<Op4D>,
-    pub length: f32,
-    pub names: Vec<String>,
-}
 
 #[derive(Debug, Clone)]
 pub struct OpReceiver {
@@ -84,7 +75,7 @@ impl GetOps for OpReceiver {
 
     fn get_batch(&mut self, t: f32, name: &str) -> Vec<Op4D> {
         if let Some(cached) = self.cache.get(name) {
-            cached.clone()
+            cached.to_owned()
         } else {
             let ops = self.ops.drain(name, |v| (v.t as f32) < t);
             if ops.len() > 0 {
@@ -96,54 +87,6 @@ impl GetOps for OpReceiver {
 
     fn clear_cache(&mut self) {
         self.cache = opmap::OpMap::default();
-    }
-}
-
-impl OpStream {
-    pub fn init_empty() -> Self {
-        Self {
-            ops: vec![],
-            names: vec![],
-            length: 0.0,
-        }
-    }
-
-    pub fn from_vec_op4d(v: &Visual) -> Vec<OpStream> {
-        let mut op_streams = BTreeMap::<Vec<String>, Vec<Op4D>>::new();
-        v.visual.iter().for_each(|op| {
-            if op.names.is_empty() {
-                let stream = op_streams
-                    .entry(vec!["nameless".into()])
-                    .or_insert_with(Vec::new);
-                stream.push(op.clone());
-            } else {
-                let names = &op.names;
-                let stream = op_streams.entry(names.to_owned()).or_insert_with(Vec::new);
-                stream.push(op.clone());
-            }
-        });
-
-        op_streams
-            .into_iter()
-            .map(|(names, ops)| OpStream {
-                ops,
-                length: v.length,
-                names,
-            })
-            .collect()
-    }
-    pub fn get_batch(&mut self, t: f32) -> Vec<Op4D> {
-        let result: Vec<Op4D> = self
-            .ops
-            .iter()
-            .take_while(|op| op.t < t.into())
-            .map(|x| x.to_owned())
-            .collect();
-        for _ in 0..result.len() {
-            self.ops.remove(0);
-        }
-
-        result
     }
 }
 

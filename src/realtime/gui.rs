@@ -105,34 +105,25 @@ impl RealTimeState {
     }
 
     pub fn update_gui(&mut self, size: (u32, u32)) {
-        let mut play =  false;
+        let mut play = false;
         let mut pause = false;
-        if let Some(ref mut controls) = self.controls {
+        if let Some(ref controls) = self.controls {
             let s = controls.state.lock().unwrap();
 
-            if s.camera_index != self.cameras.index {
-                self.cameras.current = Camera::new(&self.cameras.configs[s.camera_index], size)
-            }
-            if s.play && !self.clock.is_playing() {
-                play = true
-            }
-            if !s.play && self.clock.is_playing() {
-                pause = true;
-            }
-            // // if let Some(ref mut composition) = self.composition {
-            // // // todo!();
-            // // // if let Some(a) = &composition.audio_stream_handle {
-            // // // if !s.play && !a.is_paused() {
-            // // // a.pause();
-            // // // }
-            // // // if s.play && a.is_paused() {
-            // // // a.play();
-            // // // }
-            // // // a.set_volume(s.volume);
-            // // // };
-            // // }
+            // if s.camera_index != self.cameras.index {
+            // self.cameras.current = Camera::new(&self.cameras.configs[s.camera_index], size)
+            // }
+            if self.composition.is_some() {
+                if !s.play && !self.is_paused() {
+                    pause = true;
+                }
+                if s.play && self.is_paused() {
+                    play = true;
+                }
 
-            // self.clock.set_playing(s.play);
+                //TODO: Send volume
+                self.render_manager.lock().unwrap().update_volume(s.volume);
+            }
         };
         if play {
             self.play()
