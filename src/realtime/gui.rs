@@ -121,7 +121,6 @@ impl RealTimeState {
                     play = true;
                 }
 
-                //TODO: Send volume
                 self.render_manager.lock().unwrap().update_volume(s.volume);
             }
         };
