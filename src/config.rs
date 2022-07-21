@@ -133,7 +133,7 @@ impl<'a> Default for Config<'a> {
             instance_mul,
             cameras,
 
-            volume: 0.20,
+            volume: 0.50,
             // window_size: (2560, 1440),
             window_size: (1792, 1120),
         }
