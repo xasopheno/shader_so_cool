@@ -1,5 +1,4 @@
 use super::PrintState;
-use crate::application::VisualsMap;
 use crate::camera::Cameras;
 use crate::composition::Composition;
 use crate::error::KintaroError;
@@ -11,7 +10,7 @@ use crate::{
     config::Config,
 };
 use colored::*;
-use weresocool::generation::json::Op4D;
+use weresocool::core::generation::Op4D;
 
 impl PrintState {
     pub async fn init(

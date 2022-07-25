@@ -9,7 +9,7 @@ use crate::error::KintaroError;
 use live::live;
 
 use std::collections::HashMap;
-use weresocool::generation::Op4D;
+use weresocool::core::generation::Op4D;
 
 pub type VisualsMap = HashMap<String, Visual>;
 

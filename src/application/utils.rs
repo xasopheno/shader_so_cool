@@ -1,12 +1,12 @@
-use crate::application::{Audio, Visual, VisualsMap};
+use crate::application::{Audio, Visual};
 use crate::error::KintaroError;
 use std::io::Write;
-use weresocool::{
-    error::Error,
+use weresocool::core::{
     generation::parsed_to_render::AudioVisual,
     generation::{RenderReturn, RenderType},
     interpretable::{InputType, Interpretable},
 };
+use weresocool::error::Error;
 
 pub fn audios_and_visuals_from_filename(filename: &'static str) -> Result<(Audio, Visual), Error> {
     let result = get_audiovisual_data(filename, true)?;

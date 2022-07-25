@@ -10,10 +10,10 @@ use notify::{
 };
 use std::path::Path;
 use std::sync::{Arc, Mutex};
-use weresocool::generation::parsed_to_render::{RenderReturn, RenderType};
-use weresocool::interpretable::{InputType, Interpretable};
-use weresocool::manager::{RenderManager, VisEvent};
-use weresocool::portaudio::real_time_render_manager;
+use weresocool::core::generation::parsed_to_render::{RenderReturn, RenderType};
+use weresocool::core::interpretable::{InputType, Interpretable};
+use weresocool::core::manager::{RenderManager, VisEvent};
+use weresocool::core::portaudio::real_time_render_manager;
 use weresocool_instrument::renderable::{nf_to_vec_renderable, renderables_to_render_voices};
 use winit::{dpi::PhysicalSize, event::*, event_loop::ControlFlow, window::WindowBuilder};
 

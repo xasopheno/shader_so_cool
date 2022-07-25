@@ -7,7 +7,7 @@ use crate::instance::{make_instance_buffer, Instance};
 use crate::vertex::shape::Shape;
 use crate::vertex::{make_vertex_buffer, Vertex};
 use crate::Instancer;
-use weresocool::generation::json::Op4D;
+use weresocool::core::generation::Op4D;
 
 use super::make_color_attachments;
 
@@ -90,7 +90,7 @@ fn add_new_instances_to_render_pass(
         .map(|op| {
             let input = prepare_op4d_to_instancer_input(&mul, &op);
             let transformation = renderpass.instancer.op4d_to_instance_transformation(input);
-            op4d_to_instance(transformation, op, canvas)
+            op4d_to_instance(transformation, &op, canvas)
         })
         .collect();
 

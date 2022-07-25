@@ -3,8 +3,8 @@ use crate::instance::Instance;
 use cgmath::{Rotation3, Vector3};
 use kintaro_egui_lib::InstanceMul;
 use rand::Rng;
-pub use weresocool::{
-    generation::json::{EventType, Op4D},
+pub use weresocool::core::{
+    generation::{EventType, Op4D},
     manager::VisEvent,
 };
 
@@ -114,7 +114,6 @@ impl ToInstance for Op4D {
             t,
             voice: 1,
             event: 1,
-            event_type: EventType::On,
             x: rng.gen_range(0.0..1.0),
             y: rng.gen_range(0.0..1.0),
             z: rng.gen_range(0.0..1.0),

@@ -30,7 +30,7 @@ raw-window-handle = "0.3"
 rodio = "0.14.0"
 serde = { version = "1.0.119", features = ["derive"] }
 serde_json = "1.0.64"
-weresocool = { path = "../weresocool", package="weresocool_core" }
+weresocool = { path = "../weresocool" }
 weresocool_instrument = { path = "../weresocool/instrument"}
 opmap = { path = "../weresocool/opmap" }
 wgpu = "0.12.0"

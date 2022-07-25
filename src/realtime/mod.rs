@@ -26,9 +26,11 @@ use kintaro_egui_lib::InstanceMul;
 use setup::Setup;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
-pub use weresocool::generation::json::Op4D;
-use weresocool::manager::{prepare_render_outside, VisEvent};
-use weresocool::{interpretable::InputType::Filename, manager::RenderManager};
+pub use weresocool::core::{
+    generation::Op4D,
+    manager::{prepare_render_outside, VisEvent},
+    {interpretable::InputType::Filename, manager::RenderManager},
+};
 use winit::window::Window;
 
 use self::setup::Controls;
