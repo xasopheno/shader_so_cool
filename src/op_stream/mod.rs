@@ -3,7 +3,7 @@ use crate::instance::Instance;
 use cgmath::{Rotation3, Vector3};
 use kintaro_egui_lib::InstanceMul;
 use rand::Rng;
-pub use weresocool::core::{
+pub use weresocool::{
     generation::{EventType, Op4D},
     manager::VisEvent,
 };

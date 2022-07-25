@@ -10,7 +10,7 @@ use crate::{
     config::Config,
 };
 use colored::*;
-use weresocool::core::generation::Op4D;
+use weresocool::generation::Op4D;
 
 impl PrintState {
     pub async fn init(

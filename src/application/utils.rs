@@ -1,7 +1,7 @@
 use crate::application::{Audio, Visual};
 use crate::error::KintaroError;
 use std::io::Write;
-use weresocool::core::{
+use weresocool::{
     generation::parsed_to_render::AudioVisual,
     generation::{RenderReturn, RenderType},
     interpretable::{InputType, Interpretable},

@@ -7,7 +7,7 @@ use crate::instance::{make_instance_buffer, Instance};
 use crate::vertex::shape::Shape;
 use crate::vertex::{make_vertex_buffer, Vertex};
 use crate::Instancer;
-use weresocool::core::generation::Op4D;
+use weresocool::generation::Op4D;
 
 use super::make_color_attachments;
 
