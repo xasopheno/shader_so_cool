@@ -83,11 +83,9 @@ pub fn live(mut config: Config<'static>) -> Result<(), KintaroError> {
     stream.start().unwrap();
     state.play();
 
-    // let time = std::time::SystemTime::now();
-    // let mut frames: u64 = 0;
-
     let (tx, rx) = bounded(1);
     let mut socool_watcher = RecommendedWatcher::new(tx).unwrap();
+    let mut time_since_last_reload = std::time::Instant::now();
 
     watchable_paths.iter().for_each(|path| {
         socool_watcher
@@ -96,6 +94,7 @@ pub fn live(mut config: Config<'static>) -> Result<(), KintaroError> {
     });
 
     event_loop.run(move |event, _, control_flow| {
+        let elapsed_time = time_since_last_reload.elapsed().as_millis();
         if let Ok(event) = rx.try_recv() {
             // println!("{:?}", event);
             match event {
@@ -105,8 +104,11 @@ pub fn live(mut config: Config<'static>) -> Result<(), KintaroError> {
                         | EventKind::Modify(ModifyKind::Data { .. }),
                     ..
                 }) => {
-                    println!("updated");
-                    state.push_composition(&config).unwrap();
+                    if elapsed_time > 1000 {
+                        state.push_composition(&config).unwrap();
+                        println!("updated");
+                        time_since_last_reload = std::time::Instant::now();
+                    }
                 }
                 _ => {
                     // dbg!(event);
