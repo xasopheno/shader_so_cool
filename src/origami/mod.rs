@@ -64,11 +64,11 @@ impl Origami {
         device: &wgpu::Device,
         format: wgpu::TextureFormat,
         shader: wgpu::ShaderModule,
-        _config: &OrigamiConfig,
+        config: &OrigamiConfig,
     ) -> Result<Self, KintaroError> {
-        let vertices = Self::new_random_vertices(20);
+        let vertices = Self::new_random_vertices(config.n_vertices);
         let num_vertices = vertices.len() as u32;
-        let indices = Self::new_random_indices(num_vertices as u32, 30);
+        let indices = Self::new_random_indices(num_vertices as u32, config.n_indices as u32);
 
         let num_indices = indices.len() as u32;
 

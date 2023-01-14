@@ -39,6 +39,8 @@ pub fn live(mut config: Config<'static>) -> Result<(), KintaroError> {
 
     let filename = config.socool_path;
 
+    let render_manager = Arc::new(Mutex::new(RenderManager::init(Some(tx), None, false, None)));
+
     let (nf, basis, mut table) =
         match InputType::Filename(filename).make(RenderType::NfBasisAndTable, None)? {
             RenderReturn::NfBasisAndTable(nf, basis, table) => (nf, basis, table),
@@ -46,13 +48,11 @@ pub fn live(mut config: Config<'static>) -> Result<(), KintaroError> {
         };
     let renderables = nf_to_vec_renderable(&nf, &mut table, &basis)?;
     let render_voices = renderables_to_render_voices(renderables);
+    render_manager
+        .lock()
+        .unwrap()
+        .push_render(render_voices, true);
 
-    let render_manager = Arc::new(Mutex::new(RenderManager::init(
-        render_voices,
-        Some(tx),
-        None,
-        false,
-    )));
     let mut stream = real_time_render_manager(Arc::clone(&render_manager))?;
     render_manager.lock().unwrap().pause();
 

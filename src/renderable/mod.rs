@@ -83,7 +83,13 @@ impl<'a> ToRenderable for RenderableConfig<'a> {
             }
             RenderableConfig::Toy(renderable_config) => {
                 let shader = make_shader(device, renderable_config.shader_path)?;
-                let toy = crate::toy::setup_toy(device, shader, window_size, format);
+                let toy = crate::toy::setup_toy(
+                    device,
+                    shader,
+                    window_size,
+                    format,
+                    // renderable_config.rgba,
+                );
                 Ok(RenderableEnum::Toy(output_frame, toy))
             }
             RenderableConfig::Glyphy(renderable_config) => {
@@ -160,9 +166,18 @@ pub enum RenderableConfig<'a> {
     Sampler(SamplerConfig<'a>),
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug, Copy)]
+pub struct RGBA {
+    pub r: f32,
+    pub g: f32,
+    pub b: f32,
+    pub a: f32,
+}
+
+#[derive(Clone, Debug)]
 pub struct ToyConfig<'a> {
     pub shader_path: &'a str,
+    // pub rgba: RGBA,
 }
 
 #[derive(Clone)]

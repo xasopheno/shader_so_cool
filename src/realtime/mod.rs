@@ -132,7 +132,10 @@ impl<'a> RealTimeState {
         };
 
         if let Some(voices) = render_voices {
-            self.render_manager.lock().unwrap().push_render(voices);
+            self.render_manager
+                .lock()
+                .unwrap()
+                .push_render(voices, true);
         }
         let composition = Composition::init_realtime(
             &self.device,

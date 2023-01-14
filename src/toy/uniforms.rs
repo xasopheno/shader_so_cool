@@ -1,6 +1,8 @@
 use bytemuck;
 use wgpu::util::DeviceExt;
 
+use crate::renderable::RGBA;
+
 #[repr(C)]
 #[derive(Debug, Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct ToyUniforms {
@@ -8,17 +10,26 @@ pub struct ToyUniforms {
     pub height: f32,
     pub frame: f32,
     pub time: f32,
+    // pub r: f32,
+    // pub g: f32,
+    // pub b: f32,
+    // pub a: f32,
 }
 
 impl ToyUniforms {
     pub fn new(
         device: &wgpu::Device,
+        // rgba: RGBA,
     ) -> (Self, wgpu::Buffer, wgpu::BindGroupLayout, wgpu::BindGroup) {
         let uniforms = Self {
             width: 1000.0,
             height: 1000.0,
             frame: 0.0,
             time: 0.0,
+            // r: rgba.r,
+            // g: rgba.g,
+            // b: rgba.b,
+            // a: rgba.a,
         };
 
         let uniform_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {

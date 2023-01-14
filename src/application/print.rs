@@ -10,8 +10,13 @@ use std::str::FromStr;
 pub fn print_audio_and_video(mut config: Config<'static>) -> Result<(), KintaroError> {
     let (audio, visual) = audios_and_visuals_from_filename(config.socool_path)?;
 
-    // let n_frames = (max_frames * 40) + 100;
-    let n_frames = 300;
+    // let max_frames = match visual.visual.iter().max_by_key(|v| v.length as usize) {
+    // Some(mf) => mf.length as usize,
+    // None => 1000,
+    // };
+
+    let n_frames = (visual.length as usize * 40) + 100;
+    // let n_frames = 300;
 
     println!("{}", format!("Number Frames: {}", n_frames).green());
 

@@ -1,6 +1,8 @@
 mod create_toy_render_pipeline;
 mod uniforms;
 
+use crate::renderable::RGBA;
+
 use self::uniforms::ToyUniforms;
 
 pub struct Toy {
@@ -17,9 +19,13 @@ pub fn setup_toy(
     shader: wgpu::ShaderModule,
     size: (u32, u32),
     format: wgpu::TextureFormat,
+    // rgba: RGBA,
 ) -> Toy {
     let (uniforms, uniform_buffer, uniform_bind_group_layout, uniform_bind_group) =
-        uniforms::ToyUniforms::new(device);
+        uniforms::ToyUniforms::new(
+            device,
+            // rgba
+        );
 
     let render_pipeline = create_toy_render_pipeline::create_toy_render_pipeline(
         device,

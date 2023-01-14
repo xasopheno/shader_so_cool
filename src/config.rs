@@ -4,7 +4,7 @@ use crate::instance::instancer::SimpleInstancer;
 #[allow(unused_imports)]
 use crate::renderable::{
     EventStreamConfig, GlyphyConfig, ImageRendererConfig, OrigamiConfig, RenderableConfig,
-    SamplerConfig, ToyConfig,
+    SamplerConfig, ToyConfig, RGBA,
 };
 use crate::save::ConfigState;
 #[allow(unused_imports)]
@@ -63,6 +63,12 @@ fn frame_passes() -> Vec<FramePass> {
             renderables: vec![
                 RenderableConfig::Toy(ToyConfig {
                     shader_path: "src/origami/shaders/toy3.wgsl",
+                    // rgba: RGBA {
+                    // r: 1.0,
+                    // g: 1.0,
+                    // b: 1.0,
+                    // a: 1.0,
+                    // },
                 }),
                 RenderableConfig::EventStreams(EventStreamConfig {
                     shader_path: "./src/shader.wgsl",
