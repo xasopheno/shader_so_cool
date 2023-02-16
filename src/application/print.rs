@@ -8,6 +8,8 @@ use cradle::prelude::*;
 use std::str::FromStr;
 
 pub fn print_audio_and_video(mut config: Config<'static>) -> Result<(), KintaroError> {
+    weresocool_shared::Settings::init_default().unwrap();
+
     let (audio, visual) = audios_and_visuals_from_filename(config.socool_path)?;
 
     // let max_frames = match visual.visual.iter().max_by_key(|v| v.length as usize) {
